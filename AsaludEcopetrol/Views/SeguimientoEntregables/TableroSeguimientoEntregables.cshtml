@@ -1,0 +1,933 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO DE CONTROL ENTREGABLES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewData["rta"];
+}
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.9/css/fixedHeader.dataTables.min.css" />
+<script src="https://cdn.datatables.net/fixedheader/3.1.9/js/dataTables.fixedHeader.min.js" type="text/javascript"></script>
+
+<br />
+
+@if (rta != null)
+{
+    switch (rta)
+    {
+        case 1:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> se ha presentado el entregable correctamente.
+            </div>
+            break;
+        case 2:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> se ha aceptado el entregable correctamente.
+            </div>
+            break;
+        case 3:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> se han presentado las observaciones correctamente.
+            </div>
+            break;
+        case 4:
+            <div class="alert alert-danger" role="alert">
+                <strong>Error! </strong> Ah ocurrido un error presentando el entregable.
+            </div>
+            break;
+        case 5:
+            <div class="alert alert-danger" role="alert">
+                <strong>Error! </strong> Ah ocurrido un Aceptando el entregable.
+            </div>
+            break;
+        case 6:
+            <div class="alert alert-danger" role="alert">
+                <strong>Error! </strong> Ah ocurrido un error guardando las observaciones.
+            </div>
+            break;
+
+        case 7:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> se ha respondido a las observaciones correctamente.
+            </div>
+            break;
+        case 8:
+            <div class="alert alert-danger" role="alert">
+                <strong>Error! </strong> Ah ocurrido un error prensentanmdo las respuestas
+            </div>
+            break;
+
+        case 9:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> se ha actualizado la fecha limite correctamente.
+            </div>
+            break;
+        case 10:
+            <div class="alert alert-danger" role="alert">
+                <strong>Error! </strong> Ah ocurrido un error actualizando la fecha limite
+            </div>
+            break;
+        case 11:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> Solicitud de ampliación de plazo enviada correctamente
+            </div>
+            break;
+        case 12:
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> Solicitud de ampliación de plazo aceptada correctamente
+            </div>
+            break;
+    }
+
+}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form>
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Periodicidad:</label>
+                    <select class="form-control select2" id="selectPeriodicidadEntregable" name="selectPeriodicidadEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="0" selected>Todos</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_periodicidad_entregables item in ViewBag.PeriodicidadEntregable)
+                        {
+                            <option value="@item.id_periodicidad_entregables">@item.nom_periodicidad_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Estado entregables:</label>
+                    <select class="form-control select2" id="selectEstadoEntregable" name="selectEstadoEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="0" selected>Todos</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_estado_entregable item in ViewBag.estadoEntregable)
+                        {
+                            <option value="@item.id_ref_estado_entregable">@item.nom_estado_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Tipo entregable:</label>
+                    <select class="form-control" id="selectTipoEntregable" name="selectTipoEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_seguimiento_entregables_tipo_entregable item in ViewBag.tipoEntregable)
+                        {
+                            <option value="@item.id_tipo_entregable">@item.nom_tipo_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha entrega pactada:</label>
+                    <input class="datepickerII" style="width: 100%" name="periodoFechaLimite" id="periodoFechaLimite" onchange="FiltrarTableroEntregables()" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3 form-group hidden" id="divPeriofoFechaEntregaReal">
+                    <label class="text-secondary_asalud">Periodo fecha  entrega real:</label>
+                    <input class="datepickerII" style="width: 100%" name="periodoFechaEntrega" id="periodoFechaEntrega" onchange="FiltrarTableroEntregables()" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">TABLERO DE CONTROL ENTREGABLES</strong>
+    </div>
+    <div class="panel-body">
+        <div id="panelLoadFiltrosColores">
+            @Html.Action("_PintarfiltosColoresContadorEntregables", "SeguimientoEntregables")
+        </div>
+        <div id="panelLoadEntregables">
+            @Html.Action("GetTableroSeguimientoEntregables", "SeguimientoEntregables")
+        </div>
+        <input id="tblSeleccionado" name="tblSeleccionado" type="hidden" value="todos" />
+    </div>
+</div>
+
+<div class="modal fade" id="Modalentregables" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">Subir documentos</h4>
+            </div>
+            <form id="formentregables" method="post" action="PresentarEntregable2" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="txtidentregable" name="txtidentregable" />
+                    <input type="hidden" id="txtsegperiodo" name="txtsegperiodo" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Cargar documento:</label>
+                            <input type="file" class="form-control" name="documento" id="documento" multiple required />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Cargar evidencias:</label>
+                            <input type="file" onchange="ValidacionArchivo()" class="form-control" accept="image/*" name="soporte" id="soporte" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-sm button_Asalud_Guardar" id="btnGuardarArchivos" onclick="ValidarForm()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modalverobservaciones" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">Observaciones</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblobservaciones" class="table table-bordered table-condensed" style="margin-left:0px">
+                    <thead>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Fecha observación</th>
+                            <th>Detalle</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalObservaciones" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario" name="formulario" method="post" action="ObservacionesEntregable" enctype="multipart/form-data">
+                <input type="hidden" id="id_entregable_periodo" name="id_entregable_periodo" />
+                <input type="hidden" id="id_ultimo_entregable" name="id_ultimo_entregable" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="text-primary_asalud" id="titlemodal">Observaciones Entregable</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="tblobservaciones2" class="table table-bordered table-condensed" style="margin-left:0px">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Fecha observación</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Digite aquí las observaciones:</label>
+                            <textarea id="observaciones" name="observaciones" class="form-control" rows="4" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-sm button_Asalud_Guardar" onclick="ValidarFormulario()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalRespuestaObservaciones" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario2" name="formulario2" method="post" action="RtaObservacionEntregable" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="text-primary_asalud" id="titlemodal">Responder Observación</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" id="txtiddtllentrega" name="txtiddtllentrega" />
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones:</label>
+                            <textarea id="observaciones2" name="observaciones2" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Evidencias:</label>
+                            <input type="file" class="form-control" id="evidencia" name="evidencia" accept="image/*" onchange="ValidacionEvidencia()" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario2()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalVerRespuesta" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">Respuesta Observaciones</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" value="" id="txtiddtllrtaobservaciones" name="txtiddtllrtaobservaciones" />
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Fecha Respuesta</th>
+                            <th>Respuesta</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><p id="txtfechartaobservaciones" name="txtfechartaobservaciones" style="text-align:justify"></p></td>
+                            <td><p id="txtobservaciones" name="txtobservaciones" style="text-align:justify"></p></td>
+                            <td><button class="btn button_Asalud_Aceptar btn-xs" type="button" onclick="abrirEvidenciaRta()">Ver Evidencia</button></td>
+                        </tr>
+                    </tbody>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalAmpliacionPlazo" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">Solicitud ampliación de plazo</h4>
+            </div>
+            <form id="formulario3" method="post" action="@Url.Action("SolicitarAmpliacionPlazo2")" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" value="" id="txtidperiodoentregable" name="txtidperiodoentregable" />
+                    <input type="hidden" value="" id="txtidsegentregables" name="txtidsegentregables" />
+                    <input type="hidden" id="txtSolicitudRealizadaPor" name="txtSolicitudRealizadaPor" value="CLIENTE" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Nueva fecha límite:</label>
+                            <input class="datepickerr" style="width: 100%" name="nuevafechalimite" id="nuevafechalimite" onchange="ValidarFechaLimite()" required />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Solicitud realizada por:</label>
+                            <div class="row">
+                                <label style="font-weight:normal" class="col-sm-3"><input type="radio" name="rdSolicitud" id="rdSolicitudUno" onclick="seleccionRealizaSolicitud('CLIENTE')" checked />&nbsp;Cliente</label>
+                                <label style="font-weight:normal" class="col-sm-3"><input type="radio" name="rdSolicitud" id="rdSolicitudDos" onclick="seleccionRealizaSolicitud('ASALUD')" />&nbsp;Asalud</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Justificación:</label>
+                            <textarea id="Justificacion" name="Justificacion" class="form-control" rows="4" maxlength="1850" required></textarea>
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Evidencia:</label>
+                            <input type="file" class="form-control" id="fileevidencia" name="fileevidencia" accept="image/*" onchange="ValidacionEvidencia2()" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario3()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalverAmpliacion" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">Solicitud de ampliación de plazo</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txt_id_entregable_dtll" name="txt_id_entregable_dtll" />
+                <table id="tblampliaciones" class="table table-bordered table-condensed" style="margin-left:0px">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Fecha contractualmente pactada</th>
+                            <th>Fecha propuesta de ampliación</th>
+                            <th>Detalle</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><p id="txt_fecha_entrega"></p></td>
+                            <td><p id="txt_fecha_propuesta"></p></td>
+                            <td><p id="txt_observaciones_entrega"></p></td>
+                            <td><button class="btn button_Asalud_Aceptar btn-xs" type="button" onclick="AbrirEvidenciaSolicitud()">Ver Evidencia</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <form id="formampliacion">
+                    <div class="row form-group">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea rows="4" class="form-control" id="obs" name="obs" required maxlength="2000"></textarea>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="AceptarSolicitudAmpliacion()">Aceptar</button>
+                <button class="btn button_Asalud_Rechazar" type="button" onclick="RechazarSolicitudAmpliacion()">Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud">Documentos cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function ()
+    {
+        var estado = $("#selectEstadoEntregable").val();
+        /*Si no se ha seleccionado el estado, por defecto trae los pendientes*/
+        if (estado == "")
+        {
+            estado = 1;
+            $("#selectEstadoEntregable").val(estado);
+        }
+
+        //CargarTabUno('todos');
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".datepickerII").kendoDatePicker({
+            format: "MM/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#selectEstadoEntregable").change(function ()
+        {
+            var estado = $("#selectEstadoEntregable").val();
+
+            $("#periodoFechaEntrega").val("");
+            if (estado != "1")
+            {
+                $("#divPeriofoFechaEntregaReal").removeClass('hidden');
+            }
+            else
+            {
+                $("#divPeriofoFechaEntregaReal").addClass('hidden');
+            }
+        })
+    })
+
+    /*Metodo para filtrar en el tablero de entregables */
+    function FiltrarTableroEntregables()
+    {
+        var periodicidad = $("#selectPeriodicidadEntregable").val();
+        var estado = $("#selectEstadoEntregable").val();
+        var tipoEntregable = $("#selectTipoEntregable").val();
+        var periodoFechaLimite = $("#periodoFechaLimite").val();
+        var periodoFechaEntrega = $("#periodoFechaEntrega").val();
+
+        LoadingShow();
+        $('#panelLoadFiltrosColores').empty();
+        $('#panelLoadFiltrosColores').load('@Url.Action("_PintarfiltosColoresContadorEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega, function () {
+
+        });
+
+        $('#panelLoadEntregables').empty();
+        $('#panelLoadEntregables').load('@Url.Action("GetTableroSeguimientoEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega, function () {
+            LoadingHide();
+        });
+    }
+
+    function FiltrarPorColor(filtro)
+    {
+        var periodicidad = $("#selectPeriodicidadEntregable").val();
+        var estado = $("#selectEstadoEntregable").val();
+        var tipoEntregable = $("#selectTipoEntregable").val();
+        var periodoFechaLimite = $("#periodoFechaLimite").val();
+        var periodoFechaEntrega = $("#periodoFechaEntrega").val();
+
+        LoadingShow();
+        $('#panelLoadEntregables').empty();
+        $('#panelLoadEntregables').load('@Url.Action("GetTableroSeguimientoEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega + "&colorFiltro=" + filtro, function () {
+            LoadingHide();
+        });
+    }
+
+
+
+    function subirdocentregables(identre, idsegper)
+    {
+        $("#txtidentregable").val(identre);
+        $("#txtsegperiodo").val(idsegper);
+        $("#btnGuardarArchivos").removeClass("hidden");
+        $("#Modalentregables").modal('show');
+    }
+
+    function ValidarForm() {
+        var validator = $("#formentregables").validate();
+        if (validator.form()) {
+            $("#btnGuardarArchivos").addClass("hidden");
+            LoadingShow();
+            $("#formentregables").submit();
+            $("#btnGuardarArchivos").removeClass("hidden");
+        }
+    }
+
+    @*function abrirducumento(id, tipo) {
+        var url = "@Url.Action("Verdocumentocargado", "SeguimientoEntregables")?id_seg_dtll=" + id + "&id_tipo_doc=" + tipo
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }*@
+
+    function abrirducumento(id, tipo)
+    {
+
+        $.ajax({
+            url: "@Url.Action("Verdocumentocargado2")",
+            type: "post",
+        data: {
+            id_seg_dtll: id
+        },
+        success: function (data)
+        {
+            $("#tblsoportes tbody").empty();
+            $("#tblsoportes tbody").html(data);
+            $("#ModalSoportes").modal('show');
+        }
+        })
+    }
+
+    function AbrirSoporte(a)
+    {
+        var url = "@Url.Action("versoporteclinico2", "SeguimientoEntregables")?id_documento_seg_entregable=" + a ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+
+    function abrirEvidenciaRta() {
+        var id = $("#txtiddtllrtaobservaciones").val();
+        var url = "@Url.Action("abrirEvidenciaRta", "SeguimientoEntregables")?id_seg_dtll=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function AbrirEvidenciaSolicitud() {
+        var id = $("#txt_id_entregable_dtll").val();
+        var url = "@Url.Action("AbrirEvidenciaSolicitud", "SeguimientoEntregables")?id_seg_dtll=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+
+    function ObtenerHistoricoObservaciones(id, tipo) {
+        $.ajax({
+            url: "@Url.Action("ObtenerHistoricoObservaciones")",
+            type: "post",
+            data: {
+                id_seg_periodo: id,
+                tipo: tipo,
+            },
+            success: function (data) {
+                $("#tblobservaciones tbody").empty();
+                $("#tblobservaciones tbody").html(data);
+                $("#Modalverobservaciones").modal('show')
+            }
+        })
+    }
+
+    /*
+     * Metodo utilizado para aceptar directamente un entregable
+     */
+    function AceptarDocumento(id_ent_pe, id_ult_det)
+    {
+        var txt = confirm("¿Está seguro/a que desea aceptar este entregable?")
+        if (txt)
+        {
+            LoadingShow();
+            var url = "@Url.Action("AceptarEntregable", "SeguimientoEntregables")?id_entregable_periodo=" + id_ent_pe + "&id_ult_dtll=" + id_ult_det;
+            location.href = url;
+        }
+    }
+
+
+
+    function ObservacionesDoc(idsegentregablesperiodo, idultimodtll) {
+        $.ajax({
+            url: "@Url.Action("ObtenerHistoricoObservaciones")",
+            type: "post",
+            data: {
+                id_seg_periodo: idsegentregablesperiodo
+            },
+            success: function (data)
+            {
+                $("#tblobservaciones2 tbody").empty();
+                $("#tblobservaciones2 tbody").html(data);
+                $("#id_entregable_periodo").val(idsegentregablesperiodo);
+                $("#id_ultimo_entregable").val(idultimodtll);
+                $("#observaciones").val("");
+                $("#ModalObservaciones").modal('show');
+            }
+        })
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#ModalObservaciones").modal('hide');
+            $("#formulario").submit();
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formulario2").submit();
+        }
+    }
+
+    function ValidarFormulario3() {
+        var validator = $("#formulario3").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#ModalAmpliacionPlazo").modal("hide");
+            $("#formulario3").submit();
+        }
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('soporte');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.png|.jpg|.gif|.jpeg)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos de tipo imagen');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function responderobservacion(id) {
+        $("#txtiddtllentrega").val(id);
+        $("#Modalverobservaciones").modal('hide');
+        $("#ModalRespuestaObservaciones").modal('show');
+    }
+
+    function ValidacionEvidencia() {
+        var fileInput = document.getElementById('evidencia');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.png|.jpg|.gif|.jpeg)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos de tipo imagen');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function ValidacionEvidencia2() {
+        var fileInput = document.getElementById('fileevidencia');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.png|.jpg|.gif|.jpeg)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos de tipo imagen');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function Verrespuesta(id) {
+        $.ajax({
+            url: "@Url.Action("ObtenerDatosEntregaDetalle")",
+            type: "post",
+            data: {
+                id: id,
+                tipo: 1
+            },
+            success: function (data) {
+                $("#txtiddtllrtaobservaciones").val(data.id)
+                $("#txtfechartaobservaciones").text(data.fecha_observacion)
+                $("#txtobservaciones").text(data.observaciones_rta);
+                $("#ModalVerRespuesta").modal("show");
+            }
+        })
+    }
+
+    function SolicitudAmpliacion(id, idper) {
+        $("#txtidsegentregables").val(id);
+        $("#txtidperiodoentregable").val(idper);
+        $("#txtSolicitudRealizadaPor").val("CLIENTE");
+        $("#rdSolicitudUno").prop('checked', true);
+        $("#rdSolicitudDos").prop('checked', false);
+        $("#ModalAmpliacionPlazo").modal("show");
+    }
+
+    function VerSolicitudAmpliacion(id) {
+        $.ajax({
+            url: "@Url.Action("ObtenerDatosEntregaDetalle")",
+            type: "post",
+            data: {
+                id: id,
+                tipo: 2
+            },
+            success: function (data) {
+                $("#txt_id_entregable_dtll").val(id)
+                $("#txt_fecha_entrega").text(data.fecha_contractualmente_pactada)
+                $("#txt_fecha_propuesta").text(data.fecha_limite_ampliacion)
+                $("#txt_observaciones_entrega").text(data.observaciones);
+                $("#ModalverAmpliacion").modal("show");
+            }
+        })
+    }
+
+    function AceptarSolicitudAmpliacion() {
+        var validator = $("#formampliacion").validate();
+        if (validator.form()) {
+            var id = $("#txt_id_entregable_dtll").val();
+            var obs = $("#obs").val()
+            var txt = confirm("¿Está seguro/a de aceptar la solicitud de ampliación de este entregable?")
+            if (txt) {
+                var url = "@Url.Action("AceptarSolicitudAmpliacion", "SeguimientoEntregables")?id_seg_dtll=" + id + "&observaciones=" + obs;
+                location.href = url;
+            }
+        }
+
+    }
+
+    function RechazarSolicitudAmpliacion()
+    {
+        var validator = $("#formampliacion").validate();
+        if (validator.form()) {
+            var id = $("#txt_id_entregable_dtll").val();
+            var obs = $("#obs").val()
+            var txt = confirm("¿Está seguro/a de rechazar la solicitud de ampliación de este entregable?")
+            if (txt) {
+                var url = "@Url.Action("RechazarSolicitudAmpliacion", "SeguimientoEntregables")?id_seg_dtll=" + id + "&observaciones=" + obs;
+                location.href = url;
+            }
+        }
+    }
+
+    function seleccionRealizaSolicitud(opc)
+    {
+        switch (opc) {
+            case "CLIENTE":
+                $("#rdSolicitudUno").prop('checked', true);
+                $("#rdSolicitudDos").prop('checked', false);
+                break;
+            case "ASALUD":
+                $("#rdSolicitudUno").prop('checked', false);
+                $("#rdSolicitudDos").prop('checked', true);
+                break;
+        }
+        $("#txtSolicitudRealizadaPor").val(opc);
+    }
+
+    function ValidarFechaLimite()
+    {
+        var fechaLimite = $("#nuevafechalimite").val();
+        if (fechaLimite != "")
+        {
+            $.ajax({
+                url: "@Url.Action("ValidarFechaLimiteAmpliacion")",
+                type: "GET",
+                data:
+                {
+                    fechaLimite: fechaLimite,
+                    idsegEntregablesPeriodo: $("#txtidperiodoentregable").val(),
+                    idsegEntregables: $("#txtidsegentregables").val()
+                },
+                success: function (data)
+                {
+                    if (!data.success)
+                    {
+                        alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + data.message + "</p>", function () {
+                            $("#nuevafechalimite").val("");
+                        })
+                    }
+                }
+            })
+        }
+
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .pagination > .active > a {
+        background-color: #333333 !important;
+        border-color: white !important;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .btn-sm {
+        margin: 2px;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    thead input {
+        width: 100%;
+    }
+
+    .alert-observaciones {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab;
+    }
+
+        .alert-observaciones > strong {
+            color: #8f7193;
+        }
+
+    .alert-plazoAmpliado {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab;
+    }
+</style>

@@ -1,0 +1,290 @@
+﻿@using AsaludEcopetrol.Models.Adherencia
+@{
+    ViewBag.Title = "CONFIGURACIÓN ADHERENCIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    Adherencia modelo = new Adherencia();
+}
+
+<br />
+
+<div class="container">
+    
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12 form-group text-right">
+                        <button id="btnaddcohorte" name="btnaddcohorte" class="btn button_Asalud_Aceptar btn-sm"><i class="glyphicon glyphicon-plus"></i>&nbsp; Nuevo tipo de Adherencia</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+
+                    <table id="" class="table table-bordered table-condensed" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Tipo Adherencia</th>
+                                <th>Tipos de criterio</th>
+                                <th></th>
+                                <th></th>
+                                <th class="text-center">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cohortes item in ViewBag.reftipocohorte)
+                            {
+                                var tiposcriterio = modelo.get_adh_tipocriterio(item.id_ref_cohortes);
+
+                                <tr>
+                                    <td>@item.descripcion</td>
+                                    <td>
+                                        @if (tiposcriterio.Count > 0)
+                                        {
+                                            <ul style="padding-left:15px">
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.adh_tipocriterio item2 in tiposcriterio)
+                                                {
+                                                    <li style="font-size:12px;padding:0px">
+                                                        @item2.ref_adh_tipo_criterio.nom_tipo_criterion
+                                                    </li>
+                                                }
+                                            </ul>
+
+                                        }
+                                        else
+                                        {
+                                            <strong style="font-size:12px">No hay criterios configurados.</strong>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-xs button_Asalud_Aceptar" title="Editar" href="javascript:GetDatosCohorte(@item.id_ref_cohortes)">
+                                            <i class="glyphicon glyphicon-pencil"></i>&nbsp; Editar
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-xs button_Asalud_Rechazar" title="Eliminar" href="javascript:EliminarCohorte(@item.id_ref_cohortes)">
+                                            <i class="glyphicon glyphicon-trash"></i>&nbsp; Eliminar
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <a  class="dropdown-toggle rowlink btn btn-xs button_Asalud_Guardar" data-toggle="dropdown" href="#" title="Opciones función #">
+                                                <i class="glyphicon glyphicon-th-list"></i>&nbsp;Opciones
+                                            </a>
+                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                                <li>
+                                                    <a cla title="Configuración de Criterios" href="@Url.Action("AdminCriterios","Adherencia", new {idtipoadherencia = item.id_ref_cohortes })">
+                                                        <i class="glyphicon glyphicon-cog"></i>&nbsp; Administrar Criterios
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a title="Configuración de Criterios" href="@Url.Action("AdherenciatipoCriterio","Adherencia", new {idtipocohorte = item.id_ref_cohortes })">
+                                                        <i class="glyphicon glyphicon-share"></i>&nbsp; Configurar Criterios
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+</div>
+
+<div class="modal fade" id="ModalAdd" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="form_add_tipo_cohorte">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input type="hidden" id="txtidtipocohorte" name="txtidtipocohorte" value="0" />
+                            <div class="form-group">
+                                <label class="text-secondary_asalud control-label">Nombre tipo cohorte:</label>
+                                <input autocomplete="off" maxlength="70" type="text" class="form-control" id="txtnomtipocohorte" name="txtnomtipocohorte" required />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="Validar_formulario()" class="btn button_Asalud_Aceptar">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        var tab = "@ViewBag.tab";
+        if (tab != "") {
+            $("#tiposcriteriotab").click();
+        }
+
+        $("#btnaddcohorte").click(function () {
+            $("#txtidtipocohorte").val(0)
+            $("#txtnomtipocohorte").val("");
+            $(".modal-title").text("Agregar nuevo tipo de cohorte");
+            $("#ModalAdd").modal('show');
+        });
+
+    })
+
+    function Validar_formulario() {
+        var validator = $("#form_add_tipo_cohorte").validate();
+        if (validator.form()) {
+            $("#ModalAdd").modal('hide');
+            GuardarTipoCohorte()
+        }
+    }
+
+    function GuardarTipoCohorte() {
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarTipoCohorte")",
+            type: "post",
+            data: {
+                idtipocohorte: $("#txtidtipocohorte").val(),
+                NomTipoCohorte: $("#txtnomtipocohorte").val()
+            },
+            success: function (data) {
+                if (data.rta == 0) {
+                    var url = "@Url.Action("ConfiguracionAdherencia", "Adherencia")";
+                    location.href = url;
+                }
+                else {
+                    alert(data.msj);
+                }
+            }
+        })
+    }
+
+    function GetDatosCohorte(a) {
+
+        var idtipocohorte = a;
+        $.ajax({
+            url: "@Url.Action("GetdatosTipoCohorte")",
+            type: "post",
+            data: { idtipocohorte: idtipocohorte },
+            success: function (data) {
+                if (data != 0) {
+                    $("#txtidtipocohorte").val(data.idcohorte)
+                    $("#txtnomtipocohorte").val(data.nomcohorte);
+                    $(".modal-title").text("Editar nuevo tipo de cohorte");
+                    $("#ModalAdd").modal('show');
+                } else {
+                    alert("No se ha encontrado el tipo de cohorte");
+                }
+            }
+        });
+    }
+
+    function EliminarCohorte(a) {
+        var idtipocohorte = a;
+        Swal.fire({
+            title: 'Estas Seguro(a)?',
+            text: "Este tipo de cohorte quedara eliminada por completo, a su vez, las cohortes y los criterios que estén asociados a esta tambien seran eliminados.",
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                var url = "@Url.Action("EliminarTipoCohorte", "Adherencia")?idtipocohorte=" + idtipocohorte;
+                location.href = url;
+            }
+        })
+    }
+
+</script>
+
+
+<style>
+    #pnlPrincipal {
+        padding-left: 1%;
+        padding-right: 2%;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+</style>

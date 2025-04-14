@@ -1,0 +1,234 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS APROBADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de facturas Aprobadas</strong>
+    </div>
+
+    <div class="panel-body">
+        <a class="button_Asalud_descargas" href="@Url.Action("Download", "RadicacionElectonica", new { })">
+            Reporte Excel
+            <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+        </a>
+        <br>
+        <br>
+        <div class="table-responsive">
+            <table class="table table-bordered table-condensed table-striped datatable">
+                <thead>
+                    <tr>
+                        <th>Regional</th>
+                        <th>Ciudad</th>
+                        <th>Prestador</th>
+                        <th>No. Factura</th>
+                        <th>Valor Factura</th>
+                        <th>Fecha Expedición Factura</th>
+                        <th>Fecha Recepción Factura</th>
+                        <th>Fecha Aprobación Factura</th>
+                        <th></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresFacturasAprobadasResult item in Model)
+                    {
+                    <tr>
+                        <td>@item.nombre_regional</td>
+                        <td>@item.nom_ciudad</td>
+                        <td>@item.nombre_prestador</td>
+                        <td>@item.num_factura</td>
+                        <td>@item.valor_neto.Value</td>
+                        <td>@item.fecha_exp_factura.Value.ToString("dd/MM/yyyy")</td>
+
+                        @if (item.fecha_recepcion_fac == null)
+                        {
+                            <td>@item.fecha_recepcion_fac</td>
+                        }
+                        else
+                        {
+                            <td>@item.fecha_recepcion_fac.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        @if (item.fecha_aprobacion != null)
+                        {
+
+                            <td>@item.fecha_aprobacion.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        else
+                        {
+                            <td>@item.fecha_aprobacion</td>
+                        }
+
+                        @if (item.estado_factura == 6)
+                        {
+                            <td><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("PdfFacturasAprobadas","RadicacionElectonica",new {ID = item.id_cargue_dtll, ID2 = item.id_cargue_base })', '', 'width=700,height =700,left =50,top =50,toolbar =yes');"> Carta Aprobacion</a></td>
+                        }
+                        else if (item.estado_factura == 11)
+                        {
+                            <td><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("CrearPdfFacturasDigNA","RadicacionElectonica",new {ID = item.id_cargue_dtll })', '', 'width=700,height =700,left =50,top =50,toolbar =yes');">Carta Aprobacion</a></td>
+                        }
+
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+
+     function llamarVistaParcial(AI) {
+
+        var laURLDeLaVista = '@Url.Action("GestionarFactura")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "order": [[2, "desc"]],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+    });
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

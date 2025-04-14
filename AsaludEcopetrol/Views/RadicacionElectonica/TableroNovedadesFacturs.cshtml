@@ -1,0 +1,315 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO NOVEDADES FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div style="display:none">
+                <input class="form-control" type="text" name="rol" id="rol" value="@ViewBag.ROL" />
+            </div>
+
+            <form class="display-inline" id="formulariobuscar" method="post" action="TableroNovedadesFacturs">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Id factura</label>
+                        <input class="form-control solo-numero" type="text" style="width:100%" name="idFactura" id="idFactura" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Tipo novedad</label>
+                        <select id="novedad" name="novedad" class="form-control solo-numero" required>
+                            <option value=""></option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_facturas_novedades item in ViewBag.tipoNovedad)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <br />
+
+                    <div class="col-sm-2">
+                        <button onclick="BuscarFacturas();" type="button" class="btn button_Asalud_Aceptar">Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">
+                LISTADO NOVEDADES
+            </strong>
+        </div>
+        <div class="panel-body table-responsive">
+            <div align="right">
+                <button id="btnDescarga1" type="button" onclick="DescargarResultados();" class="button_Asalud_descargas">Descargar Resultados</button>
+            </div>
+            <br />
+
+            <div class="table-responsive" style="margin-right: 1px; font-size: 11px; width: 98%;">
+                <table class="tablaFacturas table table-bordered table-condensed" style="width:97%;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Id novedad</th>
+                            <th class="text-center">Id factura</th>
+                            <th class="text-center">Tipo novedad</th>
+                            <th class="text-center">Observación</th>
+                            <th class="text-center">Fecha creación</th>
+                            <th class="text-center">Usuario creación</th>
+                            <th class="text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteoList > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_facturasNovedades_buscarResult item in ViewBag.listado)
+                            {
+                                <tr>
+                                    <td class="text-center">@item.id_novedad </td>
+                                    <td class="text-center">@item.id_factura </td>
+                                    <td class="text-center">@item.descripcionNovedad </td>
+                                    <td class="text-center">@item.observacion</td>
+                                    <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">@item.nombreDigita</td>
+                                    <td class="text-center">
+                                        <a class="btn btn-xs button_Asalud_Guardar" onclick="EditarNovedad(@item.id_novedad)">Editar</a>
+                                        <a class="btn btn-xs button_Asalud_Rechazar" onclick="EliminarNovedad(@item.id_novedad)">Eliminar</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="29" style="width:100%; text-align:center"> SIN DATOS </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+
+    });
+
+    function MostrarTabla() {
+
+        var conteo = "@ViewBag.conteoList";
+        if (conteo > 0) {
+            $('.tablaFacturas').DataTable().destroy();
+            $('.tablaFacturas').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function BuscarFacturas() {
+        $("#formulariobuscar").submit();
+    }
+
+    function DescargarResultados() {
+
+        var url = "@Url.Action("ExportarDatosNovedadesFacturas", "RadicacionElectonica")";
+        window.open(url, '', 'width=500,height =180,left =50,top =550,toolbar =yes');
+    }
+
+    function EditarNovedad(id) {
+        var confirmar = confirm("¿Seguro(a) de editar esta novedad?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("CreacionNovedadesFactura", "RadicacionElectonica")?idNovedad=" + id;
+        }
+    }
+
+    function EliminarNovedad(id) {
+        var confirmar = confirm("¿Seguro(a) de eliminar esta novedad?");
+        if (confirmar == true) {
+            LoadingShow();
+            $.ajax({
+                url: '@Url.Action("EliminarNovedadFaC", "RadicacionElectonica")',
+                data: {
+                    id: id,
+                },
+                method: "POST",
+                success: function (response) {
+                    LoadingHide();
+                    alert(response.mensaje);
+
+                    if (response.rta != 0) {
+                        location.reload();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+
+    .formulariobuscar {
+        background-color: #F5F5F5;
+    }
+
+    .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+        color: black;
+    }
+</style>

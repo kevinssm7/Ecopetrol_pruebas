@@ -1,0 +1,329 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Evolucion.ProcedimientoQuirurgicoCancelados
+@{
+    ViewBag.Title = "PROCEDIMIENTO QUIRURGICO CANCELADO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="General">
+        <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center">
+                    <Label>HISTORICO PROCEDIMIENTO QUIRURGICO CANCELADO</Label>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+        <table border="1" align="center" width="600">
+
+
+            @if (Model != null && Model.lstProce != null && Model.lstProce.Count > 0)
+                {
+                <tr>
+
+                    <th class="text-center">ID</th>
+                    <th class="text-center">PROCEDIMIENTO</th>
+                    <th class="text-center">MOTIVO CANCELACION</th>
+                    <th class="text-center">FECHA CANCELACION</th>
+                    <th class="text-center">USUARIO DIGITA</th>
+                    <th class="text-center">FECHA DIGITA</th>
+
+                </tr>
+                foreach (var item in Model.lstProce)
+                {
+                    <tr>
+
+                        <td class="text-center">
+                            @item.id_procedimientoCancelado
+                        </td>
+                        <td class="text-center">
+                            @item.procedimiento
+                        </td>
+                        <td class="text-center">
+                            @foreach (var item1 in Model.LstMotivoCance)
+                            {
+                                if (item1.id_motivo == item.id_motivo_cancelacion)
+                                {
+                                    @item1.descripcion
+                                    break;
+                                }
+                            }
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_cancelacion.Value.ToString("MM/dd/yyyy")
+                        </td>
+                        <td class="text-center">
+                            @item.usuario_digita
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_digita
+                        </td>
+
+                    </tr>
+                }
+
+            }
+
+
+        </table>
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+
+    </div>
+    <br />
+    <div class="General">
+        <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center">
+                    <Label>PROCEDIMIENTO QUIRURGICO CANCELADO</Label>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="General">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="tdNomal">
+                    @Html.LabelFor(u => u.id_cups)
+                </td>
+                <td class="tdGrande">
+                    @(Html.Kendo().AutoComplete()
+                    .Name("productAutoComplete")
+                    .Placeholder("Seleccione...")
+                    .DataTextField("des")
+                    .Events(events => events.Select("CustomerSelect"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("GetCups", "ProcedimientoQuirurgicoCancelados");
+                        });
+
+                    })
+                    )
+                    @Html.HiddenFor(x => x.id_cups)
+                </td>
+                <td class="Error">
+                    @Html.ValidationMessageFor(x => x.id_cups)
+                </td>
+
+            </tr>
+        </table>
+        <br />
+        <div class="row">
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_motivo_cancelacion)
+                @Html.DropDownListFor(model => model.id_motivo_cancelacion, new SelectList(Model.LstMotivoCance, "id_motivo", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_motivo_cancelacion)
+            </div>
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.fecha_cancelacion)
+                @(Html.Kendo().DateTimePickerFor(p => p.fecha_cancelacion)
+
+                    .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+                )
+                @*@Html.EditorFor(model => Model.fecha_cancelacion, new { htmlAttributes = new { @class = "form-control", placeholder = "MM/dd/yyyy", @readonly = "true" } })*@
+                @Html.ValidationMessageFor(x => x.fecha_cancelacion)
+            </div>
+            <div class="col-sm-4">
+                
+            </div>
+
+
+        </div>
+    </div>
+    <div id="pnlGuardar" class="General">
+        <table align="center">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="BtnAgregar" type="submit" value="AGREGAR" class="text-center" />
+                </td>
+            </tr>
+            <tr>
+                <td class="Error">
+                    @Html.ValidationSummary(true, "")
+                </td>
+            </tr>
+
+            <tr>
+                <td style="display:none">
+                    @Html.TextBoxFor(u => u.id_concurrencia)
+                </td>
+            </tr>
+        </table>
+
+    </div>
+}
+<script>
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+    }
+</script>
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+        /* support: IE7 */
+        *height: 1.7em;
+        *top: 0.1em;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 0.3em;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 105px;
+    }
+
+    .tdGrande {
+        width: 300px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .auto-style3 {
+        height: 26px;
+    }
+
+
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+

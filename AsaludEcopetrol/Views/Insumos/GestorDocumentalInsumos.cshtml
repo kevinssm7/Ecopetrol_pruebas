@@ -1,0 +1,275 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.calidad_gestor_documental_insumos>
+@{
+    ViewBag.Title = "GESTOR DOCUMENTAL INSUMOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewData["rta"];
+    string Msg = (string)ViewData["Msg"];
+    string rol = (string)ViewBag.idrol;
+}
+
+<br />
+@if (rta != 0)
+{
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Éxito </strong>@Msg
+        </div>
+    }
+    else if (rta == 2)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error </strong>@Msg
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Éxito </strong>Documento eliminado correctamente!
+        </div>
+    }
+    <br />
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE CONTROL GESTOR DOCUMENTAL</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12 text-right form-group">
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="AbrirModal()">Cargar documento</button>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha de cargue</th>
+                    <th>Tipo documento</th>
+                    <th>Observaciones</th>
+                    <th>Ver documento</th>
+                    @if (rol == "1" || rol == "30")
+                    {
+                        <th>Eliminar documento</th>
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.calidad_gestor_documental_insumos item in Model)
+                {
+                    <tr>
+                        <td>@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                        <td>@item.ref_calidad_insumos_tipo_documental.descripcion</td>
+                        <td>@item.observaciones</td>
+                        <td class="text-center"><a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_calidad_gestor_documental_insumos)">Ver documento</a></td>
+                        @if (rol == "1" || rol == "30")
+                        {
+                            <td class="text-center"><a role="button" class="btn btn-sm button_Asalud_Rechazar" href="javascript:EliminarDocumento(@item.id_calidad_gestor_documental_insumos)">Eliminar documento</a></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="text-primary_asalud">CARGAR DOCUMENTO</strong>
+            </div>
+
+            <div class="modal-body">
+                <form id="formulario" method="post" action="GestorDocumentalInsumos" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Seleccionar documento</label>
+                            <input type="file" class="form-control" id="file" name="file" required onchange="ValidacionArchivo()" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Tipo archivo:</label>
+                            <select class="form-control select2" id="tipodoc" name="tipodoc" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_calidad_insumos_tipo_documental item in ViewBag.tipodoc)
+                                {
+                                    <option value="@item.ref_calidad_insumos_tipo_documental1">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="4" maxlength="5000" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="ValidarFormulario()" class="button_Asalud_Guardar">GUARDAR CAMBIOS</button>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    })
+
+    function AbrirModal() {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        fileInput.value = '';
+        $("#observaciones").val("");
+        $("#modal").modal('show');
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.xls|.xlsx|.zip|.rar)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos excel o comprimidos');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function EliminarDocumento(a) {
+        var txt = confirm("¿está seguro/a de eliminar este documento?")
+        if (txt) {
+            LoadingShow();
+            var url = "@Url.Action("EliminarDocumentGestor","Insumos")?id=" + a
+            location.href = url;
+        }
+    }
+
+    function abrirducumento(id) {
+        var url = "@Url.Action("VerDocumentoCargado", "Insumos")?id=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+

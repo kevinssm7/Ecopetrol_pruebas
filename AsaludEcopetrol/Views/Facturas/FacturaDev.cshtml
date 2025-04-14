@@ -1,0 +1,423 @@
+﻿@using AsaludEcopetrol.Extensions;
+@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Facturacion.FacturaDevolucion
+@{
+    ViewBag.Title = "DEVOLUCIÓN FACTURA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br>
+
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <div class="container">
+            <form id="frm-alumno">
+                <div class="row">
+                    <div class="col-sm-8">
+
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_regional)</span></h5>
+
+                        @Html.HiddenFor(x => x.id_regional)
+                        @(Html.Kendo().DropDownListFor(m => m.id_regional)
+                          .Name("regional")
+                          .HtmlAttributes(new { style = "width:50%" })
+
+                          .DataTextField("nombre_regional")
+                          .DataValueField("id_ref_regional")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeRegional", "Facturas");
+                               });
+                           })
+                        )
+
+                        @Html.ValidationMessageFor(u => u.id_regional)
+
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.ciudad)</span></h5>
+
+                        @(Html.Kendo().DropDownListFor(m => m.ciudad)
+                          .Name("ciudad")
+                          .HtmlAttributes(new { style = "width:50%" })
+                          .DataTextField("nombre")
+                          .DataValueField("id_ref_ciudades")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect2"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeCiudades", "Facturas")
+                                  .Data("filterProducts");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("regional")
+                        )
+                        <script>
+                            function filterProducts() {
+                                return {
+                                    regional: $("#regional").val()
+                                };
+
+                            }
+                        </script>
+
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Prestador)</span></h5>
+
+                        @(Html.Kendo().DropDownListFor(m => m.Prestador)
+                          .Name("prestador")
+                          .HtmlAttributes(new { style = "width:50%" })
+                          .DataTextField("Nombre")
+                          .DataValueField("id_ref_ips_cuentas")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect3"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeIPS", "Facturas")
+                                  .Data("filterProducts2");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("ciudad")
+                        )
+                        <script>
+                            function filterProducts2() {
+                                return {
+                                    Ciudad: $("#ciudad").val()
+
+                                };
+
+                            }
+                        </script>
+                        @Html.ValidationMessageFor(u => u.Prestador, null, new { @class = "label label-danger" })
+
+                    </div>
+
+                </div>
+                <br />
+
+                <div class="row">
+
+
+                    <div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_devolucion)</span></h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_devolucion)
+
+                          .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+                          .Name("datepicker1")
+                         .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change1");
+                         })
+
+                        )
+
+                        @Html.ValidationMessageFor(u => u.fecha_devolucion, null, new { @class = "label label-danger" })
+
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.NumeroFactura)</span>&nbsp;<span style="font-size:13px; color:indianred"></span></h5>
+                        @Html.TextBoxFor(p => p.NumeroFactura, new { @class = "form-control", @maxlength = "15" })
+                        @Html.ValidationMessageFor(u => u.NumeroFactura, null, new { @class = "label label-danger" })
+
+
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.ValorFactura)</span></h5>
+                        @Html.TextBoxFor(p => p.ValorFactura, "{0:#.#}", new { @class = "form-control solo-numero2", @onclick = "format(this)", @onchange = "format(this)" })
+                        @Html.ValidationMessageFor(u => u.ValorFactura, null, new { @class = "label label-danger" })
+
+
+                    </div>
+                </div>
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <button data-bind="click: agregarDetalle" class="btn button_Asalud_Aceptar">Agregar Detalle</button>
+                    </div>
+                </div>
+                <div>
+                    <em data-bind="validationMessage: detalle"></em>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <table class="table table-bordered">
+
+                            <thead>
+                                <tr>
+                                    @*<th class="text-center th">Numero Factura</th>*@
+                                    @*<th class="text-center th">Valor Factura</th>*@
+                                    <th class="text-center th">Valor Glosa</th>
+                                    <th class="text-center th">Motivo</th>
+                                    @*<th class="text-center th">Descripcion</th>*@
+                                    <th class="text-center th">Observaciones</th>
+                                    <th class="text-center th"></th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody data-bind="foreach: detalle">
+                                <tr>
+                                    @*<td>
+                                            <div class="form-group">
+                                                <input class="form-control input-lg" id="number" type="number" style="font-size:10pt;width:100px;" required="required" min="0" max="999999999" data-bind="value: numeroFactura, attr: { name: 'Detalle[' + $index() + '].NumeroFactura' }">
+                                                <em data-bind="validationMessage: numeroFactura"></em>
+                                            </div>
+                                        </td>*@
+                                    @*<td>
+                                            <div class="form-group">
+                                                <input class="form-control input-lg" id="number" type="number" style="font-size:10pt;width:150px;" required="required" min="0" max="999999999" data-bind="value: valorFactura, attr: { name: 'Detalle[' + $index() + '].ValorFactura' }">
+                                                <em data-bind="validationMessage: valorFactura"></em>
+                                            </div>
+                                        </td>*@
+                                    <td>
+
+                                        <div class="form-group">
+                                            <input class="form-control input-lg" id="number" type="number" style="font-size:10pt;width:150px;" required="required" min="0" max="999999999" data-bind="value: valorGlosa, attr: { name: 'Detalle[' + $index() + '].ValorGlosa' }">
+                                            <em data-bind="validationMessage: valorGlosa"></em>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <select class="form-control" id="exampleFormControlSelect1" style="font-size:10pt;width:200px;" required="required" data-bind="value: id_motivo, options: window.productos, optionsText: 'des', optionsValue: 'id_ref_cuentas_glosa', attr: { name: 'Detalle[' + $index() + '].Id_motivo' }"></select>
+                                            <em data-bind="validationMessage: id_motivo"></em>
+
+                                        </div>
+                                    </td>
+                                    @*<td>
+                                            <div class="form-group">
+                                                <input class="form-control input-lg" id="inputlg" type="text" style="font-size:10pt;width:200px;" required="required" data-bind="value: descripcion_devolucion, attr: { name: 'Detalle[' + $index() + '].Descripcion_devolucion' }">
+                                                <em data-bind="validationMessage: descripcion_devolucion"></em>
+                                            </div>
+                                        </td>*@
+                                    <td>
+                                        <div class="form-group">
+                                            <textarea class="form-control" rows="5" id="comment" style="font-size:10pt;width:250px;" required="required" data-bind="value: observaciones, attr: { name: 'Detalle[' + $index() + '].Observaciones' }"></textarea>
+                                            @*   <input class="form-control input-lg" id="inputlg" type="text" style="font-size:10pt;width:200px;" required="required" data-bind="value: observaciones, attr: { name: 'Detalle[' + $index() + '].Observaciones' }">*@
+                                            <em data-bind="validationMessage: observaciones"></em>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" data-bind="click: $root.eliminarDetalle">Eliminar</button>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                </div>
+
+                <div id="pnlGuardar" class="General">
+                    <table align="center">
+                        <tr>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @*<input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />*@
+                                <p>
+                                    <input type="submit" value="CREAR DEVOLUCION" data-bind="enable: canCreate()" class="btn btn-success" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="display:none">
+                                @Html.TextBoxFor(u => u.fecha_devolucionOK)
+                                @Html.TextBoxFor(u => u.ModuloPrestadores)
+                                @Html.TextBoxFor(u => u.id_af)
+
+                            </td>
+                        </tr>
+
+
+                    </table>
+
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+}
+
+
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<script src="~/Scripts/knockout-2.2.1.js"></script>
+<script src="~/Scripts/knockout.validation.js"></script>
+<script src="~/Scripts/ViewModels/FacturaCreateViewModel.js"></script>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    // catálogo de productos que se utiliza para llenar el <select /> de productos de cada detalle
+    var productos = JSON.parse('@Html.Raw(Json.Encode(Model.Productos2))');
+
+    // viewModel con el que haremos el binding de nuestra vista.
+    var viewModel = new facturaViewModel();
+
+    // inicializamos la validación de knockout.
+    ko.validation.init({ insertMessages: false, parseInputAttributes: true });
+
+    // aplicamos el viewModel a nuestra vista.
+    ko.applyBindings(viewModel);
+
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('.solo-numero2').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9,.]/g, '');
+        });
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_devolucionOK]').val(DataItem);
+
+    }
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ciudad").val(DataItem.id_ref_ciudades);
+    }
+
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#Prestador").val(DataItem.id_ref_ips_cuentas);
+    }
+    function format(input) {
+
+        var textBox1 = $('input:text[id$=ValorFactura]').keyup();
+        var n = textBox1.val();
+
+        var num = n.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            input.value = input.value.replace(/[^\d\.]*/g, '');
+        }
+    }
+
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>

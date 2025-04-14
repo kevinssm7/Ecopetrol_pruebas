@@ -1,0 +1,387 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "CREAR IPS/PRESTADOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    string alerta = (string)ViewData["alerta"];
+}
+
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                <p style="font-family:'Century Gothic'">@Html.Raw(alerta)</p>}
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+
+    @*<form id="formulario" action="AgregarPrestador" method="post" enctype="multipart/form-data">*@
+    <form id="formulario" enctype="multipart/form-data" method="post" action="@Url.Action("GuardarContratos","ffmmAuditoria")">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ips / Prestador</strong>
+            </div>
+            <div class="panel-body">
+
+                <div class="row">
+
+                    <div id="divSelect" class="col-md-5">
+
+                        <label class="text-secondary_asalud">Tipo registro</label>
+                        <select class="form-control" name="tipo" id="tipo" onchange="MostrarLlenado($(this).val(), 1)" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_ffmm_ips_prestadores_tipo item in ViewBag.tipo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="llenado" style="display:none;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">DATOS INGRESO</h3>
+                </div>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Nit:</label><span style="color:red"></span>
+                            <input id="nitText" class="form-control solo-numero solo-numero2 solo-numero3" name="nitText" autocomplete="off" onchange="traerPrestadores($(this).val(), 0)" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Nombre:</label><span style="color:red"></span>
+                            <input id="nomPrestadorText" class="form-control col-md-6" name="nomPrestadorText" maxlength="99" autocomplete="off" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Codigo habilitación:</label><span style="color:red"></span>
+                            <input id="habilitacion" class="form-control solo-numero solo-numero2 solo-numero3" name="habilitacion" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <label class="text-secondary_asalud">Departamento</label>
+                            <select class="form-control select2" style="width:100%" name="departamento" id="departamento" onchange="ObtenerCiudad($(this).val(), 0)" required>
+                                <option value="0">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ffmm_departamento item in ViewBag.regionales)
+                                {
+                                    <option value="@item.cod_departamento">@item.departamento</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Ciudad:</label>
+                            <select class="form-control select2" id="ciudad" name="ciudad" required>
+                                <option value="0">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Codigo verificación:</label><span style="color:red"></span>
+                            <input id="verificacion" class="form-control solo-numero solo-numero2 solo-numero3" name="verificacion" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Dirección:</label><span style="color:red"></span>
+                            <input id="verificacion" class="form-control" name="direccion" autocomplete="off" maxlength="499" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Telefono:</label><span style="color:red"></span>
+                            <input id="verificacion" class="form-control" name="telefono" autocomplete="off" maxlength="499" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="text-secondary_asalud">Red interna</label>
+                            <br />
+                            <input type="radio" id="RedInter" name="RedInter" value="1" onclick="redInternaVal(this.value);" /> Si
+                            <input type="radio" id="RedInter" name="RedInter" value="2" onclick="redInternaVal(this.value);" /> No
+                            <input type="hidden" id="redInterna" name="redInterna" required />
+
+                        </div>
+                        <div class="col-md-2">
+                            <label class="text-secondary_asalud">Naturaleza jurídica</label>
+                            <select class="form-control" style="width:100%" name="naju" id="naju" required>
+                                <option selected value="0">- Seleccione -</option>
+                                <option value="1"> Privada </option>
+                                <option value="2"> Publica </option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">GUARDAR</button>
+                    </div>
+                </div>
+            </div>
+            <br />
+        </div>
+    </form>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+            $('.select2').select2({
+                width: '100%'
+            });
+    });
+
+
+
+    $("#nitText").autocomplete({
+        source: "/ffmmAuditoria/buscarPrestadorCod",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.Nit);
+            }
+        }
+    });
+
+    function MostrarLlenado(id, opcion) {
+        var nit = document.getElementById("nitText").value;
+        if (nit != null && nit != "") {
+            traerPrestadores(nit, opcion);
+        }
+        if (id != null && id != "") {
+            document.getElementById('llenado').style.display = 'block';
+
+        } else {
+            document.getElementById('llenado').style.display = 'none';
+        }
+    }
+
+    function ObtenerCiudad(a) {
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudades")",
+            type: "post",
+            data: {
+                idDepartamento: a,
+            },
+            success: function (data) {
+                $("#ciudad").empty();
+                $("#ciudad").html(data);
+                $("#ciudad").val("").trigger("change");
+            }
+        })
+    }
+
+    function ObtenerCiudad2(a, b) {
+        var idDepartamento = a;
+        var ciudad = b;
+        if (idDepartamento != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades2")",
+                type: "post",
+                data: { idDepartamento: idDepartamento },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+
+                        $("#ciudad").append("<option value='" + b.idMun + "'>" + b.nombre + "</option>");
+                        $("#ciudad").val(ciudad);
+                    });
+                }
+            })
+        }
+    }
+
+
+
+    function redInternaVal(a) {
+
+        if (a == 1) {
+            $("#redInterna").val("SI");
+        } else {
+            $("#redInterna").val("NO");
+        }
+
+
+    }
+
+    function traerPrestadores(a, opcion) {
+
+        var tipo = document.getElementById("tipo").value;
+
+        $.ajax({
+            url: "@Url.Action("BuscarPrestador")",
+            type: "POST",
+            minLenght: 2,
+            data: {
+                value: a
+                ,tipo: tipo
+            },
+            success: function (data) {
+
+                if (data != null && data != "") {
+
+                    var nit = data[0].nit;
+                    var nombre = data[0].nombre;
+                    var departamento = data[0].departamento;
+                    var ciudad = data[0].ciudad;
+
+                    document.getElementById("nitText").value = nit;
+                    document.getElementById("nitText").disabled = true;
+                    document.getElementById("nomPrestadorText").value = nombre;
+                    document.getElementById("nomPrestadorText").disabled = true;
+
+                    $("#departamento").val(departamento).trigger('change');
+
+                    ObtenerCiudad2(departamento, ciudad);
+
+                    document.getElementById("departamento").disabled = true;
+                    document.getElementById("ciudad").disabled = true;
+                }
+                if ((data == null || data == "" || data.nit == undefined) && opcion == 1) {
+                    limpiar();
+                }
+            },
+        });
+    }
+
+    function limpiar() {
+        document.getElementById("nitText").value = "";
+        document.getElementById("nitText").disabled = false;
+        document.getElementById("nomPrestadorText").value = "";
+        document.getElementById("nomPrestadorText").disabled = false;
+
+        $("#departamento").val(0);
+        $("#naju").val(0);
+
+        //$("#departamento").text("- Seleccione -");
+        $("#ciudad").val(0);
+        $("#ciudad").text("");
+
+        document.getElementById("departamento").disabled = false;
+        document.getElementById("ciudad").disabled = false;
+    }
+
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarPrestador();
+        }
+    }
+
+    function GuardarPrestador() {
+
+        var red = document.getElementById("redInterna").value;
+
+        if (red == null || red == "") {
+            alert("Red interna obligatoria.");
+            return false;
+        }
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("tipo", $("#tipo").val());
+        formData.append("nit", $("#nitText").val());
+        formData.append("nombre", $("#nomPrestadorText").val());
+        formData.append("codigohabilitacion", $("#habilitacion").val());
+        formData.append("cod_departamento", $("#departamento").val());
+        formData.append("cod_municipio", $("#ciudad").val());
+        formData.append("digito_verificacion", $("#verificacion").val());
+        formData.append("direccion", $("#direccion").val());
+        formData.append("telefono", $("#telefono").val());
+        formData.append("red_interna", $("#redInterna").val());
+        formData.append("naju", $("#naju").val());
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("RegistroPrestador")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                var alerta = data.variable;
+
+                if (data.success != false) {
+                    window.location.href = "@Url.Action("CreacionPrestadores")?alerta=" + alerta;
+                    LoadingHide();
+                }
+                else {
+                    window.location.href = "@Url.Action("CreacionPrestadores")?alerta=" + alerta;
+                    LoadingHide();
+                }
+
+            }
+        })
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>

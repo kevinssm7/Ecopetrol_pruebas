@@ -1,0 +1,689 @@
+﻿@model AsaludEcopetrol.Models.Odontologia.HistoriaClinica
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "CONSOLIDADOS ODONTOLOGIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Selección tipos de consolidado</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-6 form-group">
+                <label class="text-secondary_asalud">Tipo de consolidado</label>
+                <select class="form-control dropdownlist" id="chktipoconsolidado" name="chktipoconsolidado" onchange="MostrarFiltros($(this).val())">
+                    <option value="">- Seleccionar -</option>
+                    <option value="1">- Historias Clinicas -</option>
+                    <option value="2">- Tratamientos Terminados -</option>
+                    <option value="3">- Planes de mejora -</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Filtros de busqueda</strong>
+    </div>
+    <div class="panel-body" id="panel_1" style="display:none;">
+        <div class="row" style="margin-top:15px">
+            <div class="col-sm-4 form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <input type="checkbox" id="chkuno" name="chkuno" style="width:15px; height:15px; margin-top:0px" onchange="activarpanel(1)" />
+                    </span>
+                    &nbsp;
+                    <label class="text-secondary_asalud" style="font-size:15px">Consolidado común</label>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <input type="checkbox" id="chkdos" name="chkdos" style="width:15px; height:15px; margin-top:0px" onchange="activarpanel(2)" />
+                    </span>
+                    &nbsp;
+                    <label class="text-secondary_asalud" style="font-size:15px">Consolidado por prestador</label>
+                </div>
+            </div>
+            <div class="col-sm-4 form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <input type="checkbox" id="chktres" name="chktres" style="width:15px; height:15px; margin-top:0px" onchange="activarpanel(3)" />
+                    </span>
+                    &nbsp;
+                    <label class="text-secondary_asalud" style="font-size:15px">Detallado auditoria historia clinica</label>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="alert alert-info" role="alert">
+            <p>
+                <strong>Atencion! </strong>Recuerde dejar los filtros vacíos en caso de querer una búsqueda general,
+                o utilícelos para buscar información específica.
+            </p>
+        </div>
+        <hr />
+
+        <div id="panel-uno" style="display:none">
+            <form id="formulario" name="formulario" method="post" enctype="multipart/form-data" action="@Url.Action("CrearPdfConsolidadoHC")">
+                <input type="hidden" id="txtipoconsolidado" name="tipoconsolidado" value="1" />
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control dropdownlist" id="regional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (var item in Model.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control dropdownlist" id="mes" name="mes">
+                                <option value="" selected="selected">-Seleccionar</option>
+                                @foreach (var item in Model.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Año</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="4" id="año" name="año" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="form-group">
+                            <button type="submit" a class="btn btn-success" style="margin-top:5%"><i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar consolidado</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="panel-dos" style="display:none">
+            <form id="formulario" name="formulario" method="post" enctype="multipart/form-data" action="@Url.Action("CrearPdfConsolidadoHC")">
+                <input type="hidden" id="txtipoconsolidado" name="tipoconsolidado" value="2" />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control dropdownlist" id="regional2" name="regional">
+                                <option value="" selected="selected">- Seleccionar -</option>
+                                @foreach (var item in Model.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Auditor</label>
+                            <select class="form-control dropdownlist" id="auditor" name="idauditor">
+                                <option value="" selected="selected">-Seleccionar</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.auditores)
+                                {
+                                    <option value="@item.id_usuario">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control dropdownlist" id="mes2" name="mes">
+                                <option value="">-Seleccionar</option>
+                                @foreach (var item in Model.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Año</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" id="año2" name="año" maxlength="4" />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 text-right">
+                        <div class="form-group">
+                            <button type="submit" a class="btn button_Asalud_Aceptar"><i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar Consolidado</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="panel-tres" style="display:none">
+
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <a class="btn btn-success" href="@Url.Action("DownloadHistoriaClinica", "odontologia")">
+                            Reporte Excel
+                            <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+              
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel-body" id="panel_2" style="display:none;">
+        <form id="formconsolidadosttos" method="post" enctype="multipart/form-data" action="@Url.Action("CrearPdfConsolidadottos", "odontologia")">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Tipo tratamiento</label>
+                        <select class="form-control select2" required id="chktipotratamiento" name="tipotratamiento">
+                            <option value="" selected="selected">- Seleccionar -</option>
+                            @foreach (var item in ViewBag.tratamiento)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                        
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Tipo consolidado</label>
+                        <select class="form-control select2" required id="chktipoconsolidado2" name="chktipoconsolidado" onchange="MostrarParamTipoConsolidadoP($(this).val())">
+                            <option value="" selected="selected">- Seleccionar -</option>
+                            <option value="1">General</option>
+                            <option value="2">Por profesional</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3" id="select-g-regional">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select class="form-control vacio select2" required id="regional4" name="regional_g">
+                            <option value="" selected="selected">- Seleccionar -</option>
+                            @foreach (var item in Model.regionales)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6" id="select-periodo">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">periodo</label>
+                        <div class="row">
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <select class="form-control select2" name="mesinicial_g">
+                                    <option>-Mes Inicial-</option>
+                                    @foreach (var item in Model.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añoinicial_g" id="añouno" placeholder="Año Inicial" />
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <select class="form-control select2" name="mesfinal_g">
+                                    <option>-Mes Final-</option>
+                                    @foreach (var item in Model.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añofinal_g" id="añodos" placeholder="Año Final" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3" id="select-regional" style="display:none;">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select class="form-control vacio select2" required id="regional3" name="regional" onchange="GetCascadeUnis($(this).val())">
+                            <option value="" selected="selected">- Seleccionar -</option>
+                            @foreach (var item in Model.regionales)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3" id="select-localidad" style="display:none;">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Localidad</label>
+                        <select class="form-control vacio select2" id="unis" name="unis">
+                            <option value="" selected="selected">- Seleccionar -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-12 row" id="select-periodo2" style="display:none">
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Periodo</label>
+                        <div class="row">
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <select class="form-control select2" name="mesinicial_p">
+                                    <option>-Mes Inicial-</option>
+                                    @foreach (var item in Model.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añoinicial_p" id="añotres" placeholder="Año Inicial" />
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <select class="form-control select2" name="mesfinal_p">
+                                    <option>-Mes Final-</option>
+                                    @foreach (var item in Model.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3" style="padding-right:1px">
+                                <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añofinal_p" id="añocuatro" placeholder="Año Final" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 text-right">
+                    <div class="form-group">
+                        <button type="button" id="btnconsolidadosttos" class="btn btn-success"><i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar Consolidado</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="panel-body" id="panel_3" style="display:none">
+        <form id="formulario3" method="post" action="@Url.Action("CrearConsolidadoPlanMejora")" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Regional:</label>
+                        <select class="form-control dropdownlist" required id="regional_3" name="idregional">
+                            <option class="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in Model.regionales)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-12 text-right">
+                    <div class="form-group">
+                        <a class="btn btn-success" role="button" href="javascript:validarformulario3()"><i class="glyphicon glyphicon-download-alt"></i> Generar Consolidado</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function ()
+    {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            messages: {
+                custom: function (input) {
+                    return $(input).parents().find('label').text();
+                }
+            }
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+
+        $("#btnconsolidadosttos").click(function () {
+
+            var validator = $("#formconsolidadosttos").validate();
+            if (validator.form()) {
+                $("#formconsolidadosttos").submit();
+            }
+        })
+
+        $(".k-input").attr('readonly', true);
+    })
+
+    function activarpanel(a) {
+        switch (a) {
+            case 1:
+                $("#chkuno").prop('checked', true);
+                $("#chkdos").prop('checked', false);
+                $("#chktres").prop('checked', false);
+                $("#panel-dos").css('display', 'none');
+                $("#panel-uno").css('display', 'block');
+                $("#panel-tres").css('display', 'none');
+                break;
+            case 2:
+                $("#chkuno").prop('checked', false);
+                $("#chkdos").prop('checked', true);
+                $("#chktres").prop('checked', false);
+                $("#panel-uno").css('display', 'none');
+                $("#panel-tres").css('display', 'none');
+                $("#panel-dos").css('display', 'block');
+                break;
+            case 3:
+                $("#chkuno").prop('checked', false);
+                $("#chkdos").prop('checked', false);
+                $("#chktres").prop('checked', true);
+                $("#panel-uno").css('display', 'none');
+                $("#panel-tres").css('display', 'block');
+                $("#panel-dos").css('display', 'none');
+                break;
+            default:
+                $("#chkuno").prop('checked', false);
+                $("#chkdos").prop('checked', false);
+                $("#chktres").prop('checked', false);      
+                $("#panel-uno").css('display', 'none');
+                $("#panel-dos").css('display', 'none');
+                $("#panel-tres").css('display', 'none');
+                break;
+        }
+
+        LimpiarCambios();
+    }
+
+    function GetAuditores() {
+        var idregional = $("#regional2").val();
+        if (idregional != null) {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasOdont")",
+                type: "post",
+                data: { regional: idregional },
+                success: function (data) {
+                    $("#auditor").empty();
+                    $("#auditor").append("<option value=''>- Seleccionar -</option>");
+                    data.forEach(function (b) {
+                        $("#auditor").append("<option value='" + b.id_ref_odont_prestadores + "'>" + b.Razón_Social + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+
+    function LimpiarCambios()
+    {
+        $("#regional").val("");
+        $("#regional2").val("");
+        $("#mes").val("");
+        $("#mes2").val("");
+        $("#año").val("");
+        $("#año2").val("");
+    }
+
+    function MostrarFiltros(a)
+    {
+        switch (a) {
+            case "1":
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_1").removeAttr('style');
+                break;
+            case "2":
+                activarpanel("");
+                $("#panel_1").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#chktipotratamiento").val("");
+                $("#chktipoconsolidado2").val("");
+                $(".datepickerr").val("")
+                $(".vacio").val("");
+                $("#panel_2").removeAttr('style');
+
+                break;
+            case "3":
+                activarpanel("");
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").removeAttr('style');
+
+                break;
+            default:
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                break;
+        }
+    }
+
+    function MostrarParamTipoConsolidadoP(a)
+    {
+        switch (a) {
+            case "1":
+                $("#select-periodo").css('display', 'block');
+                $("#select-g-regional").css('display', 'block');
+                $("#select-periodo2").css('display', 'none');
+                $("#select-regional").css('display', 'none');
+                $("#select-localidad").css('display', 'none');
+                $("#select-año").css('display', 'none');
+                break;
+            case "2":
+                $("#select-periodo").css('display', 'none');
+                $("#select-g-regional").css('display', 'none');
+                $("#select-periodo2").css('display', 'block');
+                $("#select-regional").css('display', 'block');
+                $("#select-año").css('display', 'block');
+                $("#select-localidad").css('display', 'block');
+                break;
+        }
+    }
+
+
+    function GetCascadeUnis(a)
+    {
+        var idregional = a;
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis")",
+                type: "post",
+                data: { regional: idregional },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").append("<option value=''>- Seleccionar -</option>");
+                    data.forEach(function (b) {
+                        $("#unis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+
+    function validarformulario3()
+    {
+        var validator = $("#formulario3").validate();
+        if (validator.form())
+        {
+            $("#formulario3").submit();
+        }
+    }
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist{
+        width:100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+       label.error {
+        background-color: indianred;
+        color:white;
+        font-size: 13px;
+        font-weight:bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

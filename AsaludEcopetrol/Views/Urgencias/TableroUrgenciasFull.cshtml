@@ -1,0 +1,344 @@
+﻿@model AsaludEcopetrol.Models.Urgencias.Urgencias
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "TABLERO URGENCIAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <table id="tabla" class="table table-bordered datatable1" style="width:97%;">
+                        <thead>
+                            <tr class="header">
+
+                                <th class="text-center th">CIUDAD</th>
+                                <th class="text-center th">IPS</th>
+                                <th class="text-center th">DOCUMENTO</th>
+                                <th class="text-center th">FECHA INGRESO</th>
+                                <th class="text-center th">HORA INGRESO</th>
+                                <th class="text-center th">CODIGO DX INGRESO</th>
+                                <th class="text-center th">DX DE INGRESO</th>
+                                <th class="text-center th">FECHA EGRESO</th>
+                                <th class="text-center th">HORA EGRESO</th>
+                                <th class="text-center th">CODIGO DE EGRESO</th>
+                                <th class="text-center th">DX DE EGRESO</th>
+                                <th class="text-center th">TRIAGE</th>
+                                <th class="text-center th">COORDINACION</th>
+                                <th class="text-center th">DESTINO</th>
+
+                            </tr>
+
+                        </thead>
+                        <tbody id="myTable">
+                            @foreach (var order in Model.LstTableroUrgencias)
+                            {
+                                <tr>
+                                    <td>
+                                        @order.Ciudad
+                                        <input type="hidden" value="@order.id_urg_base_ok" />
+                                    </td>
+                                    <td>@order.Ips</td>
+                                    <td>@order.numero_documento</td>
+                                    <td>@order.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@order.hora_ingreso</td>
+                                    <td>@order.CODIGO_DX_INGRESO</td>
+                                    <td>@order.DX_DE_INGRESO</td>
+                                    <td>@order.FECHA_EGRESO.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@order.hora_egreso</td>
+                                    <td>@order.CODIGO_DE_EGRESO</td>
+                                    <td>@order.DX_DE_EGRESO</td>
+                                    <td>@order.TRIAGE</td>
+                                    <td>@order.COORDINACION</td>
+                                    <td>@order.DESTINO</td>
+
+
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+
+    $('.datatable1').DataTable({
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        "order": [[3, "desc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+
+
+    // PAGINAR//
+    $.fn.pageMe = function (opts) {
+        var $this = this,
+            defaults = {
+                perPage: 7,
+                showPrevNext: false,
+                hidePageNumbers: false
+            },
+            settings = $.extend(defaults, opts);
+
+        var listElement = $this;
+        var perPage = settings.perPage;
+        var children = listElement.children();
+        var pager = $('.pager');
+
+        if (typeof settings.childSelector != "undefined") {
+            children = listElement.find(settings.childSelector);
+        }
+
+        if (typeof settings.pagerSelector != "undefined") {
+            pager = $(settings.pagerSelector);
+        }
+
+        var numItems = children.size();
+        var numPages = Math.ceil(numItems / perPage);
+
+        pager.data("curr", 0);
+
+        if (settings.showPrevNext) {
+            $('<li><a href="#" class="prev_link">«</a></li>').appendTo(pager);
+        }
+
+        var curr = 0;
+        while (numPages > curr && (settings.hidePageNumbers == false)) {
+            $('<li><a href="#" class="page_link">' + (curr + 1) + '</a></li>').appendTo(pager);
+            curr++;
+        }
+
+        if (settings.showPrevNext) {
+            $('<li><a href="#" class="next_link">»</a></li>').appendTo(pager);
+        }
+
+        pager.find('.page_link:first').addClass('active');
+        pager.find('.prev_link').hide();
+        if (numPages <= 1) {
+            pager.find('.next_link').hide();
+        }
+        pager.children().eq(1).addClass("active");
+
+        children.hide();
+        children.slice(0, perPage).show();
+
+        pager.find('li .page_link').click(function () {
+            var clickedPage = $(this).html().valueOf() - 1;
+            goTo(clickedPage, perPage);
+            return false;
+        });
+        pager.find('li .prev_link').click(function () {
+            previous();
+            return false;
+        });
+        pager.find('li .next_link').click(function () {
+            next();
+            return false;
+        });
+
+        function previous() {
+            var goToPage = parseInt(pager.data("curr")) - 1;
+            goTo(goToPage);
+        }
+
+        function next() {
+            goToPage = parseInt(pager.data("curr")) + 1;
+            goTo(goToPage);
+        }
+
+        function goTo(page) {
+            var startAt = page * perPage,
+                endOn = startAt + perPage;
+
+            children.css('display', 'none').slice(startAt, endOn).show();
+
+            if (page >= 1) {
+                pager.find('.prev_link').show();
+            }
+            else {
+                pager.find('.prev_link').hide();
+            }
+
+            if (page < (numPages - 1)) {
+                pager.find('.next_link').show();
+            }
+            else {
+                pager.find('.next_link').hide();
+            }
+
+            pager.data("curr", page);
+            pager.children().removeClass("active");
+            pager.children().eq(page + 1).addClass("active");
+
+        }
+    };
+    $(document).ready(function () {
+
+        $('#myTable').pageMe({ pagerSelector: '#myPager', showPrevNext: true, hidePageNumbers: false, perPage: 10 });
+
+    });
+
+    //FILTRO TABLA//
+    var busqueda = document.getElementById('buscar');
+    var table = document.getElementById("tabla").tBodies[0];
+
+    buscaTabla = function () {
+        texto = busqueda.value.toLowerCase();
+        var r = 0;
+        while (row = table.rows[r++]) {
+            if (row.innerText.toLowerCase().indexOf(texto) !== -1)
+                row.style.display = null;
+            else
+                row.style.display = 'none';
+        }
+    }
+
+    busqueda.addEventListener('keyup', buscaTabla);
+
+</script>
+
+
+
+
+<style>
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .alert-ULTIMODIA {
+        background-color: #FF5464;
+        color: darkred;
+    }
+
+    .pagination {
+        display: inline-block;
+        padding-left: 7px;
+        margin: 2px 0;
+        border-radius: 10px;
+    }
+
+    .tdalejo {
+        width: 1000px;
+    }
+</style>
+
+

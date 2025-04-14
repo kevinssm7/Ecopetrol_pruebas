@@ -1,0 +1,1392 @@
+﻿
+
+@{
+    ViewBag.Title = "EDICIÓN DE CAMPAÑAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = ViewBag.conteo;
+}
+
+
+@{
+    ECOPETROL_COMMON.ENTIDADES.creacion_campana campaña = (ECOPETROL_COMMON.ENTIDADES.creacion_campana)ViewBag.campana;
+    List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_detalle> listaPreguntas = (List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_detalle>)ViewBag.preguntas;
+    List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_camposSimples> camposSimples = (List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_camposSimples>)ViewBag.preguntasSimples;
+    List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_listas> camposLista = (List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_listas>)ViewBag.preguntasListas;
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <form id="formularioDatos">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud"></strong>
+            </div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">ENCABEZADO</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <input type="hidden" id="idCampana" name="idCampana" value="@ViewBag.idCampana" />
+                                <label class="text-secondary_asalud">Título</label>
+                                <input type="text" id="titulo" name="titulo" class="form-control" maxlength="199" required value="@campaña.titulo" />
+                            </div>
+                            <div class="col-md-10">
+                                <br />
+                                <label class="text-secondary_asalud">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" contextmenu="@campaña.descripcion" cols="1" rows="1" placeholder="Descripción formulario" maxlength="999" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="conteoNuevas" name="conteoNuevas" type="hidden" />
+
+
+
+                    <input id="id" name="id" value="@i" type="hidden" />
+                    <input id="conteoFinal" name="conteoFinal" type="hidden" />
+                    <input id="conteoOpciones" name="conteoOpciones" type="hidden" />
+                    <input id="idPreguntas" name="idPreguntas" type="hidden" value="@ViewBag.idPreguntas" />
+                    <input id="idTipoPreguntas" name="idTipoPreguntas" type="hidden" value="@ViewBag.idTipoPreguntas" />
+                    <br />
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">PREGUNTAS</strong>
+                        <a class="btn btn-sm button_Asalud_Aceptar boton-flotante" id="añadirPregunta" name="añadirPregunta" onclick="añadirNuevaPreguntaVacia();">
+                            <i class="glyphicon glyphicon-question-sign"></i>&nbsp; Añadir
+                        </a>
+                    </div>
+
+                    <div class="divContenidoPreguntas" id="divContenidoPreguntas">
+                    </div>
+                    <br />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a class="btn button_Asalud_Guardar" onclick="ValidarFormulario();">GUARDAR</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var arrayBidimensionalPreguntas = [];
+    var arrayRespuestaBreve = [];
+    var arrayOpcionMultiple = [];
+    var arrayCasillasVerificacion = [];
+    var arrayListaDesplegable = [];
+    var arrayCargaArchivos = [];
+    var arrayCargaFecha = [];
+
+    var arrayBidimensionalPreguntasNuevas = [];
+    var arrayRespuestaBreveNuevas = [];
+    var arrayOpcionMultipleNuevas = [];
+    var arrayCasillasVerificacionNuevas = [];
+    var arrayListaDesplegableNuevas = [];
+    var arrayCargaArchivosNuevas = [];
+    var arrayCargaFechaNuevas = [];
+
+    $(document).ready(function () {
+
+        $('.select3').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        var descripcion = `@ViewBag.descripcionCampana`;
+        document.getElementById("descripcion").innerHTML = descripcion;
+
+        var preguntas = $("#idPreguntas").val();
+        var listapreguntas = preguntas.split(",");
+
+        var tipo = $("#idTipoPreguntas").val();
+        var listaTipo = tipo.split(",");
+
+        for (var i = 0; i < listapreguntas.length; i++) {
+
+            var idPregunta = listapreguntas[i];
+            var idTipo = listaTipo[i];
+
+            if (idPregunta != 0) {
+                añadirPreguntaBoton(idPregunta, idTipo, 0);
+            }
+        }
+    });
+
+    function añadirNuevaPreguntaVacia() {
+
+        debugger
+        var id = parseInt($("#conteoNuevas").val());
+
+        if (!isNaN(id)) {
+            $("#conteoNuevas").val(id + 1);
+        } else {
+            $("#conteoNuevas").val(1);
+        }
+
+        var conteo = $("#conteoNuevas").val();
+        añadirPreguntaBoton(conteo, 0, 1);
+    }
+
+    function añadirPreguntaBoton(idPregunta, tipo, nueva) {
+
+        if (nueva == 0) {
+            $("#divContenidoPreguntas").append('<div class="divContenidoPreguntas panel-body" id="divContenidoPreguntas_' + idPregunta + '"></div>');
+            $("#divContenidoPreguntas_" + idPregunta).load("/Campañas/EditarCampañaPreguntas?idPregunta=" + idPregunta + "&tipo=" + tipo + "&nueva=" + nueva);
+
+        } else {
+            $("#divContenidoPreguntas").append('<div class="divContenidoPreguntas nueva panel-body" id="divContenidoPreguntasNuevas_' + idPregunta + '"></div>');
+            $("#divContenidoPreguntasNuevas_" + idPregunta).load("/Campañas/EditarCampañaPreguntas?idPregunta=" + idPregunta + "&tipo=" + tipo + "&nueva=" + nueva);
+        }
+    }
+
+    function cambiarEstado(idP, nueva) {
+
+        if (nueva == 0) {
+
+            var checkbox = document.getElementById("archivosEspecificos_" + idP);
+            var label = document.getElementById("labelArchivosEspecifico_" + idP);
+
+            if (checkbox.checked) {
+                label.style.backgroundColor = "#556da2"; // Verde para encendido
+                document.getElementById("divTipoArchivo_" + idP).style.display = "block";
+
+            } else {
+                label.style.backgroundColor = "#ddd"; // Gris para apagado
+                document.getElementById("divTipoArchivo_" + idP).style.display = "none";
+            }
+        }
+        else {
+            var checkbox = document.getElementById("archivosEspecificosNueva_" + idP);
+            var label = document.getElementById("labelArchivosEspecificoNueva_" + idP);
+
+            if (checkbox.checked) {
+                label.style.backgroundColor = "#556da2"; // Verde para encendido
+                document.getElementById("divTipoArchivoNueva_" + idP).style.display = "block";
+
+            } else {
+                label.style.backgroundColor = "#ddd"; // Gris para apagado
+                document.getElementById("divTipoArchivoNueva_" + idP).style.display = "none";
+            }
+        }
+    }
+
+    function MostrarTipoPregunta(tipo, idPregunta, nueva) {
+        
+        if (nueva == 0) {
+
+            $("#conteoOpciones").val(1);
+
+            var divMostrarTipo = document.getElementById("divMostrarTipo_" + idPregunta);
+            // Eliminar los campos de entrada anteriores
+            while (divMostrarTipo.firstChild) {
+                divMostrarTipo.removeChild(divMostrarTipo.firstChild);
+            }
+
+            //input
+            if (tipo === "1") {
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+                    "<div class='col-md-4'>" +
+                    "<label class='text-secondary_asalud'>Texto respuesta breve </label>" +
+                    "<input type='text' id='nuevoInput_" + idPregunta + "' name='nuevoInput_" + idPregunta + "'class='form-control' disabled/>" +
+                    "</div>";
+            }
+
+            //Opción multiple
+            else if (tipo === "2") {
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoMultiple_' + idPregunta + '" name="conteoMultiple_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoMultiple_" + idPregunta).val();
+                if (conteoOpciones == 0) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm  botonAgregarSelect" id="tipomultipleAgregar_' + idPregunta + '" name="tipomultipleAgregar_' + idPregunta + '" onclick="añadirUnaOpcion(' + idPregunta + ', 1, 0)">' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonEliminarSelect" id="tipomultipleAgregarNueva_' + id + '" name="tipomultipleAgregarNueva_' + id + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 1, 0)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>';
+            }
+
+            //Casillas verificación
+            else if (tipo === "3") {
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoVerificacion_' + idPregunta + '" name="conteoVerificacion_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoVerificacion_" + idPregunta).val();
+                if (conteoOpciones == 0) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonAgregarSelect" id="tipoverificacionAgregar_' + idPregunta + '" name="tipoverificacionAgregar_' + id + '" onclick="añadirUnaOpcion(' + idPregunta + ', 2, 0)" />' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonEliminarSelect" id="tipomultipleAgregarNueva_' + id + '" name="tipomultipleAgregarNueva_' + id + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 2, 0)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>';
+            }
+
+            //Lista desplegable
+            else if (tipo === "4") {
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoSelect_' + idPregunta + '" name="conteoSelect_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoSelect_" + idPregunta).val();
+                if (conteoOpciones == 0) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonAgregarSelect" id="tipoverificacionAgregar_' + idPregunta + '" name="tipoverificacionAgregar_' + idPregunta + '" onclick="añadirUnaOpcion(' + idPregunta + ', 3, 0)" />' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonEliminarSelect" id="tipoverificacionAgregar_' + idPregunta + '" name="tipoverificacionAgregar_' + idPregunta + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 3, 0)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>';
+
+            }
+
+            //Archivo
+            else if (tipo === "5") {
+
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += " <br />" +
+
+                    "<div class='col-md-4'>" +
+                    "    <label class='text-secondary_asalud'> Cantidad máxima de archivos:</label>" +
+                    "    <select id='cantidadMaximaArchivos_" + idPregunta + "' name='cantidadMaximaArchivos_" + idPregunta + "' class='form-control' required>" +
+                    "        <option value=''>--Seleccione--</option>" +
+                    "        <option value='1'> 1 </option>" +
+                    "        <option value='5'> 5 </option>" +
+                    "        <option value='10'> 10 </option>" +
+                    "    </select>" +
+                    "</div>" +
+                    "<div class='col-md-4'>" +
+                    "    <label class='text-secondary_asalud'> Permitir solo tipos de archivos en específico:</label>" +
+                    "    <input type='checkbox' name='archivosEspecificos_" + idPregunta + "' id='archivosEspecificos_" + idPregunta + "' class='activacionClass' style='width:10%;' onchange='cambiarEstado(" + idPregunta + ", 0)'>" +
+                    "    <input type='hidden' name='archivosEspecificosCheck_" + idPregunta + "' id='archivosEspecificosCheck_" + idPregunta + "'/>" +
+                    "    <label for='archivosEspecificos_" + idPregunta + "' class='switch-label' id='labelArchivosEspecifico_" + idPregunta + "'></label>" +
+                    "</div>" +
+                    "<div class='col-md-4' id='divTipoArchivo_" + idPregunta + "' style='display:none'>" +
+                    "    <label class='text-secondary_asalud'> Extensiones permitidas:</label>" +
+                    "    <select id='tipoArchivo_" + idPregunta + "' name='tipoArchivo_" + idPregunta + "' class='form-control select3' required>" +
+                    "        <option value=''>--Seleccione--</option>" +
+                    "        <option value='1'> PNG / JPG </option>" +
+                    "        <option value='2'> PDF </option>" +
+                    "        <option value='3'> EXCEL </option>" +
+                    "        <option value='4'> DOC </option>" +
+                    "        <option value='5'> ZIP </option>" +
+                    "        <option value='6'> RAR </option>" +
+                    "    </select>" +
+                    "</div>";
+            }
+
+            //Fecha
+            else if (tipo === "6") {
+                document.getElementById('divMostrarTipo_' + idPregunta).innerHTML += '<br/>' +
+                    "<div class='col-md-4'>" +
+                    "<label class='text-secondary_asalud'>Seleccione fecha </label>" +
+                    "<input type='date'' id='nuevaFecha_" + idPregunta + "' name='nuevaFecha_" + idPregunta + "'class='form-control datepickerr' readonly/>" +
+                    "</div>";
+            }
+        }
+
+        else {
+
+            debugger
+            //Cuando es nueva
+            $("#conteoOpciones").val(1);
+
+            var divMostrarTipo = document.getElementById("divMostrarTipoNueva_" + idPregunta);
+
+            if (divMostrarTipo != null) {
+                // Eliminar los campos de entrada anteriores
+                while (divMostrarTipo.firstChild) {
+                    divMostrarTipo.removeChild(divMostrarTipo.firstChild);
+                }
+            }
+
+            //input
+            if (tipo === "1") {
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+                    "<div class='col-md-4'>" +
+                    "<label class='text-secondary_asalud'>Texto respuesta breve </label>" +
+                    "<input type='text' id='nuevoInputNueva_" + idPregunta + "' name='nuevoInputNueva" + idPregunta + "'class='form-control' disabled/>" +
+                    "</div>";
+            }
+
+            //Opción multiple
+            else if (tipo === "2") {
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoMultipleNueva_' + idPregunta + '" name="conteoMultipleNueva_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoMultipleNueva_" + idPregunta).val();
+                if (conteoOpciones == 0 || conteoOpciones == undefined) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonAgregarSelect" id="tipomultipleAgregarNueva_' + idPregunta + '" name="tipomultipleAgregarNueva_' + idPregunta + '" onclick="añadirUnaOpcion(' + idPregunta + ', 1, 1)">' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonEliminarSelect" id="tipomultipleAgregarNueva_' + idPregunta + '" name="tipomultipleAgregarNueva_' + idPregunta + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 1, 1)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>' +
+
+
+                    '<div class="col-md-4">' +
+                    '    <label> ' +
+                    '    <input type="checkbox" disabled class="checkMultiple" id="tipomultipleNueva_' + idPregunta + '_' + 1 + ' name="tipomultipleNueva_"' + idPregunta + '_1 />' +
+                    '    <input type="text" class="inputMultiple" id="textoMultipleNueva_' + idPregunta + '_' + 1 + '"  name="textoMultipleNueva_' + idPregunta + '_' + 1 + '" required placeholder="Texto en opción ' + 1 + '"/>' +
+                    '    </label>' +
+                    '</div>';
+
+
+                $("#conteoMultipleNueva_" + idPregunta).val(conteoOpciones);
+
+            }
+
+            //Casillas verificación
+            else if (tipo === "3") {
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoVerificacionNueva_' + idPregunta + '" name="conteoVerificacionNueva_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoVerificacionNueva_" + idPregunta).val();
+                if (conteoOpciones == 0 || conteoOpciones == undefined) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm  botonAgregarSelect" id="tipoverificacionAgregarNueva_' + idPregunta + '" name="tipoverificacionAgregarNueva_' + id + '" onclick="añadirUnaOpcion(' + idPregunta + ', 2, 1)" />' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm  botonEliminarSelect" id="tipoverificacionAgregarNueva_' + idPregunta + '" name="tipoverificacionAgregarNueva_' + idPregunta + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 2, 1)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>' +
+
+
+                    '<div class="col-md-4">' +
+                    '    <label> ' +
+                    '    <input type="checkbox" disabled id="tipoverificacionNueva_' + idPregunta + '_' + 1 + ' name="tipoverificacionNueva_"' + idPregunta + '_1 value="1" />' +
+                    '    <input type="text" class="inputMultiple" id="textoVerificacionNueva_' + idPregunta + '_' + 1 + '"  name="textoVerificacionNueva_' + idPregunta + '_' + 1 + '" required placeholder="Texto en opción ' + 1 + '"/>' +
+                    '    </label>' +
+                    '</div>';
+
+                $("#conteoVerificacionNueva_" + idPregunta).val(conteoOpciones);
+
+            }
+
+            //Lista desplegable
+            else if (tipo === "4") {
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+                    '<input id="conteoSelectNueva_' + idPregunta + '" name="conteoSelectNueva_' + idPregunta + ' type="hidden />'
+
+                var conteoOpciones = $("#conteoSelectNueva_" + idPregunta).val();
+                if (conteoOpciones == 0 || conteoOpciones == undefined) {
+                    conteoOpciones = 1;
+                }
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonAgregarSelect" id="tipoverificacionAgregarNueva_' + idPregunta + '" name="tipoverificacionAgregarNueva_' + idPregunta + '" onclick="añadirUnaOpcion(' + idPregunta + ', 3, 1)" />' +
+                    '      Agregar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '      <a class="btn btn-sm botonEliminarSelect" id="tipoverificacionAgregarNueva_' + idPregunta + '" name="tipoverificacionAgregarNueva_' + idPregunta + '" onclick="eliminarUltimaOpcion(' + idPregunta + ', 3, 1)">' +
+                    '       Eliminar una opción' +
+                    '      </a>' +
+                    '</div>' +
+                    '<br/>' +
+                    '<br/>' +
+
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                    '   <label> ' + 1 + ' </label> ' +
+                    '   <input type="text" class="inputMultiple"  id="textoSelectNueva_' + idPregunta + '_' + conteoOpciones + '" name="textoSelectNueva_' + idPregunta + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoSelectNueva_" + idPregunta).val(conteoOpciones);
+            }
+
+            //Archivo
+            else if (tipo === "5") {
+
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += " <br />" +
+
+
+                    "<div class='col-md-4'>" +
+                    "    <label class='text-secondary_asalud'> Cantidad máxima de archivos:</label>" +
+                    "    <select id='cantidadMaximaArchivosNueva_" + idPregunta + "' name='cantidadMaximaArchivosNueva_" + idPregunta + "' class='form-control' required>" +
+                    "        <option value=''>--Seleccione--</option>" +
+                    "        <option value='1'> 1 </option>" +
+                    "        <option value='5'> 5 </option>" +
+                    "        <option value='10'> 10 </option>" +
+                    "    </select>" +
+                    "</div>" +
+                    "<div class='col-md-4'>" +
+                    "    <label class='text-secondary_asalud'> Permitir solo tipos de archivos en específico:</label>" +
+                    "    <input type='checkbox' name='archivosEspecificosNueva_" + idPregunta + "' id='archivosEspecificosNueva_" + idPregunta + "' class='activacionClass' style='width:10%;' onchange='cambiarEstado(" + idPregunta + ", 1)'>" +
+                    "    <input type='hidden' name='archivosEspecificosCheckNueva_" + idPregunta + "' id='archivosEspecificosCheckNueva_" + idPregunta + "'/>" +
+                    "    <label for='archivosEspecificosNueva_" + idPregunta + "' class='switch-label' id='labelArchivosEspecificoNueva_" + idPregunta + "'></label>" +
+                    "</div>" +
+                    "<div class='col-md-4' id='divTipoArchivoNueva_" + idPregunta + "' style='display:none'>" +
+                    "    <label class='text-secondary_asalud'> Extensiones permitidas:</label>" +
+                    "    <select id='tipoArchivoNueva_" + idPregunta + "' name='tipoArchivoNueva_" + idPregunta + "' class='form-control select3' required>" +
+                    "        <option value=''>--Seleccione--</option>" +
+                    "        <option value='1'> PNG / JPG </option>" +
+                    "        <option value='2'> PDF </option>" +
+                    "        <option value='3'> EXCEL </option>" +
+                    "        <option value='4'> DOC </option>" +
+                    "        <option value='5'> ZIP </option>" +
+                    "        <option value='6'> RAR </option>" +
+                    "    </select>" +
+                    "</div>";
+            }
+
+            //Fecha
+            else if (tipo === "6") {
+                document.getElementById('divMostrarTipoNueva_' + idPregunta).innerHTML += '<br/>' +
+                    "<div class='col-md-4'>" +
+                    "<label class='text-secondary_asalud'>Seleccione fecha </label>" +
+                    "<input type='date'' id='nuevaFechaNueva_" + idPregunta + "' name='nuevaFechaNueva_" + idPregunta + "'class='form-control datepickerr' readonly/>" +
+                    "</div>";
+            }
+        }
+    }
+
+
+    function añadirUnaOpcion(id, tipo, nuevo) {
+
+        debugger
+        var conteoOpciones = 1;
+
+        if (nuevo == 0) {
+
+            //Tipo multiple
+            if (tipo == 1) {
+
+                conteoOpciones = $("#conteoMultiple_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoMultiple_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipo_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                    '    <input type="checkbox" disabled class="checkMultiple"  id="tipomultiple_' + id + '_' + conteoOpciones + ' name="tipomultiple_"' + id + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                    '    <input type="text" class="inputMultiple"  id="textoMultiple_' + id + '_' + conteoOpciones + '" name="textoMultiple_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoMultiple_" + id).val(conteoOpciones);
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoMultiple_" + id + "_" + i).val(valorArray);
+                    }
+                }
+            }
+
+            //tipo verificacion
+            else if (tipo == 2) {
+
+                conteoOpciones = $("#conteoVerificacion_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoVerificacion_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipo_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                    '    <input type="checkbox" disabled id="tipoverificacion_' + id + '_' + conteoOpciones + ' name="tipoverificacion_"' + id + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                    '    <input type="text" class="inputMultiple"  id="textoVerificacion_' + id + '_' + conteoOpciones + '" name="textoVerificacion_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoVerificacion_" + id).val(conteoOpciones);
+
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoVerificacion_" + id + "_" + i).val(valorArray);
+                    }
+                }
+            }
+
+            //Selects
+            else if (tipo == 3) {
+
+                conteoOpciones = $("#conteoSelect_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoSelect_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipo_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                    '   <label> ' + conteoOpciones + ' </label> ' +
+                    '   <input type="text" class="inputMultiple"  id="textoSelect_' + id + '_' + conteoOpciones + '" name="textoSelect_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoSelect_" + id).val(conteoOpciones);
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoSelect_" + id + "_" + i).val(valorArray);
+                    }
+                }
+            }
+        }
+        else {
+            //Tipo multiple
+            if (tipo == 1) {
+
+                conteoOpciones = $("#conteoMultipleNueva_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoMultipleNueva_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipoNueva_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                '    <input type="checkbox" disabled class="checkMultiple"  id="tipomultipleNueva_' + id + '_' + conteoOpciones + ' name="tipomultipleNueva_"' + id + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                '    <input type="text" class="inputMultiple"  id="textoMultipleNueva_' + id + '_' + conteoOpciones + '" name="textoMultipleNueva_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoMultipleNueva_" + id).val(conteoOpciones);
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoMultipleNueva_" + id + "_" + i).val(valorArray);
+                    }
+                }
+            }
+
+            //tipo verificacion
+            else if (tipo == 2) {
+
+                conteoOpciones = $("#conteoVerificacionNueva_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoVerificacionNueva_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipoNueva_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                '    <input type="checkbox" disabled id="tipoverificacionNueva_' + id + '_' + conteoOpciones + ' name="tipoverificacionNueva_"' + id + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                '    <input type="text" class="inputMultiple"  id="textoVerificacionNueva_' + id + '_' + conteoOpciones + '" name="textoVerificacionNueva_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoVerificacionNueva_" + id).val(conteoOpciones);
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoVerificacionNueva_" + id + "_" + i).val(valorArray);
+                    }
+                }
+            }
+
+            //Selects
+            else if (tipo == 3) {
+
+                conteoOpciones = $("#conteoSelectNueva_" + id).val();
+
+                var arrayLlenadoCampos = [];
+
+                for (var i = 1; i <= conteoOpciones; i++) {
+                    var valor = $("#textoSelectNueva_" + id + "_" + i).val();
+                    if (valor != undefined) {
+                        arrayLlenadoCampos[i] = [];
+                        arrayLlenadoCampos[i][0] = id;
+                        arrayLlenadoCampos[i][1] = i;
+                        arrayLlenadoCampos[i][2] = valor;
+                    }
+                }
+
+                conteoOpciones++;
+
+                document.getElementById('divMostrarTipoNueva_' + id).innerHTML +=
+                    "<div class='col-md-4'>" +
+                    '   <label> ' +
+                    '   <label> ' + conteoOpciones + ' </label> ' +
+                '   <input type="text" class="inputMultiple"  id="textoSelectNueva_' + id + '_' + conteoOpciones + '" name="textoSelectNueva_' + id + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                    '   </label>' +
+                    "</div>";
+
+                $("#conteoSelectNueva_" + id).val(conteoOpciones);
+
+                for (var i = 1; i < arrayLlenadoCampos.length; i++) {
+
+                    var valorArray = arrayLlenadoCampos[i][2];
+                    if (valorArray != "") {
+                        var valor = $("#textoSelectNueva_" + id + "_" + i).val(valorArray);
+                    }
+                }
+
+            }
+        }
+    }
+
+
+    function eliminarUltimaOpcion(id, tipo, nuevo) {
+
+        var seElimina = 0;
+
+        debugger
+        if (nuevo == 0) {
+
+            if (tipo == 1) {
+                var conteoOpciones = parseInt($("#conteoMultiple_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+            }
+            else if (tipo == 2) {
+                var conteoOpciones = parseInt($("#conteoVerificacion_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+
+            }
+            else if (tipo == 3) {
+                var conteoOpciones = parseInt($("#conteoSelect_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+            }
+
+            if (seElimina == 1) {
+                var divMostrarTipo = document.getElementById('divMostrarTipo_' + id);
+                var lastChild = divMostrarTipo.lastElementChild;
+
+                if (lastChild) {
+                    divMostrarTipo.removeChild(lastChild);
+
+                    if (tipo === 1) {
+                        $("#conteoMultiple_" + id).val(conteoOpciones - 1);
+                    } else if (tipo === 2) {
+                        $("#conteoVerificacion_" + id).val(conteoOpciones - 1);
+                    } else if (tipo === 3) {
+                        $("#conteoSelect_" + id).val(conteoOpciones - 1);
+                    }
+                }
+            }
+        }
+        else {
+            if (tipo == 1) {
+                var conteoOpciones = parseInt($("#conteoMultipleNueva_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+            }
+            else if (tipo == 2) {
+                var conteoOpciones = parseInt($("#conteoVerificacionNueva_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+
+            }
+            else if (tipo == 3) {
+                var conteoOpciones = parseInt($("#conteoSelectNueva_" + id).val());
+                if (conteoOpciones > 1) {
+                    seElimina = 1;
+                } else {
+                    seElimina = 0;
+                }
+            }
+
+            if (seElimina == 1) {
+                var divMostrarTipo = document.getElementById('divMostrarTipoNueva_' + id);
+                var lastChild = divMostrarTipo.lastElementChild;
+
+                if (lastChild) {
+                    divMostrarTipo.removeChild(lastChild);
+
+                    if (tipo === 1) {
+                        $("#conteoMultipleNueva_" + id).val(conteoOpciones - 1);
+                    } else if (tipo === 2) {
+                        $("#conteoVerificacionNueva_" + id).val(conteoOpciones - 1);
+                    } else if (tipo === 3) {
+                        $("#conteoSelectNueva_" + id).val(conteoOpciones - 1);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    function ValidarFormulario() {
+        var validator = $("#formularioDatos").validate();
+        if (validator.form()) {
+            GuardarEdicion();
+        }
+    }
+
+    function GuardarEdicion() {
+        llenarArraysEditarPreguntas();
+        llenarArraysNuevas();
+
+        var idCampana = $("#idCampana").val();
+        var titulo = $("#titulo").val();
+        var descripcion = $("#descripcion").val();
+
+
+        var dataToSend = {
+            idCampana: idCampana,
+            titulo: titulo,
+            descripcion: descripcion,
+            arrayBidimensionalPreguntas: arrayBidimensionalPreguntas,
+            arrayRespuestaBreve: arrayRespuestaBreve,
+            arrayOpcionMultiple: arrayOpcionMultiple,
+            arrayCasillasVerificacion: arrayCasillasVerificacion,
+            arrayListaDesplegable: arrayListaDesplegable,
+            arrayCargaArchivos: arrayCargaArchivos,
+            arrayCargaFecha: arrayCargaFecha,
+
+            arrayBidimensionalPreguntasNuevas: arrayBidimensionalPreguntasNuevas,
+            arrayRespuestaBreveNuevas: arrayRespuestaBreveNuevas,
+            arrayOpcionMultipleNuevas: arrayOpcionMultipleNuevas,
+            arrayCasillasVerificacionNuevas: arrayCasillasVerificacionNuevas,
+            arrayListaDesplegableNuevas: arrayListaDesplegableNuevas,
+            arrayCargaArchivosNuevas: arrayCargaArchivosNuevas,
+            arrayCargaFechaNuevas: arrayCargaFechaNuevas
+        };
+
+        LoadingShow();
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GuardarEdicionPreguntas", "Campañas")",
+            data: JSON.stringify(dataToSend),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+
+            success: function (data) {
+                if (data.rta) {
+                    LoadingHide();
+                    alertify.alert("¡Proceso Exitoso!", "<p style='text-align:justify'>" + data.mensaje + "</p>", function () {
+                        location.href = "@Url.Action("TableroControlCampañas", "Campañas")";
+
+                    }).set('label', 'Aceptar');
+                }
+                else {
+                    LoadingHide();
+                    alertify.alert("¡Aviso!", "<p>" + data.mensaje + "</p>", function () {
+                        //location.reload();
+                    }).set('label', 'Aceptar');
+                }
+            },
+            error: function (data) {
+                alert("Se ha acabado la sesion. por favor recargue la pagina");
+            }
+        })
+
+    }
+
+    function llenarArraysEditarPreguntas() {
+        // Limpiar los arrays antes de llenarlos nuevamente
+        arrayBidimensionalPreguntas = [];
+        arrayRespuestaBreve = [];
+        arrayOpcionMultiple = [];
+        arrayCasillasVerificacion = [];
+        arrayListaDesplegable = [];
+        arrayCargaArchivos = [];
+        arrayCargaFecha = [];
+
+        var preguntas = $("#idPreguntas").val();
+        var listapreguntas = preguntas.split(",");
+        var tipo = $("#idTipoPreguntas").val();
+        var listaTipo = tipo.split(",");
+        debugger;
+
+        for (var i = 0; i < listapreguntas.length; i++) {
+            var cambioTipoPregunta = 0;
+            var idPregunta = listapreguntas[i];
+            if (idPregunta != undefined) {
+                var pregunta = $("#pregunta_" + idPregunta).val();
+                if (pregunta != undefined) {
+                    var tipoPreguntaOriginal = listaTipo[i];
+                    var tipoPregunta = $("#tipoPregunta_" + idPregunta).val();
+                    var obligatorio = $('input[name="obligatorio_' + i + '"]:checked').val();
+
+                    if (tipoPregunta != tipoPreguntaOriginal) {
+                        cambioTipoPregunta = 1;
+                    }
+
+                    // Restablecer el array en la posición i
+                    arrayBidimensionalPreguntas[i] = [];
+                    arrayBidimensionalPreguntas[i][0] = parseInt(idPregunta);
+                    arrayBidimensionalPreguntas[i][1] = pregunta;
+                    arrayBidimensionalPreguntas[i][2] = tipoPregunta;
+                    arrayBidimensionalPreguntas[i][3] = cambioTipoPregunta;
+                    arrayBidimensionalPreguntas[i][4] = obligatorio;
+
+                    // Restablecer otros arrays según sea necesario...
+
+                    // Restablecer el array de respuesta breve
+                    if (tipoPregunta == 1) {
+                        var respuestaCorta = $("#nuevoInput_" + idPregunta).val();
+                        arrayRespuestaBreve[i] = [];
+                        arrayRespuestaBreve[i][0] = idPregunta;
+                        arrayRespuestaBreve[i][1] = respuestaCorta;
+                    }
+
+                    //Opcion multiple
+                    else if (tipoPregunta == 2) {
+                        var conteoOpciones = $("#conteoMultiple_" + idPregunta).val();
+                        arrayOpcionMultiple[i] = [];
+
+                        for (var j = 1; j <= conteoOpciones; j++) {
+
+                            var textoOpcion = $("#textoMultiple_" + idPregunta + "_" + j).val();
+                            arrayOpcionMultiple[i][j] = [];
+                            arrayOpcionMultiple[i][j][0] = parseInt(j);
+                            arrayOpcionMultiple[i][j][1] = parseInt(idPregunta);
+                            arrayOpcionMultiple[i][j][2] = textoOpcion;
+                        }
+                    }
+
+                    //Casilllas verificación
+                    else if (tipoPregunta == 3) {
+                        var conteoOpciones = $("#conteoVerificacion_" + idPregunta).val();
+                        arrayCasillasVerificacion[i] = [];
+
+                        for (var j = 0; j <= conteoOpciones; j++) {
+
+                            var textoOpcion = $("#textoVerificacion_" + idPregunta + "_" + j).val();
+
+                            arrayCasillasVerificacion[i][j] = [];
+                            arrayCasillasVerificacion[i][j][0] = parseInt(j);
+                            arrayCasillasVerificacion[i][j][1] = parseInt(idPregunta);
+                            arrayCasillasVerificacion[i][j][2] = textoOpcion;
+                        }
+                    }
+
+                    //lista desplegable
+                    else if (tipoPregunta == 4) {
+                        var conteoOpciones = $("#conteoSelect_" + idPregunta).val();
+                        arrayListaDesplegable[i] = [];
+
+                        for (var j = 0; j <= conteoOpciones; j++) {
+
+                            var textoOpcion = $("#textoSelect_" + idPregunta + "_" + j).val();
+                            arrayListaDesplegable[i][j] = [];
+                            arrayListaDesplegable[i][j][0] = parseInt(j);
+                            arrayListaDesplegable[i][j][1] = parseInt(idPregunta);
+                            arrayListaDesplegable[i][j][2] = textoOpcion;
+                        }
+                    }
+
+
+                    //Carga archivos
+                    else if (tipoPregunta == 5) {
+
+                        var checkbox = $("#archivosEspecificosCheck_" + i).val();
+                        var cantidadMaximaArchivos = $("#cantidadMaximaArchivos_" + idPregunta).val();
+                        var tipoArchivo = $("#tipoArchivo_" + idPregunta).val();
+                        arrayCargaArchivos[i] = [];
+
+                        arrayCargaArchivos[i][0] = idPregunta;
+                        arrayCargaArchivos[i][1] = checkbox;
+                        arrayCargaArchivos[i][2] = cantidadMaximaArchivos;
+                        arrayCargaArchivos[i][3] = tipoArchivo;
+                    }
+
+                    //Fecha
+                    else if(tipoPregunta == 6){
+                        var nuevaFecha = $("#nuevaFecha_" + idPregunta).val();
+                        arrayCargaFecha[i] = [];
+                        arrayCargaFecha[i][0] = idPregunta;
+                        arrayCargaFecha[i][1] = nuevaFecha;
+                    }
+
+                }
+            }
+        }
+    }
+    function llenarArraysNuevas() {
+
+        var conteoFinal = parseInt($("#conteoFinal").val());
+
+        arrayBidimensionalPreguntasNuevas = [];
+        arrayRespuestaBreveNuevas = [];
+        arrayOpcionMultipleNuevas = [];
+        arrayCasillasVerificacionNuevas = [];
+        arrayListaDesplegableNuevas = [];
+        arrayCargaArchivosNuevas = [];
+        arrayCargaFechaNuevas = [];
+
+        for (var i = 0; i <= conteoFinal; i++) {
+
+            var pregunta = $("#preguntaNueva_" + i).val();
+
+            if (pregunta != undefined) {
+
+                var tipoPregunta = $("#tipoPreguntaNueva_" + i).val();
+                var obligatorio = $('input[name="obligatorioNueva_@i"]:checked').val();
+
+                arrayBidimensionalPreguntasNuevas[i] = [];
+                arrayBidimensionalPreguntasNuevas[i][0] = parseInt(i);
+                arrayBidimensionalPreguntasNuevas[i][1] = pregunta;
+                arrayBidimensionalPreguntasNuevas[i][2] = tipoPregunta;
+                arrayBidimensionalPreguntasNuevas[i][3] = obligatorio;
+
+                //Respuesta corta
+                if (tipoPregunta == 1) {
+                    var respuestaCorta = $("#nuevoInputNueva_" + i).val();
+                    arrayRespuestaBreveNuevas[i] = [];
+                    arrayRespuestaBreveNuevas[i][0] = i;
+                    arrayRespuestaBreveNuevas[i][1] = respuestaCorta;
+                }
+
+                //Opcion multiple
+                else if (tipoPregunta == 2) {
+                    var conteoOpciones = $("#conteoMultipleNueva_" + i).val();
+                    arrayOpcionMultipleNuevas[i] = [];
+
+                    for (var j = 1; j <= conteoOpciones; j++) {
+
+                        var textoOpcion = $("#textoMultipleNueva_" + i + "_" + j).val();
+                        arrayOpcionMultipleNuevas[i][j] = [];
+                        arrayOpcionMultipleNuevas[i][j][0] = parseInt(j);
+                        arrayOpcionMultipleNuevas[i][j][1] = parseInt(i);
+                        arrayOpcionMultipleNuevas[i][j][2] = textoOpcion;
+                    }
+                }
+
+                //Casilllas verificación
+                else if (tipoPregunta == 3) {
+                    var conteoOpciones = $("#conteoVerificacionNueva_" + i).val();
+                    arrayCasillasVerificacionNuevas[i] = [];
+
+                    for (var j = 0; j <= conteoOpciones; j++) {
+
+                        var textoOpcion = $("#textoVerificacionNueva_" + i + "_" + j).val();
+
+                        arrayCasillasVerificacionNuevas[i][j] = [];
+                        arrayCasillasVerificacionNuevas[i][j][0] = parseInt(j);
+                        arrayCasillasVerificacionNuevas[i][j][1] = parseInt(i);
+                        arrayCasillasVerificacionNuevas[i][j][2] = textoOpcion;
+                    }
+                }
+
+                //lista desplegable
+                else if (tipoPregunta == 4) {
+                    var conteoOpciones = $("#conteoSelectNueva_" + i).val();
+                    arrayListaDesplegableNuevas[i] = [];
+
+                    for (var j = 0; j <= conteoOpciones; j++) {
+
+                        var textoOpcion = $("#textoSelectNueva_" + i + "_" + j).val();
+                        arrayListaDesplegableNuevas[i][j] = [];
+                        arrayListaDesplegableNuevas[i][j][0] = parseInt(j);
+                        arrayListaDesplegableNuevas[i][j][1] = parseInt(i);
+                        arrayListaDesplegableNuevas[i][j][2] = textoOpcion;
+                    }
+                }
+
+                //Carga archivos
+                else if (tipoPregunta == 5) {
+
+                    var checkbox = $("#archivosEspecificosCheckNueva_" + i).val();
+                    var cantidadMaximaArchivos = $("#cantidadMaximaArchivosNueva_" + i).val();
+                    var tipoArchivo = $("#tipoArchivoNueva_" + i).val();
+                    arrayCargaArchivosNuevas[i] = [];
+
+                    arrayCargaArchivosNuevas[i][0] = i;
+                    arrayCargaArchivosNuevas[i][1] = checkbox;
+                    arrayCargaArchivosNuevas[i][2] = cantidadMaximaArchivos;
+                    arrayCargaArchivosNuevas[i][3] = tipoArchivo;
+                }
+
+                //Fecha
+                else {
+                    var nuevaFecha = $("#nuevaFechaNueva_" + i).val();
+                    arrayCargaFechaNuevas[i] = [];
+                    arrayCargaFechaNuevas[i][0] = i;
+                    arrayCargaFechaNuevas[i][1] = nuevaFecha;
+                }
+            }
+        }
+    }
+    function EliminarDivPregunta(id) {
+        debugger
+
+        var confirmar = confirm("¿Está seguro(a) de eliminar esta pregunta ya creada?");
+
+        if (confirmar && id >= 1) {
+            
+            if ($("#divContenidoPreguntasNuevas_" + id).length > 0) {
+                // Elimina de las preguntas nuevas y limpia los arrays
+                arrayBidimensionalPreguntasNuevas = [];
+                arrayRespuestaBreveNuevas = [];
+                arrayOpcionMultipleNuevas = [];
+                arrayCasillasVerificacionNuevas = [];
+                arrayListaDesplegableNuevas = [];
+                arrayCargaArchivosNuevas = [];
+                arrayCargaFechaNuevas = [];
+                // Elimina visualmente el div
+                //$("#divContenidoPreguntasNuevas_" + id).fadeOut("slow", function () {
+                //    $(this).remove();
+                //});
+
+                $("#divContenidoPreguntasNuevas_" + id).detach();
+            }
+            else {
+            
+                if ($("#divContenidoPreguntas_" + id).length > 0) {
+                    // Elimina de las preguntas existentes y limpia los arrays
+
+                    arrayBidimensionalPreguntas = [];
+                    arrayRespuestaBreve = [];
+                    arrayOpcionMultiple = [];
+                    arrayCasillasVerificacion = [];
+                    arrayListaDesplegable = [];
+                    arrayCargaArchivos = [];
+                    arrayCargaFecha = [];
+
+                    // Elimina visualmente el div
+             
+                    $("#divContenidoPreguntas_" + id).detach();
+                }
+            }
+        }
+    }
+
+
+
+
+</script>
+
+<style>
+
+
+    .divContenidoAchivoEspecifico {
+        position: relative;
+    }
+    /*
+        .activacionClass {
+            display: none;
+        }
+
+
+        .switch-label {
+            display: block;
+            width: 40px;
+            height: 18px;
+            background-color: #ddd;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+            .switch-label::before {
+                content: "";
+                width: 20px;
+                height: 18px;
+                background-color: #b9b9b9;
+                border-radius: 50%;
+                position: absolute;
+                transition: 0.3s;
+                left: 0;
+            }
+
+        .activacionClass:checked + .switch-label::before {
+            transform: translateX(25px);
+        }
+    */
+
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 10px; /* Ajusta el margen según sea necesario */
+    }
+
+    /* Estilos para la etiqueta de cambio de estado */
+    .switch-label {
+        display: block;
+        width: 40px;
+        height: 18px;
+        background-color: #ddd;
+        border-radius: 15px;
+        position: relative;
+        cursor: pointer;
+    }
+
+        /* Estilos para el estado "encendido" del interruptor */
+        .switch-label::before {
+            content: "";
+            width: 20px;
+            height: 18px;
+            background-color: #b9b9b9;
+            border-radius: 50%;
+            position: absolute;
+            transition: 0.3s;
+            left: 0;
+        }
+
+    /* Estilos para el estado "apagado" del interruptor */
+    .activacionClass:checked + .switch-label::before {
+        transform: translateX(40px);
+    }
+
+    .round {
+        position: absolute;
+    }
+
+        .round label {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            height: 28px;
+            left: 0;
+            /*position: relative;*/
+            top: 0;
+            width: 28px;
+        }
+
+            .round label:after {
+                border: 2px solid #fff;
+                border-top: none;
+                border-right: none;
+                content: "";
+                height: 6px;
+                left: 7px;
+                opacity: 0;
+                /*position: absolute;*/
+                top: 8px;
+                transform: rotate(-45deg);
+                width: 12px;
+            }
+
+        .round input[type="checkbox"] {
+            visibility: hidden;
+        }
+
+            .round input[type="checkbox"]:checked + label {
+                background-color: #66bb6a;
+                border-color: #66bb6a;
+            }
+
+                .round input[type="checkbox"]:checked + label:after {
+                    opacity: 1;
+                }
+
+    .inputMultiple {
+        color: #556da2;
+        border: 0px;
+    }
+
+
+    ::placeholder {
+        color: #556da2;
+        opacity: 1; /* Firefox */
+        font-family: 'Century Gothic';
+        font-size: 10px;
+    }
+
+    .checkMultiple {
+        width: 1.3em;
+        height: 1.3em;
+        background-color: white;
+        border-radius: 50%;
+        vertical-align: middle;
+        border: 1px solid #ddd;
+        -webkit-appearance: none;
+        /*        outline: none;
+        */
+    }
+
+        .checkMultiple:checked {
+            background-color: #556da2;
+        }
+
+    .botonAgregarSelect {
+        width: 40%;
+        height: 10%;
+        font-size: 10px;
+        background-color: #80ab97;
+        color: #ffffff;
+    }
+
+    .botonEliminarSelect {
+        width: 40%;
+        height: 10%;
+        font-size: 10px;
+        color: #ffffff;
+        background-color: #883344;
+    }
+
+    .boton-flotante {
+        position: fixed;
+        bottom: 50px; /* Espacio desde abajo */
+        right: 40px; /* Espacio desde la derecha */
+        /*background-color: #007bff;*/ /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 10px 20px; /* Espaciado interno */
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+        transition: all 0.3s ease;
+    }
+
+        .boton-flotante:hover {
+            /*background-color: #0056b3;*/ /* Color de fondo al pasar el mouse */
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Cambia la sombra al pasar el mouse */
+        }
+
+    /*#scrollapp{
+            color:red;
+            background-color:red;*/
+    /*position: relative;*/
+    /*right:30px;
+            margin-top: -400px;
+        }*/
+
+    .separador {
+        border: none;
+        height: 1px;
+        background-color: #b9b9b9;
+        margin-top: -5px;
+    }
+
+    /*
+        .separador{
+            border:10px;
+        }*/
+</style>

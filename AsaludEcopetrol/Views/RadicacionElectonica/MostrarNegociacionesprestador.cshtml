@@ -1,0 +1,174 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">NEGOCIACIONES</a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="tableNegociaciones" class="table table-bordered table-condensed" style="font-size:11px; width:98%;  margin:0px !important">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ítem</th>
+                        <th class="text-center">Id contrato</th>
+                        <th class="text-center">Id negociación</th>
+                        <th class="text-center">Conteo registros</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Fecha de cargue</th>
+                        <th class="text-center">Usuario creador</th>
+                        <th class="text-center">Gestión</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodytbl2">
+                    @if (ViewBag.conteoNegociaciones > 0)
+                    {
+                        var i = 0;
+
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_contratos_negociaciones_idPrestadorResult item in ViewBag.listadoNegociaciones)
+                        {
+                            i++;
+                            <tr>
+                                <td class="text-center">@i</td>
+                                <td class="text-center">@item.id_contrato</td>
+                                <td class="text-center">@item.id_masivo</td>
+                                <td class="text-center">@item.conteoDatos</td>
+                                <td class="text-center">@item.descripcionEstado</td>
+                                @if (item.fecha_digita != null)
+                                {
+                                    <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_digita</td>
+                                }
+
+                                <td class="text-center">@item.nombreDigita</td>
+                                <td class="text-center">
+                                    <a class="btn btn-sm button_Asalud_descargas" onclick="MostrarNegociaciones(@item.id_masivo)" data-toggle="modal" data-target="#myModalDetalles">Ver</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                <label>Sin negociaciones.</label>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <br />
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalDetalles">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoDtll"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $('#tableNegociaciones').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 20,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function MostrarNegociaciones(idMasivo) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarNegociacionesContratoDetale", "FIS_RIPS")?idMasivo=' + idMasivo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoDtll').html('');
+                $('#resultadoDtll').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+
+
+    #tableNegociaciones {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tableNegociaciones th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tableNegociaciones td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tableNegociaciones tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+
+    input:read-only {
+        background-color: transparent !important;
+        color: #556da2 !important;
+    }
+</style>

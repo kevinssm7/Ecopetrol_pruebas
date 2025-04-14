@@ -1,0 +1,238 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.dispensaciones
+@{
+    ViewBag.Title = "DISPENSACION AMBULATORIA DETALLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+<div class="container-fluid">
+
+    <div class="gj-clear-both"></div>
+    <div class="gj-margin-top-10">
+        <table id="grid"></table>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-12">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.hallazgos)</span></h4>
+            @Html.TextAreaFor(p => p.hallazgos, new { @class = "form-control" })
+            @Html.ValidationMessageFor(u => u.hallazgos, null, new { @class = "label label-danger" })
+        </div>
+
+    </div>
+
+    <br />
+
+    <div id="pnlGuardar" class="General">
+        <table align="center">
+
+            <tr>
+                <td>
+                    @*<input id="BtnActualizar" type="submit" value="SIGUIENTE" class="btn btn-success" />*@
+
+                    <button type="submit" id="btnSave3" class="btn btn-primary" onclick="Save4()">GUARDAR</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="Error">
+                    @Html.ValidationSummary(true, "")
+                </td>
+            </tr>
+
+            <tr>
+                <td style="display:none">
+                    @Html.TextBoxFor(u => u.id_md_dispensacion_ambulatoria)
+                    @Html.TextBoxFor(u => u.nombre_auditado)
+
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <div id="resultado" style='display:none;' class="Error">
+        <h3>Ingreso correcto...</h3>
+    </div>
+
+    <div style="display:none">
+        @Html.TextBoxFor(u => u.id_md_dispensacion_ambulatoria)
+
+    </div>
+</div>
+
+<br>
+
+
+<script type="text/javascript">
+
+    function Save4() {
+
+           var textBox1 = $('input:text[id$=id_md_dispensacion_ambulatoria]').keyup();
+        var value2 = textBox1.val();
+
+        document.getElementById('resultado').style.display = 'block';
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_md_dispensacion_ambulatoria", $("#id_md_dispensacion_ambulatoria").val());
+        formData.append("hallazgos", $("#hallazgos").val());
+
+        $.ajax({
+
+            url: "/medicamentos/SaveAmbulatorioGeneral",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                 window.location = '@Url.Action("BuscarDispensacionAmbulatoria", "medicamentos")'
+            }
+
+        })
+
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                dialog2.close();
+            });
+
+    }
+
+
+    $(document).ready(function () {
+
+        var textBox1 = $('input:text[id$=id_md_dispensacion_ambulatoria]').keyup();
+        var value2 = textBox1.val();
+
+        var valores = ['0', '1'];
+        var grid;
+        grid = $('#grid').grid({
+
+            locale: 'es-es',
+            dataSource: '/medicamentos/GetAmbulatorio/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_md_ref_dispens_ambulatoria',
+            inlineEditing: { mode: 'command', managementColumnConfig: { width: 240 } },
+            columns: [
+
+                { field: 'Nro', width: 50 },
+                { field: 'descripcion', title: 'Descripcion', width: 400 },
+                { field: 'peso', width: 50, title: 'Peso' },
+                { field: 'valor', title: 'Valor', width: 50, type: 'dropdown', editor: { dataSource: valores } },
+                { field: 'resultado', title: 'Resultado', width: 80 },
+                { field: 'observaciones', title: 'Observaciones', editor: true, width: 200, align: 'center' },
+
+            ],
+            pager: { limit: 10 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({
+                url: '/medicamentos/SaveAmbulatorio',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+
+    });
+
+  
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 150px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 9px;
+        width: 800px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #524e4e;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .gj-dialog-md-close span {
+        display: none;
+    }
+</style>
+
+
+

@@ -1,0 +1,367 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO DE CONTROL AUDITORIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <div>
+            <form id="formbuscar" action="EvaluacionCalidad" method="post" class="row">
+                <div class="col-md-12 form-group row">
+                    <div class="col-sm-3">
+
+                    </div>
+                    <div class="col-sm-3">
+
+                    </div>
+                    <div class="col-sm-2">
+
+                    </div>
+                    <div class="col-sm-2">
+
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        @*<button class="btn btn-primary" style="margin-top: 8%" type="submit">Buscar</button>*@
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 row">
+
+            <a class="btn btn-primary" style="background-color:#636363" href="@Url.Action("DescargarReporteCuentas", "medicamentos", new { })">
+                Reporte
+                <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+            </a>
+            <br />
+            <br />
+
+            <div class="row">
+
+                <div class="col-md-2 form-group">
+                    <div style="background-color:#f2dede" class="contenedor1">
+                        # Casos vencidos o por vencer : @ViewBag.casos3
+                    </div>
+                </div>
+                <div class="col-md-2 form-group">
+                    <div style="background-color:#FFFAE0" class="contenedor1">
+                        # Casos en alerta: @ViewBag.casos2
+                    </div>
+                </div>
+
+                <div class="col-md-2 form-group">
+                    <div style="background-color:#DCF2D2" class="contenedor1">
+                        # Casos En tiempos:  @ViewBag.casos1
+                    </div>
+                </div>
+
+
+            </div>
+
+            <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Numero formula</th>
+                        <th>Numero factura</th>
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Ciudad</th>
+                       
+                        <th>Dias trascurridos</th>
+                        <th>Valor total formula</th>
+                        <th>Auditor</th>
+                        <th>Ver documento</th>
+                        <th>Auditar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.Managment_md_tablerocontrolResult item in ViewBag.lSTA)
+                    {
+                        <tr>
+                            <td>@item.numero_formula</td>
+                            <td>@item.numero_factura</td>
+                            <td>@item.numero_documento</td>
+                            <td>@item.nombre_beneficiario</td>
+                            <td>@item.ciudad</td>
+                           
+
+                            @if (@item.dias >= 1 && @item.dias <= 3)
+                            {
+                                <td>
+                                    <div style="background-color:#DCF2D2">
+                                        <b>
+                                            @item.dias días
+                                        </b>
+                                    </div>
+                                </td>
+                            }
+                            else if (@item.dias > 3 && @item.dias <= 5)
+                            {
+                                <td>
+                                    <div style="background-color:#FFFAE0">
+                                        <b>
+                                            @item.dias días
+                                        </b>
+                                    </div>
+                                </td>
+                            }
+                            else if (@item.dias >= 6)
+                            {
+                                <td>
+                                    <div style="background-color:#f2dede">
+                                        <b>
+                                            <strong>ALERTA...!</strong> @item.dias días
+                                        </b>
+                                    </div>
+                                </td>
+
+                            }
+                            <td>@item.valor_total</td>
+                            <td>@item.NomAuditor</td>
+                            <td>
+                                <h7 style="text-decoration-color:#5168a8"> <a href="#" onclick="javascript:window.open('@Url.Action("GestorDocs", "GestorDocumental" , new { id =  @item.id_gestion_documental__medicamentos  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER DOCUMENTO </a></h7>
+                            </td>
+                            <td class="text-center">
+                                <a role="button" class="btn btn-success btn-sm" style="background-color:#80ab97" href="@Url.Action("TableroControlMedicamentos", "medicamentos", new {variable = item.numero_formula})">Auditar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.table').DataTable({
+            "searching": false,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        if (@ViewBag.casos3 > 0) {
+         alert("TIENE" + '  ' + @ViewBag.casos3 + '  ' +  'CASOS'  + '\n' + 'QUE ESTÁN VENCIDOS'+ '\n' + 'O PROXIMOS A VENCER'+ '\n' + 'Y QUE DEBE GESTIONAR PRIORITARIAMENTE ');
+        }
+
+    })
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 60%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 80%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        width: 100%;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+
+
+
+

@@ -1,0 +1,263 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_visitas>
+@{
+    ViewBag.Title = "ELIMINAR EVALUACIONES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewData["rta"];
+}
+
+<br />
+
+<div class="container">
+    @if (rta != null)
+    {
+        <div class="form-group">
+            @if (rta == 1)
+            {
+                <div class="alert alert-success" role="alert"><strong>Exito! &nbsp;</strong>Evaluación de visita de calidad eliminada exitosamente.</div>
+            }
+            else
+            {
+                <div class="alert alert-danger" role="alert"><strong>Error! &nbsp;</strong>Ah ocurrido un error intentando eliminar la evaluación de visita de calidad.</div>
+            }
+        </div>
+    }
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">LISTADO DE EVALUACIONES DE VISITAS DE CALIDAD</strong>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                <thead>
+                    <tr>
+                        <th>Id visita</th>
+                        <th>Regional</th>
+                        <th>Cod sap</th>
+                        <th>Tipo prestador</th>
+                        <th>Prestador</th>
+                        <th>Num contrato</th>
+                        <th>Fecha de la visita</th>
+                        <th>Fecha final de la visita</th>
+                        <th>Periodo fecha inicio</th>
+                        <th>Periodo fecha final</th>
+                        <th>Calificación visita </th>
+                        <th>Observaciones evaluación</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_visitas item in Model)
+                    {
+                        <tr>
+                            <td>@item.id_cronograma_visitas</td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.cod_sap</td>
+                            <td>@item.nom_tipo_prestador</td>
+                            <td>@item.razon_social</td>
+                            <td>@item.num_contrato</td>
+                            <td>@item.fecha_visita.Value.ToString("dd/MM/yyyy")</td>
+                            @if (item.fecha_final_visita != null)
+                            {
+                                <td>@item.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            @if (item.periodo_fecha_inicio != null)
+                            {
+                                <td>@item.periodo_fecha_inicio.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            @if (item.periodo_fecha_final != null)
+                            {
+                                <td>@item.periodo_fecha_final.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@item.calificacion_final_visita</td>
+                            <td>@item.Observaciones_Evaluacion</td>
+                            <td><a href="javascript:EliminarEvaluacionVisita(@item.id_cronograma_visitas)" role="button" class="btn button_Asalud_Rechazar btn-sm">Eliminar Evaluación</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-sm-12 text-center form-group">
+                    <a class="btn button_Asalud_Rechazar btn-sm" role="button" href="@Url.Action("GestionVisitas", "Cambios")">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 10,
+            "lengthChange": false,
+            "info": false,
+            "order": [[0, "desc"]],
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    })
+
+
+    function EliminarEvaluacionVisita(id)
+    {
+        var idprestador = "@ViewBag.prestador";
+        var url = "";
+
+        var txt = confirm("¿Esta seguro que desea eliminar la evaluación de visita del sistema?")
+        if (txt) {
+            if (idprestador != "") {
+                url = "@Url.Action("EliminarEvaluacionVisita", "Cambios")?idvisita=" + id + "&id_prestador=" + idprestador;
+            }
+            else {
+                url = "@Url.Action("EliminarEvaluacionVisita", "Cambios")?idvisita=" + id;
+            }
+
+            location.href = url;
+        }
+    }
+
+    function Volver() {
+        window.history.back();
+    }
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+</style>

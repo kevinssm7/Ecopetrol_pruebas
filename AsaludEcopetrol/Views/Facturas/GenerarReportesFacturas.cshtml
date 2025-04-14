@@ -1,0 +1,258 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Facturacion.FacturasinCenso
+@{
+    ViewBag.Title = "REPORTES FACTURA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">CONSULTAR</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <div class="General">
+                    <br />
+                    <br />
+                    <table align="center">
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </table>
+                    <table align="center">
+                        <tr>
+                            <td>
+                                <table align="center">
+                                    <tr>
+                                        <td style='display:none;'>
+                                            @Html.RadioButtonFor(model => model.id_tipo_busqueda, "0")@Html.Label("")
+                                        </td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+
+                                        <td>
+                                            @Html.RadioButtonFor(model => model.id_tipo_busqueda, "1", new { onClick = "checkFiltro()" })@Html.Label("REPORTE DEVOLUCION FACTURAS")
+                                        </td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+
+                                        <td>
+                                            @Html.RadioButtonFor(model => model.id_tipo_busqueda, "2", new { onClick = "checkFiltro2()" }) @Html.Label("REPORTES RIPS")
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td class="Error">
+                                            @Html.ValidationMessageFor(u => u.id_tipo_busqueda, null, new { @class = "label label-danger" })
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br />
+                <div id="pnlFiltro" class="General" style='display:none;'>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_devolucion)</span></h4>
+                            @Html.TextBoxFor(u => u.id_devolucion, "{0:#.#}", new { @id = "txtName", @onchange = "onchangeevent();", @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.id_devolucion, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pnlFiltro2" class="General" style='display:none;'>
+                    <div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_rips)</span></h4>
+                                @Html.TextBoxFor(u => u.id_rips, "{0:#.#}", new { @id = "txtName", @onchange = "onchangeevent();", @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_rips, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <br />
+
+                <div id="pnlBuscar" class="General" style='display:none;'>
+                    <table align="center">
+                        <tr>
+                            <td>&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <input id="BtnBuscar" type="submit" value="BUSCAR" class="btn button_Asalud_Aceptar" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+
+                            <td style="display:none">
+                                @Html.TextBoxFor(u => u.id_devolucion)
+                                @Html.TextBoxFor(u => u.id_rips)
+
+                            </td>
+                            <td></td>
+
+
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    });
+
+    function checkFiltro() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlFiltro').style.display = 'block';
+            document.getElementById('pnlFiltro2').style.display = 'none';
+            document.getElementById('pnlBuscar').style.display = 'block';
+
+        });
+    }
+
+    function checkFiltro2() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlFiltro2').style.display = 'block';
+            document.getElementById('pnlFiltro').style.display = 'none';
+            document.getElementById('pnlBuscar').style.display = 'block';
+
+        });
+    }
+
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+

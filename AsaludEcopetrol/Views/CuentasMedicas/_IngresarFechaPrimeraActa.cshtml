@@ -1,0 +1,95 @@
+﻿
+@using Kendo.Mvc.UI;
+
+
+<form id="formulario">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">
+                Ingresar fecha de la primera acta de conciliación
+            </strong>
+        </div>
+        <div class="panel-body">
+            <input type="hidden" id="id_glosaA" value="@ViewBag.id_glosa" />
+            <div class="class=" col-sm-12">
+                <label class="text-secondary_asalud">Fecha de  aprobación</label>
+                <input class="datepickerr" value="" title="Este campo  es obligatorio*" style="width:100%" name="fecha_acta_primera_conciliacion" id="fecha_acta_primera_conciliacion" onchange="validarFecha()" required />
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">GUARDAR</button>
+                        <button class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+
+
+
+<script>
+    var today = new Date()
+
+    $(".datepickerr").kendoDatePicker({
+        format: "MM/dd/yyyy",
+        max: new Date(today.setDate(today.getDate())),
+        value: new Date()
+
+    });
+    $(".k-input").attr('readonly', true);
+
+    $(".date").datepicker();
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+
+        if (validator.form()) {
+
+            GuardarDatos();
+        } else {
+        }
+    }
+    function GuardarDatos() {
+        var formData = new FormData($("form")[0]);
+
+        var fecha_aprobacion_actaVar = document.getElementById("fecha_acta_primera_conciliacion").value;
+        formData.append("fecha_acta_primera_conciliacion", fecha_aprobacion_actaVar);
+        var id_glosaVar = document.getElementById("id_glosaA").value;
+        formData.append("id_glosa", id_glosaVar);
+
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavePrimeraFechaActa", "CuentasMedicas")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+           
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+
+            }
+
+        })
+    }
+
+
+</script>

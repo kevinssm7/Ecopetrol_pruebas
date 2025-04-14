@@ -1,0 +1,380 @@
+﻿
+
+
+@{
+    ViewBag.Title = "INGRESO RIPS NO ESALUD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<br>
+
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="formNoRips" enctype="multipart/form-data" method="post" action="@Url.Action("IngresoNoEsalud","RadicacionElectonica")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">INSERCIÓN</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Analista</label>
+                            <select class="form-control select2" id="id_analista" name="id_analista" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_usuariosAnalistas_noripsResult item in ViewBag.analistas)
+                                {
+                                    <option value="@item.id_usuario">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Nit</label>
+                            <input type="text" maxlength="50" id="nit" name="nit" class="form-control solo-numero" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Nombre del prestador</label>
+                            <input type="text" maxlength="199" id="nombre_prestador" name="nombre_prestador" class="form-control" required />
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">¿Tiene contrato?</label>
+                            <select class="form-control" id="tiene_contrato" name="tiene_contrato" required>
+                                <option value="">- Seleccione -</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" id="regional" name="regional" onchange="ObtenerUnis($(this).val())" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" id="unis" name="unis" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Ciudad ips</label>
+                            <select id="ciudad" name="ciudad" class="form-control select2" required>
+                                <option value="">--Seleccione--</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ciudades item in ViewBag.ciudades)
+                                {
+                                    <option value="@item.id_ref_ciudades">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Archivos</label>
+                            <input type="file" id="files" name="files" class="form-control" multiple onchange="ValidacionArchivoConfirmados();" required />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Motivo no cargue</label>
+                            <select class="form-control select2" id="motivo_nocargue" name="motivo_nocargue" onchange="motivoOtro($(this).val())" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cuentasmedicas_notips_motivos item in ViewBag.motivos)
+                                {
+                                    <option value="@item.id_motivo">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-4" id="divMotivoOtro" style="display:none;">
+                            <label class="text-secondary_asalud">Otro motivo</label>
+                            <input type="text" maxlength="50" id="motivo_otro" name="motivo_otro" class="form-control" multiple required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input id="BtnGuardar" onclick="ValidarFormulario();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+    });
+
+    $("#nit").on("change", function () {
+        var nit = $(this).val();
+        if (nit.length < 3) {
+            alert("El nit debe contener al menos tres dígitos");
+            $(this).val("");
+            $("#nit").focus();
+            return false;
+        }
+    });
+
+
+    function ObtenerDepartamentos(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerDepartamentos", "RadicacionElectonica")",
+                type: "post",
+                data: { regional: a },
+                success: function (data) {
+                    $("#departamento").empty();
+                    $("#departamento").html(data);
+                    $("#departamento").val("").trigger("change");
+                    ObtenerUnis(a);
+                }
+            })
+        }
+    }
+
+    function ObtenerUnis(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis", "RadicacionElectonica")",
+                type: "post",
+                data: { regional: a },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").html(data);
+                    $("#unis").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+
+        var regional = $("#regional").val();
+
+        if (a != "" && regional != 0 && regional != null) {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades", "RadicacionElectonica")",
+                type: "post",
+                data: {
+                    departamento: a,
+                    regional: regional,
+                },
+
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                }
+            })
+        }
+    }
+
+    function motivoOtro(id) {
+        if (id == 6) {
+            document.getElementById("divMotivoOtro").style.display = "block";
+        } else {
+            document.getElementById("divMotivoOtro").style.display = "none";
+        }
+    }
+
+
+    function ValidacionArchivoConfirmados() {
+        var data = document.getElementById('files');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        for (contador; contador < distintosArchivos.length; contador++) {
+
+            var nameext = data.files[contador].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["zip", "Zip", "ZIP"];
+
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos ZIP.");
+                $("#files").val("");
+            }
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function ValidarFormulario() {
+
+        var contrato = document.getElementById("tiene_contrato").value;
+
+        if (contrato == "NO") {
+            $('#unis').removeAttr("required");
+        } else {
+            $('#unis').prop("required", true);
+        }
+
+        var validator = $("#formNoRips").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formNoRips").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

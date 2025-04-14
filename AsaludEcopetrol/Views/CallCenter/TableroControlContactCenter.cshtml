@@ -1,0 +1,1243 @@
+﻿@{
+    ViewBag.Title = "CONTACT CENTER - TABLERO DE CONTROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">TABLERO DE CONTROL CONTACT CENTER</strong>
+        </div>
+
+        <form id="divFiltro" method="post" action="TableroControlContactCenter" enctype="multipart/form-data">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input class="form-control" id="fechaInicio" style="width:100%;" name="fechaInicio" required />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha fin</label>
+                    <input class="form-control" id="fechaFin" style="width:100%;" name="fechaFin" required />
+                </div>
+                <br />
+                <div class="col-md-1">
+                    <a class="btn button_Asalud_Aceptar" onclick="FiltrarFechas();"><i class="glyphicon glyphicon-search"></i></a>
+                </div>
+                <div class="col-md-3">
+                    <a role="button" onclick="exportarExcel();" class="btn-sm button_Asalud_descargas" style="text-align:left;"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                </div>
+
+                @if (ViewBag.conteoSeguimiento > 0)
+                {
+                    <div class="col-md-2">
+                        <a role="button" onclick="exportarExcelSeguimiento();" class="btn-sm button_Asalud_descargas" style="text-align:left;"><i class="glyphicon glyphicon-download"></i>&nbsp; Seguimientos</a>
+                    </div>
+                }
+            </div>
+        </form>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Ecopetrol @ViewBag.conteoEcopetrol</a></li>
+                <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">Casos censo @ViewBag.conteoCenso</a></li>
+                <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Casos concurrencia @ViewBag.conteoConcurrencia</a></li>
+                <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">Casos pacientes gestionados @ViewBag.conteoCerradas</a></li>
+                <li id="li5"><a href="#tab4" class="collapse5" data-toggle="tab">Seguimientos @ViewBag.conteoSeguimiento</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab0">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaEcopetrol table table-bordered table-condensed" style="font-size:10px; width:97%;">
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Paciente</th>
+                                    <th>Regional</th>
+                                    <th>Ciudad</th>
+                                    <th>Ips</th>
+                                    <th>Fecha solicitud</th>
+                                    <th>Fecha ultimo seguimiento</th>
+                                    <th>Tipo ingreso</th>
+                                    <th>Reingresado</th>
+                                    <th>Dias en gestión</th>
+                                    <th>Ver solicitud</th>
+                                    <th>Ver archivo</th>
+                                    <th>Añadir seguimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoEcopetrol != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_contact_centerResult item in ViewBag.ecopetrol)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.nom_solicitante</td>
+                                                <td>@item.num_documento_paciente - @item.nom_paciente</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_ciudad</td>
+                                                <td>@item.nom_ips</td>
+                                                @if (item.fecha_filtro != null)
+                                                {
+                                                    <td>@item.fecha_filtro.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_filtro</td>
+                                                }
+                                                <td>@item.ultimaGestion</td>
+                                                <td>@item.tipo_insercionDescripcion</td>
+                                                <td>@item.tieneReingreso</td>
+
+                                                @*<td>
+                                                        <span class="observaciones_@i-1">@item.observacion_contact.Substring(0, Math.Min(100, @item.observacion_contact.Length))</span>
+                                                        <span class="observaciones_completas_@i-1" style="display: none;">@item.observacion_contact</span>
+                                                        @if (@item.observacion_contact.Length > 100)
+                                                        {
+                                                            <label class="text-secondary_asalud botonMostrar_@i-2" onclick="MostrarTextoCompleto(@i, 1)">Mostrar</label>
+                                                            <label class="text-secondary_asalud botonOcultar_@i-2" style="display: none;" onclick="OcultarTextoCompleto(@i, 1)">Ocultar</label>
+                                                        }
+
+                                                    </td>*@
+
+                                                <td>@item.dias_en_gestion</td>
+
+                                                @if (item.tipo_insercionDescripcion == "ECOPETROL")
+                                                {
+
+                                                    <td class="text-center">
+                                                        <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCaso","CallCenter",new {idcontactcenter = item.id_contact_center, idCenso = item.id_censo, idConcurrencia = item.id_concurrencia,  tipoIngreso = 1 })"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+
+                                                    <td class="text-center">
+                                                        <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCasoOtro","CallCenter",new {idcontactcenter = item.id_contact_center})"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                                    </td>
+                                                }
+
+                                                <td class="text-center">
+                                                    @if (!string.IsNullOrEmpty(item.ruta_imagen))
+                                                    {
+                                                        <a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a> }
+                                                    else
+                                                    {
+                                                        <label class="text-secondary_asalud">Sin archivo</label>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="button" onclick="AñadirBitacora(@item.id_contact_center, @item.id_censo, @item.id_concurrencia, '@item.tipo_insercion')" class="btn btn-sm button_Asalud_Aceptar"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab1">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaCenso table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Paciente</th>
+                                    <th>Regional</th>
+                                    <th>Ciudad</th>
+                                    <th>Ips</th>
+                                    <th>Fecha solicitud</th>
+                                    <th>Fecha ultimo seguimiento</th>
+                                    <th>Tipo ingreso</th>
+                                    <th>Reingresado</th>
+                                    <th>Dias en gestión</th>
+                                    <th>Ver solicitud</th>
+                                    <th>Ver archivo</th>
+                                    <th>Añadir seguimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoCenso != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_contact_centerResult item in ViewBag.censo)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.nom_solicitante</td>
+                                                <td>@item.num_documento_paciente - @item.nom_paciente</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_ciudad</td>
+                                                <td>@item.nom_ips</td>
+                                                @if (item.fecha_filtro != null)
+                                                {
+                                                    <td>@item.fecha_filtro.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_filtro</td>
+                                                }
+                                                <td>@item.ultimaGestion</td>
+                                                <td>@item.tipo_insercionDescripcion</td>
+                                                <td>@item.tieneReingreso</td>
+
+                                                <td>@item.dias_en_gestion</td>
+
+                                                <td class="text-center">
+                                                    <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCaso","CallCenter",new {idcontactcenter = item.id_contact_center, idCenso = item.id_censo, idConcurrencia = item.id_concurrencia,  tipoIngreso = 1 })"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    @if (!string.IsNullOrEmpty(item.ruta_imagen))
+                                                    {
+                                                        <a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a> }
+                                                    else
+                                                    {
+                                                        <label class="text-secondary_asalud">Sin archivo</label>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="button" onclick="AñadirBitacora(@item.id_contact_center, @item.id_censo, @item.id_concurrencia, '@item.tipo_insercion')" class="btn btn-sm button_Asalud_Aceptar"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaConcurrencia table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Paciente</th>
+                                    <th>Regional</th>
+                                    <th>Ciudad</th>
+                                    <th>Ips</th>
+                                    <th>Fecha solicitud</th>
+                                    <th>Fecha ultimo seguimiento</th>
+                                    <th>Tipo ingreso</th>
+                                    <th>Reingresado</th>
+                                    <th>Observaciones</th>
+                                    <th>Dias en gestión</th>
+                                    <th>Ver solicitud</th>
+                                    <th>Ver archivo</th>
+                                    <th>Añadir seguimiento</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoConcurrencia != 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_contact_centerResult item in ViewBag.concurrencia)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@item.nom_solicitante</td>
+                                            <td>@item.num_documento_paciente - @item.nom_paciente</td>
+                                            <td>@item.nombre_regional</td>
+                                            <td>@item.nom_ciudad</td>
+                                            <td>@item.nom_ips</td>
+                                            @if (item.fecha_filtro != null)
+                                            {
+                                                <td>@item.fecha_filtro.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fecha_filtro</td>
+                                            }
+                                            <td>@item.ultimaGestion</td>
+                                            <td>@item.tipo_insercionDescripcion</td>
+                                            <td>@item.tieneReingreso</td>
+
+                                            <td>
+                                                <span class="observaciones_@i-2">@item.observacion_contact.Substring(0, Math.Min(100, @item.observacion_contact.Length))</span>
+                                                <span class="observaciones_completas_@i-2" style="display: none;">@item.observacion_contact</span>
+                                                @if (@item.observacion_contact.Length > 100)
+                                                {
+                                                    <label class="text-secondary_asalud botonMostrar_@i-2" onclick="MostrarTextoCompleto(@i, 2)">Mostrar</label>
+                                                    <label class="text-secondary_asalud botonOcultar_@i-2" style="display: none;" onclick="OcultarTextoCompleto(@i, 2)">Ocultar</label>
+                                                }
+
+                                            </td>
+
+
+                                            <td>@item.dias_en_gestion</td>
+
+                                            <td class="text-center">
+                                                <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCaso","CallCenter",new {idcontactcenter = item.id_contact_center, idCenso = item.id_censo, idConcurrencia = item.id_concurrencia,  tipoIngreso = 1 })"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (!string.IsNullOrEmpty(item.ruta_imagen))
+                                                {
+                                                    <a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a> }
+                                                else
+                                                {
+                                                    <label class="text-secondary_asalud">Sin archivo</label>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="AñadirBitacora(@item.id_contact_center, @item.id_censo, @item.id_concurrencia, '@item.tipo_insercion')" class="btn btn-sm button_Asalud_Aceptar"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="15" style="text-align:center; font-size:15px;">
+                                            <label>No hay registros.</label>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="tab-pane" id="tab3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaGestionados table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Paciente</th>
+                                    <th>Regional</th>
+                                    <th>Ciudad</th>
+                                    <th>Ips</th>
+                                    <th>Fecha solicitud</th>
+                                    <th>Fecha ultimo seguimiento</th>
+                                    <th>Tipo ingreso</th>
+                                    <th>Reingresado</th>
+                                    @*<th>Observaciones</th>*@
+                                    <th>Dias en gestión</th>
+                                    <th>Ver solicitud</th>
+                                    <th>Ver archivo</th>
+                                    <th>Añadir seguimiento</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoCerradas != 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_contact_centerResult item in ViewBag.cerrados)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@item.nom_solicitante</td>
+                                            <td>@item.num_documento_paciente - @item.nom_paciente</td>
+                                            <td>@item.nombre_regional</td>
+                                            <td>@item.nom_ciudad</td>
+                                            <td>@item.nom_ips</td>
+                                            @if (item.fecha_filtro != null)
+                                            {
+                                                <td>@item.fecha_filtro.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fecha_filtro</td>
+                                            }
+                                            <td>@item.ultimaGestion</td>
+                                            <td>@item.tipo_insercionDescripcion</td>
+                                            <td>@item.tieneReingreso</td>
+
+                                            @*<td>
+                                                    <span class="observaciones_@i-3">@item.observacion_contact.Substring(0, Math.Min(100, @item.observacion_contact.Length))</span>
+                                                    <span class="observaciones_completas_@i-3" style="display: none;">@item.observacion_contact</span>
+                                                    @if (@item.observacion_contact.Length > 100)
+                                                    {
+                                                        <label class="text-secondary_asalud botonMostrar_@i-3" onclick="MostrarTextoCompleto(@i, 3)">Mostrar</label>
+                                                        <label class="text-secondary_asalud botonOcultar_@i-3" style="display: none;" onclick="OcultarTextoCompleto(@i, 3)">Ocultar</label>
+                                                    }
+                                                </td>*@
+
+                                            <td>@item.dias_en_gestion</td>
+
+                                            <td class="text-center">
+                                                <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCaso","CallCenter",new {idcontactcenter = item.id_contact_center, idCenso = item.id_censo, idConcurrencia = item.id_concurrencia,  tipoIngreso = 1 })"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (!string.IsNullOrEmpty(item.ruta_imagen))
+                                                {
+                                                    <a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a> }
+                                                else
+                                                {
+                                                    <label class="text-secondary_asalud">Sin archivo</label>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="AñadirBitacora(@item.id_contact_center, @item.id_censo, @item.id_concurrencia, '@item.tipo_insercion')" class="btn btn-sm button_Asalud_Aceptar"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="15" style="text-align:center; font-size:15px;">
+                                            <label>No hay registros.</label>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaSeguimientos table table-bordered table-condensed table-responsive" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Paciente</th>
+                                    <th>Regional</th>
+                                    <th>Ciudad</th>
+                                    <th>Ips</th>
+                                    <th>Observaciones</th>
+                                    <th>Fecha de seguimiento</th>
+                                    <th>Fecha solicitud</th>
+                                    <th>Tipo ingreso</th>
+                                    <th>Reingresado</th>
+                                    <th>Dias en gestión</th>
+                                    <th>Ver solicitud</th>
+                                    <th>Ver archivo</th>
+                                    <th>Añadir seguimiento</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoSeguimiento != 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_contact_center_seguimientoResult item in ViewBag.seguimiento)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@item.nom_solicitante</td>
+                                            <td>@item.num_documento_paciente - @item.nom_paciente</td>
+                                            <td>@item.nombre_regional</td>
+                                            <td>@item.nom_ciudad</td>
+                                            <td>@item.nom_ips</td>
+
+
+                                            <td>
+                                                <span class="observaciones_@i-4">@item.observacionesSeguimiento.Substring(0, Math.Min(100, @item.observacionesSeguimiento.Length))</span>
+                                                <span class="observaciones_completas_@i-4" style="display: none;">@item.observacionesSeguimiento</span>
+                                                @if (@item.observacionesSeguimiento.Length > 100)
+                                                {
+                                                    <label class="text-secondary_asalud botonMostrar_@i-4" onclick="MostrarTextoCompleto(@i, 4)">Mostrar</label>
+                                                    <label class="text-secondary_asalud botonOcultar_@i-4" style="display: none;" onclick="OcultarTextoCompleto(@i, 4)">Ocultar</label>
+                                                }
+
+                                            </td>
+
+                                            @if (item.fechaDigitaSeguimiento != null)
+                                            {
+                                                <td>@item.fechaDigitaSeguimiento.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fechaDigitaSeguimiento</td>
+                                            }
+
+                                            @if (item.fecha_filtro != null)
+                                            {
+                                                <td>@item.fecha_filtro.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fecha_filtro</td>
+                                            }
+
+
+
+                                            <td>@item.tipo_insercionDescripcion</td>
+                                            <td>@item.tieneReingreso</td>
+
+                                            <td>@item.dias_gestion</td>
+                                            <td class="text-center">
+                                                <a role="button" class="btn btn-sm button_Asalud_Aceptar" href="@Url.Action("IngresoCaso","CallCenter",new {idcontactcenter = item.id_contact_center, idCenso = item.id_censo, idConcurrencia = item.id_concurrencia, tipoIngreso = 1 })"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (!string.IsNullOrEmpty(item.ruta_imagen))
+                                                {
+                                                    <a role="button" class="btn btn-sm button_Asalud_descargas" href="javascript:abrirducumento(@item.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver</a> }
+                                                else
+                                                {
+                                                    <label class="text-secondary_asalud">Sin archivo</label>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="AñadirBitacora(@item.id_contact_center, @item.id_censo, @item.id_concurrencia, '@item.tipo_insercion')" class="btn btn-sm button_Asalud_Aceptar"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="15" style="text-align:center; font-size:15px;">
+                                            <label>No hay registros.</label>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="tituloModal">Bitacora de seguimiento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formulario2" method="post" action="">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong class="text-primary_asalud">DATOS SOLUCIONADOR IPS</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Nombre contacto solucionador ips:</label>
+                                    <input type="hidden" id="idcontactcenter" name="idcontactcenter" />
+                                    <input type="hidden" id="idCensoValor" name="idCensoValor" />
+                                    <input type="hidden" id="idConcurrenciaValor" name="idConcurrenciaValor" />
+                                    <input type="text" autocomplete="off" class="form-control" id="nombrecontactsolucionadorIPS" name="nombrecontactsolucionadorIPS" required maxlength="100" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Teléfono contacto solucionador ips:</label>
+                                    <input type="text" autocomplete="off" class="form-control solo-numero" id="telefonocontactsolucionador" required name="telefonocontactsolucionador" maxlength="20" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Correo de contacto solucionador ips:</label>
+                                    <input autocomplete="off" type="email" class="form-control" id="correocontactosolucionador" name="correocontactosolucionador" required maxlength="100" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Servicio:</label>
+                                    <select class="form-control select2" id="servicio" name="servicio" onchange="ActivarOtroServicio($(this).val())" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_tipo_servicio item in ViewBag.datostipoServicio)
+                                        {
+                                            <option selected value="@item.id_ref_contact_tipo_servicio">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 form-group" id="divotroservicio" style="display:none">
+                                    <label class="text-secondary_asalud">Otro servicio:</label>
+                                    <input autocomplete="off" type="text" class="form-control" id="otroservicio" name="otroservicio" required maxlength="100" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Ingresar observaciones:</label>
+                                    <textarea class="form-control" rows="4" id="txtobservacionesbit" name="txtobservacionesbit" required maxlength="3000"></textarea>
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Tipo solicitud:</label>
+                                    <select class="form-control select2" id="tipoSolicitudBitacora" name="tipoSolicitudBitacora" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_tipoSolicitudBitacora item in ViewBag.tiposolicitudBitacora)
+                                        {
+                                            <option value="@item.id_tipo">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Medio de notificación:</label>
+                                    <select class="form-control select2" id="medionotificacion" name="medionotificacion" onchange="ActivarControlMedioNotificacion($(this).val())" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_medio_notificacion item in ViewBag.mediosnotificacion)
+                                        {
+                                            <option value="@item.id_ref_contact_medio_notificacion">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 form-group" id="divcorreobit" style="display:none">
+                                    <label class="text-secondary_asalud">Correo electrónico:</label>
+                                    <input autocomplete="off" type="email" class="form-control" id="correobit" name="correobit" />
+                                </div>
+                                <div class="col-sm-6 form-group" id="divtelefonobit" style="display:none">
+                                    <label class="text-secondary_asalud">Teléfono:</label>
+                                    <input autocomplete="off" type="text" class="form-control solo-numero" id="telefonobit" name="telefonobit" />
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Estado solicitud:</label>
+                                    <select class="form-control" id="estadosolicitudbit" name="estadosolicitudbit" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_estado_solicitud item in ViewBag.estadosolicitud)
+                                        {
+                                            <option value="@item.id_ref_contact_estado_solicitud">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                @*<div class="col-sm-6 form-group">
+                                        <label class="text-secondary_asalud">Seleccionar archivo como prueba de la gestión:</label>
+                                        <input type="file" class="form-control" id="imagenbit" name="imagenbit" required />
+                                    </div>*@
+                                <div class="col-md-6 form-group">
+                                    <label class="text-secondary_asalud">Caso efectivo:</label>
+                                    <input type="radio" id="casoEfectivo" name="casoEfectivo" value="1" onchange="casoEfectivoTomaValor2(this.value)" required /> Si
+                                    <input type="radio" id="casoEfectivo" name="casoEfectivo" value="0" onchange="casoEfectivoTomaValor2(this.value)" required /> No
+                                    <input type="hidden" id="casoEfectivoValor" name="casoEfectivoValor" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario2()">Guardar cambios</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        MostrarTablaEcopetrol();
+        MostrarTablaCenso();
+        MostrarTablaConcurrencia();
+        MostrarTablaGestionados();
+        MostrarTablaSeguimientos();
+
+        $.validator.messages.required = 'Este campo es obligatorio';
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#tipoSolicitudBitacora").val(1).trigger("change");
+
+        $("#fechaInicio").kendoDatePicker();
+        $("#fechaFin").kendoDatePicker();
+
+        $("#fechaInicio").prop('readonly', true);
+        $("#fechaFin").prop('readonly', true);
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+                var tab4 = $("#tab" + 4).hasClass("active");
+
+                if (tab0) {
+                    MostrarTablaEcopetrol();
+                }
+
+                if (tab1) {
+                    MostrarTablaCenso();
+                }
+
+                if (tab2) {
+                    MostrarTablaConcurrencia();
+                }
+
+                if (tab3) {
+                    MostrarTablaGestionados();
+                }
+
+                if (tab4) {
+                    MostrarTablaSeguimientos();
+                }
+
+            }, 100);
+        });
+    });
+
+    function MostrarTablaEcopetrol() {
+          var conteo = '@ViewBag.conteoEcopetrol';
+        if (conteo > 0) {
+
+            $('.tablaEcopetrol').DataTable().destroy();
+            $('.tablaEcopetrol').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaCenso() {
+          var conteo = '@ViewBag.conteoCenso';
+        if (conteo > 0) {
+
+            $('.tablaCenso').DataTable().destroy();
+            $('.tablaCenso').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaConcurrencia() {
+          var conteo = '@ViewBag.conteoConcurrencia';
+        if (conteo > 0) {
+
+            $('.tablaConcurrencia').DataTable().destroy();
+            $('.tablaConcurrencia').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaGestionados() {
+          var conteo = '@ViewBag.conteoCerradas';
+        if (conteo > 0) {
+
+            $('.tablaGestionados').DataTable().destroy();
+            $('.tablaGestionados').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaSeguimientos() {
+          var conteoSeguimiento = '@ViewBag.conteoSeguimiento';
+        if (conteoSeguimiento > 0) {
+
+            $('.tablaSeguimientos').DataTable().destroy();
+            $('.tablaSeguimientos').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function AñadirBitacora(idContact, idCenso, idConcurrencia, tipo) {
+
+
+        if (tipo == 1 || tipo == 2) {
+
+            BusquedaCamposLlenos(idContact, idCenso, idConcurrencia, tipo, function (respuesta) {
+
+                if (respuesta != "") {
+                    alert(respuesta);
+                }
+                if (respuesta == "") {
+
+                    $("#idcontactcenter").val(idContact);
+                    $("#idCensoValor").val(idCenso);
+                    $("#idConcurrenciaValor").val(idConcurrencia);
+
+                    $("#clasificacioncontacto").val("").trigger("change");
+                    $("#documentosolicitante").val("");
+                    $("#nombresolicitante").val("");
+                    $("#telefonosolicitante").val("");
+                    $("#correosolicitante").val("");
+                    $("#otrotelefonosolicitante").val("");
+
+                    $("#tipoSolicitudBitacora").val(1).trigger("change");
+                    $("#otrotelefonosolicitante").val("");
+                    $("#imagenbit").val(null);
+
+                    $("#txtobservacionesbit").val("");
+                    $("#estadosolicitudbit").val("").trigger("change");
+                    $("#medionotificacion").val("").trigger("change");
+                    $("#Modal").modal('show');
+                }
+                else {
+                    if (tipo != 2) {
+                        window.location.href = "@Url.Action("IngresoCaso", "CallCenter")?idcontactcenter=" + idContact + "&idCenso=" + idCenso + "&idConcurrencia=" + idConcurrencia;
+                    } else {
+                        window.location.href = "@Url.Action("IngresoCasoOtro", "CallCenter")?idcontactcenter=" + idContact;
+                    }
+                }
+            });
+        }
+        else {
+
+            alert("Por favor modificar datos de ingreso");
+            window.location.href = "@Url.Action("IngresoCaso", "CallCenter")?idcontactcenter=" + idContact + "&idCenso=" + idCenso + "&idConcurrencia=" + idConcurrencia;
+        }
+    }
+
+    function BusquedaCamposLlenos(idContact, idCenso, idConcurrencia, tipo, callback ) {
+        $.ajax({
+            url: "@Url.Action("BusquedaCamposObligatorios")",
+            type: "POST",
+            data: {
+                idContact: idContact,
+                idCenso: idCenso,
+                idConcurrencia: idConcurrencia,
+                tipo: tipo
+            },
+            success: function (data) {
+                callback(data); // Llamar al callback con la respuesta obtenida
+            },
+            error: function () {
+                callback(""); // Llamar al callback con una cadena vacía en caso de error
+            }
+        });
+    }
+
+    function ActivarOtroServicio(a) {
+        if (a == 9) {
+            $("#otroservicio").prop('required', true).val("");
+            $("#divotroservicio").css('display', 'block');
+        } else {
+            $("#otroservicio").prop('required', false).val("");
+            $("#divotroservicio").css('display', 'none');
+        }
+    }
+
+    function ActivarControlDocumento(a) {
+        $("#documentosolicitante").val("");
+        $("#nombresolicitante").val("");
+        $("#telefonosolicitante").val("");
+        $("#correosolicitante").val("");
+        if (a != "") {
+            if (a == "4" || a == "5") {
+                $("#txtnumdocbeneficiario").css('display', 'block');
+            } else {
+                $("#txtnumdocbeneficiario").css('display', 'none');
+            }
+        } else {
+            $("#txtnumdocbeneficiario").css('display', 'none');
+        }
+    }
+
+    function ActivarControlMedioNotificacion(a) {
+        switch (a) {
+            case "1":
+                $("#divcorreobit").css('display', 'block');
+                $("#divtelefonobit").css('display', 'none');
+                $("#correobit").prop("required", true);
+                $("#telefonobit").prop("required", false);
+                break;
+            case "2":
+                $("#divcorreobit").css('display', 'none');
+                $("#divtelefonobit").css('display', 'block');
+                $("#correobit").prop("required", false);
+                $("#telefonobit").prop("required", true);
+                break;
+            case "3":
+                $("#divcorreobit").css('display', 'block');
+                $("#divtelefonobit").css('display', 'block');
+                $("#correobit").prop("required", true);
+                $("#telefonobit").prop("required", true);
+                break;
+            default:
+                $("#divcorreobit").css('display', 'none');
+                $("#divtelefonobit").css('display', 'none');
+                break;
+        }
+
+        $("#correobit").val("");
+        $("#telefonobit").val("");
+    }
+
+    function casoEfectivoTomaValor2(valor) {
+        if (valor == 1) {
+            $("#casoEfectivoValor").val("SI");
+        }
+        else {
+            $("#casoEfectivoValor").val("NO");
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            var formData = new FormData();
+
+            formData.append('idContact', $("#idcontactcenter").val());
+            formData.append('id_censo', $("#idCensoValor").val());
+            formData.append('id_concurrencia', $("#idConcurrenciaValor").val());
+
+            formData.append('nombrecontactsolucionadorIPS', $("#nombrecontactsolucionadorIPS").val());
+            formData.append('telefonocontactsolucionador', $("#telefonocontactsolucionador").val());
+            formData.append('correocontactosolucionador', $("#correocontactosolucionador").val());
+            formData.append('servicio', $("#servicio").val());
+            formData.append('otroservicio', $("#otroservicio").val());
+
+            formData.append('casoEfectivo', $("#casoEfectivoValor").val());
+            formData.append('tipoSolicitud', $("#tipoSolicitudBitacora").val());
+            formData.append('Observaciones', $("#txtobservacionesbit").val());
+            formData.append('estado', $("#estadosolicitudbit").val());
+            formData.append('medio_notificacion', $("#medionotificacion").val());
+            formData.append('correo', $("#correobit").val());
+            formData.append('telefono', $("#telefonobit").val());
+            //formData.append('file', $('#imagenbit')[0].files[0]);
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("AgregarSeguimientoPrincipal")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    $("#Modal").modal('hide');
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function CargarTabcero(a) {
+        $('#tablerocontrol0').html("<p>Cargando...</p>");
+        $('#tablerocontrol0').load('/CallCenter/Vertablerocontrol?id=' + a);
+    }
+
+    function CargarTab(a)
+    {
+        $('#tablerocontrol1').html("<p>Cargando...</p>");
+        $('#tablerocontrol1').load('/CallCenter/Vertablerocontrol?id=' + a);
+    }
+
+    function CargarTabDos(a)
+    {
+        $('#tablerocontrol2').html("<p>Cargando...</p>");
+        $('#tablerocontrol2').load('/CallCenter/Vertablerocontrol?id=' + a);
+    }
+
+    function abrirducumento(id)
+    {
+        var url = "@Url.Action("ArchivoCargado", "CallCenter")?id=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function exportarExcel() {
+        var URL2 = "@Url.Action("ExcelReporteContactCenter", "CallCenter")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function exportarExcelSeguimiento() {
+         var URL2 = "@Url.Action("ExcelReporteContactCenterSeguimiento", "CallCenter")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function FiltrarFechas() {
+
+        var validator = $("#divFiltro").validate();
+
+        if (validator.form()) {
+            LoadingShow();
+            $("#divFiltro").submit();
+        }
+    }
+
+    function MostrarTextoCompleto(i, tipo) {
+        $(".observaciones_" + i + "-" + tipo).hide();
+        $(".observaciones_completas_" + i + "-" + tipo).show();
+        $(".botonMostrar_" + i + "-" + tipo).hide();
+        $(".botonOcultar_" + i + "-" + tipo).show();
+    }
+
+    function OcultarTextoCompleto(i, tipo) {
+        $(".observaciones_" + i + "-" + tipo).show();
+        $(".observaciones_completas_" + i + "-" + tipo).hide();
+        $(".botonOcultar_" + i + "-" + tipo).hide();
+        $(".botonMostrar_" + i + "-" + tipo).show();
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+        position: absolute;
+        margin-top: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>

@@ -1,0 +1,161 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">DETALLE NRO @ViewBag.idMasivo</a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-12 text-right">
+            <input type="hidden" id="idMasivo" value="@ViewBag.idMasivo" />
+            <input type="hidden" id="idContrato" value="@ViewBag.idContrato" />
+            <button role="button" onclick="ExportarNegociacion();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar</button>
+        </div>
+        <br />
+        <br />
+
+        <div class="table-responsive">
+            <table id="tableDtll" class=" table table-bordered table-condensed" style="font-size:10px; width:98%; height:80%;  margin:0px !important">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ítem</th>
+                        <th class="text-center">CUPS negociado</th>
+                        <th class="text-center">Descripción CUPS</th>
+                        <th class="text-center">Manual</th>
+                        <th class="text-center">Intermediación</th>
+                        <th class="text-center">Tarifa inicial</th>
+                        <th class="text-center">Tarifa intermediación</th>
+                        <th class="text-center">Fecha inicio vigencia</th>
+                        <th class="text-center">Fecha fin vigencia</th>
+                        <th class="text-center">Ambito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.conteoDetalle > 0)
+                    {
+                        var i = 0;
+
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_contratos_negociaciones_detalleResult item in ViewBag.listado)
+                        {
+                            i++;
+                            <tr>
+                                <td class="text-center">@i</td>
+                                <td class="text-center">@item.cups_negociado</td>
+                                <td class="text-center">@item.descripcion_cups</td>
+                                <td class="text-center">@item.manual</td>
+                                <td class="text-center">@item.intermediacion</td>
+                                <td class="text-center">@item.tarifa_inicial</td>
+                                <td class="text-center">@item.tarifa_intermediacion</td>
+                                @if (item.fecha_inicio_vigencia != null)
+                                {
+                                    <td class="text-center">@item.fecha_inicio_vigencia.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_inicio_vigencia</td>
+                                }
+
+                                @if (item.fecha_fin_vigencia != null)
+                                {
+                                    <td>@item.fecha_fin_vigencia.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_fin_vigencia</td>
+                                }
+                                <td class="text-center">@item.ambito</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                <label>Sin negociaciones.</label>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script>
+    $('#tableDtll').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        //"scrollY": "400px", // Altura máxima del scroll
+        //"scrollCollapse": true, // Permite colapsar el scroll si no hay suficientes datos
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function ExportarNegociacion() {
+        var idMasivo = $("#idMasivo").val();
+        var idContrato = $("#idContrato").val();
+
+        var URL2 = "@Url.Action("ExcelTableroNegociaciones", "FIS_RIPS")?idMasivo=" + idMasivo + "&idContrato=" + idContrato;
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+
+</script>
+
+<style>
+
+    #tableDtll {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tableDtll th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tableDtll td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tableDtll tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>

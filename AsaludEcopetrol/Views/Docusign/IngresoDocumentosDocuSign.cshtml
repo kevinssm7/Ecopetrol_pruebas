@@ -1,0 +1,403 @@
+﻿@model AsaludEcopetrol.Models.FirmaElectronica.Recipient
+@{
+    ViewBag.Title = "ENVIAR DOCUMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+
+
+<div class="tab-content">
+
+    <div class="alert alert-success" id="pnlExito" style="display:none">
+        <strong>Éxito!</strong>
+        <input style="color:blue" type="text" class="form-control" name="msgex" id="msgex" />
+
+    </div>
+
+    <div class="alert alert-danger" id="pnlError" style="display:none">
+        <strong>Error!</strong>
+        <input style="color:firebrick" type="text" class="form-control" name="msgerr" id="msgerr" required />
+    </div>
+
+
+    <div class="tab-pane active" id="1b">
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso datos</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form id="formulario" class="animated fadeInDown">
+
+                    <div class="row">
+
+                        <div class="col-sm-6 form-group">
+                            <label class="text-secondary_asalud">Nombre</label>
+                            <input type="text" maxlength="100" class="form-control" name="nombre" id="nombre" autocomplete="off" required />
+                        </div>
+
+                        <div class="col-sm-6 form-group">
+                            <label class="text-secondary_asalud">Correo</label>
+                            <input type="email" maxlength="100" class="form-control" name="email" id="email" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Seleccione PDF</label>
+                            <input type="file" name="file" id="file" class="form-control" multiple required />
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-8 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <input type="text" maxlength="100" class="form-control" name="observaciones" id="observaciones" required autocomplete="off" />
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-12">
+                            <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar</button>
+
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+
+                        <div class="col-sm-12">
+                            <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario2()">Firmar con SAMI</button>
+
+                        </div>
+                    </div>
+
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="alerta" id="alerta" required />
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@*@using (Html.BeginForm("IngresoDocumentosDocuSign", "Docusign", FormMethod.Post, new { enctype = "multipart/form-data", id = "SendForsign" }))
+    {
+        @Html.AntiForgeryToken()
+        <br />
+
+        <br />
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-12"></div>
+                <table align="center" width="990" style="color:#ffffff; background: #2E64FE; margin-top:2%" class="form-group">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" style="font-size:small">
+                                <label>DATOS</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.Name)</span></h4>
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(u => u.Name, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.Email)</span></h4>
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(u => u.Email, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Document", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <input id="UploadDocument" type="file" name="UploadDocument" class="form-control" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.Description)</span></h4>
+                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(u => u.Description, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="pnlGuardar" class="General text-center">
+                <div>
+                    <input type="submit" value="Enviar" class="btn btn-primary" />
+                </div>
+
+                <div class="Error">
+                    @Html.ValidationSummary(true, "")
+                </div>
+
+                <div style="display:none">
+
+                </div>
+            </div>
+        </div>
+
+
+    }*@
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script>
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            GuardarDatos();
+        }
+    }
+
+     function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("file", $("input[type=file]")[0].files[0]);
+        formData.append("Name", $("#nombre").val());
+        formData.append("Email", $("#email").val());
+        formData.append("Observaciones",$("#Observaciones").val());
+       
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveDocumentosDocuSign", "Docusign")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+                     LoadingHide();
+                     //document.getElementById('pnlExito').style.display = 'block';
+                     //document.getElementById('pnlError').style.display = 'none';
+                     //$("#file").val("");
+                     //$('input:text[id$=msgex]').val(response.message);
+                     //$("#id_com_digirido").val("");
+                     //$("#id_puntos_dispensacion").val("");
+                     //$("#id_com_tipo").val("");
+                     //$("#observaciones_comunicado").val("");
+                     //$("#fecha_coOK").val("");
+
+                    alert(response.message);
+                    location.reload();
+
+                }
+                else
+                {
+                     //alert(response.message);
+                     LoadingHide();
+                     //document.getElementById('pnlError').style.display = 'block';
+                     //document.getElementById('pnlExito').style.display = 'none';
+                     //$('input:text[id$=msgerr]').val(response.message);
+                     //$("#file").val("");
+
+
+                }
+
+            }
+        })
+    }
+
+    $(document).ready(function () {
+
+         $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+    })
+
+
+     $("#file").change(function () {
+
+            var data = document.getElementById('file');
+            var nameext = data.files[0].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["pdf"];
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extension no es valida seleccione un PDF");
+                $("#file").val("");
+            }
+
+     });
+     function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+   
+    function ValidarFormulario2() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("numero_documento", $("#documento").val());
+      
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveFactura", "Usuario")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+                    LoadingHide();
+                    location.reload();
+                    var URL2 = "@Url.Action("CrearPdfUsuarios2", "Usuario")?id=" + response.ID;
+                    window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+                }
+                else
+                {
+                     alert(response.message);
+                     LoadingHide();
+
+                }
+
+            }
+        })
+
+    }
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+
+
+

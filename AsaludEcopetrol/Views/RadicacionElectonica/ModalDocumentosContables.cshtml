@@ -1,0 +1,98 @@
+﻿
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">DATOS CONTABLES</strong>
+        </div>
+        <form id="formDocumen">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="hidden" id="idGlosa" name="idGlosa" value="@ViewBag.idGlosa" />
+                        <input type="hidden" id="idRegistro" name="idRegistro" value="@ViewBag.idRegistro" />
+                        <input type="hidden" id="idAf" name="idAf" value="@ViewBag.idAf" />
+
+                        <label class="text-secondary_asalud">Aplicación SAP</label>
+                        <select id="aplicacionSap" name="aplicacionSap" class="form-control" required>
+                            <option value="">-Seleccione-</option>
+                            <option value="SI"></option>
+                            <option value="NO"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Documento contable</label>
+                        <input type="text" id="documentoContable" name="documentoContable" maxlength="100" class="form-control" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Fecha contable</label>
+                        <input type="date" id="fechaContable" name="fechaContable" class="form-control datepickerr" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Archivo</label>
+                        <input type="file" id="archivo" name="archivo" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <a class="button_Asalud_Guardar" onclick="validarDocumento();">GUARDAR</a>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+    });
+
+    function validarDocumento() {
+        var validar = $("#formDocumen").validate();
+        if (validar.form()) {
+
+        }
+    }
+
+    function enviarDatos() {
+
+        var formData = new FormData($("#formDocumen")[0]);
+        var archivo = $("#archivo").get(0).files[0];
+
+        formData.append("idGlosa", $("#idGlosa").val());
+        formData.append("idRegistro", $("#idRegistro").val());
+        formData.append("idAf", $("#idAf").val());
+        formData.append("aplicacionSap", $("#aplicacionSap").val());
+        formData.append("documentoContable", $("#documentoContable").val());
+        formData.append("fechaContable", $("#fechaContable").val());
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarDocumentoContable", "RadicacionElectonica")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta != 0) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+</script>

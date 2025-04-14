@@ -1,0 +1,863 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL ESTADO FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewBag.rta;
+    var conteo = 0;
+}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+@if (rta != null)
+{
+    <div class="alert alert-success" role="alert">
+        <strong>Éxito: </strong>tipos de gasto actualizados correctamente.
+    </div>
+    <br />
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">CONSULTAR</strong>
+    </div>
+    <div class="panel-body">
+
+        <form name="formulario" id="formulariobuscar" method="post" enctype="multipart/form-data" accept-charset="@Url.Action("TableroGestionFacturas")">
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Id detalle</label>
+                    <input type="text" class="form-control solo-numero" name="idDetalle" id="idDetalle" autocomplete="off" maxlength="10" />
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Número factura</label>
+                    <input type="text" class="form-control" name="numFac" id="numFac" autocomplete="off" />
+                    <input type="hidden" class="form-control" name="estadoUsado" id="estadoUsado" value="@ViewBag.estadoUsado" />
+                    <input type="hidden" class="form-control" name="checkeo" id="checkeo" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Nit</label>
+                    <input type="text" class="form-control" name="nit" id="nit" autocomplete="off" maxlength="40" />
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Prestador</label>
+                    <input type="text" class="form-control" name="prestador" id="prestador" autocomplete="off" maxlength="50" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">SAP</label>
+                    <input type="text" class="form-control" name="sap" id="sap" autocomplete="off" maxlength="40" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Estado</label>
+
+                    <select id="estado" name="estado" class="select2">
+                        <option value="">--Seleccione--</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.view_ref_estado_facturas item in ViewBag.estados)
+                        {
+                            <option value="@item.id_estado_factura">@item.nom_estado</option>
+                        }
+                    </select>
+                </div>
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-11" style="text-align:right;">
+                        <button type="button" id="btnbuscar" class="btn button_Asalud_Aceptar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="panel-body col-md-12">
+
+                <div id="cambioRegional" style="display:none;" class="col-md-3">
+                    <a class="button_Asalud_Aceptar btn-sm" onclick="reasignarRegional();">
+                        Reasignar Regional
+                    </a>
+                </div>
+
+                <div id="cambioEstadoEspecial" style="display:none;" class="col-md-3">
+                    <a class="button_Asalud_Rechazar btn-sm" onclick="cambioEstadoEspecial();">
+                        Cambio Estado Especial
+                    </a>
+                </div>
+                <div id="cambioEstado" style="display:none;" class="col-md-3">
+                    <a class="button_Asalud_Rechazar btn-sm" onclick="cambioEstado();">
+                        Cambio Estado
+                    </a>
+                </div>
+                <div id="cambioAuditor" style="display:none;" class="col-md-3">
+                    <a class="button_Asalud_Guardar btn-sm" onclick="reasignarAuditor();">
+                        Reasignar Auditor Masivo
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <table id="tablaFacturas" class="table table-striped table-bordered table-condensed datatable">
+            <thead>
+
+                <tr>
+                    @if (ViewBag.estadoUsado > 0)
+                    {
+                        <th>
+                            <input type="checkbox" id="chkSeleccionarTodos" name="chkSeleccionarTodos" />
+                        </th>
+                    }
+                    <th>Id lote</th>
+                    <th>Número factura</th>
+                    <th>Prestador</th>
+                    <th>Regional</th>
+                    <th>Fecha recepción</th>
+                    <th>Analista</th>
+                    <th>Auditor</th>
+                    <th>Estado actual</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasgestionadasCompletaResult order in ViewBag.Lista)
+                {
+                    conteo++;
+                    <tr>
+                        @if (ViewBag.estadoUsado > 0)
+                        {
+                            <td style="text-align:center;">
+                                <input type="checkbox" id="chek_@conteo" class="chkFactura" />
+                                <input type="hidden" id="idBase_@conteo" value="@order.id_cargue_base" />
+                                <input type="hidden" id="id_@conteo" value="@order.id_cargue_dtll" />
+                            </td>
+                        }
+                        <td>@order.id_cargue_base</td>
+                        <td>@order.num_factura</td>
+                        <td>@order.nombre_prestador</td>
+                        <td>@order.nombre_regional</td>
+                        @if (@order.fecha_recepcion_fac == null)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td>@order.fecha_recepcion_fac</td>
+                        }
+                        <td>@order.nom_analitica</td>
+                        <td>@order.nom_auditor</td>
+                        <td>@order.estado_des</td>
+                        @if (order.id_analista_gestiona != null && order.editable == "SI")
+                        {
+                            <td>
+                                <button class="button_Asalud_Guardar btn-sm" onclick="llamarVistaParcial(@order.id_cargue_dtll,@order.id_analista_gestiona,@order.id_cargue_base);" data-toggle="modal" data-target="#myModal">
+                                    Reasignar Analista
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                            </td>
+                        }
+
+                        @if (order.id_auditor_asignado != null && order.editable == "SI")
+                        {
+                            <td>
+                                <button class="button_Asalud_Guardar btn-sm" onclick="llamarVistaParcial2(@order.id_cargue_dtll,@order.id_auditor_asignado);" data-toggle="modal" data-target="#myModal2">
+                                    Reasignar Auditor
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                            </td>
+                        }
+                        @if (order.estado_factura == 3 || order.estado_factura == 5)
+                        {
+                            <td>
+                                <button class="button_Asalud_Rechazar btn-sm" onclick="llamarVistaParcial3(@order.id_cargue_dtll,@order.estado_factura);" data-toggle="modal" data-target="#myModal3">
+                                    Cambio Estado
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                            </td>
+                        }
+
+                        @if (ViewBag.rol == "31" || ViewBag.rol == "1")
+                        {
+                            if (order.estado_factura == 2 || order.estado_factura == 4 || order.estado_factura == 6 || order.estado_factura == 11)
+
+                            {
+                                <td>
+                                    <button class="button_Asalud_Rechazar btn-sm" onclick="llamarVistaParcial6(@order.id_cargue_dtll,@order.estado_factura);" data-toggle="modal" data-target="#myModal6">
+                                        Cambio Estado Especial
+                                    </button>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                </td>
+                            }
+                        }
+                        else
+                        {
+                            <td>
+                            </td>
+                        }
+
+                        @if (order.estado_factura == 1 || order.estado_factura == 7 || order.estado_factura == 8 || order.estado_factura == 15)
+                        {
+                            <td>
+                                <button class="button_Asalud_Aceptar btn-sm" onclick="llamarVistaParcial4(@order.id_cargue_base);" data-toggle="modal" data-target="#myModal4">
+                                    Reasignar Regional
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                            </td>
+                        }
+
+                        @if (order.estado_factura == 6 || order.estado_factura == 11)
+                        {
+
+                            <td>
+                                <button class="button_Asalud_Aceptar btn-sm" onclick="llamarVistaParcial5(@order.id_cargue_dtll);" data-toggle="modal" data-target="#myModal5">
+                                    Actualizar TIGA
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div style="display:none">
+        <input class="form-control" type="text" name="Lista_check2" id="Lista_check2" required />
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal4">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado4"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal5">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="text-primary_asalud">ACTUALIZAR TIPO DE GASTO</strong>
+            </div>
+
+            <div class="modal-body">
+                <div id="resultado5"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal6">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado6"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal7">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado7"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal8">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado8"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal9">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado9"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal10">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado10"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<script>
+
+    var seleccionadosBase = [];
+    var seleccionados = [];
+    var seleccionadosIds = [];
+    var oTable;
+
+    $(window).load(function () {
+        $("#loader").fadeOut("slow");
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+    });
+
+    $(document).ready(function () {
+
+        $('.datatable').DataTable({
+            info: false,
+            "lengthMenu": [50, 100, 150, 200, 250, 300],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+        $("#chkSeleccionarTodos").change(function () {
+            if ($(this).is(':checked')) {
+                $("#tablaFacturas tbody tr td .chkFactura").each(function () {
+                    $("#tablaFacturas tbody tr td .chkFactura").prop('checked', true);
+                })
+            }
+            else {
+                $("#tablaFacturas tbody tr td .chkFactura").each(function () {
+                    $("#tablaFacturas tbody tr td .chkFactura").prop('checked', false);
+                })
+            }
+        })
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $("#prestador").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nombre",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nit").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nit",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+        $("#sap").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Sap",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.sap);
+                }
+            }
+        })
+
+        $("#btnbuscar").click(function () {
+            var validator = $("#formulariobuscar").validate();
+            if (validator.form()) {
+                LoadingShow();
+                $("#formulariobuscar").submit();
+            }
+        })
+
+        /*---------NUEVO CODIGO---------*/
+        mostrarDivEstados();
+    })
+
+
+    function validacionCheckeoBase() {
+        var conteo = @conteo;
+        seleccionadosBase = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chek_' + i);
+
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("idBase_" + i).value;
+                    seleccionadosBase = seleccionadosBase.concat(item);
+                }
+            }
+        }
+    }
+
+    function validacionCheckeo() {
+        var conteo = @conteo;
+        seleccionados = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chek_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("id_" + i).value;
+                    seleccionados = seleccionados.concat(item);
+                }
+            }
+        }
+    }
+
+    function validacionCheckeoId() {
+        var conteo = @conteo;
+        seleccionadosIds = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chek_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("id_" + i).value;
+                    seleccionadosIds.push(item);
+                }
+            }
+        }
+    }
+
+    function mostrarDivEstados() {
+
+        var estados = $("#estadoUsado").val();
+
+        if (estados == 1 || estados == 7 || estados == 8 || estados == 15) {
+            document.getElementById("cambioRegional").style.display = "block";
+            document.getElementById("cambioEstado").style.display = "none";
+            document.getElementById("cambioEstadoEspecial").style.display = "none";
+            document.getElementById("cambioAuditor").style.display = "none";
+
+        }
+        else if (estados == 2 || estados == 4 || estados == 6 || estados == 11) {
+
+            if (estados == 4) {
+                document.getElementById("cambioAuditor").style.display = "block";
+            } else {
+                document.getElementById("cambioAuditor").style.display = "none";
+            }
+            document.getElementById("cambioRegional").style.display = "none";
+            document.getElementById("cambioEstado").style.display = "none";
+            document.getElementById("cambioEstadoEspecial").style.display = "block";
+
+        }
+        else if (estados == 3 || estados == 5) {
+            document.getElementById("cambioRegional").style.display = "none";
+            document.getElementById("cambioEstado").style.display = "block";
+            document.getElementById("cambioEstadoEspecial").style.display = "none";
+            document.getElementById("cambioAuditor").style.display = "none";
+
+        }
+        else {
+            document.getElementById("cambioRegional").style.display = "none";
+            document.getElementById("cambioEstado").style.display = "none";
+            document.getElementById("cambioEstadoEspecial").style.display = "none";
+            document.getElementById("cambioAuditor").style.display = "none";
+
+        }
+    }
+
+    function llamarVistaParcial(AI, BI,CI)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionarAnalista")?ID=' + AI + '&ID2=' + BI + '&ID3=' + CI ;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+    function llamarVistaParcial2(AI, BI)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionarAuditorReasig")?ID=' + AI + '&ID2=' + BI;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+    function llamarVistaParcial3(AI, BI)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionarEstadoReasig")?ID=' + AI + '&ID2=' + BI;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+    function llamarVistaParcial4(AI)
+    {
+         var laURLDeLaVista = '@Url.Action("GestionarRegional")?ID=' + AI;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado4').html('');
+                $('#resultado4').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial5(AI) {
+        var laURLDeLaVista = '@Url.Action("GestionarTIGA")?ID=' + AI;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado5').html('');
+                $('#resultado5').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial6(AI, BI) {
+        var laURLDeLaVista = '@Url.Action("GestionarEstadoReasigEspe")?ID=' + AI + '&ID2=' + BI;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado6').html('');
+                $('#resultado6').html(response);
+            }
+        });
+    }
+
+    function reasignarRegional() {
+        validacionCheckeoBase();
+
+        if (seleccionadosBase.length > 0) {
+
+            var laURLDeLaVista = '@Url.Action("GestionarRegionalGlobal")?items=' + seleccionadosBase;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultado7').html('');
+                    $('#resultado7').html(response);
+                    $("#myModal7").modal('show');
+                }
+            });
+        }
+        else {
+            alert("Debe seleccionar mínimo un ítem");
+        }
+    }
+
+    function cambioEstadoEspecial() {
+        validacionCheckeo();
+
+        var estadoUsado = $("#estadoUsado").val();
+
+        if (seleccionados.length > 0) {
+            var laURLDeLaVista = '@Url.Action("GestionarEstadoReasigEspeGlobal")?item=' + seleccionados + "&estadoUsado=" + estadoUsado;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultado8').html('');
+                    $('#resultado8').html(response);
+                    $("#myModal8").modal('show');
+                }
+            });
+        } else {
+            alert("Debe seleccionar mínimo un ítem");
+        }
+    }
+
+    function cambioEstado() {
+        validacionCheckeo();
+
+        var estadoUsado = $("#estadoUsado").val();
+
+        if (seleccionados.length > 0) {
+            var laURLDeLaVista = '@Url.Action("GestionarEstadoReasigGlobal")?item=' + seleccionados + "&estadoUsado=" + estadoUsado;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultado9').html('');
+                    $('#resultado9').html(response);
+                    $("#myModal9").modal('show');
+                }
+            });
+        } else {
+            alert("Debe seleccionar mínimo un ítem");
+        }
+    }
+
+    function reasignarAuditor() {
+        validacionCheckeoId();
+
+        if (seleccionadosIds.length > 0) {
+            var laURLDeLaVista = '@Url.Action("GestionarAuditorReasigGlobal")?items=' + seleccionadosIds;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultado10').html('');
+                    $('#resultado10').html(response);
+                    $("#myModal10").modal('show');
+                }
+            });
+        } else {
+            alert("Debe seleccionar mínimo un ítem");
+        }
+    }
+
+
+</script>
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

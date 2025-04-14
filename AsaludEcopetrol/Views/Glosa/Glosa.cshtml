@@ -1,0 +1,820 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Evolucion.Glosa
+@{
+    ViewBag.Title = "GLOSA";
+}
+
+<br />
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+
+        <table class="table table-bordered table-condensed" style="font-size:11px; width: 100%;">
+
+
+            @if (Model != null && Model.lstGlosa != null && Model.lstGlosa.Count > 0)
+            {
+                <thead>
+                    <tr>
+
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Procedimiento</th>
+                        <th class="text-center">Codigo glosa</th>
+                        <th class="text-center">Cantidad glosa</th>
+                        <th class="text-center">Valor glosa</th>
+                        <th class="text-center">Observaciones auditoria</th>
+                        <th class="text-center">Responsable glosa</th>
+                        <th class="text-center">Causal glosa</th>
+                        <th class="text-center">Usuario digita</th>
+                        <th class="text-center">Fecha digita</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.lstGlosa)
+                    {
+                        <tr>
+
+                            <td class="text-center">
+                                @item.id_concurrencia_glosa
+                            </td>
+                            <td class="text-center">
+                                @item.id_cups
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstCodGlosa)
+                                {
+                                    if (item1.id_ref_cuentas_glosa == item.id_codigo_glosa)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @item.cantidad_glosa
+                            </td>
+                            <td class="text-center">
+                                @item.Valor_Glosa
+                            </td>
+                            <td class="text-center">
+                                @item.observaciones_auditoria
+                            </td>
+
+                            <td>
+
+
+
+                                @item.responsable_glosa
+                                @if (@item.responsable_glosa == "1")
+                                {
+                                    <p> IPS</p>
+                                }
+                                @if (@item.responsable_glosa == "2")
+                                {<p>ECOPETROL</p>}
+                                @if (@item.responsable_glosa == "4")
+                                {<p>PROVEEDOR(MAOS, MEDICAMENTOS, OXIGENO, PAD CORSET, OTROS)  </p>}
+                                @if (@item.responsable_glosa == "5")
+                                {<p>PACIENTE Y/O FAMILIARES</p>}
+                            </td>
+
+                            <td>
+                                @Model.ColsultaCausalGlosa(int.Parse(item.responsable_glosa)).ToList().Where(l => l.id_ref_causal_glosa == item.causal_glosa).Select(l => l.nombre_causal).FirstOrDefault()
+                            </td>
+
+                            <td class="text-center">
+                                @item.usuario_digita
+                            </td>
+                            <td class="text-center">
+                                &nbsp;@item.digita_fecha
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+
+<div class="container" style="font-family:'Century Gothic'">
+    <form id="formulario" action="Glosa" method="post" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">GLOSA</strong>
+            </div>
+            <div class="panel-body">
+                <div style="display:none">
+                    <input type="text" class="form-control" required name="idconcurrencia" maxlength="40" id="idconcurrencia" value="@Model.id_concurrencia" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Código cups:</label>
+                        <select class="form-control select2" style="width:100%" required id="codigosglosa" name="codigosglosa" onchange="Valorcups()">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ref_cups item in ViewBag.cups)
+                            {
+                                <option value="@item.id_cups">@item.des</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Código glosa:</label>
+                        <select class="form-control select2" style="width:100%" required id="codigoglosa" name="codigoglosa">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_cuentas_glosa item in ViewBag.codigoglosa)
+                            {
+                                <option value="@item.id_ref_cuentas_glosa">@item.des</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Cantidad glosa:</label>
+                        <input type="text" class="form-control solo-numeritos " required name="cantidad" id="cantidad" maxlength="30" onchange="multiplicarOtro()" onclick="multiplicarOtro()" />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Valor glosa:</label>
+                        <input type="text" class="form-control solo-numeritos" required name="valorglosa" id="valorglosa" maxlength="30" onchange="multiplicarOtro()" onclick="multiplicarOtro()" />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Valor total glosa:</label>
+                        <input type="text" class="form-control" required name="valorglosaoculto" id="valorglosaoculto" maxlength="30" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-sm-4 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Responsable glosa:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="responsableglosa" name="responsableglosa" onchange="checkFiltro()">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_responsable_glosa item in ViewBag.responsableglosa)
+                            {
+                                <option value="@item.id_ref_responsable_glosa">@item.descripcion_responsable_glosa</option>
+                            }
+                        </select>
+
+                    </div>
+
+                    <div class="col-sm-4 form-group" style="display:none" id="pnlcausal1">
+                        <label for="nombre" class="text-secondary_asalud">Causal glosa:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="causalglosa1" name="causalglosa1" onchange="habilita()">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_causal_glosa item in ViewBag.causal1)
+                            {
+                                <option value="@item.id_ref_causal_glosa">@item.nombre_causal</option>
+                            }
+                        </select>
+
+                    </div>
+                    <div class="col-sm-4 form-group" style="display:none" id="pnlcausal2">
+                        <label for="nombre" class="text-secondary_asalud">Causal glosa:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="causalglosa2" name="causalglosa2">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_causal_glosa item in ViewBag.causal2)
+                            {
+                                <option value="@item.id_ref_causal_glosa">@item.nombre_causal</option>
+                            }
+                        </select>
+
+                    </div>
+                    <div class="col-sm-4 form-group" style="display:none" id="pnlcausal4">
+                        <label for="nombre" class="text-secondary_asalud">Causal glosa:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="causalglosa4" name="causalglosa4">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_causal_glosa item in ViewBag.causal4)
+                            {
+                                <option value="@item.id_ref_causal_glosa">@item.nombre_causal</option>
+                            }
+                        </select>
+
+                    </div>
+                    <div class="col-sm-4 form-group" style="display:none" id="pnlcausal5">
+                        <label for="nombre" class="text-secondary_asalud">Causal glosa:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="causalglosa5" name="causalglosa5">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_causal_glosa item in ViewBag.causal5)
+                            {
+                                <option value="@item.id_ref_causal_glosa">@item.nombre_causal</option>
+                            }
+                        </select>
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 form-group" id='pnlReingresoOtro' style='display:none;'>
+                        <label for="nombre" class="text-secondary_asalud">Otro causal glosa:</label><span style="color:red"></span>
+                        <textarea class="form-control" name="otrocausalglosa" id="otrocausalglosa" rows="5" cols="50" maxlength="150" required></textarea>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="nombre" class="text-secondary_asalud">Observación auditoria:</label><span style="color:red"></span>
+                        <textarea class="form-control" name="observacion" id="observacion" rows="5" cols="50" maxlength="50" required></textarea>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="pnlGuardar" class="col-sm-12 text-center">
+                        <div class="text-center">
+                            @if (ViewBag.usuario != "14")
+                            { 
+                                <button class="btn button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                            }
+
+                        </div>
+                        <div class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </div>
+                        <div style="display:none">
+                            @Html.TextBoxFor(u => u.id_concurrencia, new { @id = "idconcu" })
+                            @Html.TextBoxFor(u => u.id_concurrencia)
+
+                        </div>
+                        <div style="display:none">
+                            <input id="idconcuInput" type="text" value="1" style="visibility:hidden" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<br />
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.solo-numeritos').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            "order": [[3, "desc"]],
+            responsive: true,
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+
+     var today = new Date()
+
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    $('.select2').select2({
+        width: '100%'
+    });
+
+    $(".datepickerr").kendoDatePicker({
+        format: "MM/dd/yyyy",
+        max: new Date(today.setDate(today.getDate()))
+    });
+
+    $(".k-input").attr('readonly', true);
+
+    $(".date").datepicker();
+
+
+    $(document).ready(function () {
+
+        $(".dropdownlist").kendoDropDownList({
+            filter: "contains",
+            filtering: function (e) {
+                var filter = e.filter;
+            }
+        });
+    });
+
+
+    function multiplicarOtro(input) {
+
+        var m1 = document.getElementById("cantidad").value;
+        var m2 = document.getElementById("valorglosa").value;
+
+        if (m1 != "") {
+            var m3 = document.getElementById("cantidad").value;
+            var r = m2 * m3;
+
+               var res = formatNumber.new(r)
+               document.getElementById("valorglosaoculto").value = res;
+
+        }
+        else {
+
+        }
+
+    }
+
+
+    var formatNumber = {
+        separador: ".", // separador para los miles
+        sepDecimal: ',', // separador para los decimales
+        formatear: function (num) {
+            num += '';
+            var splitStr = num.split('.');
+            var splitLeft = splitStr[0];
+            var splitRight = splitStr.length > 1 ? this.sepDecimal + splitStr[1] : '';
+            var regx = /(\d+)(\d{3})/;
+            while (regx.test(splitLeft)) {
+                splitLeft = splitLeft.replace(regx, '$1' + this.separador + '$2');
+            }
+            return this.simbol + splitLeft + splitRight;
+        },
+        new: function (num, simbol) {
+            this.simbol = simbol || '';
+            return this.formatear(num);
+        }
+    }
+
+
+
+
+    function Valorcups() {
+
+        var opcionrealizar = "1";
+        var id = $("#codigosglosa").val();
+
+        $.ajax({
+            url: "@Url.Action("valorglosa")",
+
+            type: "GET",
+            data:
+            {
+                opcionrealizar: opcionrealizar,
+                id: id,
+
+            },
+            success: function (data) {
+                if (data.opcionrealizar == "1") {
+                    document.getElementById("valorglosa").readOnly = true;
+                    document.getElementById("valorglosa").value = data.valor;
+
+
+                }
+                else {
+                    document.getElementById("valorglosa").readOnly = false;
+                    document.getElementById("valorglosa").value = "";
+                    document.getElementById("valorglosaoculto").value = "";
+
+                }
+
+            },
+            error: function (data) {
+                alert("error al momento de realizar el procedimiento")
+            }
+
+        })
+
+
+    }
+
+
+
+
+    function checkFiltro() {
+
+        var mivalor = $("#responsableglosa").val()
+
+        if (mivalor == 1) {
+
+            mostrar1()
+
+        }
+        else if (mivalor == 2) {
+
+            mostrar2()
+
+        }
+        else if (mivalor == 4) {
+
+            mostrar4()
+        }
+
+        else if (mivalor == 5) {
+
+            mostrar5()
+        }
+        else {
+            document.getElementById('pnlcausal5').style.display = 'none';
+            document.getElementById('pnlcausal1').style.display = 'none';
+            document.getElementById('pnlcausal2').style.display = 'none';
+            document.getElementById('pnlcausal4').style.display = 'none';
+        }
+
+
+    }
+
+    function mostrar1() {
+
+        document.getElementById('pnlcausal1').style.display = 'block';
+        document.getElementById('pnlcausal2').style.display = 'none';
+        document.getElementById('pnlcausal4').style.display = 'none';
+        document.getElementById('pnlcausal5').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlcausal2').style.display = 'block';
+        document.getElementById('pnlcausal1').style.display = 'none';
+        document.getElementById('pnlcausal4').style.display = 'none';
+        document.getElementById('pnlcausal5').style.display = 'none';
+
+    };
+
+    function mostrar4() {
+
+        document.getElementById('pnlcausal4').style.display = 'block';
+        document.getElementById('pnlcausal1').style.display = 'none';
+        document.getElementById('pnlcausal2').style.display = 'none';
+        document.getElementById('pnlcausal5').style.display = 'none';
+
+    };
+
+    function mostrar5() {
+
+        document.getElementById('pnlcausal5').style.display = 'block';
+        document.getElementById('pnlcausal1').style.display = 'none';
+        document.getElementById('pnlcausal2').style.display = 'none';
+        document.getElementById('pnlcausal4').style.display = 'none';
+
+    };
+
+    function habilita() {
+
+        var mivalor = $("#causalglosa1").val()
+
+        if (mivalor == 4) {
+
+            document.getElementById('pnlReingresoOtro').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlReingresoOtro').style.display = 'none';
+        }
+
+
+    };
+
+
+
+
+    @*function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+    }
+
+
+    function format() {
+
+        var textBox1 = $('input:text[id$=valor_glosa]').keyup();
+
+        var num = textBox1.val();
+
+
+        $('input:text[id$=valor_glosa]').val(num);
+
+    }
+
+
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+        var firstname = document.getElementById('FirstName');
+        //	firstname.value = firstname.value;// + '-' + name;
+        firstname.value = DataItem.id_cups;
+        /// 	window.alert(DataItem.id_cups);
+
+    }
+    $("#txtName").change(function () {
+        var name = $("#txtName").val();
+        //	window.alert(name);
+        var valorginput = document.getElementById('valorgInput');
+        valorginput.value = name;
+    });
+
+    $(document).ready(function () {
+        var nameconcu = $("#idconcu").val();
+        //	window.alert(nameconcu);
+        var concuInput = document.getElementById('idconcuInput');
+        concuInput.value = nameconcu;
+    });
+
+    //$(document).ready(function () {
+    //    var nameips = $("#idips").val();
+    //    //window.alert(nameips);
+    //    var concuInput = document.getElementById('idipsInput');
+    //    concuInput.value = nameips;
+    //});
+
+
+    $("#nameIps").change(function () {
+        var nameips = $("#nameIps").val();
+        //	window.alert(nameips);
+        var ips2input = document.getElementById('ipsInput');
+        ips2input.value = nameips;
+    });
+
+
+    function calcular(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+        $("#IPS").val(DataItem.IPS);
+
+    };
+
+    $('#getValueFirst').click(function () {
+        //	window.alert(document.getElementById('FirstName').value+ "  " + document.getElementById('ipsInput').value+ "  " +document.getElementById('valorgInput').value);
+        document.getElementById('ver').style.display = 'none';
+        var firstName = document.getElementById('FirstName').value;
+        var ips2input = document.getElementById('idipsInput').value;
+        var valorinput = document.getElementById('valorgInput').value;
+        var concuInput = document.getElementById('idconcuInput').value;
+        //window.alert(document.getElementById('idconcuInput').value);
+        //window.alert(ips2input);
+        this.href = this.href + '?id=' + encodeURIComponent(firstName) + '\&ips=' + encodeURIComponent(ips2input) + '\&cantidad=' + encodeURIComponent(valorinput) + '\&id_concurrencia=' + encodeURIComponent(concuInput);
+        return firstName;
+    });
+
+
+    function format2(input) {
+
+        var textBox1 = $('input:text[id$=valor_glosa]').keyup();
+        var n = textBox1.val();
+
+        var num = n.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            input.value = input.value.replace(/[^\d\.]*/g, '');
+        }
+    }
+
+    $(document).ready(function () {
+        $('.resglosa').change(function () {
+            var idresponsable = $(this).val();
+
+            $.ajax({
+                url: "@Url.Action("GetCausalGlosa", "Glosa")",
+                type: "post",
+                data: { idresponsable: idresponsable },
+                success: function (data) {
+                    $('#causal_glosa').empty();
+                    $('#causal_glosa').append("<option value=''>Seleccione...</option>");
+                    data.forEach(function (data) {
+                        $('#causal_glosa').append("<option value='" + data.id_ref_causal_glosa + "'>" + data.nombre_causal + "</option>");
+                    });
+
+
+                },
+            })
+        })
+    })*@
+
+
+
+
+    function onSelect(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cups;
+            $("#id_cups").val(value1);
+
+            $.ajax({
+                url: '@Url.Action("Traervalor")/' + value1,
+
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        $("#valor_glosa").val(data.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+</script>
+
+<style>
+
+    .letraa {
+        color: #337ab7;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+        /* support: IE7 */
+        *height: 1.7em;
+        *top: 0.1em;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 0.3em;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 105px;
+    }
+
+    .tdGrande {
+        width: 300px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .auto-style3 {
+        height: 26px;
+    }
+
+
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .table {
+        font-size: 10px;
+    }
+
+
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

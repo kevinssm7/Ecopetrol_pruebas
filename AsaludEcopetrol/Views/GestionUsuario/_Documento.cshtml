@@ -1,0 +1,276 @@
+﻿
+
+
+
+<div class="container">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+
+            <p class="text-primary_asalud">  DETALLE USUARIO</p>
+
+        </div>
+
+        <div class="panel-body">
+
+            @if (ViewBag.variante == 1)
+            {
+                <div class="table-responsive">
+
+
+
+                    <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+                        <thead>
+                            <tr>
+                                <th>Numero Documento</th>
+                                <th>Nombre</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                                <th>Opciones</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbody">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.lista)
+                            {
+
+                                <tr>
+                                    <td class="text-center">@item.numero_documento</td>
+                                    <td class="text-center">@item.nombre</td>
+                                    <td class="text-center">@item.usuario</td>
+
+                                    @if (item.id_estado == 1)
+                                    {
+                                        <td class="text-center">ACTIVO</td>
+
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">INACTIVO</td>
+
+                                    }
+                                    <td class="text-center">
+
+                                        @if (item.id_estado == 1)
+                                        {
+                                            <a class="button_Asalud_Rechazar" href='javascript:DesactivarUsuario(@item.id_usuario)'>
+                                                INACTIVAR
+                                            </a>
+                                            <script>
+
+                                                function DesactivarUsuario(a) {
+
+                                                    var opcionrealizar = 1; // decide que opcion se va a realizar
+                                                    var idusuario = a;
+
+
+                                                    var mensaje;
+                                                    if (opcionrealizar == 1) {
+                                                        mensaje = "¿Seguro que desea inactivar el usuario?";
+                                                    }
+                                                    else {
+                                                        mensaje = "¿Seguro que desea rechazar este caso?";
+                                                    }
+
+                                                    var opcion = confirm(mensaje);
+
+                                                    if (opcion == true) {
+                                                        $.ajax({
+                                                            url: "@Url.Action("InactivarUsu")",
+                                                            type: "GET",
+                                                            data:
+                                                            {
+
+                                                                opcionrealizar: opcionrealizar,
+                                                                idusuario: idusuario
+
+
+                                                            },
+                                                            success: function (data) {
+
+                                                                if (data.opcionrealizar == "1") {
+                                                                    window.location = "@Url.Action("Buscar", "GestionUsuario",new { variable = 2})"
+                                                                }
+                                                                else {
+                                                                    alert("No tiene permisos para inactivar un usuario administrador")
+                                                                }
+
+
+
+                                                            },
+                                                            error: function (data) {
+
+                                                                alert("error al momento de realizar el procedimiento")
+
+                                                            }
+                                                        })
+
+                                                    }
+                                                    else {
+
+                                                    }
+                                                }
+
+                                            </script>
+                                        }
+                                        else
+                                        {
+                                            <a class="button_Asalud_Aceptar" href='javascript:ActivarUsuario(@item.id_usuario)'>
+                                                ACTIVAR
+                                            </a>
+                                            <script>
+
+                                                function ActivarUsuario(a) {
+
+                                                    var opcionrealizar = 1; // decide que opcion se va a realizar
+                                                    var idusuario = a;
+
+
+                                                    var mensaje;
+                                                    if (opcionrealizar == 1) {
+                                                        mensaje = "¿Seguro que desea activar el usuario?";
+                                                    }
+                                                    else {
+                                                        mensaje = "¿Seguro que desea rechazar este caso?";
+                                                    }
+
+                                                    var opcion = confirm(mensaje);
+
+                                                    if (opcion == true) {
+                                                        $.ajax({
+                                                            url: "@Url.Action("ActivarUsu")",
+                                                            type: "GET",
+                                                            data:
+                                                            {
+
+                                                                opcionrealizar: opcionrealizar,
+                                                                idusuario: idusuario
+
+
+                                                            },
+                                                            success: function (data) {
+
+                                                                if (data.opcionrealizar == "1") {
+                                                                    window.location = "@Url.Action("Buscar", "GestionUsuario",new { variable = 1})"
+                                                                }
+                                                                else {
+                                                                    alert("No tiene permisos para activar un usuario administrador")
+                                                                }
+
+
+                                                            },
+                                                            error: function (data) {
+
+                                                                alert("error al momento de realizar el procedimiento")
+
+                                                            }
+                                                        })
+
+                                                    }
+                                                    else {
+
+                                                    }
+                                                }
+
+                                            </script>
+
+                                        }
+                                        &emsp;
+                                        <a class="button_Asalud_Guardar" href='javascript:RestablecerUsuario(@item.id_usuario)'>
+                                            RESTABLECER CONTRASEÑA
+                                        </a>
+
+
+                                        <script>
+
+                                            function RestablecerUsuario(a) {
+
+                                                var opcionrealizar = 1; // decide que opcion se va a realizar
+                                                var idusuario = a;
+
+
+                                                var mensaje;
+                                                if (opcionrealizar == 1) {
+                                                    mensaje = "¿Seguro que desea restablecer la contraseña del usuario?";
+                                                }
+                                                else {
+                                                    mensaje = "¿Seguro que desea rechazar este caso?";
+                                                }
+
+                                                var opcion = confirm(mensaje);
+
+                                                if (opcion == true) {
+                                                    $.ajax({
+                                                        url: "@Url.Action("RestabelecerUsu")",
+                                                        type: "GET",
+                                                        data:
+                                                        {
+
+                                                            opcionrealizar: opcionrealizar,
+                                                            idusuario: idusuario
+
+
+                                                        },
+                                                        success: function (data) {
+
+                                                            if (data.opcionrealizar == "1") {
+                                                                window.location = "@Url.Action("Buscar", "GestionUsuario",new { variable = 3})"
+                                                            }
+                                                            else {
+                                                                alert("No tiene permisos para restablecer la contraseña de un usuario administrador")
+                                                            }
+
+
+
+
+
+
+                                                        },
+                                                        error: function (data) {
+
+                                                            alert("error al momento de realizar el procedimiento")
+
+                                                        }
+                                                    })
+
+                                                }
+                                                else {
+
+                                                }
+                                            }
+
+                                        </script>
+
+                                    </td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+
+            }
+            else
+            {
+
+                <div class="alert alert-danger" role="alert" style="font-family:'Century Gothic'">
+                    <p>
+                        <strong>Atencion! </strong>El numero de documento ingresado no cuenta con algun usuario registrado.
+                    </p>
+                </div>
+
+            }
+
+
+        </div>
+
+
+
+    </div>
+</div>

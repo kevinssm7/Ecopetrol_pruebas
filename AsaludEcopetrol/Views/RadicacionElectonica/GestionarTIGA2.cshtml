@@ -1,0 +1,116 @@
+﻿
+@model List<ECOPETROL_COMMON.ENTIDADES.vw_factura_digital_gasto_total>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<div>
+    <div class="table-responsive form-group">
+        <table class="table table-bordered" id="tabla">
+            <thead>
+                <tr>
+                    <th>Tipo de gasto</th>
+                    <th>Observaciones</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_factura_digital_gasto_total item in Model)
+                {
+                    <tr>
+                        <td>@item.tipo_gasto</td>
+                        <td>@item.observacion_gasto</td>
+                        <td><button class="btn button_Asalud_Aceptar btn-sm" type="button" onclick="EditarTiga(@item.id_factura_digital_gasto)">Editar</button></td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <form id="formulario">
+        <div class="row" id="divaddtipogasto" style="display:none">
+            <input type="hidden" id="idfactgasto" name="idfactgasto" />
+            <div class="col-sm-12 form-group">
+                <label class="text-secondary_asalud">Tipo de gasto:</label>
+                <select class="form-control" id="cbxtipogasto" name="cbxtipogasto" required>
+                    <option value="">- Seleccionar -</option>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipo_gasto_facturas item in ViewBag.listTipoGasto)
+                    {
+                        <option value="@item.id_ref_tipo_gasto_facturas">@item.descripcion</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-12 form-group">
+                <label class="text-secondary_asalud">Observaciones:</label>
+                <textarea rows="4" name="txtobservaciones" id="txtobservaciones" class="form-control" required maxlength="499"></textarea>
+            </div>
+            <div class="col-sm-12 text-right">
+                <button type="button" class="btn button_Asalud_Rechazar btn-sm" onclick="Inactivaraddtipogasto()">Cancelar</button>
+                <button type="button" class="btn button_Asalud_Guardar btn-sm" onclick="ValidarFormulario()">Guardar</button>
+            </div>
+        </div>
+    </form>
+    <div class="row form-group">
+        <div class="col-sm-12 text-center">
+            <button type="button" class="btn button_Asalud_Guardar btn-sm" onclick="GuardarCambiosTiga()">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function EditarTiga(id)
+    {
+        $.ajax({
+            url: "@Url.Action("EditarTiga2")",
+            type: "post",
+            data: {
+                idfacturagasto: id,
+            },
+            success: function (data)
+            {
+                $("#divaddtipogasto").css('display', 'block');
+                $("#idfactgasto").val(data.id);
+                $("#cbxtipogasto").val(data.idtipogasto);
+                $("#txtobservaciones").val(data.observaciones);
+            }
+        })
+    }
+
+    function Inactivaraddtipogasto()
+    {
+        $("#divaddtipogasto").css('display', 'none');
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $.ajax({
+                url: "@Url.Action("ActualizarDatosTiga2")",
+                type: "post",
+                data:
+                {   idfacgasto :  $("#idfactgasto").val(),
+                    tipogasto: $("#cbxtipogasto").val(),
+                    observaciones: $("#txtobservaciones").val()
+                },
+                success: function (data)
+                {
+                    $("#tabla tbody").empty();
+                    $("#tabla tbody").html(data);
+                    Inactivaraddtipogasto();
+                }
+            })
+        }
+    }
+
+    function GuardarCambiosTiga()
+    {
+        var txt = confirm('¿Está seguro/a que desea guardar los cambios?')
+        if (txt) {
+            var url = "@Url.Action("GuardarCambiosTiga2", "RadicacionElectonica")";
+            location.href = url;
+        }
+    }
+</script>

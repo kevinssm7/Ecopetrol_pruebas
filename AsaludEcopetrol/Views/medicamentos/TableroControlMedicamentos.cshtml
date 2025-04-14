@@ -1,0 +1,467 @@
+﻿@model  AsaludEcopetrol.Models.Medicamentos.GestionMedicamentos
+@{
+    ViewBag.Title = "AUDITORIA MEDICAMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL2.cshtml";
+}
+
+<br />
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">Ingreso Conciliación</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <form action="TableroControlMedicamentos" method="post" class="row" id="formukdlario">
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            @if (Model.ListFacturas.Count > 0)
+                            {
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+
+                                            <th class="text-center th">NUMERO DOCUMENTO</th>
+                                            <th class="text-center th">NOMBRE</th>
+                                            <th class="text-center th">CIUDAD</th>
+                                            <th class="text-center th">NUMERO FORMULA</th>
+                                            <th class="text-center th">VALOR TOTAL FORMULA</th>
+                                            <th class="text-center th">GLOSA GENERAL</th>
+                                            <th class="text-center th">GLOSA  DETALLE</th>
+
+                                        </tr>
+
+                                        @foreach (var order in Model.ListFacturas)
+                                        {
+
+                                            <tr>
+                                                <td>@order.numero_documento</td>
+                                                <td>@order.nombre_beneficiario</td>
+                                                <td>@order.ciudad</td>
+                                                <td>@order.numero_formula</td>
+                                                <td>@order.vlr_total</td>
+
+                                                <td>
+                                                    <button type="button" class="button_Asalud_Aceptar" onclick="llamarVistaParcial(@Model.VlrPendiente);" data-toggle="modal" data-target="#myModal">
+                                                        GLOSA GENERAL
+                                                    </button>
+
+
+                                                </td>
+                                                <td>
+
+                                                    <button type="button" class="button_Asalud_Aceptar" onclick="llamarVistaParcial2();" data-toggle="modal" data-target="#myModal">
+                                                        GLOSA PARCIAL
+                                                    </button>
+
+                                                </td>
+
+
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            }
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <h5> <a href="#" class="button_Asalud_Guardar" onclick="javascript:window.open('@Url.Action("GestorDocs", "medicamentos" , new { formula = Model.numero_formula  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER DOCUMENTO</a></h5>
+
+                        </div>
+                    </div>
+
+                </form>
+
+
+                <form action="TableroControlMedicamentos" method="post" class="row" id="formbuscar">
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <table width="400" style="color:#ffffff; background: #2E64FE;">
+                                <tr>
+                                    <td class="text-center">
+                                        <Label>DETALLE GLOSAS</Label>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table  class="table table-bordered">
+
+
+                                @if (Model != null && Model.LstGlosas != null && Model.LstGlosas.Count > 0)
+                                {
+                                    <tr>
+                                        <th class="text-center">ID</th>
+                                        <th class="text-center">MOTIVO GLOSA</th>
+                                        <th class="text-center">VALOR GLOSA</th>
+                                        <th class="text-center">OBSERVACIONES</th>
+                                        <th class="text-center"></th>
+
+                                    </tr>
+                                    foreach (var item in Model.LstGlosas)
+                                    {
+                                        <tr>
+
+                                            <td class="text-center">
+                                                @item.id_md_glosa_detalle
+                                            </td>
+                                            <td class="text-center">
+                                                @item.motivo_glosa
+                                            </td>
+                                            <td class="text-center">
+                                                @item.valor_glosa
+                                            </td>
+                                            <td class="text-center">
+                                                @item.observaciones
+                                            </td>
+                                            <td>
+
+                                                @Html.ActionLink("Eliminar", "EliminarGlosa", "medicamentos", new { id = item.id_md_glosa_detalle, formula = item.numero_formula }, null)
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="col-sm-6">
+                            <br />
+                            <label class="control-label text-primary">Valor formula</label>
+                            @Html.TextBoxFor(p => p.Vrltotal, new { @class = "form-control" , @readonly = "readonly"})
+
+
+                            <label class="control-label text-primary">Valor glosado</label>
+                            @Html.TextBoxFor(p => p.VlrGlosa, new { @class = "form-control" , @readonly = "readonly" })
+
+
+                            <label class="control-label text-primary">Valor pendiente</label>
+                            @Html.TextBoxFor(p => p.VlrPendiente, new { @class = "form-control" , @readonly = "readonly"})
+
+
+                            <br />
+
+                            <label class="control-label text-primary">Resultado auditoria </label>
+                            @Html.DropDownListFor(model => model.resultado_auditoria, new SelectList(Model.LstResultado, "id_ref_md_resultado_auditoria", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.resultado_auditoria, null, new { @class = "label label-danger" })
+                            <br />
+                            @if (Model.tiene_glosa == "SI")
+                            {
+                                <div class="alert alert-danger">
+                                    <strong>ALERTA..!</strong> YA SE INGRESO LA GLOSA
+                                </div>
+                                <h5> <a href="#" class="btn btn-primary" onclick="javascript:window.open('@Url.Action("CrearCartaAuditoriaMed", "medicamentos" , new { id = Model.numero_formula  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER CARTA GLOSA</a></h5>
+                            }
+                            else
+                            {
+                                <input type="submit" value="INGRESAR GLOSA" class="button_Asalud_Guardar" />
+                            }
+
+                            <br />
+
+                            @Html.ValidationSummary(true, "")
+
+                            <div style="display:none">
+                                @Html.TextBoxFor(u => u.numero_formula)
+                                @Html.TextBoxFor(u => u.Vlrvalidacion)
+                                @Html.TextBoxFor(u => u.VlrPendiente)
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    <div style="display:none">
+                        @Html.TextBoxFor(u => u.numero_formula)
+                        @Html.TextBoxFor(u => u.Vlrvalidacion)
+                        @Html.TextBoxFor(u => u.VlrPendiente)
+
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+
+</div><!-- /.modal -->
+
+<script>
+
+     $(document).ready(function () {
+
+        $('.table').DataTable({
+            "searching": false,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+    })
+    function llamarVistaParcial(A) {
+
+        var textBox1 = $('input:text[id$=numero_formula]').keyup();
+        var value2 = textBox1.val();
+
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado2').style.display = 'none';
+
+        var laURLDeLaVista = '@Url.Action("GlosaGeneral")/' + value2 + "?valor=" + A
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial2(A) {
+
+        var textBox1 = $('input:text[id$=numero_formula]').keyup();
+        var value2 = textBox1.val();
+
+        document.getElementById('resultado2').style.display = 'block';
+        document.getElementById('resultado').style.display = 'none';
+
+        var laURLDeLaVista = '@Url.Action("GlosaDetalle")/' + value2 + "?valor=" + 0
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+</script>
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+   
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>

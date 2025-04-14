@@ -1,0 +1,944 @@
+﻿
+@{
+    ViewBag.Title = "GESTIONAR PRESTADORES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+}
+
+<br />
+<div class="container">
+    <div id="tabstrip">
+        <ul class="nav nav-pills" style="font-size: 14px">
+            <li id="tab1">Prestadores sin Analista</li>
+            <li id="tab2">Prestadores con Analista</li>
+            <li id="tab3">Prestadores sin Auditor</li>
+            <li id="tab4">Prestadores con Auditor</li>
+            <li id="tab5">Total asignación</li>
+        </ul>
+        <br />
+
+        <div>
+            <div class="panel-body">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">ASIGNAR</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table id="grid"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">GESTIONAR</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table id="grid2"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">GESTIONAR</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table id="grid3"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">GESTIONAR</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table id="grid4"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">GESTIONAR</p>
+                    </div>
+                </div>
+                <div class="panel-body" id="panel_formulario">
+                    <form class="animated fadeInDown" id="formulario" autocomplete="off">
+                        <div id="pnldatosbuscar">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="text-secondary_asalud">Fecha inicial</label>
+                                    <input type="text" class="datepickerr" value="" style="width: 100%" name="fechainicial" id="fechainicial" required="required" />
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <label class="text-secondary_asalud">Fecha final</label>
+                                        <input type="text" class="datepickerr" value="" style="width: 100%" name="fechafinal" id="fechafinal" required="required" />
+                                    </div>
+                                </div>
+                                <br />
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="pnldatosTotal" style="display:none">
+
+                            <button class="button_Asalud_Aceptar" type="button" onclick="ValidarFormulario2()">Nueva consulta</button>
+                            <br />
+                            <br />
+
+                            <div class="table-responsive">
+                                <table id="grid5"></table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModalInter">
+    <div class="modal-dialog modal-lg" style="width:25%; height:10%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoInter"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-keyboard="false" id="myModalInterMulti">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoInterMulti"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal4">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado4"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal5">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado5"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>                                          
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var grid5 = "";
+
+    $(document).ready(function () {
+
+        var gridprueba = document.getElementById("grid5");
+        console.log(gridprueba);
+
+        tabstrip.activateTab($("#tab1"));
+        select_check = [];
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        data1 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_Analista_sin",
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "prestador"
+                }
+            }
+
+        });
+
+        var grid = "";
+        grid = $("#grid").kendoGrid({
+            dataSource: data1,
+            toolbar: ["search"],
+            pageable: {
+                alwaysVisible: true,
+                pageSizes: [5, 10, 20, 100]
+            },
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+
+            columns: [
+
+                { field: 'prestador', title: 'Prestador' },
+                { field: 'nombre_prestador', title: 'Nombre prestador' },
+                { field: 'nombre_regional', title: 'Nombre regional' },
+                { field: 'Id_analista', title: 'Id analista' },
+                { field: 'NombreAnalista', title: 'Nombre analista' },
+                {
+                    command: [{
+                        name: "ASIGNAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial(data.id_regional,data.prestador)
+                        }
+                    }]
+                },
+
+            ],
+
+
+        }).data("kendoGrid");
+        grid.refresh();
+
+         data2 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_Analista_con",
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "prestador"
+                }
+            }
+        });
+
+        var grid2 = "";
+        grid2 = $("#grid2").kendoGrid({
+            dataSource: data2,
+            toolbar: ["search"],
+            pageable: {
+                alwaysVisible: true,
+                pageSizes: [5, 10, 20, 100]
+            },
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            columns: [
+                { field: 'id_ref_cuentas_medicas_analista', title: 'Id' },
+                { field: 'prestador', title: 'Prestador' },
+                { field: 'nombre_prestador', title: 'Nombre prestador' },
+                { field: 'nombre_regional', title: 'Nombre regional' },
+                { field: 'Id_analista', title: 'Id analista' },
+                { field: 'NombreAnalista', title: 'Nombre analista' },
+                {
+                    command: [{
+                        name: "GESTIONAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial2(data.id_ref_cuentas_medicas_analista,data.id_regional)
+                        }
+                    }]
+                },
+            ],
+
+        }).data("kendoGrid");
+        grid2.refresh();
+
+
+        data3 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_Auditor_sin",
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "prestador"
+                }
+            }
+
+        });
+
+        var grid3 = "";
+        grid3 = $("#grid3").kendoGrid({
+            dataSource: data3,
+            toolbar: ["search"],
+            pageable: {
+                alwaysVisible: true,
+                pageSizes: [5, 10, 20, 100]
+            },
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            columns: [
+
+                { field: 'prestador', title: 'Prestador' },
+                { field: 'nombre_prestador', title: 'Nombre prestador' },
+                { field: 'nombre_regional', title: 'Nombre regional' },
+                { field: 'Id_auditor', title: 'Id auditor' },
+                { field: 'NombreAuditor', title: 'Nombre auditor' },
+                {
+                    command: [{
+                        name: "ASIGNAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial3(data.id_regional, data.prestador)
+                        }
+                    }]
+                },
+
+            ],
+
+
+        }).data("kendoGrid");
+        grid3.refresh();
+
+
+         data4 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_Auditor_con",
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "prestador"
+                }
+            }
+        });
+
+        var grid4 = "";
+        grid4 = $("#grid4").kendoGrid({
+            dataSource: data4,
+            toolbar: ["search"],
+            pageable: {
+                alwaysVisible: true,
+                pageSizes: [5, 10, 20, 100]
+            },
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            columns: [
+
+                { field: 'id_ref_cuentas_medicas_auditores', title: 'Id' },
+                { field: 'prestador', title: 'Prestador' },
+                { field: 'nombre_prestador', title: 'Nombre prestador' },
+                { field: 'nombre_regional', title: 'Nombre regional' },
+                { field: 'Id_auditor', title: 'Id auditor' },
+                { field: 'NombreAuditor', title: 'Nombre auditor' },
+                {
+                    command: [{
+                        name: "GESTIONAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial4(data.id_ref_cuentas_medicas_auditores)
+                        }
+                    }]
+                },
+            ],
+
+        }).data("kendoGrid");
+        grid4.refresh();
+
+    });
+    var tabstrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+
+    function llamarVistaParcial(A,B)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionCasoAnalistaIntermedio")?ID=' + A + "&ID2=" + B;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $("#myModalInter").modal('show');
+                $('#resultadoInter').html('');
+                $('#resultadoInter').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcialPlural(A,B)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionCasoAnalistaMulti")?ID=' + A + "&ID2=" + B;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModalInterMulti").modal('show');
+                $('#resultadoInterMulti').html('');
+                $('#resultadoInterMulti').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial1(A,B)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionCasoAnalistaSin")?ID=' + A + "&ID2=" + B;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal").modal('show');
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+      function llamarVistaParcial2(A,B)
+    {
+          var laURLDeLaVista = '@Url.Action("GestionCasoAnalistaCon")?ID=' + A + "&ID2=" + B;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal2").modal('show');
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial3(A,B)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionCasoAuditorSin")?ID=' + A + "&ID2=" + B;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal3").modal('show');
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial4(A,B)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionCasoAuditorCon")?ID=' + A + "&ID2=" + B;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal4").modal('show');
+                $('#resultado4').html('');
+                $('#resultado4').html(response);
+            }
+        });
+    }
+
+    function ValidacionArchivo() {
+        var fecha = $("#fechainicial").val()
+        var fecha2 = $("#fechafinal").val()
+
+        if (fecha != "") {
+            if (fecha2 != "") {
+                return true
+            }
+            else {
+                alert('Por favor, seleccione una fecha final...');
+                return false;
+            }
+        }
+        else {
+            return true
+        }
+
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            GuardarDatos3();
+        }
+    }
+
+    function ValidarFormulario2()
+    {
+        location.reload();
+    }
+
+    function activaTab(tab) {
+        $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+    };
+
+    function getRequestParameters() {
+        return {
+            fecha_inicial: $('#fechainicial').val(),
+            fecha_final: $('#fechafinal').val(),
+            limit: 10
+        };
+    }
+
+    function llamarVistaParcial5(A)
+    {
+        var laURLDeLaVista = '@Url.Action("GestionarAnalistaAutom")?ID=' + A;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal5").modal('show');
+                $('#resultado5').html('');
+                $('#resultado5').html(response);
+            }
+        });
+    }
+
+    function GuardarDatos()
+    {
+
+    }
+
+    function GuardarDatos3()
+    {
+
+        document.getElementById('pnldatosTotal').style.display = 'block';
+        document.getElementById('pnldatosbuscar').style.display = 'none';
+
+        data5 = new kendo.data.DataSource({
+            transport: {
+                type: "odata",
+                read: {
+                    url: "Selection_AnalistaTotal",
+                    data: getRequestParameters
+                }
+            },
+            pageSize: 10,
+            serverPaging: true,
+            serverSorting: true
+
+        });
+
+
+
+        grid5 = $("#grid5").kendoGrid({
+
+            dataSource: data5,
+            toolbar: ["search"],
+            pageable: {
+                alwaysVisible: true,
+                pageSizes: [5, 10, 20, 100]
+            },
+
+            sortable: true,
+            detailInit: detailInit,
+
+
+            columns: [
+
+                { field: 'prestador', title: 'Id Prestador' },
+                { field: 'Nombre', title: 'Nombre Prestador' },
+                { field: 'nom_analista', title: 'Analista' },
+                { field: "Total", title: "Total facturas asignadas" }
+            ]
+
+        }).data("kendoGrid");
+
+    }
+
+    function getRequestParameters2(A,B) {
+        return {
+            id_prestador: A,
+            id_analista: B,
+            fecha_inicial: $('#fechainicial').val(),
+            fecha_final: $('#fechafinal').val(),
+            limit: 10
+        };
+    }
+
+    function detailInit(e) {
+        $("<div/>").appendTo(e.detailCell).kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "Selection_AnalistaTotalDtll",
+                        data: getRequestParameters2(e.data.prestador, e.data.id_usuario),
+                        dataType: "json",
+                        type: "POST",
+                    }
+                },
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                pageSize: 10,
+                filter: { field: "Prestador", operator: "eq", value: e.data.prestador }
+            },
+            scrollable: false,
+            sortable: true,
+            pageable: true,
+            columns: [
+
+                { field: 'id_cargue_base', title: 'Lote' },
+                { field: 'prestador', title: 'Prestador' },
+                { field: 'Fecha', title: 'Fecha' },
+                { field: 'nom_analista', title: 'Analista' },
+                { field: "facturas_totales", title: "Total facturas asignadas" },
+                {
+                    command: [{
+                        name: "REASIGNAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial5(data.id_cargue_base)
+                        }
+                    }]
+                },
+            ]
+        });
+    }
+
+</script>
+
+<style>
+
+    TABLE.gj-grid {
+        text-align: center;
+        margin: 10px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .gj-grid-md {
+        position: relative;
+        border: 1px solid #e0e0e0;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        background-color: #fff;
+    }
+
+        .gj-grid-md th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            position: relative;
+            vertical-align: bottom;
+            font-weight: 700;
+            line-height: 31px;
+            letter-spacing: 0;
+            height: 56px;
+            font-size: 12px;
+            color: #FDF9F9;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            background: #636363;
+        }
+
+        .gj-grid-md td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            position: relative;
+            height: 48px;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            color: rgba(0,0,0,.87);
+        }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .sinDevolucion {
+        background-color: white;
+    }
+
+    .conDevolucion {
+        background-color: #f2dede;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }
+
+    .k-tabstrip-items .k-state-active .k-link {
+        color: white;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+        label.error {
+            background-color: indianred;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            float: left;
+            width: 100%;
+            text-align: justify;
+            font-weight: bold;
+        }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .k-tabstrip-items .k-state-default.k-item {
+        background-image: none;
+        background-color: #fff;
+        border-color: #fff;
+        margin-right: 1px;
+    }
+
+    .k-tabstrip-items .k-state-active.k-item {
+        background-color: #556da2;
+        border-color: black;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .k-tabstrip-items .k-state-hover.k-item {
+        background: #556da2;
+        border-color: black;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+</style>
+
+

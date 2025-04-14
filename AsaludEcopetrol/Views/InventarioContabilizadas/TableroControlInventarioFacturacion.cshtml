@@ -1,0 +1,244 @@
+﻿@using ECOPETROL_COMMON.ENTIDADES
+
+@{
+    ViewBag.Title = "CONTROL DE ARCHIVO - INVENTARIO FACTURAS CONTABILIZADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">
+            CONTROL  DE ARCHIVO- INVENTARIO FACTURAS CONTABILIZADAS
+            <a href='javascript:pdfInventario(1);' class="btn button_Asalud_Reporte"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar reporte</a>
+        </strong>
+    </div>
+    <br />
+    <div class="panel">
+        <form id="formArchivo">
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Fecha inicio</label>
+                        <input type="text" style="width:100%" class="datepicker" id="fechaIni" name="fechaIni" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Fecha fin</label>
+                        <input type="text" style="width:100%" class="datepicker" id="fechaFin" name="fechaFin" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select id="regional" name="regional" class="select2 form-control" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+
+                </div>
+                <div class="col-md-4">
+                    <div class="text-left">
+                        <br />
+                        <button class="btn button_Asalud_Aceptar" onclick="ValidarFormularioBusqueda()" id="buscar" type="button">BUSCAR</button>
+                        <a role="button" onclick="exportarExcel(1);" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <br />
+
+    <div class="panel-body" id="panelBody">
+        @Html.Action("_verTableroControlInventarioFacturacion", "InventarioContabilizadas")
+    </div>
+
+</div>
+
+<!--En este modal se vera el formulario para la ingresar la gestión-->
+<div class="modal fade" id="Modal" role="dialog" aria-hidden="true" data-backdrop="static" style="padding-right:0px !important">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="TituloModal">Gestionar Factura</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormularioGuardarGestion()">Guardar Cambios</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSoportes" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static" style="padding-right:0px !important">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos Cargados</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-xs button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+
+        $(".select2").select2({
+            width: '100%'
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    function DescargarDocumentos(idDetalle)
+    {
+        LoadingShow();
+        var url = "@Url.Action("DescargarSoportesFactura", "InventarioContabilizadas")?idDetalle=" + idDetalle;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+        setTimeout(LoadingHide, 3000);
+    }
+
+    function GestionarFactura(id)
+    {
+        LoadingShow();
+        var fechaInicial = $("#fechaIni").val();
+        var fechaFinal = $("#fechaFin").val();
+        var regional = $("#regional").val();
+        $("#modalBody").empty();
+        $("#modalBody").load("@Url.Action("_FormularioGestionFacturaInventarioContabilizadas", "InventarioContabilizadas")?id=" + id + "&fechaIni=" + fechaInicial + "&fechaFin=" + fechaFinal + "&regional=" + regional, function () {
+            $("#Modal").modal('show');
+            LoadingHide();
+        });
+    }
+
+    function exportarExcel(tipo) {
+        var URL2 = "@Url.Action("ExportarReporteInventarioContabilizadas", "InventarioContabilizadas")?tipo=" + tipo;
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function pdfInventario(estado) {
+        var url = "@Url.Action("reporteInventario", "InventarioContabilizadas")?estado=" + estado;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function ValidarFormularioBusqueda()
+    {
+        var validator = $("#formArchivo").validate()
+        if (validator.form())
+        {
+            var fechaInicial = $("#fechaIni").val();
+            var fechaFinal = $("#fechaFin").val();
+            var regional = $("#regional").val();
+
+            LoadingShow();
+            $("#panelBody").empty();
+            $("#panelBody").load("@Url.Action("_verTableroControlInventarioFacturacion", "InventarioContabilizadas")?fechaIni=" + fechaInicial + "&fechaFin=" + fechaFinal + "&regional=" + regional, function () {
+                LoadingHide();
+            });
+        }
+    }
+
+    function ModalVerSoportes(e)
+    {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales","RadicacionElectonica")?iddetalle=" + e,
+            type: "post",
+            success: function (data) {
+                LoadingHide();
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        });
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a)
+    {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        location.href = url;
+
+    }
+
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: left;
+        border-collapse: collapse;
+        margin-left: 0px;
+        width: 100% !important;
+        font-size: 12px;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    body {
+        padding-right: 0% !important;
+    }
+
+    label.error {
+        float: left !important;
+    }
+</style>

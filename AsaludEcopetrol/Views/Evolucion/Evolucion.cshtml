@@ -1,0 +1,1927 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Evolucion.Evolucion
+@{
+    ViewBag.Title = "EVOLUCION";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@*Leo*@
+<br />
+
+@if (ViewBag.usuario == "1")
+{
+    <div class="social">
+        <ul>
+            <li><a onclick="MostrarVieja()" class="glyphicon glyphicon-list"></a></li>
+            <li><a onclick="MostrarNueva()" class="glyphicon glyphicon-list-alt"></a></li>
+        </ul>
+    </div>
+}
+
+
+@using (Html.BeginForm())
+{
+    <br />
+    <br />
+    <input id="id_concurrencia" type="hidden" name="id_concurrencia" value="@ViewBag.id_concurrencia" />
+
+
+    foreach (var item2 in Model.LstPacienteEvo)
+    {
+        if (item2.Regional_Beneficiario_indice != "NA")
+        {
+            if (item2.Regional_Beneficiario_indice != item2.regional_asalud_indice)
+            {
+
+                <script>
+
+                    swal({
+                        title: "Alerta..!",
+                        text: "Paciente con regional  de origen diferente al de hospitalizacion, por favor verificar",
+                        icon: "warning",
+                        button: "OK"
+                    });
+
+                </script>
+
+            }
+        }
+
+    }
+
+    <div id="pnlpaciente" class="General">
+        <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center" style="font-size:small">
+                    <Label>USUARIO</Label>
+                </td>
+            </tr>
+        </table>
+        <table border="1" align="center" width="900">
+
+
+            @if (Model != null && Model.LstPacienteEvo != null && Model.LstPacienteEvo.Count > 0)
+            {
+                <tr>
+                    <th class="text-center">TIPO IDENTIFICACION</th>
+                    <th class="text-center">NUMERO IDENTIFICACION</th>
+                    <th class="text-center">NOMBRE</th>
+                    <th class="text-center">EDAD</th>
+                    <th class="text-center">NOMBRE IPS</th>
+                    <th class="text-center">REGIONAL PROCEDENCIA</th>
+                    <th class="text-center">REGIONAL ATENCION</th>
+                    <th class="text-center">FECHA INGRESO</th>
+                    <th class="text-center">TIENE COHORTE</th>
+                    <th class="text-center">AUDITOR</th>
+
+
+
+                </tr>
+                foreach (var item in Model.LstPacienteEvo)
+                {
+                    <tr>
+
+                        <td class="text-center">
+                            @item.afi_tipo_doc
+                        </td>
+                        <td class="text-center">
+                            @item.id_afi
+                        </td>
+                        <td class="text-center">
+                            @item.afi_nom
+                        </td>
+                        <td class="text-center">
+                            @item.afi_edad
+                        </td>
+                        <td class="text-center">
+                            @item.nombre_ips
+                        </td>
+                        <td class="text-center">
+                            @item.regional_beneficiarios
+                        </td>
+                        <td class="text-center">
+                            @item.regional_asalud
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_ingreso.Value.ToString("dd/MM/yyyy")
+                        </td>
+                        @if (ViewBag.conteoCohortes != 0)
+                        {
+                            <td class="text-center">
+                                <a onclick="llamarVistaParcialCohorte(@item.id_afi);" data-toggle="modal" data-target="#myModal">
+                                    VER DETALLE
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <th class="text-center">NO TIENE COHORTE</th>
+                        }
+                        <td class="text-center">
+                            @item.Nom_auditor
+                        </td>
+                    </tr>
+                }
+
+            }
+        </table>
+
+        @if (Model != null && Model.LstEvolucionesCargadasIps != null && Model.LstEvolucionesCargadasIps.Count == 0)
+
+        {
+            @Html.LabelFor(u => u.notaIngreso)
+            @Html.TextAreaFor(u => u.notaIngreso, 5, 50, new { @class = "form-control", @maxlength = "1000", @id = "sessionNum4", @name = "sessionNum4" })
+            <span id="sessionNum_counter4" style="color:#636363">Max caracteres 1000</span>
+            @Html.ValidationMessageFor(x => x.notaIngreso)
+
+        }
+        else
+        {
+            @Html.LabelFor(u => u.notaIngresoDilegenciada)
+            @Html.TextAreaFor(u => u.notaIngresoDilegenciada, 5, 50, new { @class = "form-control", @readonly = "readonly" })
+
+        }
+
+    </div>
+    <br />
+    <div id="pnlEvolucionesCargadasNuevas" class="General">
+
+        <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center" style="font-size:small">
+                    <Label>DETALLE EVOLUCION</Label>
+                </td>
+            </tr>
+        </table>
+
+        <table class='table borderless'>
+
+
+            @*<table class="table table-bordered">*@
+            <tbody>
+                <tr>
+
+                    <th>EVOLUCIÓN NUMERO</th>
+
+                    <th>FECHA EVOLUCIÓN(DD/MM/YY)</th>
+                    <th>FECHA DIGITA</th>
+                    <th>DIAS DE ESTANCIA</th>
+                    <th>TIPO DE SERVICIO</th>
+                    <th>DIAGNOSTICO</th>
+                    <th>EVOLUCIÓN</th>
+                    <th>JUSTIFICACIÓN DE LA ESTANCIA</th>
+                    <th>GESTIÓN DE AUDITORIA</th>
+                    <th>ELIMINAR</th>
+                </tr>
+
+                @if (Model != null && Model.LstEvolucionesCargadasIps != null && Model.LstEvolucionesCargadasIps.Count > 0)
+                {
+                    foreach (var order in Model.LstEvolucionesCargadasIps)
+                    {
+                        <tr>
+                            <td>@(Model.LstEvolucionesCargadasIps.IndexOf(order) + 1)</td>
+                            <td>@order.fecha.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@order.fecha_digita.Value.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>@order.dias_de_estancia</td>
+
+                            <td>
+                                @foreach (var item1 in Model.LstTipoHabitacionConsulta)
+                                {
+                                    if (item1.id_ref_tipo_habitacion == order.id_tipo_habitacion)
+                                    {
+                                        @item1.descripcion
+                                    }
+                                    if (order.id_tipo_habitacion == 1)
+                                    {
+                                        <label> BASICO</label>
+                                    }
+
+                                }
+                            </td>
+                            <td>
+                                @foreach (var item2 in Model.LstCie10)
+                                {
+                                    if (order.dx1 == Convert.ToString(item2.id_cie10))
+                                    {
+                                        @item2.des
+                                        @order.dx2
+                                    }
+                                }
+                                @foreach (var item4 in Model.LstCie10)
+                                {
+                                    if (order.dx2 == Convert.ToString(item4.id_cie10))
+                                    {
+                                        @item4.des
+                                    }
+                                }
+                            </td>
+
+                            @if (string.IsNullOrEmpty(order.descripcion))
+                            {
+                                <td>@order.descripcion</td>
+                            }
+                            else
+                            {
+                                <td>@order.descripcion.ToUpper()</td>
+                            }
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(order.justificacionEstancia))
+                                {
+                                    @order.justificacionEstancia.ToUpper();<br />
+                                }
+                            </td>
+                            @if (string.IsNullOrEmpty(order.gestion_auditor))
+                            {
+                                <td>@order.gestion_auditor</td>
+                            }
+                            else
+                            {
+                                <td>@order.gestion_auditor.ToUpper()</td>
+                            }
+
+
+                            <td class="text-center">
+                                @if (Model.egreso == true)
+                                {
+
+                                }
+                                else
+                                {
+                                    if (ViewBag.usuario == "14")
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        @Html.ActionLink("Eliminar", "EliminarEvolucion", "Evolucion", new { id = order.id_evolucion, idConcu = order.id_concurrencia }, null)
+                                    }
+
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        @*</table>*@
+
+
+    </div>
+
+    <div id="pnlEvolucionesCargadasVieja" class="General" style='display:none;'>
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+
+        <table class='table borderless'>
+
+
+            @if (Model != null && Model.LstEvolucionesCargadasIps != null && Model.LstEvolucionesCargadasIps.Count > 0)
+            {
+                <tr>
+
+                    <!-- <th class="auto-style14">ID</th>-->
+                    <th class="auto-style11">DESCRIPCIÓN DE LA EVOlUCION</th>
+                    <!--       <th class="auto-style10">FECHA EVOLUCION </th>
+                           <th class="auto-style9">TIPO HABITACION</th>
+                           <th class="auto-style12">DX 1</th>
+                           <th class="auto-style8">DX 2</th>
+                           <th class="auto-style5">INFECCION INTRAHOSPITALARIA</th>
+                           <th class="auto-style4">DESCRIPCION INFECCION INTRAHOSPITALARIA</th>
+                           <th class="auto-style6">GESTION AUDITOR</th>
+                           <th class="auto-style7">USUARIO DIGITA</th>
+                           <th class="auto-style13">FECHA DIGITA</th>-->
+                    <th></th>
+                </tr>
+
+                foreach (var item in Model.LstEvolucionesCargadasIps)
+                {
+                    <tr>
+
+                        <!-- <td class="auto-style14">
+                             @item.id_evolucion
+                         </td>-->
+                        <td class="auto-style11">
+                            <p class="bg-primary">EVOLUCIÓN NÚMERO @(Model.LstEvolucionesCargadasIps.IndexOf(item) + 1)</p>
+
+                            @foreach (var ite in Model.LstPaciente)
+                            {<FONT FACE="ARIAL" SIZE=0.4 COLOR="blue"> NÚMERO SINIESTRO:</FONT>
+                                @ite.num_siniestro
+                            }
+                            <p>
+                                <FONT FACE="ARIAL" SIZE=0.4 COLOR="blue"> FECHA EVOLUCIÓN:</FONT>
+                                @item.fecha.Value.ToString("MM/dd/yyyy")
+
+                            </p>
+                            <p>
+                                <FONT FACE="ARIAL" SIZE=1 COLOR="blue"> DIAS DE ESTANCIA:</FONT>
+                                @item.dias_de_estancia
+                            </p>
+
+
+
+
+
+                            @foreach (var item1 in Model.LstTipoHabitacion)
+                            {
+                                if (item1.id_ref_tipo_habitacion == item.id_tipo_habitacion)
+                                {
+                                    <FONT FACE="ARIAL" SIZE=1 COLOR="blue"> TIPO DE SERVICIO:</FONT> @item1.descripcion
+                                    break;
+                                }
+                                if (item.id_tipo_habitacion == 1)
+                                {
+                                    <FONT FACE="ARIAL" SIZE=1 COLOR="blue"> TIPO DE SERVICIO:</FONT> <label> BASICO</label>
+                                    break;
+                                }
+
+                            }
+
+
+
+
+
+                            <p>
+                                <FONT FACE="ARIAL" SIZE=1 COLOR="blue">DIAGNOSTICO:</FONT>
+                                @foreach (var item2 in Model.LstCie10)
+                                {
+                                    if (item.dx1 == item2.id_cie10)
+                                    {
+                                        @item2.des
+                                        @item.dx2
+                                    }
+                                }
+
+                                @foreach (var item4 in Model.LstCie10)
+                                {
+                                    if (item.dx2 == item4.id_cie10)
+                                    {
+                                        @item4.des
+                                    }
+                                }
+                            </p>
+
+                            <FONT FACE="ARIAL" SIZE=1 COLOR="blue">EVOLUCIÓN:</FONT>
+
+                            @if (string.IsNullOrEmpty(item.descripcion))
+                            {
+                                @item.descripcion
+                            }
+                            else
+                            {
+                                @item.descripcion.ToUpper()
+                            }
+
+
+                            @if (!string.IsNullOrEmpty(item.justificacionEstancia))
+                            {
+                                <p>
+
+                                    <FONT FACE="ARIAL" SIZE=1 COLOR="blue">PLAN DE MANEJO Y JUSTIFICACIÓN DE LA ESTANCIA:</FONT>
+                                    @item.justificacionEstancia.ToUpper();<br />
+                                </p>
+                            }
+
+
+
+                            <p>
+                                <FONT FACE="ARIAL" SIZE=1 COLOR="blue">GESTIÓN DE AUDITORIA:</FONT>
+                                @if (string.IsNullOrEmpty(item.gestion_auditor))
+                                {
+                                    @item.gestion_auditor
+
+                                }
+                                else
+                                {
+                                    @item.gestion_auditor.ToUpper()
+
+                                }
+                            </p>
+
+
+
+
+                        </td>
+
+                        <td class="text-center">
+
+                            @Html.ActionLink("Eliminar", "EliminarEvolucion", "Evolucion", new { id = item.id_evolucion, idConcu = item.id_concurrencia }, null)
+                    </tr>
+                }
+
+            }
+
+
+        </table>
+    </div>
+
+
+
+    <div class="General">
+
+        @if (Model.egreso == true)
+        {
+            <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+                <tr>
+                    <td class="text-center" style="font-size:small">
+                        <Label>DETALLE EGRESO</Label>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+
+                        <th>FECHA EGRESO(DD/MM/YY)</th>
+                        <th>DIAGNOSTICO PRINCIPAL</th>
+                        <th>CONDICION DE ALTA</th>
+                        <th>FECHA DIGITA</th>
+                        <th>GESTANTE</th>
+                        <th>FECHA TSH</th>
+                        <th>RESULTADO TSH</th>
+                        <th></th>
+
+
+
+                    </tr>
+
+                    @foreach (var order in Model.LstEgreso)
+                    {
+
+                        <tr>
+
+                            <td>@order.fecha_egreso.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@order.DxprincipalEgreso</td>
+                            <td>@order.CondicionAlta</td>
+                            <td>@order.fecha_digita</td>
+                            <td>@order.gestantes</td>
+
+                            @if (order.gestantes == "SI")
+                            {
+
+                                if (order.fechaTCH != null)
+                                {
+                                    <td>@order.fechaTCH.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+
+                                <td>@order.resultadoTCH</td>
+                                <td>
+
+                                    @if (ViewBag.usuario == "14")
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-default" href="@Url.Action("ActualizarTSH", "Concurrencia", new { idConcu = order.id_concurrencia })">
+                                            Actualizar TSH
+                                        </a>
+                                    }
+
+
+
+                                </td>
+
+                            }
+                            else
+                            {
+                                <td></td>
+                                <td></td>
+                                <td></td>
+
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+
+        }
+
+    </div>
+
+    if (ViewBag.rol != "32")
+    {
+        <div id="pnlDatosEvol" class="General">
+
+            <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+                <tr>
+                    <td class="text-center" style="font-size:small">
+                        <Label>DATOS EVOLUCION</Label>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <br />
+
+            <table>
+                <tr></tr>
+            </table>
+            @if (ViewBag.usuario == "14")
+            {
+
+            }
+            else
+            {
+                <table align="center">
+
+                    <tr>
+                        <td class="tdNomal">
+                            @Html.LabelFor(u => u.id_cie10_1)
+                        </td>
+                        <td class="tdGrande">
+                            @*@Html.DropDownListFor(model => model.id_cie10_1, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+                            @(Html.Kendo().AutoComplete()
+                                                            .Name("dx0")
+                                                            .Placeholder("Seleccione...")
+                                                            .HtmlAttributes(new { style = "width:300px" })
+                                                            .DataTextField("des")
+                                                            .Events(events => events.Select("CustomerSelect0"))
+                                                            .Filter(FilterType.Contains)
+
+                                                            .DataSource(source =>
+                                                            {
+                                                                source.Read(read =>
+                                                                {
+                                                                    read.Action("GetCie10Principal", "Evolucion");
+                                                                });
+
+                                                            })
+                                                            .Events(e =>
+                                                            {
+
+                                                                e.Select("onSelect");
+
+                                                            })
+                        )
+                            @Html.HiddenFor(x => x.id_cie10_1)
+                        </td>
+                        <td class="Error">
+                            @Html.ValidationMessageFor(x => x.id_cie10_1)
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+
+                        <td class="tdNomal">
+                            @Html.LabelFor(u => u.id_cie10_2)
+                        </td>
+                        <td class="tdGrande">
+
+                            @*@Html.DropDownListFor(model => model.id_cie10_2, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+                            @(Html.Kendo().AutoComplete()
+                                                            .Name("dx2")
+                                                            .Placeholder("Seleccione...")
+                                                            .HtmlAttributes(new { style = "width:300px" })
+                                                            .DataTextField("des")
+                                                            .Events(events => events.Select("CustomerSelect2"))
+                                                            .Filter(FilterType.Contains)
+
+                                                            .DataSource(source =>
+                                                            {
+                                                                source.Read(read =>
+                                                                {
+                                                                    read.Action("GetCie10", "Evolucion");
+                                                                });
+
+                                                            })
+                                                                 .Events(e =>
+                                                                 {
+
+
+                                                                     e.Select("onSelect2");
+
+                                                                 })
+                        )
+                            @Html.HiddenFor(x => x.id_cie10_2)
+                        </td>
+                        <td class="Error">
+                            @Html.ValidationMessageFor(x => x.id_cie10_2)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="tdNomal">
+                            @Html.LabelFor(u => u.id_cie10_3)
+                        </td>
+                        <td class="tdGrande">
+                            @*@Html.DropDownListFor(model => model.id_cie10_3, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+                            @(Html.Kendo().AutoComplete()
+                                                            .Name("dx3")
+                                                            .Placeholder("Seleccione...")
+                                                            .HtmlAttributes(new { style = "width:300px" })
+                                                            .DataTextField("des")
+                                                            .Events(events => events.Select("CustomerSelect3"))
+                                                            .Filter(FilterType.Contains)
+
+                                                            .DataSource(source =>
+                                                            {
+                                                                source.Read(read =>
+                                                                {
+                                                                    read.Action("GetCie10", "Evolucion");
+                                                                });
+
+                                                            })
+                                                                 .Events(e =>
+                                                                 {
+
+
+                                                                     e.Select("onSelect3");
+
+                                                                 })
+                        )
+                            @Html.HiddenFor(x => x.id_cie10_3)
+
+                        </td>
+                        <td class="Error">
+                            @Html.ValidationMessageFor(x => x.id_cie10_3)
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+
+                        <td class="tdNomal">
+                            @Html.LabelFor(u => u.id_cie10_4)
+                        </td>
+                        <td class="tdGrande">
+
+                            @*  @Html.DropDownListFor(model => model.id_cie10_4, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+
+                            @(Html.Kendo().AutoComplete()
+                    .Name("dx4")
+                    .Placeholder("Seleccione...")
+                    .HtmlAttributes(new { style = "width:300px" })
+                    .DataTextField("des")
+                    .Events(events => events.Select("CustomerSelect4"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                        source.Read(read =>
+                        {
+                            read.Action("GetCie10", "Evolucion");
+                        });
+
+                    })
+                            .Events(e =>
+                            {
+
+
+                                e.Select("onSelect4");
+
+                            })
+                        )
+                            @Html.HiddenFor(x => x.id_cie10_4)
+
+                        </td>
+                        <td class="Error">
+                            @Html.ValidationMessageFor(x => x.id_cie10_4)
+                        </td>
+                    </tr>
+
+
+                </table>
+
+            }
+
+
+            <table align="center">
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>
+                        @Html.LabelFor(u => u.fecha_evolucion)
+                    </td>
+                    <td class="tdNomal">
+                        @*@Html.EditorFor(model => Model.fecha_evolucion, new { htmlAttributes = new { @class = "form-control", placeholder = "MM/dd/yyyy"} })*@
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_evolucion)
+
+                                          .Name("datepicker")
+                                          .Format("dd/MM/yyyy")
+                                                     .Events(e =>
+                                                     {
+                                                         e.Change("change");
+                                                     })
+                                           .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+
+                    )
+                    </td>
+                    <td class="Error">
+                        @Html.ValidationMessageFor(x => x.fecha_evolucion)
+                    </td>
+                    <td>&nbsp;</td>
+                    <td class="tdNomal">
+                        @Html.LabelFor(u => u.id_tipo_habitacion)
+                    </td>
+
+
+                    <td class="select">
+                        @Html.DropDownListFor(model => model.id_tipo_habitacion, new SelectList(Model.LstTipoHabitacion, "id_ref_tipo_habitacion", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "format()" })
+                    </td>
+                    <td class="Error">
+                        @Html.ValidationMessageFor(x => x.id_tipo_habitacion)
+                    </td>
+                    <td>&nbsp;</td>
+
+
+                </tr>
+
+            </table>
+            <br />
+
+
+            <table align="center" spellcheck="false">
+                <tr>
+                    <td class="tdNomal">
+                        @Html.LabelFor(u => u.descripcion_evolucion)
+                    </td>
+                    <td>
+                        @Html.TextAreaFor(u => u.descripcion_evolucion, 5, 50, new { @class = "form-control", @maxlength = "4000", @id = "sessionNum1", @name = "sessionNum1" })
+                        <span id="sessionNum_counter1" style="color:#636363">Max caracteres 4000</span>
+                    </td>
+                    <td class="Error">
+                        @Html.ValidationMessageFor(x => x.descripcion_evolucion)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td class="tdNomal">
+                        @Html.LabelFor(u => u.justificacionEstancia)
+
+                    </td>
+                    <td>
+                        @Html.TextAreaFor(u => u.justificacionEstancia, 5, 50, new { @class = "form-control", @maxlength = "1000", @id = "sessionNum2", @name = "sessionNum2" })
+                        <span id="sessionNum_counter2" style="color:#636363">Max caracteres 1000</span>
+                    </td>
+                    <td class="Error">@Html.ValidationMessageFor(x => x.justificacionEstancia) </td>
+                </tr>
+
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td class="tdNomal">
+                        @Html.LabelFor(u => u.gestion_auditor)
+                    </td>
+                    <td>
+                        @Html.TextAreaFor(u => u.gestion_auditor, 5, 50, new { @class = "form-control", @maxlength = "1000", @id = "sessionNum3", @name = "sessionNum3" })
+                        <span id="sessionNum_counter3" style="color:#636363">Max caracteres 1000</span>
+
+                    </td>
+
+                    <td class="Error">
+                        @Html.ValidationMessageFor(x => x.gestion_auditor)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdNomal">
+                        &nbsp;
+                    </td>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td class="Error">
+                        &nbsp;
+                    </td>
+                </tr>
+
+                @if (Model != null && Model.LstEvolucionesCargadasIps != null && Model.LstEvolucionesCargadasIps.Count == 2)
+                {
+                    <tr>
+                        <td class="tdNomal">
+                            @Html.LabelFor(u => u.diagnosticoDefinitivo)
+                        </td>
+                        <td>
+                            @Html.TextAreaFor(u => u.diagnosticoDefinitivo, 5, 50, new { @class = "form-control", required = "false" })
+                        </td>
+                        <td class="Error">
+                            @Html.ValidationMessageFor(x => x.diagnosticoDefinitivo)
+                        </td>
+                    </tr>
+                }
+            </table>
+
+            <br />
+
+            <table align="center">
+
+                <tr>
+                    <td><P>PROCEDIMIENTOS QUIRURGICOS</P></td>
+
+                    <td>
+                        @Html.RadioButtonFor(model => model.tieneProcedimientosQui, "SI", new { onClick = "checkFiltro1()", @id = "radiospecific" })@Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.tieneProcedimientosQui, "NO", new { onClick = "checkFiltro2()", @id = "radiospecific" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.tieneProcedimientosQui, null, new { @class = "label label-danger" })
+                    </td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+            </table>
+
+            <div id="pnlCups" class="row" style='display:none;'>
+
+                <div class="tab-pane active" id="1b">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong class="text-primary_asalud">Agregar Procedimientos</strong>
+                        </div>
+
+                        <div class="panel-body" id="panel_formulario">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <h4>
+                                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.id_cups_qx)</span>
+                                    </h4>
+                                    @*@Html.DropDownListFor(model => model.id_cups_qx, new SelectList(Model.LstCups, "id_cups", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+                                    @(Html.Kendo().AutoComplete()
+                .Name("cups")
+                .Placeholder("Seleccione...")
+                .HtmlAttributes(new { style = "width:100%" })
+                .DataTextField("des")
+                .Events(events => events.Select("CustomerSelectCup1"))
+                .Filter(FilterType.Contains)
+
+                .DataSource(source =>
+                {
+                    source.Read(read =>
+                    {
+                        read.Action("GetCups", "Concurrencia");
+                    });
+
+                })
+                            )
+                                    @Html.HiddenFor(x => x.id_cups_qx)
+                                    @Html.ValidationMessageFor(model => model.id_cups_qx, "", new { @class = "label label-danger" })
+
+                                </div>
+                                <div class="col-sm-2">
+
+                                </div>
+
+                            </div>
+                            <br />
+                            <div class="row">
+
+                                <div class="col-sm-12" align="center">
+                                    <button type="button" id="btnaddotrosi" class="button_Asalud_Guardar" onclick="AddOtroProducto()">Agregar</button>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <div id="tblDetalle">
+                                    <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblDetalle">
+                                        <thead>
+                                            <tr style="background-color:#636363;color:white; font-weight:bold">
+
+                                                <th>Id</th>
+                                                <th>Id Cups</th>
+                                                <th>Descripción Cups</th>
+                                                <th>Fecha</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (ECOPETROL_COMMON.ENTIDADES.ecop_concurrencia_evolucion_procedimientos item in ViewBag.listadoOtroProducto)
+                                            {
+                                                <tr>
+
+                                                    <td id="proceso">@item.id_evolucion_procedimientos</td>
+                                                    <td id="proceso">@item.id_cups_qx</td>
+                                                    <td id="proceso">@item.descripcion_cups</td>
+                                                    <td id="proceso">@item.fecha_ingreso</td>
+                                                    <td class="text-center"><a title="Eliminar" href='javascript:removerotroProducto()'><i class='glyphicon glyphicon-trash'></i></a></td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                            <div style="display:none">
+                                <input class="form-control" type="text" name="id_concurrencia" id="id_concurrencia" value="@ViewBag.id_concurrencia" />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <table align="center">
+
+
+                <tr>
+                    <td><P>SU GESTIÓN GENERO AHORRO </P></td>
+
+                    <td>
+                        @Html.RadioButtonFor(model => model.Ahorro, "SI", new { onClick = "checktieneAhorro()", @id = "radiospecific" })@Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.Ahorro, "NO", false) @Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.Ahorro, null, new { @class = "label label-danger" })
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td><P>ESTANCIA PERTINENTE</P></td>
+
+                    <td>
+                        @Html.RadioButtonFor(model => model.tiene_estancia_pertinente, "SI", false) @Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.tiene_estancia_pertinente, "NO", new { onClick = "checktieneGlosa()", @id = "radiospecific" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.tiene_estancia_pertinente, null, new { @class = "label label-danger" })
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td><P>INGRESAR GLOSA  </P></td>
+
+                    <td>
+                        @Html.RadioButtonFor(model => model.tieneGlosa, "SI", new { onClick = "checktieneGlosa()", @id = "radiospecific" })@Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.tieneGlosa, "NO", false) @Html.Label("NO")
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td class="auto-style16"><P>INGRESAR EVENTO EN SALUD  </P></td>
+
+                    <td>
+                        @Html.RadioButtonFor(model => model.tieneEventoA, "SI", new { onClick = "checktieneEventoA()", @id = "radiospecific" })@Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.tieneEventoA, "NO", false) @Html.Label("NO")
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><P>INGRESAR SITUACIÓN CALIDAD ATENCIÓN  </P></td>
+                    <td>
+                        @Html.RadioButtonFor(model => model.tieneSituacionCA, "SI", new { onClick = "checktieneSituacionCA()", @id = "radiospecific" })@Html.Label("SI")
+                        @Html.RadioButtonFor(model => model.tieneSituacionCA, "NO", false) @Html.Label("NO")
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+                @*<tr>
+                        <td><P>TIENE COHORTE  </P></td>
+                        <td>
+                            @Html.RadioButtonFor(model => model.tieneCohorteBenef, "SI", true)@Html.Label("SI")
+                            @Html.RadioButtonFor(model => model.tieneCohorteBenef, "NO", false) @Html.Label("NO")
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>*@
+
+                @*<tr>
+
+                        <td><P>DESEA INGRESAR  PROCEDIMIENTO QUIRURGICO CANCELADO</P></td>
+
+
+                        <td>
+
+                            @Html.RadioButtonFor(model => model.tieneSituacionCA, "SI", new { onClick = "checktienePQC()", @id = "radiospecific" })@Html.Label("SI")
+                            @Html.RadioButtonFor(model => model.tieneSituacionCA, "NO", false) @Html.Label("NO")
+                        </td>
+
+                        <td></td>
+                        <td></td>
+
+                    </tr>*@
+            </table>
+
+
+
+        </div>
+
+
+
+        <div id="pnlGuardar" class="General">
+
+            <table align="center">
+
+                <tr>
+                    <td class="Error">
+                        @Model.validacion
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        @if (Model.egreso == true)
+                        {
+                            <div class="alert alert-danger">
+                                <strong>ALERTA...!</strong> Caso con egreso.
+                            </div>
+                        }
+                        else
+                        {
+                            if (ViewBag.usuario == "14")
+                            {
+
+                            }
+                            else
+                            {
+                                <input id="BtnGuardar" type="submit" value="GUARDAR" class="button_Asalud_Guardar" />
+                            }
+
+                        }
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td class="Error">
+                        @Html.ValidationSummary(true, "")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="visibility:hidden">
+                        @Html.TextBoxFor(u => u.id_concurrencia)
+                        @Html.TextBoxFor(u => u.fecha_ingreso)
+                        @Html.TextBoxFor(u => u.fecha_por_ingresar)
+                        @Html.TextBoxFor(u => u.evoluciones_cargadas)
+                        @Html.TextBoxFor(u => u.fecha_evolucionok)
+                        @Html.TextBoxFor(u => u.tipo_h)
+                        @Html.TextBoxFor(u => u.id_cie10_1ok)
+                        @Html.TextBoxFor(u => u.id_cie10_2ok)
+                        @Html.TextBoxFor(u => u.id_cie10_3ok)
+                        @Html.TextBoxFor(u => u.id_cie10_4ok)
+                        @Html.TextBoxFor(u => u.afi_edad)
+                        @Html.TextBoxFor(u => u.descripcion_evolucion)
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    }
+
+    <div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+        <div class="modal-dialog modal-lg" style="width:70%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal">DETALLE COHORTE</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="resultado"></div>
+                    @*<div id="resultado2"></div>*@
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/Scripts/validate.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+    })
+
+
+    function llamarVistaParcialCohorte(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_EvolucionCohorte")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+
+    function CustomerSelect0(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_1").val(DataItem.id_cie10);
+
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_2").val(DataItem.id_cie10);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_3").val(DataItem.id_cie10);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_4").val(DataItem.id_cie10);
+    }
+
+    function checktieneSituacionCA() {
+        window.open('@Url.Action("SituacionesCalidadAtencion", "SituacionesCalidadAtencion" , new { idConcu=Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+
+    }
+
+    function checktienePQC() {
+        window.open('@Url.Action("ProcedimientoQuirurgicoCancelado", "ProcedimientoQuirurgicoCancelados", new { idConcu=Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+
+    }
+    function checktieneEventoA() {
+
+        window.open('@Url.Action("CreateAnalisisEventosenSalud", "AnalisisCaso" , new { id_concurrencia=Model.id_concurrencia , opc=1})', '', 'width =700,height =600,left =50,top =50,toolbar =yes');
+    }
+    function checktieneGlosa() {
+        window.open('@Url.Action("Glosa", "Glosa" , new { idConcu=Model.id_concurrencia})', '', 'width =600,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function checktieneAhorro() {
+        window.open('@Url.Action("CostoEvitadoAhorro", "ConcurrenciaAhorro", new { idConcu=Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function checktieneProcedimientoQ() {
+        window.open('@Url.Action("ProcedimientoQuirurgico", "ProcedimientoQuirurgico" , new { idConcu=Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_1").val(DataItem.id_cie);
+
+        onSelect(e);
+    }
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_2").val(DataItem.id_cie);
+    }
+
+    function checkEgreso() {
+        $('#egreso').change(function () {
+            if ($(this).is(':checked')) {
+
+                window.open('@Url.Action("DiagnosticoDefinitivo", "Evolucion", new { idConcu = Model.id_concurrencia})', '', 'width=750,height=550,left=50,top=50,toolbar=yes');
+
+            }
+
+        });
+    }
+
+
+
+    function checkInfeIntraSi() {
+        $('input:radio').click(function () {
+            if ($(this).attr('id') == 'radiospecific') {
+                $('#des_infencion_intrahospitalaria').removeAttr('disabled');
+                $('#des_infencion_intrahospitalaria').val('');
+            }
+            else {
+                $('#des_infencion_intrahospitalaria').attr('disabled', 'disabled');
+            }
+
+        });
+    }
+
+
+    $("#txtName").change(function () {
+        window.open('@Url.Action("DiagnosticoDefinitivo", "Evolucion", new { idConcu = Model.id_concurrencia})', '', 'width=750,height=550,left=50,top=50,toolbar=yes');
+
+    });
+
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+
+        var maxChars1 = $("#sessionNum1");
+        var max_length1 = maxChars1.attr('maxlength');
+        if (max_length1 > 0) {
+            maxChars1.bind('keyup', function (e) {
+                length = new Number(maxChars1.val().length);
+                counter = max_length1 - length;
+                $("#sessionNum_counter1").text(counter);
+            });
+        }
+
+        var maxChars2 = $("#sessionNum2");
+        var max_length2 = maxChars2.attr('maxlength');
+        if (max_length2 > 0) {
+            maxChars2.bind('keyup', function (e) {
+                length = new Number(maxChars2.val().length);
+                counter = max_length2 - length;
+                $("#sessionNum_counter2").text(counter);
+            });
+        }
+
+        var maxChars3 = $("#sessionNum3");
+        var max_length3 = maxChars3.attr('maxlength');
+        if (max_length3 > 0) {
+            maxChars3.bind('keyup', function (e) {
+                length = new Number(maxChars3.val().length);
+                counter = max_length3 - length;
+                $("#sessionNum_counter3").text(counter);
+            });
+        }
+
+
+        var maxChars4 = $("#sessionNum4");
+        var max_length4 = maxChars4.attr('maxlength');
+        if (max_length4 > 0) {
+            maxChars4.bind('keyup', function (e) {
+                length = new Number(maxChars4.val().length);
+                counter = max_length4 - length;
+                $("#sessionNum_counter4").text(counter);
+            });
+        }
+    });
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_evolucionok]').val(DataItem);
+
+    }
+
+
+    function onSelect(e) {
+
+        if (e.item) {
+
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#id_cie10_1").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+            $.ajax({
+                url: '@Url.Action("Cie10Second")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+                    debugger
+                    $.ajax({
+                        url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        cache: false,
+                        data: {},
+                        success: function (data) {
+                            debugger
+
+                            if (data.success == true) {
+                                if (data.opc == 1) {
+                                    var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                                    if (opcion == true) {
+                                        $.ajax({
+
+                                            url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+                                            dataType: "json",
+                                            type: "POST",
+                                            contentType: 'application/json; charset=utf-8',
+                                            cache: false,
+                                            data: {},
+                                            success: function (data) {
+                                                debugger
+                                                if (data.success) {
+                                                    alert(data.message);
+                                                    if (data.evento != 0) {
+                                                        alert(data.msgEvento);
+                                                        if (data.evento == 1) {
+                                                            window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                        } else {
+                                                            window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                        }
+                                                    }
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function (xhr) {
+                                                alert('error');
+                                            }
+                                        });
+
+                                    } else {
+                                        alert("NO SE INGRESA  ALERTA....");
+                                    }
+                                }
+                                else {
+                                    alert(data.message);
+                                    return false;
+                                }
+                            }
+                            else {
+                                if (data.message != undefined && data.message != "undefined") {
+                                    alert(data.message);
+                                }
+                                return false;
+                            }
+                        },
+                        error: function (xhr) {
+                            alert('error');
+                        }
+                    });
+
+                },
+                error: function (xhr) {
+
+
+                    //location.reload();
+
+                    alert('El diagnóstico ingresado es presuntivo , favor ingresar un diagnóstico definitivo. ');
+                    document.getElementById("dx0").value = "";
+                    //$("#id_cie10_1").val(null);
+                    //$("#id_cie10_1").attr("value", "");
+                    //$("#id_cie10_1").autocomplete('dx0').val('');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+    }
+
+    function onSelect2(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#id_cie10_2").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+
+                        if (data.opc == 1) {
+
+                            var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                            if (opcion == true) {
+                                $.ajax({
+
+                                    url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+                                    dataType: "json",
+                                    type: "POST",
+                                    contentType: 'application/json; charset=utf-8',
+                                    cache: false,
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            if (data.evento != 0) {
+                                                alert(data.msgEvento);
+                                                if (data.evento == 1) {
+                                                    window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                } else {
+                                                    window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                }
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        alert('error');
+                                    }
+                                });
+
+                            } else {
+                                alert("NO SE INGRESA  ALERTA....");
+                            }
+                        } else {
+                            alert(data.message);
+                            return false;
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+    function onSelect3(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#id_cie10_3").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+
+                        if (data.opc == 1) {
+
+                            var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                            if (opcion == true) {
+                                $.ajax({
+
+                                    url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+                                    dataType: "json",
+                                    type: "POST",
+                                    contentType: 'application/json; charset=utf-8',
+                                    cache: false,
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            if (data.evento != 0) {
+                                                alert(data.msgEvento);
+                                                if (data.evento == 1) {
+                                                    window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                } else {
+                                                    window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                }
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        alert('error');
+                                    }
+                                });
+
+                            } else {
+                                alert("NO SE INGRESA  ALERTA....");
+                            }
+                        } else {
+                            alert(data.message);
+                            return false;
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+
+    function onSelect4(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#id_cie10_4").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        if (data.opc == 1) {
+
+                            var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                            if (opcion == true) {
+                                $.ajax({
+
+                                    url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+                                    dataType: "json",
+                                    type: "POST",
+                                    contentType: 'application/json; charset=utf-8',
+                                    cache: false,
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            if (data.evento != 0) {
+                                                alert(data.msgEvento);
+                                                if (data.evento == 1) {
+                                                    window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                } else {
+                                                    window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                                }
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        alert('error');
+                                    }
+                                });
+
+                            } else {
+                                alert("NO SE INGRESA  ALERTA....");
+                            }
+                        } else {
+                            alert(data.message);
+                            return false;
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+
+    function format(input) {
+
+        var textBox1 = $('input:text[id$=afi_edad]').keyup();
+
+        var mivalor = $("#id_tipo_habitacion").val()
+        var mitexto = $("#id_tipo_habitacion option:selected").text()
+
+        var value1 = textBox1.val();
+
+
+        if (mivalor == 5) {
+            if (value1 > 1) {
+                alert('NEONATAL SOLO PARA MENORES A 1 AÑO');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 6) {
+            if (value1 > 16) {
+                alert('UCI PEDIATRICA SOLO PARA MENORES DE 16 AÑOS');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 14) {
+            if (value1 > 1) {
+                alert('UNIDAD DE QUEMADOS NEONATAL SOLO PARA MENORES DE 1 AÑO');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 16) {
+            if (value1 > 16) {
+                alert('UNIDAD DE QUEMADOS PEDIATRIA SOLO PARA MENORES DE 16 AÑOS');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 4) {
+            if (value1 <= 16) {
+                alert('UCI ADULTO SOLO PARA MAYORES DE 16 AÑOS');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 15) {
+            if (value1 <= 16) {
+                alert('UNIDAD DE QUEMADOS ADULTOS SOLO PARA MAYORES DE 16 AÑOS');
+                $("#id_tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+    }
+
+
+    function MostrarVieja() {
+
+        document.getElementById('pnlEvolucionesCargadasVieja').style.display = 'block';
+        document.getElementById('pnlEvolucionesCargadasNuevas').style.display = 'none';
+
+
+    }
+
+    function MostrarNueva() {
+
+        document.getElementById('pnlEvolucionesCargadasNuevas').style.display = 'block';
+        document.getElementById('pnlEvolucionesCargadasVieja').style.display = 'none';
+
+    }
+
+    function CustomerSelectCup1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx").val(DataItem.id_cups);
+        $("#descripcion_evolucion").val(DataItem.des);
+    }
+
+    function CustomerSelectCUPS2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx2").val(DataItem.id_cups);
+    }
+
+    function CustomerSelectCUPS3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx3").val(DataItem.id_cups);
+    }
+
+    function checkFiltro1() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlCups').style.display = 'block';
+
+
+
+
+
+        });
+    }
+    function checkFiltro2() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlCups').style.display = 'none';
+        });
+    }
+
+    function AddOtroProducto()
+    {
+        a = $("#id_concurrencia").val();
+        b = $("#id_cups_qx").val();
+        c = $("#descripcion_evolucion").val();
+
+
+            $.ajax({
+                url: "@Url.Action("Agregarotroproducto")",
+                type: "post",
+                data: {
+                    id_concurrencia: a,
+                    id_cups_qx: b,
+                    descripcion:c
+                    },
+
+            success: function (data)
+            {
+
+                $("#tblDetalle tbody").empty();
+                $("#tblDetalle tbody").html(data);
+                document.getElementById("cups").value = "";
+
+            }
+        })
+    }
+
+    function removerotroProducto(idotroproucto) {
+
+        var idotroproucto = idotroproucto;
+        var opcion = confirm("¿Esta seguro que desea eliminar este detalle?");
+        if (opcion == true) {
+
+            $.ajax({
+                url: "@Url.Action("RemoverOtroProducto")",
+                type: "post",
+                data:
+                {
+                    idotroproucto: idotroproucto,
+                },
+                success: function (data) {
+                    $("#tblDetalle tbody").empty();
+                    $("#tblDetalle tbody").html(data.tabla);
+
+                }
+            })
+        }
+        else {
+
+        }
+    }
+
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .row {
+        margin-right: -15px;
+        margin-bottom: 10px;
+        margin-left: -15px;
+    }
+
+    .ateralej {
+        font-size: x-small;
+        font-weight: bold;
+    }
+
+    .modal-header {
+        background-color: #333;
+    }
+
+    .swal-text {
+        text-align: center;
+    }
+
+    .swal-footer {
+        text-align: center;
+    }
+
+    .social {
+        position: fixed;
+        left: -40px;
+        top: 200px;
+        z-index: 2000;
+        margin: 0;
+        padding: 0;
+    }
+
+        .social ul {
+            list-style: none;
+        }
+
+            .social ul li a {
+                display: inline-block;
+                color: #333;
+                background: transparent;
+                padding: 10px 15px;
+                text-decoration: none;
+                -o-transition: all 500ms ease;
+                -webkit-transition: all 500ms ease;
+                transition: all 500ms ease;
+            }
+
+                .social ul li a:hover {
+                    padding: 10px 30px;
+                    background: #333;
+                    color: #ffffff;
+                }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding-top: 2px;
+        padding-bottom: 5px;
+        padding-right: 5px;
+    }
+</style>

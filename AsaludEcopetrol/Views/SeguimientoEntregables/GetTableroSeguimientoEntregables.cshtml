@@ -1,0 +1,278 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables>
+@{
+    Layout = null;
+}
+
+<div class="table-responsive">
+    <table id="tbl" class="table table-bordered  display dt-responsive" width="100%" style="margin:0px !important">
+        <thead>
+            <tr>
+                <th>Id entregable</th>
+                <th>Nombre del entregable</th>
+                <th>Componente</th>
+                <th>Tipo</th>
+                <th>Periodicidad</th>
+                <th>Fecha entrega contractualmente pactada</th>
+                <th>Fecha ampliación plazo </th>
+                <th>Fecha real entrega</th>
+                <th>Alerta</th>
+                <th>Estado entrega</th>
+                <th>Documentos</th>
+                <th class="text-center">Gestionar</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:12px">
+            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables item in Model)
+            {
+                <tr>
+                    <td><label style="font-weight:normal">@item.id_seg_entregables</label></td>
+                    <td><label style="font-weight:normal">@item.Nom_entregable</label></td>
+                    <td><label style="font-weight:normal">@item.Proceso</label></td>
+                    <td>@item.nom_tipo_entregable</td>
+                    <td>@item.nom_periodicidad_entregable</td>
+                    <td class="text-center">
+                        @if (item.fecha_limite != null)
+                        {
+                            <label style="font-weight:normal">@item.fecha_limite.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                        else
+                        {
+                            <label style="font-weight:normal">@item.fecha_control.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                    </td>
+                    <td>
+                        @if (item.tiene_ampliacion.Value)
+                        {
+                            <label style="font-weight:normal">@item.fecha_limite_ampliacion.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                        else
+                        {
+                            <label style="font-weight:normal">Sin fecha de ampliación</label>
+                        }
+                    </td>
+                    <td>
+                        @if (item.fecha_entrega != null)
+                        {
+                            <label style="font-weight:normal">@item.fecha_entrega.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                        else
+                        {
+                            <label style="font-weight:normal">Sin prensentar</label>
+                        }
+                    </td>
+
+                    @if (item.id_estado_entregable == 3)
+                    {
+                        <td class="alert-info">Aceptado</td>
+                    }
+                    else if (item.fecha_entrega == null)
+                    {
+                        if (item.tiene_ampliacion != null && item.tiene_ampliacion.Value)
+                        {
+                            <td class="alert-plazoAmpliado">Inoportuno con justificación</td>
+                        }
+                        else if (item.diferencia_dias > 2)
+                        {
+                            <td class="alert-success">Quedan @item.diferencia_dias días para presentar</td>
+                        }
+                        else if (item.diferencia_dias > 0 && item.diferencia_dias <= 2)
+                        {
+                            <td class="alert-warning">Quedan @item.diferencia_dias días para presentar</td>
+                        }
+                        else if (item.diferencia_dias == 0)
+                        {
+                            <td class="alert-warning">Debe presentarse el día de hoy</td>
+                        }
+                        else
+                        {
+                            <td class="alert-danger">@item.diferencia_dias días vencido</td>
+                        }
+                    }
+                    else
+                    {
+                        if (item.tiene_ampliacion.Value || item.fecha_limite_ampliacion != null)
+                        {
+                            if (item.diferencia_dias > 2)
+                            {
+                                <td class="alert-success">Inoportuno con justificación</td>
+                            }
+                            else if (item.diferencia_dias <= 2 && item.diferencia_dias >= 0)
+                            {
+                                <td class="alert-warning">Inoportuno con justificación</td>
+                            }
+                            else
+                            {
+                                <td class="alert-danger">Inoportuno con justificación</td>
+                            }
+                        }
+                        else if (item.id_estado_entregable == 4)
+                        {
+                            <td style="background-color: #dfcae1">Observaciones realizadas a la entrega</td>
+                        }
+                        else
+                        {
+                            if (item.tiene_ampliacion != null)
+                            {
+                                if (item.tiene_ampliacion == false)
+                                {
+                                    if (item.dias_entrega > 0)
+                                    {
+                                        <td class="alert-danger">Inoportuno</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="alert-success">Oportuno</td>
+                                    }
+                                }
+                                else
+                                {
+                                    if (item.fecha_entrega != null)
+                                    {
+                                        if (item.dias_entrega > 0)
+                                        {
+                                            <td class="alert-danger">Inoportuno</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="alert-success">Oportuno</td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <td>&nbsp;</td>
+                                    }
+                                }
+
+
+                            }
+                            else
+                            {
+                                if (item.fecha_entrega != null)
+                                {
+                                    if (item.dias_entrega > 0)
+                                    {
+                                        <td class="alert-danger">Inoportuno</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="alert-success">Oportuno</td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td>&nbsp;</td>
+                                }
+                            }
+                        }
+                    }
+
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.nom_estado_entregable))
+                        {
+                            <label style="font-weight:normal">@item.nom_estado_entregable</label>
+                        }
+                        else
+                        {
+                            <label style="font-weight:normal">Pendiente</label>
+                        }
+                    </td>
+                    <td>
+                        @if (item.id_ult_seguimiento_dtll_entrega != null && item.id_estado_entregable != 1 && item.id_estado_entregable != 6 && item.id_estado_entregable != 7)
+                        {
+                            <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:abrirducumento(@item.id_ult_seguimiento_dtll_entrega, 1)">Ver documentos</a>
+                        }
+                        else
+                        {
+                            <label style="font-weight:normal">Sin prensentar</label>
+                        }
+                    </td>
+
+                    <td class="text-center">
+
+                        @if (item.id_estado_entregable != null)
+                        {
+
+                            switch (item.id_estado_entregable)
+                            {
+                                case 1:
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:subirdocentregables(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Presentar</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:SolicitudAmpliacion(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Solicitar ampliación</a>
+                                    break;
+                                case 2:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por gestión</label>
+                                    @*if ((bool)ViewBag.permitidogestionar)
+                                        {
+                                            <a role="button" class="btn btn-xs button_Asalud_Aceptar btn-sm" href="javascript:AceptarDocumento(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Aceptar entrega</a>
+                                        }
+                                        <a role="button" class="btn btn-xs button_Asalud_Rechazar btn-sm" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Devolver entrega</a>*@
+                                    break;
+                                case 3:
+                                    <label style="font-weight:bold">Documento aceptado.</label>
+                                    break;
+                                case 4:
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:subirdocentregables(@item.id_seg_entregables,'@item.id_seg_entregable_periodo')">Presentar nuevamente</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Aceptar btn-sm" href="javascript:ObtenerHistoricoObservaciones(@item.id_seg_entregable_periodo, 1)">Ver observaciones</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:SolicitudAmpliacion(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Solicitar ampliación</a>
+                                    break;
+                                case 5:
+                                    if ((bool)ViewBag.permitidogestionar)
+                                    {
+                                        <a role="button" class="btn btn-xs button_Asalud_Aceptar btn-sm" href="javascript:AceptarDocumento(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Aceptar entrega</a>
+                                    }
+                                    <a role="button" class="btn btn-xs button_Asalud_Rechazar btn-sm" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Devolver entrega</a>
+                                    break;
+                                case 6:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por gestionar propuesta de ampliación</label>
+                                    @*<a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:VerSolicitudAmpliacion(@item.id_ult_seguimiento_dtll_entrega)">Propuesta de ampliación</a>*@
+                                    break;
+                                case 7:
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:subirdocentregables(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Presentar</a>
+                                    break;
+
+                                case 8:
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:subirdocentregables(@item.id_seg_entregables,'@item.id_seg_entregable_periodo')">Presentar nuevamente</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Aceptar btn-sm" href="javascript:ObtenerHistoricoObservaciones(@item.id_seg_entregable_periodo, 2)">Ver observaciones</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:SolicitudAmpliacion(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Solicitar ampliación</a>
+
+                                    break;
+                                default:
+                                    <label style="font-weight:bold">Documento aceptado.</label>
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:subirdocentregables(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Presentar</a>
+                            if (item.tiene_ampliacion == null || item.tiene_ampliacion == false)
+                            {
+                                <a role="button" class="btn btn-xs button_Asalud_Guardar btn-sm" href="javascript:SolicitudAmpliacion(@item.id_seg_entregables, '@item.id_seg_entregable_periodo')">Solicitar ampliación</a>
+                            }
+
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        var table = $('#tbl').DataTable({
+            orderCellsTop: true,
+            "lengthChange": false,
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Página_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+    })
+</script>

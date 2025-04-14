@@ -1,0 +1,153 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_prestadores_lotes>
+@{
+    ViewBag.Title = "TABLERO DE RECEPCIÓN DE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud"> Listado de facturas radicadas</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Prestador</th>
+                            <th>Fecha radicación</th>
+                            <th>Fecha cargue</th>
+                            <th>¿Obligado a reportar rips?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.vw_prestadores_lotes item in Model)
+                        {
+                            <tr>
+                                <td>@item.id_cargue_base</td>
+                                <td>@item.Nombre</td>
+                                <td>@item.fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                @if (item.obligado_reportar_rips)
+                                {
+                                    <td>Si</td>
+                                }
+                                else
+                                {
+                                    <td>No</td>
+                                }
+                                <td>
+                                    <a href="@Url.Action("TableroFacturas","RadicacionElectonica", new {idcargue = item.id_cargue_base})" role="button" class="button_Asalud_Aceptar">Ver Facturas</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "order": [[2, "desc"]],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+    });
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+

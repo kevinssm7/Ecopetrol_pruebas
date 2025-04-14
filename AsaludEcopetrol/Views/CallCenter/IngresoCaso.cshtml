@@ -1,0 +1,1276 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.management_contact_centerResult
+@{
+    ViewBag.Title = "CONTACT CENTER - INGRESO DE CASO ECOPETROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    List<ECOPETROL_COMMON.ENUM.BitacoraSeguimiento> listabitacora = (List<ECOPETROL_COMMON.ENUM.BitacoraSeguimiento>)Session["bitacora"];
+    int rta = (int)ViewData["rta"];
+    int i = 0;
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="container">
+    @if (rta != 0)
+    {
+        <div style="font-family:'Century Gothic'" class="alert alert-success" role="alert">
+            @if (rta == 1)
+            {
+                <strong>Datos insertados correctamente!</strong>
+            }
+            else
+            {
+                <strong>Datos actualizados correctamente!</strong>
+            }
+
+        </div>
+    }
+
+    @if (Model != null)
+    {
+        if (Model.id_contact_center > 0)
+        {
+            <br />
+            if (ViewBag.tipoIngreso == null)
+            {
+
+                <div style="font-family:'Century Gothic'" class="alert alert-info" role="alert">
+                    <strong>Señor/a usuario/a </strong> Recuerde que para agregar bitacoras, es necesario completar primero los campos obligatorios.
+                </div>
+            }
+            else
+            {
+                <div style="font-family:'Century Gothic'" class="alert alert-info" role="alert">
+                    <strong>Señor/a usuario/a </strong> Recuerde que esta ventana es de consulta, y solo podra agregar datos a la bitacora de seguimiento. los demas datos no seran modificados.
+                </div>
+            }
+        }
+    }
+
+    <form id="formulario" method="post" action="IngresoCaso" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS DEL SOLICITANTE</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Tipo de solicitante:</label>
+
+                        <input type="hidden" id="id_contactcenter" name="id_contactcenter" value="@Model.id_contact_center" />
+                        <input type="hidden" id="id_Censo" name="id_Censo" value="@ViewBag.idCenso" />
+                        <input type="hidden" id="id_concurrencia" name="id_concurrencia" value="@ViewBag.idConcurrencia" />
+                        <input type="hidden" id="tipoIngreso" name="tipoIngreso" value="@ViewBag.tipoIngreso" />
+
+                        <select class="form-control select2" id="clasificacioncontacto" name="clasificacioncontacto" onchange="ActivarControlDocumento($(this).val())" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_clasificacion_contacto item in ViewBag.clasificacion)
+                            {
+
+                                <option value="@item.id_ref_contact_clasificacion_contacto">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group" id="txtnumdocbeneficiario" style="display:none">
+                        <label class="text-secondary_asalud">No documento</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="documentosolicitante" name="documentosolicitante" value="@Model.num_documento_solicitante" maxlength="20" required />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Nombre y apellido:</label>
+                        <input type="text" autocomplete="off" class="form-control" id="nombresolicitante" style="text-transform:uppercase;" name="nombresolicitante" value="@Model.nom_solicitante" maxlength="80" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Teléfono:</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="telefonosolicitante" name="telefonosolicitante" value="@Model.telefono_solicitante" maxlength="20" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Otro teléfono:</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="otrotelefonosolicitante" name="otrotelefonosolicitante" value="@Model.otro_telefono_solicitante" maxlength="20" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Correo electrónico</label>
+                        <input autocomplete="off" type="email" class="form-control" id="correosolicitante" name="correosolicitante" value="@Model.correo_electronico_solicitante" maxlength="100" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS DEL PACIENTE</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">No documento:</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="documentopaciente" name="documentopaciente" value="@Model.num_documento_paciente" maxlength="30" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Nombre y apellido:</label>
+                        <input type="text" autocomplete="off" class="form-control" id="nombrepaciente" name="nombrepaciente" value="@Model.nom_paciente" required maxlength="80" />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">EPS paciente:</label>
+                        <input type="hidden" id="ips_pacienteValue" name="ips_pacienteValue" value="@Model.ips_paciente">
+                        <select class="form-control select2" id="ips_paciente" name="ips_paciente">
+                            <option value="">- Seleccionar -</option>
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eps item in ViewBag.eps)
+                            {
+                                if (Model.ips_paciente != null)
+                                {
+                                    if (Model.ips_paciente == item.id_ref_eps)
+                                    {
+                                        <option selected value="@item.id_ref_eps">@item.des</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.id_ref_eps">@item.des</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_eps">@item.des</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Teléfono:</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="telefonopaciente" name="telefonopaciente" value="@Model.telefono_paciente" maxlength="20" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Otro teléfono:</label>
+                        <input type="text" autocomplete="off" class="form-control solo-numero" id="otrotelefonopaciente" name="otrotelefonopaciente" value="@Model.otro_telefono_paciente" maxlength="20" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Correo electrónico:</label>
+                        <input autocomplete="off" type="email" class="form-control" id="correopaciente" name="correopaciente" value="@Model.correo_electronico_paciente" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Otro correo electrónico:</label>
+                        <input autocomplete="off" type="email" class="form-control" id="otrocorreopaciente" name="otrocorreopaciente" value="@Model.otro_correo_paciente" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Diagnóstico principal:</label>
+                        <input autocomplete="off" type="text" class="form-control autocomplete" id="diagnostico" name="diagnostico" value="@Model.diagnostico_txt" maxlength="200" />
+                        <input type="hidden" class="form-control" id="coddiagnostico" name="coddiagnostico" value="@Model.diagnostico " />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Diagnóstico secundario:</label>
+                        <input autocomplete="off" type="text" class="form-control" id="diagnostico2" name="diagnostico2" value="@Model.diagnostico2_txt" maxlength="200" />
+                        <input type="hidden" class="form-control" id="coddiagnostico2" name="coddiagnostico2" value="@Model.diagnostico2 " />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Otro contacto</label>
+                        <select id="otroContacto" name="otroContacto" class="form-control" onchange="ActivarotroContacto()">
+                            <option value="">--Seleccionar--</option>
+                            <option value="1">SI</option>
+                            <option value="0">NO</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-9" id="divOtroContacto" style="display:none">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Otro nombre contacto</label>
+                            <input type="text" id="otroContactoNombre" name="otroContactoNombre" maxlength="50" value="@Model.otroContacto_nombre_paciente" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Otro parentezco contacto</label>
+                            <input type="text" id="otroContactoParentezco" name="otroContactoParentezco" maxlength="50" value="@Model.otroContacto_parentezco_paciente" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Otro teléfono contacto</label>
+                            <input type="text" id="otroContactoTelefono" name="otroContactoTelefono" maxlength="20" value="@Model.otroContacto_telefono" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS DE REFERENCIACIÓN Y UBICACIÓN</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Regional:</label>
+                        <input type="hidden" id="idRegional" name="idRegional" />
+                        <select class="form-control select2" id="regional" name="regional" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                            {
+                                if (Model.regional != null)
+                                {
+                                    if (Model.regional == item.id_ref_regional)
+                                    {
+                                        <option selected value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Ciudad:</label>
+                        @*<select class="form-control select2" id="ciudad" name="ciudad" onchange="ObtenerRegionalInicial(this.value)" required>*@
+                        <select class="form-control select2" id="ciudad" name="ciudad" required>
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Agente solucionador:</label>
+                        <input type="text" autocomplete="off" class="form-control" id="agente" name="agente" readonly required value="@ViewBag.agente" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Auditor:</label>
+                        <select class="form-control select2" id="auditor" name="auditor" required>
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4" id="divAuditorOtro" style="display:none;">
+                        <label class="text-secondary_asalud">Nombre otro auditor:</label>
+                        <input type="text" autocomplete="off" class="form-control" id="nombreOtroAuditor" name="nombreOtroAuditor" maxlength="99" value="@Model.otro_auditor" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">IPS</label>
+                        <select id="ips" name="ips" class="form-control select2" onchange="MostrarOtraIps(this.value)" required>
+                            <option value="">-Seleccione-</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips item in ViewBag.ips)
+                            {
+
+                                if (Model.Ips != null)
+                                {
+                                    if (Model.Ips == item.id_ref_ips)
+                                    {
+                                        <option selected value="@item.id_ref_ips">@item.Nombre</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.id_ref_ips">@item.Nombre</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_ips">@item.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4" style="display:none;" id="divOtraIps">
+                        <label class="text-secondary_asalud">Otra IPS:</label>
+                        <input type="text" autocomplete="off" class="form-control" id="Ips_otro" name="Ips_otro" maxlength="99" value="@Model.Ips_otro" required />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">EVIDENCIA DEL CASO</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    @if (string.IsNullOrEmpty(Model.ruta_imagen))
+                    {
+                        <div class="col-sm-6 form-group">
+                            <label class="text-secondary_asalud">Seleccionar archivo como prueba de la gestión:</label>
+                            <input type="file" class="form-control" id="imagen" name="imagen" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-4 form-group">
+                            <a role="button" class="btn button_Asalud_descargas" href="javascript:abrirducumento(@Model.id_contact_center)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp;  Ver archivo cargado</a>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">BITACORA DE SEGUIMIENTO</strong>
+            </div>
+            <div class="panel-body">
+
+                @if (Model.estado_solicitud == null || Model.estado_solicitud == 0 || Model.estado_solicitud == 1 || Model.estado_solicitud == 3 || ViewBag.tipoIngreso != 1)
+                {
+                    <div class="row form-group">
+                        <div class="col-sm-12 text-right">
+                            <button type="button" onclick="AñadirBitacora()" class="btn button_Asalud_Aceptar">Añadir seguimiento</button>
+                        </div>
+                    </div>
+                }
+
+                <div class="table-responsive">
+                    <table id="tabla" class="table table-bordered table-responsive" style="margin-left: 0px;">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Fecha</th>
+                                <th>Observaciones</th>
+                                <th>Estado</th>
+                                <th>Tipo solicitud</th>
+                                <th>Servicio</th>
+                                <th>Caso efectivo</th>
+                                <th>Medio notificación</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (listabitacora.Count > 0)
+
+                            {
+                                foreach (var item in listabitacora)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td>@item.id</td>
+                                        <td>@item.fecha.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <span class="observaciones_@i">@item.observaciones.Substring(0, Math.Min(100, @item.observaciones.Length))</span>
+                                            <span class="observaciones_completas_@i" style="display: none;">@item.observaciones</span>
+                                            @if (@item.observaciones.Length > 100)
+                                            {
+                                                <label class="text-secondary_asalud botonMostrar_@i" onclick="MostrarTextoCompleto(@i)">Mostrar</label>
+                                                <label class="text-secondary_asalud botonOcultar_@i" style="display: none;" onclick="OcultarTextoCompleto(@i)">Ocultar</label>
+                                            }
+
+                                        </td>
+                                        <td>@item.nomestado</td>
+                                        <td>@item.tipoSolicitudDescripcion</td>
+                                        <td>@item.servicioDescripcion</td>
+                                        <td>@item.casoEfectivo</td>
+                                        @if (item.medionotificacion == 1)
+                                        {
+                                            <td>Correo: @item.mailnotificacion</td>
+                                        }
+                                        else if (item.medionotificacion == 2)
+                                        {
+                                            <td>Teléfono: @item.telefononotificacion</td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <ul>
+                                                    <li>Correo: @item.mailnotificacion</li>
+                                                    <li>Teléfono: @item.telefononotificacion</li>
+                                                </ul>
+                                            </td>
+                                        }
+                                        <td class="text-center">
+                                            @if (Model.estado_solicitud != null && Model.estado_solicitud == 1)
+                                            {
+                                                <a class="btn btn-xs button_Asalud_Rechazar" href="javascript:EliminarBitacora(@item.id)"><i class="glyphicon glyphicon-trash"></i>&nbsp; Eliminar</a>
+                                            }
+                                            @*<a class="btn btn-xs button_Asalud_descargas" href="javascript:VisualizarImagenBitacora(@item.id)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver archivo</a>*@
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="12" class="text-center">No se han insertado datos</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @*<script>
+                        $(document).ready(function () {
+                            $(".mostrar-observaciones").click(function () {
+                                var observacionesCompleto = $(this).prev('.observaciones-completas').text();
+                                $(this).prev('.observaciones-truncadas').text(observacionesCompleto);
+                                $(this).remove();
+                            });
+                        });
+                    </script>*@
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+
+                        @if (ViewBag.tipoIngreso == 1)
+                        {
+                            if (Model.id_contact_center == 0)
+                            {
+                                <div id="divBotones1" style="display:block;">
+                                    <div class="col-md-5"></div>
+                                    <div class="col-md-1">
+                                        <button class="btn button_Asalud_Rechazar" id="btnCerrar" style="display:block;" onclick="VolverTablero();">Volver</button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar cambios</button>
+                                    </div>
+                                </div>
+                                <div id="divBotones2" style="display:none;">
+                                    <div class="col-md-5"></div>
+                                    <div class="col-md-2">
+                                        <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar y finalizar</button>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                if (Model.estado_solicitud == 1)
+                                {
+                                    <div id="divBotones1" style="display:block;">
+                                        <div class="col-md-5"></div>
+                                        <div class="col-md-1">
+                                            <button class="btn button_Asalud_Rechazar" id="btnCerrar" style="display:block;" onclick="VolverTablero();">Volver</button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar cambios</button>
+                                        </div>
+                                    </div>
+                                    <div id="divBotones2" style="display:none;">
+                                        <div class="col-md-5"></div>
+                                        <div class="col-md-2">
+                                            <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar y finalizar</button>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <button class="btn button_Asalud_Rechazar" id="btnCerrar" style="display:block;" onclick="VolverTablero();">Volver</button> }
+                            }
+                        }
+                        else
+                        {
+                            <div id="divBotones1" style="display:block;">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-2">
+                                    <a class="btn button_Asalud_Rechazar" id="btnCerrar" style="display:block;" onclick="VolverTablero();">Volver</a>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar cambios</button>
+                                </div>
+                            </div>
+                            <div id="divBotones2" style="display:none;">
+                                <div class="col-md-5"></div>
+                                <div class="col-md-2">
+                                    <button class="btn button_Asalud_Guardar" type="button" id="btnGuardar" onclick="validarformulario()">Guardar y finalizar</button>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="Modal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="tituloModal">Bitacora de seguimiento</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formulario2" method="post" action="">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong class="text-primary_asalud">DATOS SOLUCIONADOR IPS</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Nombre contacto solucionador ips:</label>
+                                    <input type="text" autocomplete="off" class="form-control" id="nombrecontactsolucionadorIPS" name="nombrecontactsolucionadorIPS" required maxlength="100" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Teléfono contacto solucionador ips:</label>
+                                    <input type="text" autocomplete="off" class="form-control solo-numero" id="telefonocontactsolucionador" required name="telefonocontactsolucionador" maxlength="20" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Correo de contacto solucionador ips:</label>
+                                    <input autocomplete="off" type="email" class="form-control" id="correocontactosolucionador" name="correocontactosolucionador" required maxlength="100" />
+                                </div>
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Servicio:</label>
+                                    <select class="form-control select2" id="servicio" name="servicio" onchange="ActivarOtroServicio($(this).val())" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_tipo_servicio item in ViewBag.tipoServicio)
+                                        {
+                                            <option selected value="@item.id_ref_contact_tipo_servicio">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 form-group" id="divotroservicio" style="display:none">
+                                    <label class="text-secondary_asalud">Otro servicio:</label>
+                                    <input autocomplete="off" type="text" class="form-control" id="otroservicio" name="otroservicio" required value="@Model.otro_servicio" maxlength="100" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Ingresar observaciones:</label>
+                                    <textarea class="form-control" rows="4" id="txtobservacionesbit" name="txtobservacionesbit" required maxlength="3000"></textarea>
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Tipo solicitud:</label>
+                                    <select class="form-control select2" id="tipoSolicitudBitacora" name="tipoSolicitudBitacora" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_tipoSolicitudBitacora item in ViewBag.tiposolicitudBitacora)
+                                        {
+                                            <option value="@item.id_tipo">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Medio de notificación:</label>
+                                    <select class="form-control select2" id="medionotificacion" name="medionotificacion" onchange="ActivarControlMedioNotificacion($(this).val())" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_medio_notificacion item in ViewBag.mediosnotificacion)
+                                        {
+                                            <option value="@item.id_ref_contact_medio_notificacion">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 form-group" id="divcorreobit" style="display:none">
+                                    <label class="text-secondary_asalud">Correo electrónico:</label>
+                                    <input autocomplete="off" type="email" class="form-control" id="correobit" name="correobit" />
+                                </div>
+                                <div class="col-sm-6 form-group" id="divtelefonobit" style="display:none">
+                                    <label class="text-secondary_asalud">Teléfono:</label>
+                                    <input autocomplete="off" type="text" class="form-control solo-numero" id="telefonobit" name="telefonobit" />
+                                </div>
+
+                                <div class="col-sm-6 form-group">
+                                    <label class="text-secondary_asalud">Estado solicitud:</label>
+                                    <select class="form-control" id="estadosolicitudbit" name="estadosolicitudbit" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_contact_estado_solicitud item in ViewBag.estadosolicitud)
+                                        {
+                                            <option value="@item.id_ref_contact_estado_solicitud">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                @*<div class="col-sm-6 form-group">
+                                        <label class="text-secondary_asalud">Seleccionar archivo como prueba de la gestión:</label>
+                                        <input type="file" class="form-control" id="imagenbit" name="imagenbit" required />
+                                    </div>*@
+                                <div class="col-md-6 form-group">
+                                    <label class="text-secondary_asalud">Caso efectivo:</label>
+                                    <input type="radio" id="casoEfectivo" name="casoEfectivo" value="1" onchange="casoEfectivoTomaValor(this.value)" required /> Si
+                                    <input type="radio" id="casoEfectivo" name="casoEfectivo" value="0" onchange="casoEfectivoTomaValor(this.value)" required /> No
+                                    <input type="hidden" id="casoEfectivoValor" name="casoEfectivoValor" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario2()">Siguiente</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#tipoSolicitudBitacora").val(1).trigger("change");
+
+        $("#estadosolicitud").change(function () {
+            var value = $(this).val();
+            if (value == "2") {
+                $("#imagen").prop('required', true);
+            }
+            else {
+                $("#imagen").prop('required', false);
+            }
+        })
+
+        //$('#regional').attr("disabled", true);
+
+        if ("@Model.id_contact_center" != 0) {
+
+            //$("#telefonosolicitante").prop('readonly', true);
+            //$("#correosolicitante").prop('readonly', true);
+            //$("#otrotelefonosolicitante").prop('readonly', true);
+
+            //$('#regional').attr("disabled", true);
+            //$('#ips_paciente').attr("disabled", true);
+
+            $("#documentopaciente").prop('readonly', true);
+            $("#nombrepaciente").prop('readonly', true);
+            //$("#telefonopaciente").prop('readonly', true);
+            //$("#otrotelefonopaciente").prop('readonly', true);
+            //$("#correopaciente").prop('readonly', true);
+            //$("#otrocorreopaciente").prop('readonly', true);
+            //$("#diagnostico").prop('readonly', true);
+            //$("#diagnostico2").prop('readonly', true);
+            //$("#tipobeneficiario").prop('readonly', true);
+            //$("#regionalpaciente").prop('readonly', true);
+            //$("#nombreOtroAuditor").prop('readonly', true);
+
+            $("#infocaso").prop('readonly', true);
+
+            //$('#clasificacioncontacto').attr("disabled", true);
+            //$('#nombresolicitante').attr("disabled", true);
+            //$('#ciudad').attr("disabled", true);
+            //$('#auditor').attr("disabled", true);
+            //$('#ips').attr("disabled", true);
+
+            //$('#clasificacioncontacto').attr("readonly", true);
+            //$('#nombresolicitante').attr("readonly", true);
+            //$('#ciudad').attr("readonly", true);
+            //$('#auditor').attr("readonly", true);
+            //$('#ips').attr("readonly", true);
+
+            if ("@Model.id_servicio" == 9) {
+                $("#otroservicio").prop('readonly', true);
+                $("#divotroservicio").css('display', 'block');
+            }
+
+            if ("@Model.infocaso_tipo_solicitud" == 8) {
+                $("#otrotiposolicitud").prop('readonly', true);
+                $("#divotrotiposolicitud").css('display', 'block');
+            }
+
+            if ("@Model.otroContacto_nombre_paciente" != "") {
+                $("#divOtroContacto").css('display', 'block');
+                $("#otroContacto").val(1).change();
+                $('#otroContacto').attr("disabled", true);
+                $("#otroContactoNombre").prop('readonly', true);
+                $("#otroContactoParentezco").prop('readonly', true);
+                $("#otroContactoTelefono").prop('readonly', true);
+
+                $("#otroContactoNombre").val('@Model.otroContacto_nombre_paciente');
+                $("#otroContactoParentezco").val('@Model.otroContacto_parentezco_paciente');
+                $("#otroContactoTelefono").val('@Model.otroContacto_telefono');
+            }
+
+            if ("@Model.Ips" != null) {
+                if ("@Model.Ips" == 159) {
+                    $("#divOtraIps").show();
+                }
+                else {
+                    $("#divOtraIps").hide();
+                }
+            }
+        }
+
+        $("#documentopaciente").autocomplete({
+            source: "/CallCenter/Buscar_Beneficiario",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            select: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    alert("No se ha encontrado ningún diagnostico");
+                    $(this).val("");
+                    $("#documentopaciente").val("");
+                    $("#nombrepaciente").val("");
+                    $("#telefonopaciente").val("");
+                    $("#correopaciente").val("");
+                    $("#tipobeneficiario").val("");
+                    $("#regionalpaciente").val("");
+                } else {
+                    $("#documentopaciente").val(ui.item.nit);
+                    $("#nombrepaciente").val(ui.item.nombre);
+                    $("#telefonopaciente").val(ui.item.telefono);
+                    $("#correopaciente").val(ui.item.email);
+                    $("#tipobeneficiario").val(ui.item.tipo_beneficiario);
+                    $("#regionalpaciente").val(ui.item.regional);
+                }
+            },
+            change: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    alert("No se ha encontrado ningún beneficiario con ese número de documento");
+                    $(this).val("");
+                } else {
+                    $("#documentopaciente").val(ui.item.nit);
+                }
+            }
+        })
+
+        $("#diagnostico").autocomplete({
+            source: "/CallCenter/BuscarDiagnostico",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    alert("No se ha encontrado ningún diagnostico");
+                    $(this).val("");
+                } else {
+                    $("#coddiagnostico").val(ui.item.id);
+                }
+            }
+        })
+
+        $("#diagnostico2").autocomplete({
+            source: "/CallCenter/BuscarDiagnostico",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    alert("No se ha encontrado ningún diagnostico");
+                    $(this).val("");
+                } else {
+                    $("#coddiagnostico2").val(ui.item.id);
+                }
+            }
+        })
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $("#regional").change(function () {
+            var value = $(this).val();
+            //ObtenerIps(value);
+            ObtenerAuditores(value);
+            ObtenerCiudadesInicial(value);
+        })
+
+        $("#auditor").change(function () {
+            var value = $(this).val();
+
+            if (value == 0 && value != "") {
+                document.getElementById("divAuditorOtro").style.display = "block";
+            } else {
+                document.getElementById("divAuditorOtro").style.display = "none";
+            }
+        })
+
+        if ('@ViewBag.tipoIngreso' != '1') {
+
+            if ('@Model.clasificacion_contacto_solicitante' == null || '@Model.clasificacion_contacto_solicitante' == "") {
+                $("#clasificacioncontacto").prop("disabled", false);
+                $("#clasificacioncontacto").prop("readonly", false);
+            }
+            if ('@Model.nom_solicitante' == null || '@Model.nom_solicitante' == "") {
+                $("#nombresolicitante").prop("disabled", false);
+                $("#nombresolicitante").prop("readonly", false);
+            }
+            if ('@Model.ciudad' == null || '@Model.ciudad' == "") {
+                $("#ciudad").prop("disabled", false);
+                $("#ciudad").prop("readonly", false);
+            }
+            if ('@Model.id_auditor' == null || '@Model.id_auditor' == "") {
+                $("#auditor").prop("disabled", false);
+                $("#auditor").prop("readonly", false);
+            }
+            if ('@Model.Ips' == null || '@Model.Ips' == "") {
+                $("#ips").prop("disabled", false);
+                $("#ips").prop("readonly", false);
+            }
+        }
+
+        $("#ips_paciente").val(17).trigger("change");
+        $("#ips_paciente").prop("readonly", true);
+
+        if ("@Model.id_contact_center" != 0 || "@Model.id_censo" != 0 || "@Model.id_concurrencia" != 0) {
+            llenadoDatos();
+        }
+    })
+
+    function llenadoDatos() {
+        $("#regional").val(@Model.regional).trigger("change");
+        $("#clasificacioncontacto").val(@Model.clasificacion_contacto_solicitante).trigger("change");
+    }
+
+    function AñadirBitacora() {
+
+        var tipoSolicitante = $("#clasificacioncontacto").val();
+        var nombresolicitante = $("#nombresolicitante").val();
+        var ciudad = $("#ciudad").val();
+        var auditor = $("#auditor").val();
+        var ips = $("#ips").val();
+
+        if (tipoSolicitante && nombresolicitante && ciudad && auditor && ips) {
+
+            $("#servicio").val("").trigger("change");
+            $("#nombrecontactsolucionadorIPS").val("");
+            $("#telefonocontactsolucionador").val("");
+            $("#correocontactosolucionador").val("");
+            $("#otroservicio").val("");
+
+            $("#tipoSolicitudBitacora").val(1).trigger("change");
+            //$("#otrotelefonosolicitante").val("");
+            $("#imagenbit").val(null);
+
+            $("#txtobservacionesbit").val("");
+            $("#estadosolicitudbit").val("").trigger("change");
+            $("#medionotificacion").val("").trigger("change");
+            $("#Modal").modal('show');
+        }
+        else {
+            if (!tipoSolicitante) {
+                alert("El campo 'Tipo de solicitante' está vacío.");
+            } else if (!nombresolicitante) {
+                alert("El campo 'Nombre y apellido' está vacío.");
+            } else if (!ciudad) {
+                alert("El campo 'Ciudad' está vacío.");
+            } else if (!auditor) {
+                alert("El campo 'Auditor' está vacío.");
+            } else if (!ips) {
+                alert("El campo 'IPS' está vacío.");
+            }
+        }
+    }
+
+    function ObtenerCiudadesInicial(regional) {
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudadesInicial")",
+            type: "post",
+            data: {
+                regional: regional
+            },
+            success: function (data) {
+                $("#ciudad").empty();
+                $("#ciudad").html(data);
+                $("#ciudad").val("").trigger("change");
+
+                if ("@Model.ciudad" != "") {
+                    $("#ciudad").val("@Model.ciudad").trigger("change");
+                }
+            }
+        })
+    }
+
+    function ObtenerRegionalInicial(ciudad) {
+
+        if (ciudad != "") {
+            $.ajax({
+                url: "@Url.Action("OntenerRegionalesInicial")",
+                type: "post",
+                data: { ciudad: ciudad },
+                success: function (data) {
+                    $("#regional").val(data).trigger("change");
+                    $("#idRegional").val(data).trigger("change");
+
+                    if ("@Model.regional" != "" && "@Model.regional" != 0) {
+                        $("#regional").val("@Model.regional").trigger("change");
+                        $("#idRegional").val("@Model.regional").trigger("change");
+                        ObtenerAuditores("@Model.regional");
+
+                    }
+                }
+            })
+        }
+    }
+
+    function ObtenerAuditores(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerAuditores")",
+                type: "post",
+                data: { regional: a },
+                success: function (data) {
+                    $("#auditor").empty();
+                    $("#auditor").html(data);
+                    $("#auditor").val("").trigger("change");
+
+                    if ("@Model.id_auditor" != "") {
+                        $("#auditor").val("@Model.id_auditor").trigger("change");
+                    }
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            var formData = new FormData();
+
+            formData.append('nombrecontactsolucionadorIPS', $("#nombrecontactsolucionadorIPS").val());
+            formData.append('telefonocontactsolucionador', $("#telefonocontactsolucionador").val());
+            formData.append('correocontactosolucionador', $("#correocontactosolucionador").val());
+            formData.append('servicio', $("#servicio").val());
+            formData.append('otroservicio', $("#otroservicio").val());
+
+            formData.append('casoEfectivo', $("#casoEfectivoValor").val());
+            formData.append('tipoSolicitud', $("#tipoSolicitudBitacora").val());
+            formData.append('Observaciones', $("#txtobservacionesbit").val());
+            formData.append('estado', $("#estadosolicitudbit").val());
+            formData.append('medio_notificacion', $("#medionotificacion").val());
+            formData.append('correo', $("#correobit").val());
+            formData.append('telefono', $("#telefonobit").val());
+            //formData.append('file', $('#imagenbit')[0].files[0]);
+
+            $.ajax({
+                url: "@Url.Action("AgregarSeguimiento")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+                    $("#tabla tbody").empty();
+                    $("#tabla tbody").html(data.tabla);
+                    $("#Modal").modal('hide');
+
+                    if (data.tabla == "") {
+
+                        $("#divBotones1").hide();
+                        $("#divBotones2").show();
+                    }
+                    else {
+                        $("#divBotones1").hide();
+                        $("#divBotones2").show();
+                    }
+
+                    if (data.estado == 2) {
+                        $("#imagen").prop('required', true);
+                    }
+                    else {
+                        $("#imagen").prop('required', false);
+                    }
+                }
+            })
+        }
+    }
+
+    function validarformulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+    function EliminarBitacora(a) {
+        var txt = confirm("¿Está seguro/a de remover este segumiento de la bitacora?");
+        if (txt) {
+            $.ajax({
+                url: "@Url.Action("RemoverSeguimiento")",
+                type: "post",
+                data: { id: a },
+                success: function (data) {
+                    $("#tabla tbody").empty();
+                    $("#tabla tbody").html(data.tabla);
+                    $("#Modal").modal('hide');
+
+                    if (data.tabla == "") {
+
+                        $("#divBotones1").hide();
+                        $("#divBotones2").show();
+                    }
+                    else {
+                        $("#divBotones1").hide();
+                        $("#divBotones2").show();
+                    }
+
+                    if (data.estado == 2) {
+                        $("#imagen").prop('required', true);
+                    }
+                    else {
+                        $("#imagen").prop('required', false);
+                    }
+                }
+            })
+        }
+    }
+
+    function ActivarOtroServicio(a) {
+        if (a == 9) {
+            $("#otroservicio").prop('required', true).val("");
+            $("#divotroservicio").css('display', 'block');
+        } else {
+            $("#otroservicio").prop('required', false).val("");
+            $("#divotroservicio").css('display', 'none');
+        }
+    }
+
+    function ActivarOtroTipoServicio(a) {
+        if (a == 8)
+        {
+            $("#otrotiposolicitud").prop('required', true).val("");
+            $("#divotrotiposolicitud").css('display', 'block');
+        } else {
+            $("#otrotiposolicitud").prop('required', false).val("");
+            $("#divotrotiposolicitud").css('display', 'none');
+        }
+    }
+
+    function ActivarControlMedioNotificacion(a) {
+        switch (a) {
+            case "1":
+                $("#divcorreobit").css('display', 'block');
+                $("#divtelefonobit").css('display', 'none');
+                $("#correobit").prop("required", true);
+                $("#telefonobit").prop("required", false);
+                break;
+            case "2":
+                $("#divcorreobit").css('display', 'none');
+                $("#divtelefonobit").css('display', 'block');
+                $("#correobit").prop("required", false);
+                $("#telefonobit").prop("required", true);
+                break;
+            case "3":
+                $("#divcorreobit").css('display', 'block');
+                $("#divtelefonobit").css('display', 'block');
+                $("#correobit").prop("required", true);
+                $("#telefonobit").prop("required", true);
+                break;
+            default:
+                $("#divcorreobit").css('display', 'none');
+                $("#divtelefonobit").css('display', 'none');
+                break;
+        }
+
+        $("#correobit").val("");
+        $("#telefonobit").val("");
+    }
+
+    function abrirducumento(id) {
+        var url = "@Url.Action("ArchivoCargado", "CallCenter")?id=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function VisualizarImagenBitacora(id)
+    {
+        var url = "@Url.Action("ArchivoBitacora", "CallCenter")?id=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('imagen');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.png|.jpg|.gif|.jpeg)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos de tipo imagen');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function ValidacionArchivo2() {
+        var fileInput = document.getElementById('imagenbit');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.png|.jpg|.gif|.jpeg)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos de tipo imagen');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function ActivarControlDocumento(a)
+    {
+        $("#documentosolicitante").val("");
+        //$("#nombresolicitante").val("");
+        //$("#telefonosolicitante").val("");
+        //$("#correosolicitante").val("");
+        if(a != "")
+        {
+            if (a == "4" || a == "5")
+            {
+                $("#txtnumdocbeneficiario").css('display', 'block');
+            } else
+            {
+                $("#txtnumdocbeneficiario").css('display', 'none');
+            }
+        } else
+        {
+            $("#txtnumdocbeneficiario").css('display', 'none');
+        }
+
+    }
+
+    function casoEfectivoTomaValor(valor) {
+        if (valor == 1) {
+            $("#casoEfectivoValor").val("SI");
+        }
+        else {
+            $("#casoEfectivoValor").val("NO");
+        }
+    }
+
+    function ActivarotroContacto() {
+
+        document.getElementById("otroContactoNombre").value = "";
+        document.getElementById("otroContactoParentezco").value = "";
+        document.getElementById("otroContactoTelefono").value = "";
+
+        var valor = document.getElementById("otroContacto").value;
+
+        if (valor == 1) {
+            $("#divOtroContacto").css('display', 'block');
+        } else {
+            $("#divOtroContacto").css('display', 'none');
+        }
+    }
+
+    function MostrarTextoCompleto(i) {
+        $(".observaciones_" + i).hide();
+        $(".observaciones_completas_" + i).show();
+        $(".botonMostrar_" + i).hide();
+        $(".botonOcultar_" + i).show();
+    }
+
+    function OcultarTextoCompleto(i) {
+        $(".observaciones_" + i).show();
+        $(".observaciones_completas_" + i).hide();
+        $(".botonOcultar_" + i).hide();
+        $(".botonMostrar_" + i).show();
+    }
+
+    function MostrarOtraIps(ips) {
+        if (ips == 159) {
+            $("#divOtraIps").show();
+        }
+        else {
+            $("#divOtraIps").hide();
+        }
+    }
+
+    function VolverTablero() {
+        location.href = "@Url.Action("TableroControlContactCenter", "CallCenter")";
+    }
+
+</script>
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    .btn-xs {
+        margin: 1%;
+    }
+</style>

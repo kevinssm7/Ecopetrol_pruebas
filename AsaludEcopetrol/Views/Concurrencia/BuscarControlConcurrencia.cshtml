@@ -1,0 +1,464 @@
+﻿@model AsaludEcopetrol.Models.Concurrencia.Concurrencia
+@{
+    ViewBag.Title = "TABLERO DE CONCURRENCIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int idConcu = ViewBag.js;
+    var i = 0;
+
+}
+
+<br />
+
+@if (Model.GetLista != null && Model != null && Model.GetLista.Count != 0)
+{
+    <div class="row">
+        <div class="col-sm-12">
+            @*<div class="col-md-6">
+                    <button class="button_Asalud_Aceptar" onclick="mandarAContactCenter();">Mandar casos a Contact Center</button>
+                </div>*@
+            <div class="col-md-12 text-right">
+                <a class="btn-sm button_Asalud_descargas" onclick="mostrarDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp;Exportar resultados</a>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="tab-content">
+        <div class="panel panel-default">
+
+            <form id="tableroControlCruzan">
+                <div class="panel-body">
+                    @*<table class="table table-bordered datatable1">*@
+                    <table class="table datatable1 table-bordered table-condensed" style="font-size:10px; width:98%;">
+                        <thead>
+                            <tr>
+                                @*<th class="text-center th" style='display:none;'>ID CENSO</th>
+                                    <th class="text-center th" style='display:none;'>ID CONCURRENCIA</th>*@
+                                @*<th>
+                                        <input type="checkbox" id="chkSeleccionarCruzan" name="chkSeleccionarCruzan" />
+                                    </th>*@
+                                <th class="text-center th">A Contact</th>
+                                <th class="text-center th">Documento</th>
+                                <th class="text-center th" style="font-family:Arial">Nombre</th>
+                                <th class="text-center th">Fecha Ingreso</th>
+                                <th class="text-center th">IPS</th>
+                                <th class="text-center th">Tipo Habitacion</th>
+                                <th class="text-center th">Auditor</th>
+                                <th class="text-center th">Mega</th>
+                                <th class="text-center th">Criterios de Ingreso</th>
+                                <th class="text-center th">Evoluciones</th>
+                                <th class="text-center th">Egresos</th>
+                                <th class="text-center th">Alertas</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody id="myTable">
+
+                            @foreach (var order in Model.GetLista)
+                            {
+                                i++;
+
+                                <tr>
+                                    @if (order.estado_contact == null || order.estado_contact == 2)
+                                    {
+                                        <td>
+                                            <a onclick="EnviarAContact(@order.id_concurrencia)" class="btn-sm button_Asalud_Aceptar">ENVIAR</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @*<td style="text-align:center;">
+                                            @if (order.estado_contact == null || order.estado_contact == 2)
+                                            {
+                                                <input type="checkbox" id="chekDato_@i" class="chkDato" />
+                                            }
+                                            <input type="hidden" id="id_concurrencia_@i" value="@order.id_concurrencia" />
+                                            <input type="hidden" id="id_censo_@i" value="@order.id_censo" />
+                                        </td>*@
+                                    <td>
+                                        @order.id_afi
+                                        <input type="hidden" id="idConcurrencia" value=" @ViewBag.js" />
+                                    </td>
+                                    <td>@order.afi_nom</td>
+                                    <td>@order.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@order.nombre_ips</td>
+                                    <td>@order.tipo_habitacion</td>
+                                    <td>@order.Nombre_usuario</td>
+                                    <td>@order.MEDICO_GENERAL</td>
+
+
+                                    <td>
+                                        <a href="@Url.Action("CriterioIngreso", "Concurrencia", new { idConcu= order.id_concurrencia})" class="button_Asalud_Guardar">CONCURRENCIA</a>
+
+                                    </td>
+                                    <td>
+                                        @if (order.fecha_mod != null)
+                                        {
+
+                                            <a href="@Url.Action("Evolucion", "Evolucion", new { idConcu = order.id_concurrencia })" class="button_Asalud_Aceptar">EVOLUCION</a>
+                                            <h5 style="color:firebrick"> Proxima fecha de ingreso @order.fecha_ingresar</h5>
+
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (order.tiene_encuesta != "SI")
+                                        {
+                                            <a href="@Url.Action("EncuestaSatisfacionConcurrencia", "Concurrencia", new { idConcu= order.id_concurrencia})" class="button_Asalud_Aceptar">ENCUESTA</a>
+                                            <h5 style="color:firebrick"> Proxima fecha de ingreso @order.fecha_ingresar</h5>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("EgresoConcurrencia", "Concurrencia", new { idConcu= order.id_concurrencia,id_censo = order.id_censo})" class="btn button_Asalud_Rechazar">EGRESO</a>
+                                        }
+                                    </td>
+                                    <td>
+
+                                        @if (order.fecha_egreso_censo != null)
+                                        {
+                                            <div class="alert alert-danger">
+                                                <strong>ALERTA..!</strong> Egresado desde censo. @order.fecha_egreso_censo
+                                            </div>
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    </td>
+
+
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+
+}
+
+<div class="modal fade" id="ModalEnvio" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Enviar a Contact Center</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formEnviarCaso">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observaciones:</label>
+                            <input type="hidden" id="idConcurrenciaContact" name="idConcurrenciaContact" />
+                            <textarea id="observacionesContact" name="observacionesContact" class="form-control" cols="4" rows="4" maxlength="150" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarEnvioContact()" class="button_Asalud_Guardar" type="submit">Enviar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    var seleccionados = [];
+
+    $(document).ready(function () {
+
+        var idConcurrencia = document.getElementById("idConcurrencia").value;
+
+        if (idConcurrencia != null && idConcurrencia != "" && idConcurrencia != 0) {
+            pdfConcu(idConcurrencia);
+        }
+
+        $('.datatable1').DataTable({
+            "searching": true,
+            "aLengthMenu": [[10, 20, 50, 100, 200, 500, -1], [10, 20, 50, 100, 200, 500, "Todos"]],
+            "iDisplayLength": 20,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Ultimo",
+                },
+            }
+        });
+    });
+
+    $("#chkSeleccionarCruzan").change(function () {
+        if ($(this).is(':checked')) {
+
+            $("#tableroControlCruzan .chkDato").each(function () {
+                $("#tableroControlCruzan .chkDato").prop('checked', true);
+            })
+        }
+        else {
+
+            $("#tableroControlCruzan .chkDato").each(function () {
+                $("#tableroControlCruzan .chkDato").prop('checked', false);
+            })
+        }
+    });
+
+    function pdfConcu(idConcurrencia) {
+
+        var url = "@Url.Action("PdfDescargaConcu", "Concurrencia")?idConcurrencia=" + idConcurrencia;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+
+      /*  enviarCorreoConcu(idConcurrencia);*/
+        document.getElementById("idConcurrencia").value = 0;
+    }
+
+    function enviarCorreoConcu(idConcurrencia) {
+        $.ajax({
+            url:"@Url.Action("CorreoDatosConcu", "Concurrencia")",
+            type: "post",
+            data:
+            {
+                idConcurrencia: idConcurrencia,
+            },
+            success: function (data) {
+                LoadingHide();
+            },
+        });
+    }
+
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+    function mostrarDatosExcel() {
+        var url = "@Url.Action("ExcelConcurrenciaSinEgreso", "Concurrencia")";
+        opupWindow = window.open(url, '', 'height=180,width=450,left=10,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+
+
+
+    function validacionCheckeoId() {
+        var conteo = @i;
+        seleccionados = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chekDato_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("id_concurrencia_" + i).value;
+                    seleccionados.push(item);
+                }
+            }
+        }
+    }
+
+    function mandarAContactCenter() {
+        validacionCheckeoId();
+
+        if (seleccionados.length > 0 && seleccionados != "undefined" && seleccionados != undefined) {
+            var confirmar = confirm("¿Está seguro(a) de mandar estos casos a Contact Center?")
+            if (confirmar == true) {
+
+                LoadingShow();
+
+                $.ajax({
+                    url: "@Url.Action("MandarDatosAContactCenter", "Concurrencia")",
+                    type: "post",
+                    data:
+                    {
+                        datos: seleccionados,
+                    },
+                    success: function (data) {
+                        alert(data.mensaje);
+                        LoadingHide();
+                        location.reload();
+                    },
+                });
+            }
+        }
+        else {
+            alert("Debe seleccionar al menos uno de los ítems");
+        }
+
+    }
+
+    function EnviarAContact(idConcurrencia) {
+        var confirma = confirm("¿Está seguro(a) de enviar este caso a Contact Center?");
+        if (confirma == true) {
+            $("#idConcurrenciaContact").val(idConcurrencia);
+            $("#ModalEnvio").modal("show");
+        }
+    }
+
+
+    function validarEnvioContact() {
+        var validator = $("#formEnviarCaso").validate();
+
+        if (validator.form()) {
+
+            var idConcu = $("#idConcurrenciaContact").val();
+            var observaciones = $("#observacionesContact").val();
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("MandarCasoIndividualContact")",
+                type: "post",
+                data: {
+                    idConcu: idConcu,
+                    observaciones: observaciones,
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+
+        }
+
+    }
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    /*.th {
+                        background: #333;
+                        color: white;
+                        font-weight: bold;
+                    }
+
+                    .td {
+                        padding: 6px;
+                        border: 1px solid #ccc;
+                        text-align: left;
+                    }*/
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #636363;
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+
+
+

@@ -1,0 +1,342 @@
+﻿
+@{
+    ViewBag.Title = "CONTROL RESPUESTAS ENCUESTA SAMI";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var conteoLista = ViewBag.conteo;
+}
+
+<br>
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active" id="1aDiv">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">RESPUESTAS</a>
+        </li>
+        <li id="2aDiv">
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">PROMEDIOS</a>
+        </li>
+    </ul>
+    <br />
+    <br />
+
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <div class="col-md-12" style="text-align:right;">
+                <a role="button" onclick="ExportarExcel();" class="btn-sm button_Asalud_descargas" style="text-align:left;"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+            </div>
+            <br />
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaTotal table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Nro encuesta</th>
+                                    <th class="text-center">Usuario</th>
+                                    <th class="text-center">Detalles</th>
+                                    <th class="text-center">Fecha respuesta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteo > 0)
+                                {
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_encuesta_sami_datosResult item in ViewBag.listado)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@item.id_lote</td>
+                                            <td class="text-center">@item.nombreUsuario</td>
+                                            <td class="text-center">
+                                                <a onclick="MostrarDetalle(@item.id_lote)" class="btn-sm button_Asalud_Aceptar">Ver</a>
+                                            </td>
+                                            <td class="text-left">@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; font-size:14px;">
+                                            NO HAY REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="2a">
+            <div class="col-md-12" style="text-align:right;">
+                <a role="button" onclick="ExportarExcelpromedios();" class="btn-sm button_Asalud_descargas" style="text-align:left;"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+            </div>
+            <br />
+            <br />
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaPromedios table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">ítem</th>
+                                    <th class="text-center">Pregunta</th>
+                                    <th class="text-center">Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteo > 0)
+                                {
+                                    var j = 0;
+
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_encuesta_sami_datos_promediosResult item in ViewBag.promedios)
+                                    {
+                                        j++;
+
+                                        <tr>
+                                            <td class="text-center">@j</td>
+                                            <td class="text-center">@item.descripcion</td>
+                                            <td class="text-center">@item.promedio_calificaciones</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; font-size:14px;">
+                                            NO HAY REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalDetalles">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $('.tablaTotal').DataTable({
+            "searching": true,
+            "displayLength": 10, // Cambiado de 'idisplaylength' a 'displayLength'
+            "lengthChange": true, // Cambiado de 'lengthchange' a 'lengthChange'
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros", // Aquí está el texto del selector de longitud
+                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+
+        $('.tablaPromedios').DataTable({
+            "searching": true,
+            "displayLength": 24, // Cambiado de 'idisplaylength' a 'displayLength'
+            "lengthChange": true, // Cambiado de 'lengthchange' a 'lengthChange'
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros", // Aquí está el texto del selector de longitud
+                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+
+
+
+
+    })
+
+
+
+    function ExportarExcel() {
+        var URL2 = "@Url.Action("ExcelReporteRespuestas", "Campañas")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function ExportarExcelpromedios() {
+           var URL2 = "@Url.Action("ExcelReporteRespuestasPromedios", "Campañas")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function MostrarDetalle(idLote) {
+        var laURLDeLaVista = '@Url.Action("MostrarDetalleRespuestas")?idLote=' + idLote;
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $("#modalDetalles").modal('show');
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                LoadingHide();
+            }
+        });
+    }
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+        position: absolute;
+        margin-top: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>

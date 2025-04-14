@@ -1,0 +1,196 @@
+﻿@using Kendo.Mvc.UI;
+@using AsaludEcopetrol.Models.Reportes;
+@{
+    ViewBag.Title = "RIPS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{AsaludEcopetrol.Models.Facturacion.FacturaDevolucion modelo = new AsaludEcopetrol.Models.Facturacion.FacturaDevolucion();}
+
+<br />
+
+
+<div class="form-group">
+    <table class="table table-condensed table-bordered datatable1">
+        <thead>
+            <tr>
+                <th>Ítem</th>
+                <th>cantidad de archivos</th>
+                <th>Usuario</th>
+                <th>Fecha de cargue</th>
+                <th>Estado Cargue</th>
+                <th>Tipos</th>
+                <th>Regional</th>
+                <th>Fecha Rips</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.RIPS item in ViewBag.ListRips)
+            {
+            <tr>
+                <td>@item.id_rips</td>
+                <td>@item.cantidad</td>
+                <td>@item.usuario</td>
+                <td>@item.fecha_cargue.Value.ToString("dd/MM/yyyy")</td>
+                <td class="text-center">
+                    @if (item.estado.ToUpper() == "CO")
+                    {
+                        <span class="glyphicon glyphicon-ok"></span><span>&nbsp; Exitoso</span>
+                    }
+                </td>
+                <td>@item.rips_nom</td>
+                <td>
+                    @if (item.id_regional != null && item.id_regional != 0)
+                    {
+                        <span>@modelo.RefRegional.ToList().Where(l => l.id_ref_regional == item.id_regional).FirstOrDefault().nombre_regional</span>
+                    }
+                </td>
+                <td>@item.mes/@item.año</td>
+                <td class="text-center"><a href="@Url.Action("ReporteEvaluacion", "Rips", new {IdRips = item.id_rips  })" role="button" class="btn button_Asalud_Aceptar btn-sm" onclick="LoadingShow()">Reporte Evaluacion</a></td>
+                <td class="text-center"><a href="@Url.Action("ExportaraexcelLogV2", "Rips", new {regional = item.id_regional, mes= item.mes, año = item.año})" role="button" class="btn button_Asalud_descargas btn-sm">Exportar Log</a></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.datatable1').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            "order": [[3, "desc"]],
+            responsive: true,
+        });
+    })
+
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

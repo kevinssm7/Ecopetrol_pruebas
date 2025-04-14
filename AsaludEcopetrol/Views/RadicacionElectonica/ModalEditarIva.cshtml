@@ -1,0 +1,66 @@
+﻿
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">
+            ACTUALIZAR TIPO IVA
+        </strong>
+    </div>
+    <div class="panel-body">
+        <form id="formularioActIva">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Tipo IVA</label>
+                    <select id="tipoIva" name="tipoIva" class="form-control" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="26">26</option>
+                        <option value="LA">LA</option>
+                        <option value="LB">LB</option>
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <a class="btn button_Asalud_Guardar" onclick="actualizarIva();">ACTUALIZAR</a>
+                </div>
+            </div>
+            <br />
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function actualizarIva() {
+        var valida = $("#formularioActIva").validate();
+        if (valida.form()) {
+
+            var sel = $("#tipoIva").val();
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ActualizarIvasMasivo")",
+                method: "post",
+                data: {
+                    tipoIva: sel,
+                    seleccionados: "@ViewBag.seleccionados",
+                    idFactura: "@ViewBag.idFactura"
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        $("#ModalEditarIva").modal("hide");
+                        desenglosasIdsGestionMasivos("@ViewBag.seleccionados");
+                    }
+                }
+            });
+        }
+    }
+
+
+
+</script>

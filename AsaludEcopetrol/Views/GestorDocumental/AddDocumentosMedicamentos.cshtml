@@ -1,0 +1,274 @@
+﻿@model AsaludEcopetrol.Models.GestorDocumental.GestorDocumental
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "MEDICAMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+@using (Html.BeginForm())
+{
+    <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+        <tr>
+            <td class="text-center" style="font-size:small"> <Label>FACTURA GENERAL</Label> </td>
+        </tr>
+
+    </table>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center th">NUMERO FACTURA</th>
+                <th class="text-center th">CARGAR DOCUMENTOS</th>
+            </tr>
+
+            <tr>
+
+                <td>  @Html.TextBoxFor(p => p.numero_factura, "{0:#.#}", new { @class = "form-control" })</td>
+              
+                <td class="text-center th">
+                    <a class="btn btn-primary" href="@Url.Action("Subirdocumento", "GestorDocumental", new { documento = 0, proceso = 3,factura  = Model.numero_factura, formula = 0, tipo = 1 })">
+                        CARGAR
+                    </a>
+
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    if (Model.LstFacMed.Count > 0)
+    {
+        <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center" style="font-size:small"> <Label> DOCUMENTOS CARGADOS FACTURA GENERAL </Label> </td>
+            </tr>
+
+        </table>
+
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th class="text-center th">CODIGO DOCUMENTO</th>
+                    <th class="text-center th">NOMBRE DOCUMENTO</th>
+                    <th class="text-center th" style='display:none;'>RUTA</th>
+                    <th class="text-center th">OBSERVACIONES</th>
+                    <th class="text-center th"></th>
+                </tr>
+
+                @foreach (var order in Model.LstFacMed)
+                {
+
+                    <tr>
+                     
+                        <td>@order.codigo</td>
+                        <td>@order.nombre_documento</td>
+                        <td style='display:none;'>@order.ruta</td>
+                        <td>@order.obs</td>
+
+                        <td>
+
+                            <h5> <a href="#" class="btn btn-primary" onclick="javascript:window.open('@Url.Action("GestorDocs", "GestorDocumental" , new { id = order.id_gestion_documental__medicamentos  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER DOCUMENTO</a></h5>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+
+
+        <br />
+        <br />
+    }
+    else
+    {
+
+    }
+
+    <table align="center" width="900" style="color:#ffffff; background: #2E64FE;">
+        <tr>
+            <td class="text-center" style="font-size:small"> <Label>FACTURA DETALLE</Label> </td>
+        </tr>
+
+    </table>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+
+                <th class="text-center th">DOCUMENTO</th>
+                <th class="text-center th">NOMBRE</th>
+                <th class="text-center th">NUMERO FACTURA</th>
+                <th class="text-center th">FECHA FACTURA</th>
+                <th class="text-center th">NUMERO FORMULA</th>
+                <th class="text-center th">DOCUMENTOS CARGADOS</th>
+                <th class="text-center th"></th>
+            </tr>
+
+            @foreach (var order in Model.LstConsolidadoDetalle)
+            {
+                if (order.Factura_detalle == 1)
+                {
+                    <tr>
+
+                        <td class="alert alert-info">@order.doc_beneficiario</td>
+                        <td class="alert alert-info">@order.nombre_beneficiario</td>
+                        <td class="alert alert-info">@order.numero_factura</td>
+                        <td class="alert alert-info">@order.fecha_factura.Value.ToString("dd/MM/yyyy")</td>
+                        <td class="alert alert-info">@order.numero_formula</td>
+
+                        <td class="alert alert-info">
+                            SI
+                        </td>
+
+
+                        <td class="alert alert-info">
+                            <a class="btn btn-primary" href="@Url.Action("Subirdocumento", "GestorDocumental", new { documento = Model.numero_documento, proceso = 3, formula = order.numero_formula , factura = order.numero_factura, tipo = 2 })">
+                                CARGAR DOCUMENTO
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+
+                        <td>@order.doc_beneficiario</td>
+                        <td>@order.nombre_beneficiario</td>
+                        <td>@order.numero_factura</td>
+                        <td>@order.fecha_factura.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.numero_formula</td>
+
+
+                        <td></td>
+
+
+                        <td>
+                            <a class="btn btn-primary" href="@Url.Action("Subirdocumento", "GestorDocumental", new { documento = Model.numero_documento, proceso = 3, formula = order.numero_formula , factura = order.numero_factura, tipo = 2 })">
+                                CARGAR DOCUMENTO
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+
+            }
+        </tbody>
+    </table>
+
+    //  @{Html.RenderPartial("_paginador", Model);}
+    <div style="display:none">
+
+        @Html.TextBoxFor(u => u.numero_factura)
+
+
+    </div>
+}
+
+<script type="text/javascript">
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>
+
+

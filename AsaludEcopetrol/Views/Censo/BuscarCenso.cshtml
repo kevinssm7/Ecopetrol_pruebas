@@ -1,0 +1,253 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Censo.censo
+@{
+    ViewBag.Title = "BUSCAR CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<br />
+
+@using (Html.BeginForm("BuscarCenso", "Censo", FormMethod.Post))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_Asalud">FORMULARIO DE BÚSQUEDA DEL CENSO</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                @if (Model.ListCenso.Count == 0)
+                {
+                    <div class="col-sm-offset-4 col-sm-4 form-group">
+                        @Html.RadioButtonFor(model => model.Items, "1", new { @onclick = "mostrar()" })&nbsp;
+                        @Html.Label("Documento", new { @class = "text-secondary_asalud" })
+                        &nbsp;&nbsp;
+                        @Html.RadioButtonFor(model => model.Items, "2", new { @onclick = "mostrar1()" })&nbsp;
+                        @Html.Label("Id criterio ingreso", new { @class = "text-secondary_asalud" })
+                    </div>
+                }
+            </div>
+            <br />
+            <div id='pnlBusquedaDocumento' style='display:none;' class="General">
+                <div class="row">
+                    <div class="col-sm-offset-3 col-sm-6 form-group">
+                        <div class="row">
+                            <div class="col-sm-6 form-group">
+                                <span class="text-secondary_asalud">@Html.Label("Tipo de identificación")</span>
+                                @Html.DropDownListFor(model => model.tipo_identifi_afiliado, new SelectList(Model.ListTipoDoc, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control select2" })
+                                <div class="Error">
+                                    @Html.ValidationMessageFor(u => u.tipo_identifi_afiliado, null, new { @class = "label label-danger" })
+                                </div>
+
+                            </div>
+                            <div class="col-sm-6 form-group">
+                                <span class="text-secondary_asalud">@Html.Label("Número de identificación")</span>
+                                @Html.TextBoxFor(p => p.num_identifi_afil, new { @class = "form-control" })
+                                <div class="Error">@Html.ValidationMessageFor(model => model.num_identifi_afil)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 text-center">
+                        <input id="BtnBuscarDocumento" type="submit" value="BUSCAR" class="btn button_Asalud_Guardar" />
+                    </div>
+                </div>
+            </div>
+            <div id='BusquedaID' style='display:none;' class="General">
+                <div class="row">
+                    <div class="col-sm-offset-3 col-sm-6 form-group">
+                        <span class="text-secondary_asalud">@Html.Label("Id censo")</span>
+                        @Html.TextBoxFor(model => model.id_censo, new { @class = "form-control" })
+                        <div class="Error">@Html.ValidationMessageFor(model => model.id_censo)</div>
+                    </div>
+                    <div class="col-sm-12 text-center">
+                        <input id="BtnBuscarId" type="submit" value="BUSCAR" class="btn button_Asalud_Guardar" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-center Error">
+                    @Html.ValidationSummary(true, "")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    if (Model.ListCensoD != null && Model != null && Model.ListCensoD.Count != 0)
+    {
+        <div id='resultado' class="General">
+
+            <table align="center" class="ListCaja">
+
+                <tr>
+
+                    <th class="text-center th">ID CENSO</th>
+                    <th>FECHA RECEPCION CENSO</th>
+                    <th>DOCUMENTO</th>
+                    <th>NOMBRE</th>
+                    <th>FECHA INGRESO</th>
+                    <th>FECHA EGRESO</th>
+                    <th></th>
+                    <th></th>
+
+                </tr>
+
+                @foreach (var item in Model.ListCensoD)
+                {
+                    <tr>
+                        <td class="text-center td">
+                            @item.id_censo
+                        </td>
+                        <td class="text-center td">
+                            @item.fecha_recepcion_censo
+                        </td>
+                        <td class="text-center td">
+                            @item.num_identifi_afil
+                        </td>
+                        <td class="text-center td">
+                            @item.nombre
+                        </td>
+                        <td class="text-center td">
+                            @item.fecha_ingreso
+                        </td>
+                        <td class="text-center td">
+                            @item.fecha_egreso
+                        </td>
+                        <td>
+                            <button type="button">
+                                <a class="btn btn-default" href="@Url.Action("VerCenso", "Censo", new { ID= item.id_censo,ID2 = item.id_censo})">
+                                    VER CENSO
+                                </a>
+
+                            </button>
+                        </td>
+                        @if (item.fecha_egreso == null)
+                        {
+                            <td>
+                                <button type="button">
+                                    <a class="btn btn-default" href="@Url.Action("CensoEgreso", "Censo", new { ID= item.id_censo,ID2 = item.id_censo})">
+                                        EGRESO CENSO
+                                    </a>
+                                </button>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <button type="button">
+                                    <a class="btn btn-default" href="@Url.Action("CensoEgreso", "Censo", new { ID= item.id_censo,ID2 = item.id_censo})">
+                                        FACTURA CENSO
+                                    </a>
+
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+
+            </table>
+
+        </div>
+
+    }
+    else
+    {
+
+    }
+
+
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        width: auto !important;
+    }
+</style>
+

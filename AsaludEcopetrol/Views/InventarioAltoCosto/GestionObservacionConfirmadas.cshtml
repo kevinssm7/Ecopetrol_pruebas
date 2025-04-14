@@ -1,0 +1,247 @@
+﻿
+
+
+@{
+    var numeroCaso = ViewBag.numCaso;
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">GESTIONES</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.id</label>
+                <input type="hidden" id="id" name="id" value="@ViewBag.id" />
+                <input type="hidden" id="tipoDato" name="tipoDato" value="@ViewBag.tipoDato" />
+            </h5>
+
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="tableGestionObs" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha creación</th>
+                            <th class="text-center">Observaciones</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Usuario creador</th>
+                            @if (ViewBag.rol == "1")
+                            {
+                                <th class="text-center">Eliminar</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoObservaciones > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_cuentasAltoCosto_rastreosConfirmados_observacionesResult item in ViewBag.listaObservaciones)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_digita</td>
+                                    }
+
+                                    <td class="text-center">@item.observacion</td>
+                                    <td class="text-center">@item.descripcionTipo</td>
+                                    <td class="text-center">@item.nombreDigita</td>
+
+                                    @if (ViewBag.rol == "1")
+                                    {
+                                        <td class="text-center">
+                                            <a class="button_Asalud_Rechazar" onclick="EliminarObservacion(@item.id_observacion, @item.id_registro, @item.id_tipo);">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>SIN GESTIONES.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        <div id="divFormulario">
+            <form id="formObservaciones" method="post" action="InsertarArchivosRepositorio">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Observaciones:</label><span style="color:red"></span>
+                        <textarea id="observaciones" name="observaciones" maxlength="999" class="form-control" cols="4" rows="5" required></textarea>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioObservaciones()">GUARDAR</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('#tableGestionObs').DataTable({
+            "searching": true,
+            "iDisplayLength": 10,
+            "lengthChange": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+
+
+    function ValidarformularioObservaciones() {
+        var validator = $("#formObservaciones").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idRegistro", $("#id").val());
+        formData.append("tipoObs", $("#tipoDato").val());
+        formData.append("observaciones", $("#observaciones").val());
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarObservacionesGestionadas", "InventarioAltoCosto")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                $("#observaciones").val(null).trigger("change");
+                ModalGestionesObservaciones($("#id").val(), $("#tipoDato").val());
+
+            }
+        })
+    }
+
+
+    function EliminarObservacion(idObservacion, idRegistro, tipo) {
+        if (confirm('Está a punto de eliminar esta observación ¿Desea continuar?')) {
+            EliminarObservacionEnviar(idObservacion, idRegistro, tipo);
+        }
+    }
+
+    function EliminarObservacionEnviar(idObservacion, idRegistro, tipo) {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idRegistro", idRegistro);
+        formData.append("tipoRef", tipo);
+        formData.append("idObservacion", idObservacion);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarObservacionGestionada", "InventarioAltoCosto")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.message);
+                ModalGestionesObservaciones($("#id").val(), $("#tipoDato").val());
+            }
+        })
+    }
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>

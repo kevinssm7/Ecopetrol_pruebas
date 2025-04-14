@@ -1,0 +1,443 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Evolucion.SituacionesCalidadAtencion
+@{
+    ViewBag.Title = "CALIDAD EN LA ATENCIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="General">
+        <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center">
+                    <Label>HISTORICO SITUACIONES DE CALIDAD EN LA ATENCION</Label>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+        <table border="1" align="center" width="600">
+
+
+            @if (Model != null && Model.lstConcurrenciaSituacionCal != null && Model.lstConcurrenciaSituacionCal.Count > 0)
+                {
+                <tr>
+
+                    <th class="text-center">ID</th>
+                    <th class="text-center">SITUACION DE CALIDAD</th>
+                    <th class="text-center">DESCRIPCION DE LA SITUACION CALIDAD</th>
+                    <th class="text-center">FECHA SITUACION CALIDAD</th>
+                    <th class="text-center">USUARIO DIGITA</th>
+                    <th class="text-center">FECHA DIGITA</th>
+                    <th class="text-center">FECHA RADICACION CARTA</th>
+                   
+
+                </tr>
+                foreach (var item in Model.lstConcurrenciaSituacionCal)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @item.id_situacion_calidad
+                        </td>
+
+                        <td class="text-center">
+                            @foreach (var item1 in Model.LstSituacionesCa2)
+                            {
+                                if (item1.id_calidad == item.id_situacion)
+                                {
+                                    @item1.descripcion
+                                    break;
+                                }
+                            }
+                        </td>
+                        <td class="text-center">
+                            @item.descripcion
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_situcion.Value.ToString("dd/MM/yyyy")
+                        </td>
+                        <td class="text-center">
+                            @item.usuario_digita
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_digita.Value.ToString("dd/MM/yyyy")
+                        </td>
+                        <td class="text-center">
+                            @item.fecha_de_radica_carta.Value.ToString("dd/MM/yyyy")
+                        </td>
+                      
+                    </tr>
+                }
+            }
+        </table>
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="Error">
+                    <h2>@Html.ValidationSummary(true, "") </h2>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="General">
+        <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center">
+                    <Label>SITUACIONES DE CALIDAD EN LA ATENCION</Label>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+
+
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_categoria)</span></h4>
+
+            @Html.HiddenFor(x => x.id_categoria)
+            @(Html.Kendo().DropDownListFor(m => m.id_categoria)
+                          .Name("categoria")
+                          .HtmlAttributes(new { style = "width:100%" })
+
+                          .DataTextField("descripcion")
+                          .DataValueField("id_ref_categorias_situaciones_de_calidad")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeCategoria", "SituacionesCalidadAtencion");
+                               });
+                           })
+            )
+
+            @Html.ValidationMessageFor(u => u.id_categoria)
+
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_situacion_calidad)</span></h4>
+
+            @(Html.Kendo().DropDownListFor(m => m.id_situacion_calidad)
+                          .Name("situacion")
+                          .HtmlAttributes(new { style = "width:100%" })
+
+                          .DataTextField("descripcion")
+                          .DataValueField("id_calidad")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect2"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeSituacion", "SituacionesCalidadAtencion")
+                                  .Data("filterProducts");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("categoria")
+            )
+            <script>
+                            function filterProducts() {
+                                return {
+                                    categoria: $("#categoria").val()
+                                };
+
+                            }
+            </script>
+            @Html.ValidationMessageFor(u => u.id_situacion_calidad, null, new { @class = "label label-danger" })
+
+        </div>
+
+
+
+        @*<div class="col-sm-4">
+        @Html.LabelFor(u => u.id_situacion_calidad)
+        @Html.DropDownListFor(model => model.id_situacion_calidad, new SelectList(Model.LstSituacionesCa, "id_calidad", "descripcion"), "Seleccione...", new { @class = "form-control" })
+        @Html.ValidationMessageFor(x => x.id_situacion_calidad)
+        </div>*@
+        <div class="col-sm-4">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.descripcion_situacion_calidad)</span></h4>
+            @Html.TextAreaFor(u => u.descripcion_situacion_calidad, 5, 50, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.descripcion_situacion_calidad)
+        </div>
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-4">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_situacion_calid)</span></h4>
+            @(Html.Kendo().DateTimePickerFor(p => p.fecha_situacion_calid)
+
+              .Name("datepicker")
+              .Format("dd/MM/yyyy")
+              .Events(e =>
+              {
+                  e.Change("change");
+              })
+              .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+            )
+            @Html.ValidationMessageFor(p => p.fecha_situacion_calid, null, new { @class = "label label-danger" })
+        </div>
+
+        <div class="col-sm-4">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_de_radica_carta)</span></h4>
+            @(Html.Kendo().DateTimePickerFor(p => p.fecha_de_radica_carta)
+
+               .Name("datepicker2")
+              .Format("dd/MM/yyyy")
+              .Events(e =>
+                     {
+                         e.Change("change2");
+                     })
+
+              .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+            )
+            @Html.ValidationMessageFor(p => p.fecha_de_radica_carta, null, new { @class = "label label-danger" })
+        </div>
+        <div class="col-sm-4">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.quien_recibe)</span></h4>
+            @Html.TextAreaFor(u => u.quien_recibe, 5, 50, new { @class = "form-control" })
+            @Html.ValidationMessageFor(x => x.quien_recibe)
+        </div>
+
+
+    </div>
+
+       <div id="pnlGuardar" class="General">
+        <table align="center">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>
+                    @if (ViewBag.usuario == "14")
+                    {
+
+                    }
+                    else
+                    {
+                        <input id="BtnAgregar" type="submit" value="AGREGAR" class="btn btn-success" />
+                    }
+
+                </td>
+            </tr>
+            <tr>
+                <td class="Error">
+                    @Html.ValidationSummary(true, "")
+                </td>
+            </tr>
+
+            <tr>
+                <td style="display:none">
+                    @Html.TextBoxFor(u => u.id_concurrencia)
+                    @Html.TextBoxFor(u => u.fecha_de_radica_cartaok)
+                    @Html.TextBoxFor(u => u.fecha_situacion_calidok)
+                    @Html.TextBoxFor(u => u.id_situacion_calidad)
+                </td>
+            </tr>
+        </table>
+    </div>
+    @*<p><a href="javascript:void(0);" class="close">Hola, Now close it</a></p>*@
+}
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+
+    });
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_de_radica_cartaok]').val(DataItem);
+    }
+
+
+
+    $(document).ready(function () {
+
+        $('#datepicker2').attr('disabled', 'disabled');
+
+    });
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_situacion_calidok]').val(DataItem);
+    }
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_categoria").val(DataItem.id_ref_categorias_situaciones_de_calidad);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_situacion_calidad").val(DataItem.id_calidad);
+    }
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+        /* support: IE7 */
+        *height: 1.7em;
+        *top: 0.1em;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 0.3em;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 105px;
+    }
+
+    .tdGrande {
+        width: 300px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .auto-style3 {
+        height: 26px;
+    }
+
+
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+

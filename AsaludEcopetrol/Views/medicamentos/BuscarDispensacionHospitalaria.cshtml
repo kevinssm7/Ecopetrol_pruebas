@@ -1,0 +1,242 @@
+﻿
+@model  AsaludEcopetrol.Models.Medicamentos.dispensaciones
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "BUSCAR PROVEEDOR HOSPITALARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm())
+{
+
+
+    <div class="container">
+        <form id="frm-alumno">
+
+            <div class="row">
+                <div class="col-sm-6">
+
+                    <h4><span class="text-secondary_asalud">@Html.Label("BUSCAR PROVEEDOR")</span></h4>
+                    @Html.DropDownListFor(model => model.nombre_auditor, new SelectList(Model.Listproveedor, "id_ref_proveedor", "nombre"), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.nombre_auditor, null, new { @class = "label label-danger" })
+                    <br />
+                    <input id="BtnBuscar" type="submit" value="BUSCAR" class="btn btn-success" />
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+
+
+
+    <br />
+    if (Model.ListproveedorHospitalario != null && Model != null && Model.ListproveedorHospitalario.Count != 0)
+    {
+        <div class="row">
+
+            <table id="tabla" class="table table-bordered datatable1">
+                <thead>
+                    <tr class="header">
+
+                        <th class="text-center th">ID</th>
+                        <th class="text-center th">FECHA AUDITORIA</th>
+                        <th class="text-center th">NOMBRE AUDITOR</th>
+                        <th class="text-center th">PROVEEDOR</th>
+                        <th class="text-center th">PUNTO DISPENSACION
+                        <th class="text-center th">RESULTADO</th>
+                        <th class="text-center th">HALLAZGOS</th>
+                        <th class="text-center th">VER</th>
+                      
+                    </tr>
+
+                </thead>
+                <tbody id="myTable">
+                    @foreach (var item in Model.ListproveedorHospitalario)
+                    {
+                    <tr>
+                        <td class="text-center td"> @item.id_md_dispensacion_hospitalaria</td>
+                        <td class="text-center td"> @item.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center td"> @item.nombre_auditor</td>
+                        <td class="text-center td"> @item.nombre_auditado</td>
+                        <td class="text-center td"> @item.punto_dispensacion</td>
+                        <td class="text-center td"> @item.resultado</td>
+                        <td class="text-center td"> @item.hallazgos</td>
+                        <td>
+                            <a class="btn btn-primary" href="@Url.Action("DispensacionHospitalariaDetalle", "medicamentos", new { id= item.id_md_dispensacion_hospitalaria,proveedor = item.nombre_auditado, Hallazgo = item.hallazgos})">
+                                VER
+                            </a>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    }
+
+    <div class="container">
+        <form id="frm-alumno">
+
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <h4><span class="text-secondary_asalud">@Html.Label("INGRESAR NUEVO REGISTRO")</span></h4>
+                    <a class="btn btn-success" href="@Url.Action("IngresoDispensacionHospitalaria", "medicamentos", new { })">
+                        INGRESAR
+                    </a>
+                </div>
+
+
+            </div>
+
+        </form>
+    </div>
+}
+
+
+<script>
+
+    $('.datatable1').DataTable({
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        "order": [[3, "desc"]],
+        responsive: false,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+    $(function () {
+        $("table td:last-child:contains(Caso para visita con dias vencidos)")
+            .parents("tr")
+            .css("background-color", "#FFD3D3");
+    });
+
+
+
+
+    //FILTRO TABLA//
+    var busqueda = document.getElementById('buscar');
+    var table = document.getElementById("tabla").tBodies[0];
+
+    buscaTabla = function () {
+        texto = busqueda.value.toLowerCase();
+        var r = 0;
+        while (row = table.rows[r++]) {
+            if (row.innerText.toLowerCase().indexOf(texto) !== -1)
+                row.style.display = null;
+            else
+                row.style.display = 'none';
+        }
+    }
+
+    busqueda.addEventListener('keyup', buscaTabla);
+
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .pagination {
+        display: inline-block;
+        padding-left: 7px;
+        margin: 2px 0;
+        border-radius: 10px;
+    }
+</style>
+
+
+

@@ -1,0 +1,185 @@
+﻿@model AsaludEcopetrol.Models.Odontologia.PlanMejora
+@{
+    ViewBag.Title = "PLAN DE MEJORA - TABLERO DE CONTROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="row">
+    <div class="col-sm-12 table-responsive">
+        <table id="tabla"  class="table table-condensed table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Regional</th>
+                    <th>Unis</th>
+                    <th>Nombre Preveedor</th>
+                    <th>Fecha Ingreso Plan</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.LIstPrestadores)
+                {
+                    var alerta = "";
+                    foreach (var ite2 in Model.LstDetallePlanMejora)
+                    {
+
+                        if (ite2.id_odont_plan_mejora == item.id_odont_plan_mejora)
+                        {
+                            if (ite2.dias_restantes <= 5)
+                            {
+                                alerta = "SI";
+                            }
+                        }
+
+                    }
+                    <tr>
+                        <td>@item.regional</td>
+                        <td>@item.unis</td>
+                        <td>@item.especialista</td>
+                        <td>@item.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                        @if (alerta == "SI")
+                        {
+                            <td><div class="alert alert-danger" role="alert"><strong>ALERTA...!</strong> Caso con acciones vencidas o a punto de vencer.</div></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td class="text-center">
+                            <a role="button" class="btn button_Asalud_Aceptar btn-sm" href="@Url.Action("PlandeMejoraDetalle", "odontologia", new {id = item.id_odont_plan_mejora })">Ver plan de mejora &nbsp;<i class="glyphicon glyphicon-check"></i></a>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $('.table').DataTable({
+        "searching": true,
+        "aLengthMenu": [[10, 30, 200, 500, 1000, 5000, -1], [10, 30, 200, 500, 1000, 5000, "Todos"]],
+        "iDisplayLength": 10,
+        "lengthchange": false,
+        "info": false,
+        "responsive": true,
+        "zeroRecords": "No se encontraron resultados",
+        responsive: true,
+        language: {
+            sLengthMenu: "Ver _MENU_ registros",
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthmenu: "Mostrar menu registros",
+            info: "Mostrando registros del start al end de un total de total registros",
+            infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infofiltered: "(Filtrado de un total de max registros)",
+            loadingrecords: "Cargando...",
+            zerorecords: "No se encontraron resultados",
+            emptytable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Ultimo",
+            },
+        }
+    });
+</script>
+<style>
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 150px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .gj-dialog-md-close span {
+        display: none;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+</style>
+

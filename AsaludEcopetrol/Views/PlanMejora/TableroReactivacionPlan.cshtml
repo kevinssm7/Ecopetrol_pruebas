@@ -1,0 +1,253 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO PLANES DE MEJORA - REACTIVACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>ACTIVACIÓN PLAN DE MEJORA</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formPlan" action="TableroReactivacionPlan" method="post">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Id plan de mejora</label>
+                        <input type="text" name="idPlan" id="idPlan" maxlength="5" class="form-control solo-numero" required />
+                    </div>
+                    <br />
+
+                    <div class="col-md-6">
+                        <button class="btn button_Asalud_Aceptar" onclick="BuscarPlan()">Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br />
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="tablaDatos" class="table table-bordered" style="width:98%;">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Id visitas</th>
+                            <th>Estado</th>
+                            <th>Regional</th>
+                            <th>Unis</th>
+                            <th>Localidad</th>
+                            <th>Prestador</th>
+                            <th>Fecha creación</th>
+                            <th>Proceso</th>
+                            <th>Auditor</th>
+                            <th>Fecha seguimiento</th>
+                            <th>Fecha estimada cierre</th>
+                            <th>Abrir plan</th>
+                            <th>Eliminar plan</th>
+                        </tr>
+                    </thead>
+                    @if (ViewBag.conteo > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tablero_reactivacionResult item in ViewBag.planes)
+                        {
+                            var estilo = "";
+
+                            var fechaMinimaPlazo = new DateTime();
+                            var fechaMaximaPlazo = new DateTime();
+
+                            if (item.fechaminimaplazo != null)
+                            {
+                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                            }
+                            else
+                            {
+                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                            }
+
+                            if (item.fechaminimaplazo != null)
+                            {
+                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                            }
+                            else
+                            {
+                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                            }
+
+                            {
+                                if (item.conteomeses > 30)
+                                {
+                                    estilo = "TrAzul";
+                                }
+                                else
+                                {
+                                    estilo = "TrNaranja";
+
+                                }
+                            }
+
+                            <tr class="@estilo">
+
+                                <td>@item.id_plan_de_mejora</td>
+                                <td>@item.id_visitas</td>
+                                <td>@item.estadoplan</td>
+                                <td>@item.nombre_regional</td>
+                                <td>@item.nom_unis</td>
+                                <td>@item.nombrelocalidad</td>
+                                <td>@item.nom_prestador</td>
+                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@item.nom_proceso</td>
+                                <td>@item.nombre</td>
+                                <td>@fechaMinimaPlazo</td>
+                                <td>@fechaMaximaPlazo</td>
+
+                                <td class="text-center">
+                                    <a class="button_Asalud_Guardar" onclick="ReAbrirPlan(@item.id_plan_de_mejora)">Abrir</a>
+                                </td>
+
+                                <td class="text-center">
+                                    <a class="button_Asalud_Rechazar" onclick="EliminarPlan(@item.id_plan_de_mejora)">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        MostrarTabla();
+    })
+
+    function BuscarPlan() {
+        var validar = $("#formPlan").validate();
+        if (validar == true) {
+
+        }
+    }
+
+    function MostrarTabla() {
+        var conteo = "@ViewBag.conteo";
+        if (conteo > 0) {
+
+            $('#tablaDatos').DataTable().destroy();
+            $('#tablaDatos').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function ReAbrirPlan(idPlan) {
+        var confirmar = confirm("Seguro(a) de reabrir este plan de mejora?");
+        if (confirmar) {
+            $.ajax({
+                url: "@Url.Action("ReabrirPlan", "PlanMejora")",
+                type: "post",
+                data: {
+                    idPlan: idPlan
+                },
+                method: 'POST',
+                success: function (response) {
+
+                    alert(response.mensaje);
+                    LoadingHide();
+
+                    if (response.rta == 1) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+    function EliminarPlan(idPlan) {
+        var confirmar = confirm("Seguro(a) de eliminar este plan de mejora?");
+        if (confirmar) {
+            $.ajax({
+                url: "@Url.Action("EliminarPlan", "PlanMejora")",
+                type: "post",
+                data: {
+                    idPlan: idPlan
+                },
+                method: 'POST',
+                success: function (response) {
+
+                    alert(response.mensaje);
+                    LoadingHide();
+
+                    if (response.rta == 1) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }   
+
+</script>
+
+<style>
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>

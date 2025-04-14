@@ -1,0 +1,564 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Consulta.Consulta
+@{
+    ViewBag.Title = "CONSULTAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<style>
+    span.k-widget.k-datetimepicker {
+        width: 100% !important;
+    }
+    td, th {
+        padding: 2px;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+
+    <div class="container" style="font-family:'Century Gothic'">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">CONSULTAS GENERALES</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row form-group">
+                    <table align="center">
+                        <tr>
+                            <td style='display:none;'>
+                                @Html.RadioButtonFor(model => model.id_tipo_busqueda, "0")@Html.Label("")
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr style="font-size:12px">
+                            <td>
+                                @Html.RadioButtonFor(model => model.id_tipo_busqueda, "6", new { onClick = "checkFiltro6()" })&nbsp;@Html.Label("CONSULTA NATALIDAD")
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                                @Html.RadioButtonFor(model => model.id_tipo_busqueda, "7", new { onClick = "checkFiltro7()" })&nbsp;@Html.Label("CONSULTA MORTALIDAD")
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                                @Html.RadioButtonFor(model => model.id_tipo_busqueda, "10", new { onClick = "checkFiltro10()" })&nbsp;@Html.Label("CONSULTA CENSO-CONCURRENCIA")
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                                @Html.RadioButtonFor(model => model.id_tipo_busqueda, "1", new { onClick = "checkFiltro1()" })&nbsp;@Html.Label("CENSO PACIENTES ACTIVOS")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td class="Error">
+                               
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="pnlFiltro6" class="row" style='display:none;'>
+                    <div class="col-sm-12 col-sm-offset-4 text-center" style="font-size: 12px; margin-bottom: 3%">
+                        <table>
+                            <tr>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "1", new { onClick = "checkfecha()" })&nbsp;@Html.Label("FECHA DE EGRESO")
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "3", new { onClick = "checkRegional()" })&nbsp;@Html.Label("REGIONAL")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationMessageFor(u => u.id_filtro_busqueda, null, new { @class = "label label-danger" })
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div id="pnlFiltro7" class="row" style='display:none;'>
+                    <div class="col-sm-12 col-sm-offset-4 text-center" style="font-size: 12px; margin-bottom: 3%">
+                        <table>
+                            <tr>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "1", new { onClick = "checkfecha()" })&nbsp;@Html.Label("FECHA DE EGRESO")
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "3", new { onClick = "checkRegional()" })&nbsp;@Html.Label("REGIONAL")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationMessageFor(u => u.id_filtro_busqueda, null, new { @class = "label label-danger" })
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="pnlFiltro10" class="row" style='display:none;'>
+                    <div class="col-sm-12 col-sm-offset-3 text-center" style="font-size: 14px; margin-bottom: 3%">
+                        <table>
+                            <tr>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "1", new { onClick = "checkfecha()" })&nbsp;@Html.Label("FECHA DE INGRESO")
+                                </td>
+                                <td></td>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "2", new { onClick = "checkDocumento()" })&nbsp;@Html.Label("DOCUMENTO PACIENTE")
+                                </td>
+                                <td></td>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "3", new { onClick = "checkRegional()" })&nbsp;@Html.Label("REGIONAL")
+                                </td>
+                                <td>
+                                    @Html.RadioButtonFor(model => model.id_filtro_busqueda, "4", new { onClick = "checkfechaEgreso()" })&nbsp;@Html.Label("FECHA DE EGRESO")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationMessageFor(u => u.id_filtro_busqueda, null, new { @class = "label label-danger" })
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="pnlFecha" class="row form-group" style='display:none;'>
+                    <div class="col-sm-2">
+
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-secondary_asalud">@Html.Label("FECHA INICIAL")</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_inicial)
+
+                                .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                                .Name("datepicker1")
+                                .Format("dd/MM/yyyy")
+                                 .Events(e =>
+                                 {
+                                     e.Change("change1");
+                                 })
+
+                                )
+                        @Html.ValidationMessageFor(u => u.fecha_inicio, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-secondary_asalud">@Html.Label("FECHA FINAL")</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_final)
+
+                                .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                                .Name("datepicker2")
+                                .Format("dd/MM/yyyy")
+                                 .Events(e =>
+                                 {
+                                     e.Change("change2");
+                                 })
+
+                                )
+                        @Html.ValidationMessageFor(u => u.fecha_fin, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-2">
+
+                    </div>
+                </div>
+
+                <div id="pnlRegional" class="row form-group" style='display:none;'>
+
+                    <div class="col-sm-4">
+                        <span class="text-secondary_asalud">@Html.Label("REGIONAL")</span>
+                        @Html.DropDownListFor(model => model.regional, new SelectList(Model.RefRegional, "id_ref_regional", "nombre_regional"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.regional, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-secondary_asalud">@Html.Label("FECHA INICIAL")</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_inicial)
+
+                        .HtmlAttributes(new {title = "Vigencia desde" })
+                        .Name("datepicker5")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change5");
+                         })
+
+                        )
+                        @Html.ValidationMessageFor(u => u.fecha_inicio, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-secondary_asalud">@Html.Label("FECHA FINAL")</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_final)
+
+                        .HtmlAttributes(new {title = "Vigencia desde" })
+
+                        .Name("datepicker6")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change6");
+                         })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_fin, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div id="pnlDocumento" class="row form-group" style='display:none;'>
+                    <div class="col-sm-3">
+
+                    </div>
+                    <div class="col-sm-3">
+                        <span class="text-secondary_asalud">@Html.Label("TIPO IDENTIFICACIÓN")</span>
+                        @Html.DropDownListFor(model => model.tipo_identifi_afiliado, new SelectList(Model.ListTipoDoc, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.tipo_identifi_afiliado, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-3">
+                        <span class="text-secondary_asalud">@Html.Label("NUMERO IDENTIFICACIÓN")</span>
+                        @Html.TextBoxFor(p => p.num_identifi_afil, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.num_identifi_afil, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-3">
+
+                    </div>
+                </div>
+
+
+                <div id="pnlBuscar" class="row">
+                    <div class="col-sm-12 text-center">
+                        <button type="submit" id="BtnBuscar" class="btn button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp;BUSCAR RESULTADOS</button>
+                        <div class="Error">
+                            @Html.ValidationMessageFor(u => u.id_tipo_busqueda, null, new { @class = "label label-danger" })
+                            @Html.ValidationSummary(true, "")
+                        </div>
+                    </div>
+                    <div class="hidden">
+                        @Html.TextBoxFor(u => u.num_identifi_afil)
+                        @Html.TextBoxFor(u => u.tipo_identifi_afiliado)
+                        @Html.TextBoxFor(u => u.fecha_inicio)
+                        @Html.TextBoxFor(u => u.fecha_fin)
+                        @Html.TextBoxFor(u => u.fecha_inicial)
+                        @Html.TextBoxFor(u => u.fecha_final)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pnlFecha2" class="General" style='display:none;'>
+        <table align="center">
+            <tr>
+                <td>
+                    <h4><span class="text-secondary_asalud">@Html.Label("FECHA INICIAL")</span></h4>
+                </td>
+                <td>&nbsp;</td>
+
+                <td>&nbsp;</td>
+                <td class="Error">
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_inicial)
+
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    .Name("datepicker1")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change1");
+                     })
+
+                    )
+
+                </td>
+                <td>&nbsp;</td>
+                <td class="Error">
+                    @Html.ValidationMessageFor(u => u.fecha_inicio, null, new { @class = "label label-danger" })
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <h4><span class="text-secondary_asalud">@Html.Label("FECHA FINAL")</span></h4>
+
+                </td>
+                <td>&nbsp;</td>
+                <td class="Error">
+
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_fin)
+
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    .Name("datepicker2")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change2");
+                     })
+
+                    )
+                </td>
+                <td>&nbsp;</td>
+                <td class="Error">
+                    @Html.ValidationMessageFor(u => u.fecha_fin, null, new { @class = "label label-danger" })
+                </td>
+                <td>&nbsp;</td>
+
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    
+
+
+    <div id="resultado2"></div>
+
+
+}
+<script type="text/javascript">
+
+    function checkFiltro6() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlFiltro6').style.display = 'block';
+            document.getElementById('pnlFecha').style.display = 'none';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlRegional').style.display = 'none';
+            document.getElementById('pnlFiltro7').style.display = 'none';
+            document.getElementById('pnlFiltro10').style.display = 'none';
+
+        });
+    }
+
+    function checkFiltro7() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlFiltro7').style.display = 'block';
+            document.getElementById('pnlFecha').style.display = 'none';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlRegional').style.display = 'none';
+            document.getElementById('pnlFiltro6').style.display = 'none';
+            document.getElementById('pnlFiltro10').style.display = 'none';
+
+        });
+    }
+
+
+    function checkFiltro10() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlFiltro10').style.display = 'block';
+            document.getElementById('pnlFiltro6').style.display = 'none';
+            document.getElementById('pnlFiltro7').style.display = 'none';
+
+        });
+    }
+
+    function checkFiltro1() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+
+            document.getElementById('pnlBuscar').style.display = 'block';
+            document.getElementById('pnlFiltro6').style.display = 'none';
+            document.getElementById('pnlFecha').style.display = 'none';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlRegional').style.display = 'none';
+            document.getElementById('pnlFiltro7').style.display = 'none';
+            document.getElementById('pnlFiltro10').style.display = 'none';
+
+
+
+
+        });
+    }
+
+    function checkfecha() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+            if (Selectedvalue == "1") {
+                document.getElementById('pnlFecha').style.display = 'block';
+                document.getElementById('pnlDocumento').style.display = 'none';
+                document.getElementById('pnlRegional').style.display = 'none';
+                document.getElementById('pnlFecha2').style.display = 'none';
+            }
+        });
+    }
+
+
+    function checkfechaEgreso() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+            if (Selectedvalue == "4") {
+                document.getElementById('pnlFecha').style.display = 'block';
+                document.getElementById('pnlDocumento').style.display = 'none';
+                document.getElementById('pnlRegional').style.display = 'none';
+                document.getElementById('pnlFecha2').style.display = 'none';
+            }
+        });
+    }
+
+    function checkfecha2() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+            if (Selectedvalue == "4") {
+                document.getElementById('pnlFecha2').style.display = 'block';
+                document.getElementById('pnlDocumento').style.display = 'none';
+                document.getElementById('pnlRegional').style.display = 'none';
+                document.getElementById('pnlFecha').style.display = 'none';
+
+            }
+        });
+    }
+    function checkDocumento() {
+        $("input[type=radio]").change(function () {
+            var Selectedvalue = $(this).val();
+            if (Selectedvalue == "2") {
+                document.getElementById('pnlFecha').style.display = 'none';
+                document.getElementById('pnlDocumento').style.display = 'block';
+                document.getElementById('pnlRegional').style.display = 'none';
+                document.getElementById('pnlFecha2').style.display = 'none';
+            }
+        });
+    }
+
+    function checkRegional() {
+        $("input[type=radio]").change(function () {
+
+            var Selectedvalue = $(this).val();
+
+            if (Selectedvalue == "3") {
+                document.getElementById('pnlFecha').style.display = 'none';
+                document.getElementById('pnlDocumento').style.display = 'none';
+                document.getElementById('pnlRegional').style.display = 'block';
+                document.getElementById('pnlFecha2').style.display = 'none';
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#datepicker5').attr('disabled', 'disabled');
+        $('#datepicker6').attr('disabled', 'disabled');
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_inicio]').val(DataItem);
+    }
+
+
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_fin]').val(DataItem);
+    }
+
+    function change5() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_inicial]').val(DataItem);
+    }
+
+
+
+    function change6() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_final]').val(DataItem);
+    }
+
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

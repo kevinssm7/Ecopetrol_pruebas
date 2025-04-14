@@ -1,0 +1,286 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasDEV_RECHV2Result>
+@{
+    ViewBag.Title = "FACTURAS RECHAZADAS Y DEVUELTAS - TABLERO DE CONTROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewData["rta"];
+    string msg = (string)ViewData["msg"];
+}
+
+<br />
+
+@if(rta != 0)
+{
+    if(rta == 1)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Exito</strong> @msg
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error</strong> @msg
+        </div>
+    }
+    <br />
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">MODULO PARA GESTIONAR FACTURAS RECHAZADAS Y DEVUELTAS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-12 text-right form-group">
+                <a href="@Url.Action("ExcelReporteFacturasDev_Rech", "RadicacionElectonica")" class="btn btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar resultados</a>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Num factura</th>
+                        <th>Id lote</th>
+                        <th>id factura</th>
+                        <th>Valor</th>
+                        <th>Nit prestador</th>
+                        <th>Prestador</th>
+                        <th>Regional</th>
+                        <th>Estado</th>
+                        <th>Fecha Recepción</th>
+                        <th>Fecha Rechazo</th>
+                        <th>Analista</th>
+                        <th>Fecha devolución</th>
+                        <th>Auditor</th>
+                        <th>Dias transcurridos</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasDEV_RECHV2Result item in Model)
+                    {
+                        <tr>
+                            <td>@item.num_factura</td>
+                            <td>@item.id_cargue_base</td>
+                            <td>@item.id_cargue_dtll</td>
+                            <td>@item.valor_neto</td>
+                            <td>@item.num_id_prestador</td>
+                            <td>@item.nombre_prestador</td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.estado_des</td>
+                            <td>@item.fecha_recepcion_fac.Value.ToString("dd/MM/yyyy")</td>
+                            @if (item.fecha_rechazo != null)
+                            {
+                                <td>@item.fecha_rechazo.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@item.nom_analitica</td>
+
+                            @if (item.fecha_devolucion != null)
+                            {
+                                <td>@item.fecha_devolucion.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@item.nom_auditor</td>
+                            <td>@item.dias</td>
+                            @if (item.estado_factura == 3)
+                            {
+                                <td><a href="javascript:CerrarDEVRECH(@item.id_cargue_dtll,1)" role="button" class="btn button_Asalud_Rechazar">Cerrar rechazo</a></td>
+                            }
+                            else
+                            {
+                                <td><a href="javascript:CerrarDEVRECH(@item.id_cargue_dtll,2)" role="button" class="btn button_Asalud_Rechazar">Cerrar devolución</a></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="ModalCerrarDev_RECH" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="txttitulo"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario" method="post" action="TableroControlFacrurasDEV_RECH" enctype="multipart/form-data">
+                    <div class="row">
+                        <input type="hidden" id="txtidfactura" name="txtidfactura" />
+                        <input type="hidden" id="txtestadofactura" name="txtestadofactura" />
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Número nueva factura:</label>
+                            <input autocomplete="off" type="text" class="form-control" id="numfactura" name="numfactura" required maxlength="50" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Valor nueva factura:</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero" id="valorneto" name="valorneto" required maxlength="16" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+    })
+
+
+    function CerrarDEVRECH(a, b)
+    {
+        if (b == 1)
+        {
+            $("#txttitulo").text("Cerrar Rechazo");
+            $("#txtestadofactura").val(13);
+        }
+        else
+        {
+            $("#txttitulo").text("Cerrar Devolución");
+            $("#txtestadofactura").val(14);
+        }
+        
+        $("#txtidfactura").val(a);
+        $("#ModalCerrarDev_RECH").modal("show");
+    }
+
+    function ValidarFormulario()
+    {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

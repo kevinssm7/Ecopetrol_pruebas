@@ -1,0 +1,250 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO DE VISITAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+
+<div class=container>
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" data-toggle="tab">VISITAS PROGRAMADAS 1er. CONCILIACIÓN</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" data-toggle="tab">VISITAS EJECUTADAS 1er. CONCILIACIÓN</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1d" data-toggle="tab">PROGRAMAR VISITAS 2da. CONCILIACIÓN</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1e" data-toggle="tab">EJECUTAR VISITAS 2da. CONCILIACIÓN</a>
+        </li>
+
+        <li>
+            <a class="text-secondary_asalud" href="#1c" data-toggle="tab">VISITAS FINALIZADAS</a>
+        </li>
+
+    </ul>
+
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active" id="1a">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <BR />
+                        <table id="tbProgramadas" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                            <thead>
+                                <tr>
+                                    <th class="hidden">id</th>
+                                    <th class="text-center">Nombre prestador</th>
+                                    <th class="text-center">NIT</th>
+                                    <th class="text-center">Municipio</th>
+                                    <th class="text-center">Departamento </th>
+                                    <th class="text-center">Fecha visita </th>
+                                    <th class="text-center">Cantidad facturas</th>
+                                    <th class="text-center" style="width: 150px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodytbl2">
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Management_FFMM_Glosas_PrestadoresResult item in ViewBag.lista)
+                                {
+                                    <tr>
+                                        <td class="hidden">@item.id_ref_ffmm_prestadores</td>
+                                        <td class="text-center">@item.nombre</td>
+                                        <td class="text-center">@item.nit</td>
+                                        <td class="text-center">@item.muninombre</td>
+                                        <td class="text-center">@item.departamento</td>
+                                        <td class="text-center">@item.fecha_programacion_visita.Value.ToString("dd/MM/yyyy")</td>
+                                        <td class="text-center">@item.cantidad_facturas</td>
+                                        <td class="text-center" style="width: 150px;">
+                                            <a class="button_Asalud_Guardar" font-weight:bold" onclick="llamarVistaParciaM1(@item.id_ref_ffmm_prestadores);" data-toggle="modal" data-target="#modal1">
+                                                EJECUTAR VISITAS
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1b">
+            @Html.Action("_TableroVisitasEjecutadas", "CuentasMedicas")
+        </div>
+        <div class="tab-pane" id="1c">
+            @Html.Action("_TableroVisitasFinalizadas", "CuentasMedicas")
+        </div>
+        <div class="tab-pane" id="1d">
+            @Html.Action("_TableroSegundaVisita", "CuentasMedicas")
+        </div>
+
+        <div class="tab-pane" id="1e">
+            @Html.Action("_TableroSegundaEjecucion", "CuentasMedicas")
+        </div>
+
+
+    </div>
+
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modal1">
+    <div class="modal-dialog" style="width: 900px;">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado1"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $('#tbProgramadas').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+    function llamarVistaParciaM1(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_IngresarEjecucionVisita")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado1').html('');
+                $('#resultado1').html(response);
+            }
+        });
+    }
+
+
+</script>
+
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 20px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 1.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 11px;
+    }
+
+    .control-label {
+        font-size: 12px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+</style>

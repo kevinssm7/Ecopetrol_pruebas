@@ -1,0 +1,370 @@
+﻿@model AsaludEcopetrol.Models.Censo.censo
+
+@{
+    ViewBag.Title = "CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CENSO</strong>
+    </div>
+    <div class="panel-body">
+
+        @if (Model.ListCensoD.Count == 0)
+        {
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h4 style="color: red" class="text-primary_asalud">SIN REGISTROS</h4>
+                </div>
+                <br />
+                <div class="col-md-12 text-center">
+                    @if (ViewBag.existeBB == 1)
+                    {
+                        <div class="col-md-12">
+
+                            <h4 class="text-primary_asalud">Existe beneficiario con periodo: @ViewBag.periodoBB</h4>
+                        </div>
+                    }
+                    else
+                    {
+
+                        <div class="col-md-12">
+                            <h4 class="text-primary_asalud">No existe beneficiario</h4>
+                        </div>
+                        <br />
+                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Tipo ingreso</label>
+                            <select id="tipoIngreso" name="tipoIngreso" class="form-control col-md-3 select2" onchange="mostrarIngreso(this.value)" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="menor">Menor</option>
+                                <option value="CE">Cédula extranjería</option>
+                                <option value="NoBene">No registra beneficiario</option>
+                            </select>
+                        </div>
+                    }
+                </div>
+                <br />
+                <br />
+                <div class="col-md-12" style="height:50px;">
+                </div>
+
+                @if (ViewBag.existeBB == 1)
+                {
+                    <div class="col-md-12 text-center" id="trCrear">
+                        <a class="btn button_Asalud_Aceptar" onclick="AgregarCenso(@Model.num_identifi_afil)">
+                            AGREGAR CENSO
+                        </a>
+                    </div>
+                }
+
+                else
+                {
+                    <div class="col-md-12 text-center" id="trCrear" style="display:none;">
+                        <a class="btn button_Asalud_Aceptar" onclick="AgregarCenso(@Model.num_identifi_afil)">
+                            AGREGAR CENSO
+                        </a>
+                    </div>
+                }
+            </div>
+            <br />
+        }
+        else
+        {
+            <table id="tabla" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Id censo</th>
+                        <th>Fecha recepción censo</th>
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Fecha ingreso</th>
+                        <th>Fecha egreso concurrencia</th>
+                        <th>Fecha egreso censo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.ListCensoD)
+                    {
+
+                    <tr>
+                        <td></td>
+                        <td class="text-right">@order.id_censo</td>
+                        @if (order.fecha_recepcion_censo != null)
+                        {
+                            <td>@order.fecha_recepcion_censo.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>@order.num_identifi_afil</td>
+                        <td>@order.nombre</td>
+                        @if (order.fecha_ingreso != null)
+                        {
+                            <td>@order.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        @if (order.fecha_egreso != null)
+                        {
+                            <td>@order.fecha_egreso.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        @if (order.fecha_egreso_censo != null)
+                        {
+                            <td>@order.fecha_egreso_censo.Value.ToString("dd/MM/yyyy")</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+
+                        @if (Convert.ToDateTime(order.fecha_recepcion_censo).AddDays(1) < DateTime.Now)
+                        {
+                            if (order.fecha_egreso != null)
+                            {
+                                <td>
+                                   <label class="text-secondary_asalud">Caso egresado</label>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <a class="btn button_Asalud_Aceptar btn-xs" href="@Url.Action("VerCenso", "Censo", new { ID= order.id_censo,ID2 = order.id_censo})">
+                                        <i class="glyphicon glyphicon-eye-open"></i>&nbsp; VER CENSO
+                                    </a>
+                                </td>
+                            }
+                        }
+                        else
+                        {
+                            <td>
+                                <a class="btn button_Asalud_Aceptar btn-xs">
+                                    <i class="glyphicon glyphicon-eye-open"></i>&nbsp; CENSO AL DÍA
+                                </a>
+                            </td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@{
+    String Habilitar = "";
+    foreach (var order2 in Model.ListCensoD)
+    {
+
+        if (order2.fecha_egreso == null)
+        {
+            if (order2.fecha_egreso_censo == null)
+            {
+                Habilitar = "NO";
+            }
+            else
+            {
+                Habilitar = "SI";
+            }
+
+        }
+        else
+        {
+            Habilitar = "SI";
+        }
+
+    }
+
+    if (Habilitar == "NO")
+    {
+        <div class="alert alert-danger">
+            <strong>ALERTA...!</strong> Existen Casos sin fecha de egreso.
+        </div>
+    }
+    else if (Habilitar == "SI")
+    {
+
+        <div class="row">
+            <div class="col-sm-1<2 text-center form-group">
+                <a class="btn button_Asalud_Guardar" href="@Url.Action("IngresoCenso", "Censo", new { ID = Model.tipo_identifi_afiliado, ID2 = Model.num_identifi_afil })">
+                    NUEVO CENSO
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+
+    }
+    <table>
+        <tr>
+            <td style="display:none">
+                @Html.TextBoxFor(u => u.num_identifi_afil)
+                @Html.TextBoxFor(u => u.tipo_identifi_afiliado)
+            </td>
+        </tr>
+    </table>
+}
+
+<script type="text/javascript">
+
+
+    $('.select2').select2({
+        width: '100%'
+    });
+
+
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function mostrarIngreso(tipo) {
+        if (tipo != null && tipo != "") {
+            document.getElementById("trCrear").style.display = "block";
+        }
+        else {
+            document.getElementById("trCrear").style.display = "none";
+        }
+    }
+
+    function AgregarCenso(ID2) {
+
+        debugger
+
+        var existebb = "@ViewBag.existeBB";
+        var tipoIngreso = $("#tipoIngreso").val();
+        var ID = "@Model.tipo_identifi_afiliado";
+
+        if (tipoIngreso != undefined) {
+
+            location.href = "@Url.Action("IngresoCenso", "Censo")?ID=" + ID + "&ID2=" + ID2 + "&BB=" + existebb + "&TI=" + tipoIngreso;
+        } else {
+            location.href = "@Url.Action("IngresoCenso", "Censo")?ID=" + ID + "&ID2=" + ID2 + "&BB=" + existebb;
+        }
+    }
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+

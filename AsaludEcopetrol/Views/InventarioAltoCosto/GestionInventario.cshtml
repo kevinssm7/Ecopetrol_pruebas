@@ -1,0 +1,2182 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.inventario_altoCosto_gestiones
+
+@{
+    ViewBag.Title = "GESTIÓN INVENTARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+    var cerrado = ViewBag.cerrado;
+    var conteoLista = ViewBag.conteoGestionadas;
+}
+
+<div class="container">
+    <input type="hidden" id="id_detalle" name="id_detalle" value="@ViewBag.idDetalle" />
+
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">INGRESO GESTIÓN</a>
+        </li>
+        @if (conteoLista > 0)
+        {
+            <li>
+                <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">CONTROL GESTIONES</a>
+            </li>
+        }
+    </ul>
+    @if (ViewBag.conteoGestionadas > 0)
+    {
+        <div>
+            <a class="button_Asalud_descargas" onclick="MostrarReporteGestionadas(@ViewBag.idDetalle);">
+                <i class="glyphicon glyphicon-save-file"></i>&nbsp; DESCARGAR REPORTE
+            </a>
+        </div>
+    }
+
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <br />
+            <div class="tab-content form-group" id="mensajeIngreso">
+                @if (rta == 2)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Error al cargar! </strong>@mensaje
+                        </div>
+                    </div>
+                }
+                else if (rta == 1)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-success" role="alert">
+                            <strong>Éxito! </strong>@mensaje
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-body">
+                        <form id="formulario" runat="Server" enctype="multipart/form-data" method="post" action="GestionInventario">
+                            <br /><br />
+                            <div class="row">
+                                <input type="hidden" id="idGestion" name="idGestion" value="@ViewBag.idGestion" />
+                                <input type="hidden" id="id_inventario" name="id_inventario" value="@ViewBag.idInventario" />
+                                <input type="hidden" id="id_detalle" name="id_detalle" value="@ViewBag.idDetalle" />
+
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de diagnóstico del cáncer reportado:</label>
+                                    <br /><br />
+                                    <br /><br />
+                                    <input class="datepickerr form-control" id="fecha_diagnostico" style="width:100%;" name="fecha_diagnostico" value="@Model.fecha_diagnostico" required />
+
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de la nota de remisión o interconsulta del médico o institución general hacia la institución o médico que hizo el diagnóstico:</label>
+                                    <input id="fecha_remision" name="fecha_remision" class="datepickerr form-control" style="width:98%;" value="@Model.fecha_remision" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de ingreso a la institución que realizó el diagnóstico luego de la remisión o interconsulta:</label>
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <input id="fecha_ingreso" name="fecha_ingreso" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_ingreso" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Tipo de estudio con el que se realizó el diagnóstico de cáncer:</label>
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <select id="tipo_estudio" name="tipo_estudio" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_estudio" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Motivo por el cual el usuario no tuvo diagnóstico por histopatología  (aplica para registros con respuesta igual a 7 en la variable anterior):</label>
+                                    <select id="motivo_no_diagnostico_usuario" name="motivo_no_diagnostico_usuario" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_no_diagnostico_usuario" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de recolección de muestra para estudio histopatológico:</label>
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <input id="fecha_recoleccion_muestra" name="fecha_recoleccion_muestra" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_recoleccion_muestra" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de primero o único informe histopatológico válido de diagnóstico:</label>
+                                    <br />
+                                    <br />
+                                    <input id="fecha_primer_informeHispatologico" name="fecha_primer_informeHispatologico" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_primer_informeHispatologico" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Código válido de habilitación de la IPS donde se realiza la confirmación diagnóstica:</label>
+                                    <br />
+                                    <br />
+                                    <select id="codigo_habillitacion_ips" name="codigo_habillitacion_ips" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_habillitacion_ips" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de primera consulta con médico tratante de la enfermedad maligna:</label>
+                                    <input id="fecha_consulta_medicoTratante" name="fecha_consulta_medicoTratante" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_consulta_medicoTratante" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Histología del tumor en muestra de biopsia o quirúrgica:</label>
+                                    <br />
+                                    <br />
+                                    <select required id="histologia_tumor" class="select2 form-control" style="width:100%;" name="histologia_tumor">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.histologia_tumor" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Grado de diferenciación del tumor sólido maligno según la biopsia o informe de primera cirugía:</label>
+                                    <select required id="grado_diferenciacion_tumor" class="select2 form-control" style="width:100%;" name="grado_diferenciacion_tumor">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.grado_diferenciacion_tumor" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Si es tumor sólido, cuál fue la primera estadificación basada en TNM, FIGO, u otras compatibles con esta numeración según tumor:</label>
+                                    <select required id="estadificacion_tnm_figo" class="select2 form-control" style="width:100%;" name="estadificacion_tnm_figo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.estadificacion_tnm_figo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha en que se realizó esta estadificación:</label>
+                                    <input class="datepickerr form-control" required id="fecha_estadificacion" style="width:100%;" name="fecha_estadificacion" value="@Model.fecha_estadificacion" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Para cáncer de mama, ¿se le realizó a este usuario la prueba HER1 (llamado también receptor 1 del factor de crecimiento epidérmico humano, también llamado erb-B1) antes del inicio del tratamiento?:</label>
+                                    <select required id="se_realiza_her1" class="select2 form-control" style="width:100%;" name="se_realiza_her1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.se_realiza_her1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Para cáncer de mama, fecha de realización de la última prueba HER1:</label>
+                                    <input class="datepickerr form-control" required id="fecha_realizacion_her1" style="width:100%;" name="fecha_realizacion_her1" value="@Model.fecha_realizacion_her1" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Para cáncer de mama, resultado de la única o última prueba HER1:</label>
+                                    <select required id="resultado_prueba_her1" class="select2 form-control" style="width:100%;" name="resultado_prueba_her1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.resultado_prueba_her1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Para cáncer colorrectal, estadificación de Dukes:</label>
+                                    <select required id="estadificacion_dukes" class="select2 form-control" style="width:100%;" name="estadificacion_dukes">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.estadificacion_dukes" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha en que se realizó la estadificación de Dukes:</label>
+                                    <input class="datepickerr form-control" required id="fecha_estadificacion_dukes" style="width:100%;" name="fecha_estadificacion_dukes" value="@Model.fecha_estadificacion_dukes" />
+                                </div>  
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Estadificación clínica  en linfoma no Hodgkin y linfoma Hodgkin adulto y pediátrico (Ann Arbor-Lugano):</label>
+                                    <select required id="estadificacion_hodkin" class="select2 form-control" style="width:100%;" name="estadificacion_hodkin">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.estadificacion_hodkin" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Para cáncer de próstata, valor de clasificación de la escala Gleason en el momento del diagnóstico:</label>
+                                    <select required id="clasificacion_escala_gleason" class="select2 form-control" style="width:100%;" name="clasificacion_escala_gleason">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.clasificacion_escala_gleason" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Clasificación de riesgo leucemias o linfomas (para toda la población), y sólidos pediátricos:</label>
+                                    <select required id="clasificacion_riesgo_leucemialinfoma" class="select2 form-control" style="width:100%;" name="clasificacion_riesgo_leucemialinfoma">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.clasificacion_riesgo_leucemialinfoma" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de clasificación de riesgo:</label>
+                                    <input class="datepickerr form-control" required id="fecha_clasificacion_riesgo" style="width:100%;" name="fecha_clasificacion_riesgo" value="@Model.fecha_clasificacion_riesgo" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Objetivo (o intención) del tratamiento médico inicial (al diagnóstico):</label>
+                                    <select required id="objetivo_tratamiento_inicial" class="select2 form-control" style="width:100%;" name="objetivo_tratamiento_inicial">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.objetivo_tratamiento_inicial" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Objetivo de la intervención médica durante el periodo de reporte:</label>
+                                    <select required id="objetivo_intervencion_periodo_prueba" class="select2 form-control" style="width:100%;" name="objetivo_intervencion_periodo_prueba">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.objetivo_intervencion_periodo_prueba" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Tiene antecedente de otro cáncer primario (es decir, tiene o tuvo otro tumor maligno diferente al que está notificando):</label>
+                                    <select required id="antecedentes_otro_cancer_primario" class="select2 form-control" style="width:100%;" name="antecedentes_otro_cancer_primario">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antecedentes_otro_cancer_primario" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Fecha de diagnóstico del otro cáncer primario:</label>
+                                    <input class="datepickerr form-control" required id="fecha_otro_cancer_primario" style="width:100%;" name="fecha_otro_cancer_primario" value="@Model.fecha_otro_cancer_primario" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Tipo (CIE-10)  de ese cáncer antecedente o concurrente:</label>
+                                    <select required id="tipo_cie10_otro_cancer" class="select2 form-control" style="width:100%;" name="tipo_cie10_otro_cancer">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_cie10_otro_cancer" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">¿Recibió el usuario quimioterapia u otra terapia sistémica (incluye quimioterapia, hormonoterapia, inmunoterapia y terapia dirigida) dentro del periodo de reporte?:</label>
+                                    <select required id="usuario_recibio_quimioterapia" class="select2 form-control" style="width:100%;" name="usuario_recibio_quimioterapia">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_quimioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Cuántas fases de quimioterapia recibió el usuario en este periodo de reporte? (aplica para
+                                        hemato linfáticos con los siguientes códigos de clasificación diagnóstica CIE-10; C835 Linfoma no
+                                        Hodgkin linfoblástico (difuso), C910 Leucemia linfoblástica aguda, C910 Leucemia mieloide aguda,
+                                        C914 Leucemia promielocítica aguda y C915 Leucemia mielomonocítica aguda):
+                                    </label>
+                                    <select required id="cuantas_quimioterapias_recibioUsuario" class="select2 form-control" style="width:100%;" name="cuantas_quimioterapias_recibioUsuario">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.cuantas_quimioterapias_recibioUsuario" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Prefase o
+                                        Citorreducción inicial (aplica solo para leucemia linfoide aguda y linfoma linfoblástico, puede
+                                        haber recibido más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_citorreduccion" class="select2 form-control" style="width:100%;" name="usuario_recibio_citorreduccion">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_citorreduccion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Inducción (aplica
+                                        solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede haber recibido más de
+                                        una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_induccion" class="select2 form-control" style="width:100%;" name="usuario_recibio_induccion">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_induccion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Intensificación
+                                        (aplica solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede haber recibido
+                                        más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_intensificacion" class="select2 form-control" style="width:100%;" name="usuario_recibio_intensificacion">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_intensificacion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Consolidación (aplica
+                                        solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede haber recibido más de
+                                        una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_consolidacion" class="select2 form-control" style="width:100%;" name="usuario_recibio_consolidacion">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_intensificacion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Reinducción (aplica
+                                        solo para leucemia linfoide aguda y linfoma linfoblástico, puede haber recibido más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_reinduccion" class="select2 form-control" style="width:100%;" name="usuario_recibio_reinduccion">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_reinduccion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Mantenimiento
+                                        (aplica solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede haber recibido
+                                        más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_mantenimiento" class="select2 form-control" style="width:100%;" name="usuario_recibio_mantenimiento">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_mantenimiento" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo la fase de quimioterapia denominada Mantenimiento
+                                        largo o final (aplica solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede
+                                        haber recibido más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_mantenimiento_largo" class="select2 form-control" style="width:100%;" name="usuario_recibio_mantenimiento_largo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_mantenimiento_largo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió en este periodo Otra fase de quimioterapia denominada diferente a las
+                                        anteriores (aplica solo para leucemia linfoide o mieloide aguda y linfoma linfoblástico, puede
+                                        haber recibido más de una fase):
+                                    </label>
+                                    <select required id="usuario_recibio_otra_fase" class="select2 form-control" style="width:100%;" name="usuario_recibio_otra_fase">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibio_otra_fase" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de ciclos iniciados y administrados en el periodo de reporte, incluyendo  el que aún recibe en la fecha de finalización del periodo (aplica para todos los canceres):
+                                    </label>
+                                    <select required id="numero_ciclos_iniciados" class="select2 form-control" style="width:100%;" name="numero_ciclos_iniciados">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numero_ciclos_iniciados" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal del primer o único esquema de quimioterapia o terapia sistémica en el
+                                        periodo en relación al manejo oncológico:
+                                    </label>
+                                    <select required id="ubicacion_temporal_esquema_quimioterapia" class="select2 form-control" style="width:100%;" name="ubicacion_temporal_esquema_quimioterapia">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicacion_temporal_esquema_quimioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de inicio del primer o único esquema de quimioterapia o terapia sistémica que recibió
+                                        en este periodo. Este esquema pudo haber sido iniciado antes de periodo de reporte
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fechaInicio_temporal_esquema_quimioterapia1" style="width:100%;" name="fechaInicio_temporal_esquema_quimioterapia1" value="@Model.fechaInicio_temporal_esquema_quimioterapia1" />
+                                </div>
+
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de IPS que suministran el primer o único esquema de quimioterapia o terapia
+                                        sistémica de este periodo de reporte:
+                                    </label>
+                                    <select required id="numero_ips" class="select2 form-control" style="width:100%;" name="numero_ips">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.fechaInicio_temporal_esquema_quimioterapia1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS1 que suministra el primer o único esquema de quimioterapia o terapia sistémica de este periodo de reporte:
+                                    </label>
+                                    <select required id="codigo_ips1" class="select2 form-control" style="width:100%;" name="codigo_ips1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS2 que suministra el primer o único esquema de quimioterapia o terapia sistémica de este periodo de reporte:
+                                    </label>
+                                    <select required id="codigo_ips2" class="select2 form-control" style="width:100%;" name="codigo_ips2">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Cuantos medicamentos antineoplásicos o terapia hormonal, el (los) especialista(s) tratante(s) del cáncer propusieron como manejo en el  primer o único esquema de quimioterapia o terapia sistémica de este periodo de reporte:
+                                    </label>
+                                    <select required id="cuantos_medicamentos_neoplasicos" class="select2 form-control" style="width:100%;" name="cuantos_medicamentos_neoplasicos">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.cuantos_medicamentos_neoplasicos" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        1 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_1" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        2 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_2" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_2">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        3 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_3" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_3">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_3" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        4 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_4" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_4">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_4" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        5 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_5" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_5">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_5" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        En este primer ciclo el usuario recibió Ciclosporina (puede haber recibido más de un medicamento):
+                                    </label>
+                                    <select required id="recibio_ciclosporina" class="select2 form-control" style="width:100%;" name="recibio_ciclosporina">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.recibio_ciclosporina" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        7 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_7" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_7">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_7" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        8 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_8" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_8">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_8" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        9 Medicamento antineoplásico administrado al usuario- PRIMER o único esquema del
+                                        periodo de reporte:
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_9" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_9">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_9" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para el cáncer, adicional a los reportados en
+                                        las variables 53.1 a 53.9 - 1 administrado al usuario- primer o único esquema del periodo de
+                                        reporte
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_adicional_1" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_adicional_1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_adicional_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para el cáncer, adicional a los reportados en
+                                        las variables 53.1 a 53.9 - 1 administrado al usuario- primer o único esquema del periodo de
+                                        reporte
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_adicional_2" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_adicional_2">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_adicional_2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para el cáncer, adicional a los reportados en
+                                        las variables 53.1 a 53.9 - 3 administrado al usuario- primer o único esquema del periodo de
+                                        reporte
+                                    </label>
+                                    <select required id="medicamento_antineoplasico_suministrado_adicional_3" class="select2 form-control" style="width:100%;" name="medicamento_antineoplasico_suministrado_adicional_3">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.medicamento_antineoplasico_suministrado_adicional_3" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Recibió quimioterapia intratecal en el primer o único esquema de este periodo de reporte?:
+                                    </label>
+                                    <select required id="recibio_quimioterapia_intratecal" class="select2 form-control" style="width:100%;" name="recibio_quimioterapia_intratecal">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.recibio_quimioterapia_intratecal" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de finalización del primer o único esquema de este periodo de reporte. Si es
+                                        hormonoterapia terminada o esquema terminado en este periodo reporte la fecha de finalización
+                                        del tratamiento actual:
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fecha_finalizacion_periodo_reporte" style="width:100%;" name="fecha_finalizacion_periodo_reporte" value="@Model.fecha_finalizacion_periodo_reporte" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Características actuales del primer o único esquema  de este periodo de reporte:
+                                    </label>
+                                    <select required id="caracteristicas_actuales_esquema_periodo" class="select2 form-control" style="width:100%;" name="caracteristicas_actuales_esquema_periodo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.caracteristicas_actuales_esquema_periodo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Motivo de la finalización (prematura) de este primer o único esquema (Aplica si registró la
+                                        opción 1 de la variable anterior). Seleccione un sólo número (lo que primero ocurrió):
+                                    </label>
+                                    <select required id="motivo_finalizacion_prematura" class="select2 form-control" style="width:100%;" name="motivo_finalizacion_prematura">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_finalizacion_prematura" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal del ÚLTIMO esquema de quimioterapia o terapia sistémica de este
+                                        periodo de reporte en relación al manejo oncológico:
+                                    </label>
+                                    <select required id="ubicacion_temporal_ultimoesquema" class="select2 form-control" style="width:100%;" name="ubicacion_temporal_ultimoesquema">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicaciontemporal_manejooncologico_ultimacirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de inicio del último esquema de quimioterapia o terapia sistémica de este periodo de
+                                        reporte. Si es hormonoterapia reporte la fecha de inicio del tratamiento actual, así haya sido
+                                        iniciada previo al reporte actual:
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fecha_inicio_ultimo_esquema" style="width:100%;" name="fecha_inicio_ultimo_esquema" value="@Model.fecha_inicio_ultimo_esquema" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de IPS que suministran el último esquema de este periodo de reporte:
+                                    </label>
+                                    <select required id="numero_ips_suministra_ultimoesquema" class="select2 form-control" style="width:100%;" name="numero_ips_suministra_ultimoesquema">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numero_ips_suministra_ultimoesquema" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de IPS1 que suministra el último esquema en este  periodo de reporte:
+                                    </label>
+                                    <select required id="codigo_ips_suministra_ultimoesquema_1" class="select2 form-control" style="width:100%;" name="codigo_ips_suministra_ultimoesquema_1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_suministra_ultimoesquema_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de IPS1 que suministran el último esquema en este  periodo de reporte:
+                                    </label>
+                                    <select required id="codigo_ips_suministra_ultimoesquema_2" class="select2 form-control" style="width:100%;" name="codigo_ips_suministra_ultimoesquema_2">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_suministra_ultimoesquema_2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Cuantos medicamentos antineoplásicos o terapia hormonal, el (los) especialista(s) tratante(s) del cáncer propusieron como manejo en  último esquema de quimioterapia o terapia sistémica de este periodo de reporte:
+                                    </label>
+                                    <select required id="cuantos_tratamientos_antineoplasicos_propusieron" class="select2 form-control" style="width:100%;" name="cuantos_tratamientos_antineoplasicos_propusieron">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.cuantos_tratamientos_antineoplasicos_propusieron" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        1 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_1" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        2 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select id="antineoplasico_administradoUsuario_ultimoesquema_2" name="antineoplasico_administradoUsuario_ultimoesquema_2" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_3" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        3 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_3" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_3">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_3" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        4 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_4" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_4">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_4" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        5 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_5" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_5">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_5" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        6 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_6" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_6">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_6" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        7 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_7" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_7">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_7" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        8 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_8" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_8">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_8" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        9 Medicamento antineoplásico administrado al usuario - ULTIMO esquema del periodo de reporte:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_9" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_9">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_9" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para cáncer, adicional a los reportados en
+                                        variables 66.1 a 66.9 -1 administrado al usuario- último esquema:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_adicional_1" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_adicional_1">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_adicional_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para cáncer, adicional a los reportados en
+                                        variables 66.1 a 66.9 -1 administrado al usuario- último esquema:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_adicional_2" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_adicional_2">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_adicional_2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Medicamento Antineoplásico o terapia hormonal para cáncer, adicional a los reportados en
+                                        variables 66.1 a 66.9 -3 administrado al usuario- último esquema:
+                                    </label>
+                                    <select required id="antineoplasico_administradoUsuario_ultimoesquema_adicional_3" class="select2 form-control" style="width:100%;" name="antineoplasico_administradoUsuario_ultimoesquema_adicional_3">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.antineoplasico_administradoUsuario_ultimoesquema_adicional_3" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Recibió quimioterapia intratecal en el último esquema de este periodo de reporte?:
+                                    </label>
+                                    <select required id="recibio_terapiaIntratecal_ultimoperiodo" class="select2 form-control" style="width:100%;" name="recibio_terapiaIntratecal_ultimoperiodo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.recibio_terapiaIntratecal_ultimoperiodo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de finalización del último esquema de quimioterapia o terapia sistémica este periodo de reporte. Si es hormonoterapia terminada o esquema terminado en este periodo,  reporte la fecha de finalización del tratamiento actual:
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fecha_finalizacionUltimoEsquema_quimioterapia_terapiasistemica" style="width:100%;" name="fecha_finalizacionUltimoEsquema_quimioterapia_terapiasistemica" value="@Model.fecha_finalizacionUltimoEsquema_quimioterapia_terapiasistemica" />
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Características actuales del último  esquema  de este periodo:
+                                    </label>
+                                    <select required id="caracteristicas_actuales_ultimoPeriodo" class="select2 form-control" style="width:100%;" name="caracteristicas_actuales_ultimoPeriodo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.caracteristicas_actuales_ultimoPeriodo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Motivo de la finalización (prematura) de este último esquema  (Aplica si registró la opción 1 de la pregunta anterior) Selecciona un sólo número (lo que primero ocurrió):
+                                    </label>
+                                    <select required id="motivo_fializacionPrematura_ultimoEsquema" class="select2 form-control" style="width:100%;" name="motivo_fializacionPrematura_ultimoEsquema">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_fializacionPrematura_ultimoEsquema" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Fue sometido el usuario a una o más cirugías curativas o paliativas como parte del manejo del cáncer durante este periodo de reporte?:
+                                    </label>
+                                    <select required id="usuario_sometidoa_cirugias_paliativasCurativas" class="select2 form-control" style="width:100%;" name="usuario_sometidoa_cirugias_paliativasCurativas">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_sometidoa_cirugias_paliativasCurativas" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de cirugías a las que fue sometido el usuario durante el periodo de reporte actual
+                                    </label>
+                                    <select required id="numeroCirugias_sometidoUsuario_ultimo" class="select2 form-control" style="width:100%;" name="numeroCirugias_sometidoUsuario_ultimo">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numeroCirugias_sometidoUsuario_ultimo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de realización de la primera cirugía en este periodo de  reporte:
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fecha_realizacionprimeracirugia_periodoreporte" style="width:100%;" name="fecha_realizacionprimeracirugia_periodoreporte" value="@Model.fecha_realizacionprimeracirugia_periodoreporte" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS  que realizó la primera cirugía de este periodo de reporte:
+                                    </label>
+                                    <select required id="codigo_ips_realizo_primercirugia" class="select2 form-control" style="width:100%;" name="codigo_ips_realizo_primercirugia">
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_realizo_primercirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de primera cirugía en este periodo de reporte:
+                                    </label>
+                                    <select id="codigo_primeracirugia_periodoactual" name="codigo_primeracirugia_periodoactual" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_primeracirugia_periodoactual" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal de esta primera cirugía en relación al manejo oncológico:
+                                    </label>
+                                    <select id="ubicaciontemporal_manejo_oncologico_primeraCirugia" name="ubicaciontemporal_manejo_oncologico_primeraCirugia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicaciontemporal_manejo_oncologico_primeraCirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de realización de la última cirugía o última cirugía de reintervención de este periodo de reporte:
+                                    </label>
+                                    <input class="datepickerr form-control" required id="fecharealizacion_ultimacirugia_reintervencion" style="width:100%;" name="fecharealizacion_ultimacirugia_reintervencion" value="@Model.fecharealizacion_ultimacirugia_reintervencion" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Motivo de haber realizado la última cirugía de este periodo de reporte:
+                                    </label>
+                                    <select id="motivo_ultimacirugia" name="motivo_ultimacirugia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_ultimacirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS  que realiza la última cirugía del periodo de reporte:
+                                    </label>
+                                    <select id="codigo_ips_realizo_ultimacirugia" name="codigo_ips_realizo_ultimacirugia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_realizo_ultimacirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de última cirugía de este periodo de reporte:
+                                    </label>
+                                    <select id="codigo_ultimacirugia_periodoactual" name="codigo_ultimacirugia_periodoactual" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ultimacirugia_periodoactual" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal de esta última cirugía en relación al manejo oncológico, en este periodo de reporte:
+                                    </label>
+                                    <select id="ubicaciontemporal_manejooncologico_ultimacirugia" name="ubicaciontemporal_manejooncologico_ultimacirugia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicaciontemporal_manejooncologico_ultimacirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Estado vital al finalizar la única o última cirugía de este periodo de reporte:
+                                    </label>
+                                    <select id="estadovital_finalizarultimacirugia" name="estadovital_finalizarultimacirugia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.estadovital_finalizarultimacirugia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Recibió el usuario algún tipo de radioterapia en el periodo de reporte actual?:
+                                    </label>
+                                    <select id="usuariorecibio_radioterapia_periodoreporte_actual" name="usuariorecibio_radioterapia_periodoreporte_actual" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuariorecibio_radioterapia_periodoreporte_actual" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de sesiones de radioterapia recibidas  en el periodo:
+                                    </label>
+                                    <select id="numero_sesionesradioterapia_recibidas_periodo" name="numero_sesionesradioterapia_recibidas_periodo" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numero_sesionesradioterapia_recibidas_periodo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de inicio de primer o único esquema de cualquier tipo de radioterapia suministrado en
+                                        el periodo de reporte actual. Reporte la fecha de inicio del tratamiento actual, así haya sido
+                                        iniciada previo al reporte actual:
+                                    </label>
+                                    @*<input id="fechaInicio_primerounicoesquema_tiporadioterapia" name="fecha_ingreso" class="datepickerr form-control" style="width:100%;" required />*@
+                                    <input class="datepickerr form-control" required id="fechaInicio_primerounicoesquema_tiporadioterapia" style="width:100%;" name="fechaInicio_primerounicoesquema_tiporadioterapia" value="@Model.fechaInicio_primerounicoesquema_tiporadioterapia" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal del primer o único esquema de cualquier tipo de radioterapia en el periodo de reporte en relación al tratamiento oncológico:
+                                    </label>
+                                    <select id="ubicaciontemporal_primerunico_esquemaradioterapia_tratamientoOncologico" name="ubicaciontemporal_primerunico_esquemaradioterapia_tratamientoOncologico" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicaciontemporal_primerunico_esquemaradioterapia_tratamientoOncologico" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Tipo de radioterapia aplicada en este primer o único esquema:
+                                    </label>
+                                    <select id="tipo_radioterapia_aplicada_primeresquema" name="tipo_radioterapia_aplicada_primeresquema" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_radioterapia_aplicada_primeresquema" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de IPS que suministran este primer o único esquema de radioterapia:
+                                    </label>
+                                    <select id="numeroips_suministranprimeresquema_radioterapia" name="numeroips_suministranprimeresquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numeroips_suministranprimeresquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS1 que suministra la radioterapia de este primer o único esquema:
+                                    </label>
+                                    <select id="codigo_ips1_suministraprimeresquema_radioterapia_1" name="codigo_ips1_suministraprimeresquema_radioterapia_1" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips1_suministraprimeresquema_radioterapia_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS1 que suministra la radioterapia de este primer o único esquema:
+                                    </label>
+                                    <select id="codigo_ips1_suministraprimeresquema_radioterapia_2" name="codigo_ips1_suministraprimeresquema_radioterapia_2" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips1_suministraprimeresquema_radioterapia_2" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de finalización de primer o único esquema de radioterapia:
+                                    </label>
+                                    <input id="fecha_finalizacion_primeresquema_radioterapia" name="fecha_finalizacion_primeresquema_radioterapia" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_finalizacion_primeresquema_radioterapia" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Características actuales de este primer o único esquema de radioterapia:
+                                    </label>
+                                    <select id="caracteristicas_actuales_primeresquema_radioterapia" name="caracteristicas_actuales_primeresquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.caracteristicas_actuales_primeresquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <br /><br />
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Motivo de la finalización de este primer o único esquema de radioterapia (Aplica si registró la opción 1 de la pregunta anterior) Selecciona un sólo número (lo que primero ocurrió):
+                                    </label>
+                                    <select id="motivo_fianlizacionprimeresquema_radioterapia" name="motivo_fianlizacionprimeresquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_fianlizacionprimeresquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de inicio del último esquema de cualquier tipo de radioterapia suministrado en el periodo de reporte actual:
+                                    </label>
+                                    <input id="fechaInicio_ultimounicoesquema_tiporadioterapia" name="fechaInicio_ultimounicoesquema_tiporadioterapia" class="datepickerr form-control" style="width:100%;" value="@Model.fechaInicio_ultimounicoesquema_tiporadioterapia" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal/intención del ÚLTIMO esquema de cualquier tipo de radioterapia
+                                        suministrado en el periodo actual en relación al tratamiento oncológico:
+                                    </label>
+                                    <select id="ubicaciontemporal_ultimounico_esquemaradioterapia_tratamientoOncologico" name="ubicaciontemporal_ultimounico_esquemaradioterapia_tratamientoOncologico" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicaciontemporal_ultimounico_esquemaradioterapia_tratamientoOncologico" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Tipo de radioterapia aplicada en el ÚLTIMO esquema de cualquier tipo de radioterapia
+                                        suministrado en el periodo de reporte actual:
+                                    </label>
+                                    <select id="tipo_radioterapia_aplicada_ultimoesquema" name="tipo_radioterapia_aplicada_ultimoesquema" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_radioterapia_aplicada_ultimoesquema" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Número de IPS que suministran este último esquema de cualquier tipo de radioterapia en el
+                                        periodo de reporte actual:
+                                    </label>
+                                    <select id="numeroips_suministranultimoesquema_radioterapia" name="numeroips_suministranultimoesquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.numeroips_suministranultimoesquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS1 que suministra último esquema de cualquier tipo de radioterapia en el
+                                        periodo de reporte actual:
+                                    </label>
+                                    <select id="codigo_ips1_suministraultimoesquema_radioterapia_1" name="codigo_ips1_suministraultimoesquema_radioterapia_1" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips1_suministraultimoesquema_radioterapia_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS1 que suministra último esquema de cualquier tipo de radioterapia en el periodo de reporte actual:
+                                    </label>
+                                    <select id="codigo_ips1_suministraultimoesquema_radioterapia_2" name="codigo_ips1_suministraultimoesquema_radioterapia_2" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips1_suministraultimoesquema_radioterapia_1" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de finalización del último esquema de cualquier tipo de radioterapia suministrado en el periodo de reporte actual:
+                                    </label>
+                                    <input id="fecha_finalizacion_ultimoesquema_radioterapia" name="fecha_finalizacion_ultimoesquema_radioterapia" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_finalizacion_ultimoesquema_radioterapia" required />
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Características actuales de este último esquema de cualquier tipo de radioterapia suministrado en el periodo de reporte actual:
+                                    </label>
+                                    <select id="caracteristicasactuales_ultimoesquema_radioterapia" name="caracteristicasactuales_ultimoesquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.caracteristicasactuales_ultimoesquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Motivo de la finalización de este último esquema de cualquier tipo de radioterapia suministrado en el periodo de reporte actual  (Aplica si registró la opción 1 de la pregunta anterior) Selecciona un sólo número (lo que primero ocurrió):
+                                    </label>
+                                    <select id="motivo_fianlizacionultimoesquema_radioterapia" name="motivo_fianlizacionultimoesquema_radioterapia" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.motivo_fianlizacionultimoesquema_radioterapia" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Recibió el usuario trasplante de células progenitoras hematopoyética dentro del periodo de reporte actual?:
+                                    </label>
+                                    <select id="recibiousuario_transplantecelulas_progenitorashematopoyetica_periodoactual" name="recibiousuario_transplantecelulas_progenitorashematopoyetica_periodoactual" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.recibiousuario_transplantecelulas_progenitorashematopoyetica_periodoactual" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Tipo de trasplante recibido:
+                                    </label>
+                                    <select id="tipo_transplante_recibido" name="tipo_transplante_recibido" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_transplante_recibido" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Ubicación temporal de este trasplante en relación al manejo oncológico:
+                                    </label>
+                                    <select id="ubicacion_temporal_transplante_relaciononcologico" name="ubicacion_temporal_transplante_relaciononcologico" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.ubicacion_temporal_transplante_relaciononcologico" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de trasplante:
+                                    </label>
+                                    <input id="fecha_transplante" name="fecha_transplante" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_transplante" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS que realizó este trasplante:
+                                    </label>
+                                    <select id="codigo_ips_realizo_transplante" name="codigo_ips_realizo_transplante" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_realizo_transplante" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario, ¿recibió cirugía reconstructiva en el periodo de reporte actual?:
+                                    </label>
+                                    <select id="usuario_recibiocirugia_reconstructiva_periodoactual" name="usuario_recibiocirugia_reconstructiva_periodoactual" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibiocirugia_reconstructiva_periodoactual" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de la cirugía reconstructiva:
+                                    </label>
+                                    <input id="fecha_cirugia_reconstructiva" name="fecha_cirugia_reconstructiva" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_cirugia_reconstructiva" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS que realizó cirugía reconstructiva:
+                                    </label>
+                                    <select id="codigo_ips_realizocirugia_reconstructiva" name="codigo_ips_realizocirugia_reconstructiva" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_realizocirugia_reconstructiva" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿El usuario fue valorado en consulta o procedimiento de cuidado paliativo en el periodo de reporte actual? (pueden haber sido múltiples):
+                                    </label>
+                                    <select id="usuario_valoradoconsulta_procedimientocuidado_paliativo" name="usuario_valoradoconsulta_procedimientocuidado_paliativo" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoconsulta_procedimientocuidado_paliativo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por médico especialista en cuidado paliativo:
+                                    </label>
+                                    <select id="usuario_valoradoconsulta_procedimientocuidado_paliativo_medicoespecialista" name="usuario_valoradoconsulta_procedimientocuidado_paliativo_medicoespecialista" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoconsulta_procedimientocuidado_paliativo_medicoespecialista" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <br /><br />  <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por profesional de la salud (no médico, incluye psicólogo) especialista en cuidado paliativo:
+                                    </label>
+                                    <select id="usuario_valoradoconsulta_procedimientocuidado_paliativo_nomedico" name="usuario_valoradoconsulta_procedimientocuidado_paliativo_nomedico" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoconsulta_procedimientocuidado_paliativo_nomedico" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por médico especialista, otra especialidad:
+                                    </label>
+                                    <select id="usuario_valoradoconsulta_procedimientocuidado_paliativo_otraespecialidad" name="usuario_valoradoconsulta_procedimientocuidado_paliativo_otraespecialidad" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoconsulta_procedimientocuidado_paliativo_otraespecialidad" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por médico general:
+                                    </label>
+                                    <select id="usuario_recibioconsulta_procedimiento_cuidadopaliativo_medicogeneral" name="usuario_recibioconsulta_procedimiento_cuidadopaliativo_medicogeneral" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibioconsulta_procedimiento_cuidadopaliativo_medicogeneral" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por trabajo social:
+                                    </label>
+                                    <select id="usuario_recibioconsulta_procedimiento_cuidadopaliativo_trabajosocial" name="usuario_recibioconsulta_procedimiento_cuidadopaliativo_trabajosocial" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibioconsulta_procedimiento_cuidadopaliativo_trabajosocial" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        El usuario recibió consulta o procedimiento de cuidado paliativo en el periodo de reporte actual, por otro profesional de salud (no médico, incluye psicólogo) no especializado:
+                                    </label>
+                                    <select id="usuario_recibioconsulta_procedimiento_cuidadopaliativo_otroprofesional" name="usuario_recibioconsulta_procedimiento_cuidadopaliativo_otroprofesional" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibioconsulta_procedimiento_cuidadopaliativo_otroprofesional" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de primera consulta o procedimiento de cuidado paliativo en el periodo de reporte actual:
+                                    </label>
+                                    <input id="fecha_primeraconsulta_procedimientocuidado_paliativo" name="fecha_primeraconsulta_procedimientocuidado_paliativo" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_primeraconsulta_procedimientocuidado_paliativo" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS donde recibe la atención  de cuidado paliativo en el periodo de reporte actual:
+                                    </label>
+                                    <select id="codigo_ips__recibeatencion_cuidadopaliativo" name="codigo_ips__recibeatencion_cuidadopaliativo" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips__recibeatencion_cuidadopaliativo" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Ha sido valorado el usuario por el servicio de psiquiatría en el periodo de reporte actual?:
+                                    </label>
+                                    <select id="usuario_valoradoservicio_psiquiatria" name="usuario_valoradoservicio_psiquiatria" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoservicio_psiquiatria" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de primera consulta con el servicio de psiquiatría (para todos los usuarios) en este periodo de reporte actual:
+                                    </label>
+                                    <input id="fecha_primeraconsulta_serviciopsiquiatria" name="fecha_primeraconsulta_serviciopsiquiatria" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_primeraconsulta_serviciopsiquiatria" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS  donde recibió la primera valoración de psiquiatría en el periodo de reporte actual:
+                                    </label>
+                                    <select id="codigo_ipsdonde_recibeprimeravaloracion_psiquiatria" name="codigo_ipsdonde_recibeprimeravaloracion_psiquiatria" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ipsdonde_recibeprimeravaloracion_psiquiatria" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿Fue valorado el usuario por profesional en 120, nutrición en el periodo de reporte actual?:
+                                    </label>
+                                    <select id="usuario_valoradoporprofesional_120_nutricion" name="usuario_valoradoporprofesional_120_nutricion" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_valoradoporprofesional_120_nutricion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de consulta inicial con nutrición en el periodo de reporte actual:
+                                    </label>
+                                    <input id="fecha_consultaInicial_nutricion" name="fecha_consultaInicial_nutricion" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_consultaInicial_nutricion" required />
+                                </div>
+
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código de la IPS donde recibió la valoración por nutrición, en el periodo de reporte actual:
+                                    </label>
+                                    <select id="codigo_ips_recibevaloracion_nutricion" name="codigo_ips_recibevaloracion_nutricion" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_ips_recibevaloracion_nutricion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿El usuario recibió soporte nutricional?:
+                                    </label>
+                                    <select id="usuario_recibiosoporte_nutricional" name="usuario_recibiosoporte_nutricional" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibiosoporte_nutricional" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        ¿El usuario ha recibido terapias complementarias para su rehabilitación?:
+                                    </label>
+                                    <select id="usuario_recibeterapias_complementarias_rehabilitacion" name="usuario_recibeterapias_complementarias_rehabilitacion" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.usuario_recibeterapias_complementarias_rehabilitacion" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Tipo de tratamiento que está recibiendo el usuario a la fecha de corte (el día 01/01/1011):
+                                    </label>
+                                    <select id="tipo_tratamiento_estarecibiendo_usuario" name="tipo_tratamiento_estarecibiendo_usuario" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.tipo_tratamiento_estarecibiendo_usuario" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Resultado final del manejo oncológico en este periodo de reporte, luego de ser tratado en este periodo el usuario está:
+                                    </label>
+                                    <select id="resultadofinal_resultadooncologico_usuarioesta" name="resultadofinal_resultadooncologico_usuarioesta" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.resultadofinal_resultadooncologico_usuarioesta" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Estado vital al finalizar este periodo de reporte:
+                                    </label>
+                                    <select id="estadovital_periodoreporte" name="estadovital_periodoreporte" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.estadovital_periodoreporte" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Novedad ADMINISTRATIVA del usuario respecto al reporte anterior:
+                                    </label>
+                                    <select id="novedadadministrativa_usuariorespectoreporteanterior" name="novedadadministrativa_usuariorespectoreporteanterior" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.novedadadministrativa_usuariorespectoreporteanterior" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Novedad clínica  del usuario a la fecha de corte:
+                                    </label>
+                                    <select id="novedadclinica_usuario_afechacorte" name="novedadclinica_usuario_afechacorte" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.novedadclinica_usuario_afechacorte" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de desafiliación de la EAPB:
+                                    </label>
+                                    <input id="fecha_desafiliacion_EAPB" name="fecha_desafiliacion_EAPB" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_desafiliacion_EAPB" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de muerte:
+                                    </label>
+                                    <input id="fecha_muerte" name="fecha_muerte" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_muerte" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Causa de muerte:
+                                    </label>
+                                    <select id="causa_muerte" name="causa_muerte" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.causa_muerte" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Código único de identificación (BDUA-BDEX-PVS):
+                                    </label>
+                                    <select id="codigo_unico_identificacion_BDUA_BDEX_PVS" name="codigo_unico_identificacion_BDUA_BDEX_PVS" class="select2 form-control" style="width:100%;" required>
+                                        <option value="">--Seleccione--</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_inventario_altoCostoCancer_atc item in ViewBag.atc)
+                                        {
+                                            <option selected="@Model.codigo_unico_identificacion_BDUA_BDEX_PVS" value="@item.codigo_atc">@item.codigo_atc - @item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <br /><br />
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Fecha de Corte:
+                                    </label>
+                                    <input id="fecha_corte" name="fecha_corte" class="datepickerr form-control" style="width:100%;" value="@Model.fecha_corte" required />
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="text-secondary_asalud">
+                                        Adjuntar archivos:
+                                    </label>
+                                    <input type="file" class="form-control" id="file" name="file" runat="server" multiple />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">
+                                        Se cierra:
+                                    </label>
+
+                                    @if (cerrado != 1)
+                                    {
+                                        <label style="text-align:left">Si</label>
+                                        <input type="radio" id="opcion" value="si" name="opcion" onclick="validacionSiNo(this.value);" required />
+                                        <label style="text-align:left">No</label>
+                                        <input type="radio" id="opcion" value="no" name="opcion" onclick="validacionSiNo(this.value);" checked />
+                                    }
+                                    else
+                                    {
+                                        <label style="text-align:left">Si</label>
+                                        <input type="radio" id="opcion" value="si" name="opcion" onclick="validacionSiNo(this.value);" required checked />
+                                        <label style="text-align:left">No</label>
+                                        <input type="radio" id="opcion" value="no" name="opcion" onclick="validacionSiNo(this.value);" />
+                                    }
+
+                                    <input type="hidden" id="cerrado" name="cerrado" />
+                                    <input type="hidden" id="valorOculto" name="valorOculto" value="@Model.cerrado" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label class="text-secondary_asalud">
+                                        Observaciones:
+                                    </label>
+                                    <textarea class="form-control" id="observaciones" name="observaciones" cols="5" rows="5" style="width:100%;" value="@Model.observaciones" maxlength="499" required></textarea>
+                                    <input type="hidden" id="observacionesOculto" name="observacionesOculto" value="@Model.observaciones" />
+                                </div>
+                            </div>
+                            <br /><br />
+                            <br /><br />
+
+                            @if (cerrado != 1)
+                            {
+                                <div class="row text-center">
+                                    <button type="button" class="btn button_Asalud_Guardar" id="btnGuardar">GUARDAR</button>
+                                </div>
+                            }
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="tab-pane" id="2a">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-body">
+                        <table class="tableDatos table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableDatos">
+                            <thead>
+                                <tr>
+                                    <th>Id gestión</th>
+                                    <th>Fecha diagnóstico</th>
+                                    <th>Fecha remisión</th>
+                                    <th>Fecha recolección muestra</th>
+                                    <th>Fecha primer informe hispatológico</th>
+                                    <th>Fecha consulta medico tratante</th>
+                                    <th>Gestión</th>
+                                    <th>Archivos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoGestionadas > 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.inventario_altoCosto_gestiones item in ViewBag.listaGestionadas)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>@item.fecha_diagnostico.Value.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.fecha_remision.Value.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.fecha_recoleccion_muestra.Value.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.fecha_primer_informeHispatologico.Value.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.fecha_consulta_medicoTratante.Value.ToString("dd/MM/yyyy")</td>
+                                            <td class="text-center">
+                                                @*<a href="@Url.Action("GestionInventario","InventarioAltoCosto",new { idGestion = item.id_gestion, idDetalle = item.id_detalle, idInventario = item.id_inventario})">
+                                                        <i class="glyphicon glyphicon-eye-close"></i>&nbsp; Validar
+                                                    </a>*@
+
+                                                <a class="button_Asalud_Aceptar" href="@Url.Action("GestionInventario","InventarioAltoCosto",new { idGestion = item.id_gestion, idDetalle = item.id_detalle, idInventario = item.id_inventario})">
+                                                    <i class="glyphicon glyphicon-eye-close"></i>&nbsp; Validar
+                                                </a>
+                                            </td>
+                                            <td class="text-center">
+                                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@item.id_gestion, @item.id_detalle);">
+                                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="14" style="text-align:center; font-size:14px">SIN REGISTROS</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        validacionesIniciales();
+
+        //$(".select2").val("A07EA01");
+        //$(".select2").change();
+
+        //$(".datepickerr").val('02/24/2023');
+        //$(".datepickerr").change();
+
+        var respuesta = @rta;
+
+        if (respuesta == 1) {
+            setTimeout(function () {
+                $("#mensajeIngreso").fadeOut(1500);
+            }, 10000);
+        }
+
+        MostrarTabla();
+
+    });
+
+    function MostrarTabla() {
+        var conteo = @conteoLista;
+        if (conteo > 0) {
+
+            $('.tableDatos').DataTable().destroy();
+            $('.tableDatos').DataTable({
+                "searching": true,
+                "idisplaylength": 15,
+                "lengthchange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    processing: "procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "mostrar menu registros",
+                    info: "mostrando registros del start al end de un total de total registros",
+                    infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(filtrado de un total de max registros)",
+                    infopostfix: "",
+                    loadingrecords: "cargando...",
+                    zerorecords: "no se encontraron resultados",
+                    emptytable: "ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "primero",
+                        previous: "anterior",
+                        next: "siguiente",
+                        last: "último",
+                    },
+                }
+            });
+        }
+    }
+
+    function validacionesIniciales() {
+
+        var observaciones = $("#observacionesOculto").val();
+        if (observaciones != "" && observaciones != null) {
+            document.getElementById("observaciones").innerHTML = observaciones;
+        }
+
+        var valor = $("#valorOculto").val();
+
+        if (valor != "" && valor != null) {
+            validacionSiNo(valor);
+        }
+    }
+
+    function validacionSiNo(valor) {
+
+        if (valor == "si") {
+            $("#cerrado").val(1);
+        } else {
+            $("#cerrado").val(0);
+        }
+    }
+
+    $("#btnGuardar").click(function () {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    });
+
+
+    function MostrarArchivos(idGestion, idDetalle) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivosGestion", "InventarioAltoCosto")?idGestion=' + idGestion + "&idDetalle=" + idDetalle;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                $("#myModalArchivos").modal('show');
+            }
+        });
+    }
+
+    function MostrarReporteGestionadas(idDetalle) {
+
+        //alert(idDetalle);
+
+
+
+        var URL = "@Url.Action("ExportarDatosTableroControlACGestiones", "InventarioAltoCosto")?idDetalle=" + idDetalle;
+         window.open(URL, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        width: 100% !important;
+    }
+
+    .datepickerr label.error {
+        position: absolute;
+        margin-left: -85%;
+        background-color: indianred;
+        color: white;
+        font-size: 13px !important;
+        width: 100% !important;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

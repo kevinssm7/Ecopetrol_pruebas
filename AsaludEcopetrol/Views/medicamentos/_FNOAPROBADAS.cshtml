@@ -1,0 +1,121 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "_FNOAPROBADAS";
+}
+
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+<div class="tab-pane" id="1b">
+    <form id="formNoAprobadas" name="formNoAprobadas" enctype="multipart/form-data" method="post">
+        <div>
+            <label class="text-secondary_asalud">Total no aprobadas: @ViewBag.totalN</label>
+        </div>
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <div class="form-group text-right">
+                        <a onclick="excelTotal(2);" class="btn button_Asalud_descargas">Exportar a excel <i class="glyphicon glyphicon-download"></i></a>
+                    </div>
+                    <table class="table table-bordered table-condensed" id="datosM" style="font-size:10px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Numero prefactura</th>
+                                <th>Descripción producto</th>
+                                <th>Nombre beneficiario</th>
+                                <th>Documento beneficiario</th>
+                                <th>Fecha despacho</th>
+                                <th>Vigencia desde</th>
+                                <th>Vigencia hasta</th>
+                                <th>Valor unitario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (ViewBag.totalN != 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.Managment_ReportePrefacturas_totalResult item in ViewBag.noaprobados)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>@item.num_prefactura</td>
+                                            <td>@item.descipcion_produco</td>
+                                            <td>@item.nom_beneficiario</td>
+                                            <td>@item.tipo_id_beneficiario - @item.num_doc_beneficiario</td>
+                                            <td>@item.prefactura_fecha_despacho_formula</td>
+                                            <td>@item.lupe_fecha_inicio_vigencia</td>
+                                            <td>@item.lupe_fecha_fin_vigencia</td>
+                                            <td>@item.prefactura_valor_unitario</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="12" style="text-align:center; font-size:15px;">
+                                            <label>No hay datos.</label>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#fechaFacturaM").kendoDatePicker();
+
+        $(document).ready(function () {
+            $('#datosM').DataTable({
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Tablero resultados validación facturas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Validación Facturas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+    });
+
+    function excelTotal(opcion) {
+        location.href = "@Url.Action("ExportarExcelTotal", "medicamentos")?opcion=" + opcion;
+    }
+
+</script>

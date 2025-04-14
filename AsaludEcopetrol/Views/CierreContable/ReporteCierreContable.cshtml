@@ -1,0 +1,332 @@
+﻿
+@{
+    ViewBag.Title = "REPORTE CIERRE CONTABLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#Reporte" data-toggle="tab">Reporte</a></li>
+            <li><a href="#Causas" data-toggle="tab">Causas Facturas</a></li>
+        </ul>
+
+        <div class="tab-content form-group">
+            <div class="tab-pane active" id="Reporte">
+                <div class="col-sm-12 row" style="margin-top:5px">
+                    <table class="table table-hover table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Valor</th>
+                                <th>%Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{double totalporcentaje = 0;}
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_totales_cierre_contable item in ViewBag.listatotales)
+                            {
+                                if (item.Tipo_factura.Contains("MES_ANTERIOR") || item.Tipo_factura.Contains("RADICADAS"))
+                                {
+                                    double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidad1) * 100);
+                                    double a = (porcentaje % 1);
+                                    totalporcentaje += porcentaje;
+                                    if (a < 0.5)
+                                    {
+                                        porcentaje = Math.Round(porcentaje);
+                                    }
+                                    else
+                                    {
+                                        porcentaje = Math.Ceiling(porcentaje);
+                                    }
+                                    <tr>
+                                        <td>Facturas @item.Tipo_factura.ToLower()</td>
+                                        <td>@item.cantidad</td>
+                                        <td>@item.valor_total.Value.ToString("C")</td>
+                                        <td>@porcentaje%</td>
+                                    </tr>
+                                }
+
+                            }
+                            <tr>
+                                <th>SubTotal de Facturas</th>
+                                <th>@ViewBag.cantidad1</th>
+                                <th>@ViewBag.totalfacturas1</th>
+                                <th>@totalporcentaje%</th>
+                            </tr>
+
+                            @{ totalporcentaje = 0;}
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_totales_cierre_contable item in ViewBag.listatotales)
+                            {
+                                if (!item.Tipo_factura.Contains("MES_ANTERIOR") && !item.Tipo_factura.Contains("RADICADAS"))
+                                {
+                                    double porcentaje = (((double)item.valor_total.Value / (double)ViewBag.totalfacturas2) * 100);
+                                    double a = (porcentaje % 1);
+                                    totalporcentaje += porcentaje;
+                                    if (a < 0.5)
+                                    {
+                                        porcentaje = Math.Round(porcentaje);
+                                    }
+                                    else
+                                    {
+                                        porcentaje = Math.Ceiling(porcentaje);
+                                    }
+
+                                    <tr>
+                                        <td>Facturas @item.Tipo_factura.ToLower()</td>
+                                        <td>@item.cantidad</td>
+                                        <td>@item.valor_total.Value.ToString("C")</td>
+                                        <td>@porcentaje%</td>
+                                    </tr>
+                                }
+
+                            }
+                            <tr>
+                                <th>SubTotal de Facturas</th>
+                                <th>@ViewBag.cantidad2</th>
+                                @{ double totalfactura2 = (double)ViewBag.totalfacturas2; }
+                                <th>@totalfactura2.ToString("C")</th>
+                                <th>
+                                    @if ((int)ViewBag.cantidad1 == (int)ViewBag.cantidad2)
+                                    {
+                                        <p>Cumple cifra de control</p>
+                                    }
+                                    else
+                                    {
+                                        <p>No cumple cifra de control</p>
+                                    }
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                </div>
+            </div>
+
+            <div class="tab-pane fade " id="Causas">
+                <div class="col-sm-12 row form-group" style="margin-top:5px">
+                    <div class="text-left">
+                        <h4>Rechazadas</h4>
+                    </div>
+                    <table class="table table-hover table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Causa</th>
+                                <th>Cantidad</th>
+                                <th>Valor</th>
+                                <th>%Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ totalporcentaje = 0;}
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_causas_facturas item in ViewBag.listaCausasRechazadas)
+                            {
+                                double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidadrechazadas) * 100);
+                                totalporcentaje += porcentaje;
+                                double a = (porcentaje % 1);
+                                if (a < 0.5)
+                                {
+                                    porcentaje = Math.Round(porcentaje);
+                                }
+                                else
+                                {
+                                    porcentaje = Math.Ceiling(porcentaje);
+                                }
+
+
+                                <tr>
+                                    <td>@item.motivo_rechazo.ToUpperInvariant()</td>
+                                    <td>@item.cantidad</td>
+                                    <td>@item.valor.Value.ToString("C")</td>
+                                    <td>@porcentaje%</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th>@ViewBag.cantidadrechazadas</th>
+                                <th>@ViewBag.totallistarechazadas</th>
+                                <th>@totalporcentaje%</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="col-sm-12 row form-group" style="margin-top:5px">
+                    <div class="text-left">
+                        <h4>Pendientes</h4>
+                    </div>
+                    <table class="table table-hover table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Causa</th>
+                                <th>Cantidad</th>
+                                <th>Valor</th>
+                                <th>%Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ totalporcentaje = 0;}
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_causas_facturas item in ViewBag.listaCausasPendientes)
+                            {
+                                double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidadpendientes) * 100);
+                                double a = (porcentaje % 1);
+                                totalporcentaje += porcentaje;
+                                if (a < 0.5)
+                                {
+                                    porcentaje = Math.Round(porcentaje);
+                                }
+                                else
+                                {
+                                    porcentaje = Math.Ceiling(porcentaje);
+                                }
+
+
+                                <tr>
+                                    <td>@item.motivo_rechazo.ToUpperInvariant()</td>
+                                    <td>@item.cantidad</td>
+                                    <td>@item.valor.Value.ToString("C")</td>
+                                    <td>@porcentaje%</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th>@ViewBag.cantidadpendientes</th>
+                                <th>@ViewBag.totallistapendientes</th>
+                                <th>@totalporcentaje%</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 text-right">
+            <a class="btn btn-default" role="button" href="@Url.Action("TableroCierre","CierreContable")">Volver</a>
+            <a class="btn btn-primary" role="button" href="@Url.Action("Pdf","CierreContable", new { idcierre = ViewBag.idcierre })">Descargar Reporte</a>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .nav-tabs > li > a {
+        font-size: 15px
+    }
+
+    .table {
+        font-size: 15px
+    }
+
+        .table th {
+            font-weight: bold;
+        }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

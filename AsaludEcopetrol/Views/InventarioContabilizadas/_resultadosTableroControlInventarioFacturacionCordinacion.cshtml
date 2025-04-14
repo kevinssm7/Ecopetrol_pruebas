@@ -1,0 +1,136 @@
+﻿@using ECOPETROL_COMMON.ENTIDADES
+@model List<Management_inventario_facturas_contabilizadas_cordinacionResult>
+
+<table id="tablaInformacion" class="table table-bordered  table-condensed dt-responsive nowrap">
+    <thead>
+        <tr>
+            <th>Fecha de contabilización</th>
+            <th>Documento contable</th>
+            <th>Número de factura SAP</th>
+            <th>Código SAP</th>
+            <th>Nit</th>
+            <th>Razón social</th>
+            <th>Ciudad</th>
+            <th>Valor total factura</th>
+            <th>Regional</th>
+            <th>Fecha de recepción</th>
+            <th>Unis</th>
+            <th>Analista cuentas</th>
+            <th>Estado</th>
+            <th>Gestor archivo nombre</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.fecha_contabilizacion.Value.ToString("yyyy/MM/dd")</td>
+                <td>@item.documento_contable</td>
+                <td>@item.numero_factura_sap</td>
+                <td>@item.cod_sap</td>
+                <td>@item.nit</td>
+                <td>@item.razon_social</td>
+                <td>@item.ciudad</td>
+                <td>@item.valor_total_factura</td>
+                <td>@item.nom_regional</td>
+                <td>@item.fecha_recepcion.Value.ToString("yyyy/MM/dd")</td>
+                <td>@item.unis</td>
+                <td>@item.analista_cuentas</td>
+                <td>@item.nom_estado</td>
+                <td>@item.gestor_archivo_nombre</td>
+                @if (item.id_estado == 2)
+                {
+                    <td><button class="btn btn-xs button_Asalud_Aceptar" type="button" onclick="VerGestion(@item.id_inventario_cargue_dtll)"> <i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver gestión</button></td>
+                }
+                else if (item.id_estado == 3)
+                {
+                    <td>
+                        <button class="btn btn-xs button_Asalud_Aceptar" type="button" onclick="VerGestion(@item.id_inventario_cargue_dtll)"> <i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver gestión</button>
+                        <button onclick="GestionarFactura(@item.id_inventario_cargue_dtll)" type="button" class="btn btn-xs button_Asalud_Aceptar" on><i class="glyphicon glyphicon-comment"></i>&nbsp;Ingresar Gestión</button>
+
+                    </td>
+                }
+                else
+                {
+                    <td class="alert-warning text-center">Pendiente por gestionar</td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('#tablaInformacion').DataTable({
+            "searching": true,
+            "iDisplayLength": 20,
+            "order": [[0, "desc"]],
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+</script>
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: left;
+        border-collapse: collapse;
+        margin-left: 0px;
+        width: 100% !important;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        font-size: 12px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    body {
+        padding-right: 0% !important;
+    }
+</style>

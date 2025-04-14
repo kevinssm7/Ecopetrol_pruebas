@@ -1,0 +1,609 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "FacturasAprobadasNA";
+}
+
+<div class="tab-content">
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso gestión</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Número factura</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="Nmfactura" id="Nmfactura" value="@ViewBag.numFactura" readonly />
+                            <input type="hidden" value="@ViewBag.regional" id="regional" name="regional" />
+                            <input type="hidden" value="@ViewBag.tipo" id="tipo" name="tipo" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <input rows="4" cols="100" type="text" class="form-control" name="prestador" id="prestador" value="@ViewBag.prestador" readonly />
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-7 form-group">
+                            <label class="text-secondary_asalud">Valor factura</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="Vlrfactura" id="Vlrfactura" value="@ViewBag.Vlrfactura" readonly />
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-8 form-group">
+                            <label class="text-secondary_asalud">Factura es multiusuario</label>
+                            <select class="form-control select" required id="opmulti" name="opmulti" onchange="Habilitar($(this).val())">
+                                <option value="">- Seleccionar -</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:none" id="pnldx">
+                        <div class="row">
+                            <div class="col-sm-8 form-group">
+                                <label class="text-secondary_asalud">Diagnostico CIE10</label>
+                                @*<select class="form-control select2" id="id_dx1" name="id_dx1">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.vw_cie10 item in ViewBag.listCie10)
+                                        {
+                                            <option value="@item.id_cie10">@item.des</option>
+                                        }
+
+                                    </select>*@
+
+                                @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_1")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:600px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "Evolucion");
+                                      });
+
+                                  })
+                               )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Clasifique el gasto:</label>
+                            <button data-bind="click: agregarDetalle" class="button_Asalud_Aceptar">Agregar</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Gasto</th>
+                                    <th>Observación del gasto</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody data-bind="foreach: detalle">
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <select class="form-control" id="exampleFormControlSelect1" style="font-size:10pt;width:200px;" required="required" data-bind="value: Id_ref_tipo_gasto_facturas, options: window.Lista, optionsText: 'descripcion', optionsValue: 'id_ref_tipo_gasto_facturas', attr: { name: 'DetalleGasto[' + $index() + '].id_gasto' }"></select>
+                                            <em data-bind="validationMessage: Id_ref_tipo_gasto_facturas"></em>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            @*<textarea class="form-control" rows="5" id="comment" style="font-size:10pt;width:250px;" required="required" data-bind="value: Observacion_gasto, attr: { name: 'DetalleGasto[' + $index() + '].obs_gasto' }"></textarea>*@
+                                            <textarea class="form-control" rows="5" id="obs_gasto" name="obs_gasto" style="font-size:10pt;width:250px;" required="required" data-bind="value: Observacion_gasto, attr: { name: 'DetalleGasto[' + $index() + '].obs_gasto' }"></textarea>
+                                            <em data-bind="validationMessage: Observacion_gasto"></em>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="button_Asalud_Rechazar" data-bind="click: $root.eliminarDetalle">Eliminar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8 form-group">
+                            <label class="text-secondary_asalud">Factura autorizada para pago</label>
+                            <select class="form-control select" onchange="HabilitarAuditoria($(this).val())" required id="ftautoriza" name="ftautoriza">
+                                <option value="">- Seleccionar -</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="display:none" id="pnlreqauditoria">
+                        <div class="col-sm-8 form-group">
+                            <label class="text-secondary_asalud">¿La factura requirió auditoría tecnica?</label>
+                            <select class="form-control select" onchange="HabilitarAuditor($(this).val())" required id="ftauditoria" name="ftauditoria">
+                                <option value="">- Seleccionar -</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="display:none" id="pnlAuditor">
+                        <div class="col-sm-8 form-group">
+                            <label class="text-secondary_asalud">Auditor</label>
+                            <select class="form-control select2" onchange="ValidarFirma($(this).val())" required id="idAuditor" name="idAuditor">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_auditores_totales item in ViewBag.Auditores)
+                                {
+                                    <option value="@item.id_usuario">@item.nombre</option>
+                                }
+
+                            </select>
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-sm-12" align="center">
+                            <button class="button_Asalud_Guardar" type="button" onclick="finalizar()">Guardar</button>
+                        </div>
+
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_cargue_dtll" id="id_cargue_dtll" value="@ViewBag.id_cargue_dtll" />
+                        <input class="form-control" type="text" name="cie10F" id="cie10F" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<script src="~/Scripts/knockout-2.2.1.js"></script>
+<script src="~/Scripts/knockout.validation.js"></script>
+<script src="~/Scripts/ViewModels/ControlGastoViewModel.js"></script>
+<script>
+
+    var Lista = JSON.parse('@Html.Raw(Json.Encode(ViewBag.listgastos))');
+    var viewModel = new controlgastoViewModel();
+    ko.validation.init({ insertMessages: false, parseInputAttributes: true });
+    ko.applyBindings(viewModel);
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $('.solo-numero2').keydown(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $('.solo-numero3').focusout(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+
+        });
+
+        $("#id_cie10_1").change(function () {
+            var au = $("#id_cie10_1").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10F").val(selected[0].id_cie10);
+            } else {
+                $("#cie10F").val("");
+            }
+        });
+
+    })
+
+    function finalizar() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+    function FinalizarDatos() {
+
+        var SelectedList = new Array();
+        var SelectedList = [];
+
+        var tipo = $("#tipo").val();
+
+        debugger
+
+        $.each($("input[name='DetalleGasto']:checked"), function () {
+            SelectedList.push($(this).val());
+        });
+
+        var value = $("#cie10F").val();
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_cargue_dtll", $("#id_cargue_dtll").val());
+        formData.append("multiusuario", $("#opmulti").val());
+        formData.append("id_dx1", value);
+        //formData.append("id_dx1", $("#cie10").val());
+        formData.append("gasto", $("#clasifGasto").val());
+        formData.append("factura_autorizada", $("#ftautoriza").val());
+        formData.append("requiere_auditoria", $("#ftauditoria").val());
+        formData.append("id_auditor", $("#idAuditor").val());
+
+        for (var i = 0; i < SelectedList.length; i++) {
+            formData.append('DetalleGasto', SelectedList[i]);
+        }
+
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavegestionFacturasNA", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    if (response.opc == 2) {
+
+                        var laURLDeLaVista = '@Url.Action("FacturaDevPrestadores")?ID=' + response.id;
+                        $.ajax({
+                            cache: false,
+                            async: true,
+                            type: "GET",
+                            url: laURLDeLaVista,
+                            data: {},
+                            success: function (response) {
+                                debugger
+
+                                if (tipo == 2) {
+                                    $('#resultadosinAuditores').html('');
+                                    $('#resultadosinAuditores').html(response);
+                                } else {
+                                    $('#resultado2').html('');
+                                    $('#resultado2').html(response);
+                                }
+                                LoadingHide();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var reqauditoria = $("#ftauditoria").val();
+                        var URL2 = "";
+                        if (reqauditoria == "SI")
+                        {
+                            URL2 = "@Url.Action("CrearPdfFacturasDig", "RadicacionElectonica")?id=" + response.id;
+                        }
+                        else
+                        {
+                            URL2 = "@Url.Action("CrearPdfFacturasDigNA", "RadicacionElectonica")?id=" + response.id;
+                        }
+
+                        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+                        if (tipo == 2) {
+                            $("#modalsinAsignarAuditores").modal('hide');
+                            document.getElementById("btnAuditor").style.display = "none";
+                            document.getElementById("btnsinAuditor").style.display = "none";
+                        } else {
+                            location.reload();
+                        }
+                    }
+
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+                }
+
+            }
+        })
+    }
+
+
+    function Habilitar(a) {
+        var Valor = a;
+        if (Valor == "NO") {
+            document.getElementById('pnldx').style.display = 'block';
+        } else {
+            document.getElementById('pnldx').style.display = 'none';
+        }
+
+
+    }
+
+    debugger
+    function ValidarFirma(a) {
+        var usuario = a;
+        var regional = $("#regional").val();
+        if (usuario != "") {
+            $.ajax({
+                url: "@Url.Action("ValidarFirma", "RadicacionElectonica")",
+                type: "post",
+                data: { usuario: usuario, regional: regional },
+                success: function (data) {
+                    if (data.message != 1) {
+                        alert('ERROR... Auditor no puede ser asignado porque no tiene firma digital en SAMI. ');
+                        ObtenerAuditores();
+                    }
+                }
+            })
+        }
+    }
+
+    function ObtenerAuditores() {
+
+        var regional = document.getElementById("regional").value;
+
+        $.ajax({
+            url: "@Url.Action("LlenadoAuditores")",
+            type: "post",
+            data: { regional: regional },
+            success: function (data) {
+                $("#idAuditor").empty();
+                $("#idAuditor").html(data);
+                $("#idAuditor").val("").trigger("change");
+            }
+        })
+    }
+
+    function HabilitarAuditoria(a)
+    {
+        var Valor = a;
+        if (Valor == "SI") {
+            document.getElementById('pnlreqauditoria').style.display = 'block';
+        } else {
+            document.getElementById('pnlreqauditoria').style.display = 'none';
+            document.getElementById('pnlAuditor').style.display = 'none';
+        }
+    }
+
+    function HabilitarAuditor(a) {
+        var Valor = a;
+        if (Valor == "SI") {
+            document.getElementById('pnlAuditor').style.display = 'block';
+        } else {
+            document.getElementById('pnlAuditor').style.display = 'none';
+        }
+
+
+    }
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+
+
+
+

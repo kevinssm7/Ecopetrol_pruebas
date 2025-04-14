@@ -1,0 +1,98 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "MODAL CATEGORIZACIÓN";
+    var id = ViewBag.pqr;
+}
+
+<form id="formGestion">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p class="text-primary_asalud">Actualizar Supersalud</p>
+        </div>
+        <div class="panel-body">
+            <div id="divotrosi">
+                <div id="formulario" class="col-md-12 text-center">
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Supersalud</label>
+                        @*<select class="form-control select2" style="width:100%" name="categoria" id="categoria">
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_categorizacion item in ViewBag.list)
+                                {
+                                    <option value="@item.id_ref_categorizacon">@item.descripcion</option>
+                                }
+                            </select>*@
+
+                        <input type="radio" id="categoria" name="categoria" value="SI" required /> Si
+                        <input type="radio" id="categoria" name="categoria" value="NO" /> No
+
+                        <input type="hidden" id="id" value="@id" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12 form-group text-center">
+                        <button type="button" id="btnGuardar" onclick="ValidarFormulario()" class="button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(".datepickerr2").kendoDatePicker({
+        format: "MM/dd/yyyy",
+    });
+    $('.select2').select2({
+        width: '100%',
+        height: '100%'
+    });
+
+    function ValidarFormulario() {
+
+        var validator = $("#formGestion").validate();
+        if (validator.form()) {
+            ActualizarCategoria();
+        }
+    }
+
+    debugger
+    function ActualizarCategoria() {
+        var formData = new FormData($("form")[0]);
+
+        //var categoria = document.getElementById("categoria").value;
+        var categoriaTomada = "";
+        var categoria = document.getElementsByName("categoria");
+        var categoriaValue;
+
+        for (var i = 0; i < categoria.length; i++) {
+            if (categoria[i].checked) {
+                categoriaValue = categoria[i].value;
+                categoriaTomada = categoriaValue;
+            }
+        }
+
+        formData.append("id", $("#id").val());
+        //formData.append("categoria", $("#categoria").val());
+        formData.append("categoria", categoriaTomada);
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("ActualizarCategorizacion", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                alert(data.message);
+                LoadingHide();
+                location.href = "@Url.Action("TableroControl", "Pqrs")";
+            }
+        })
+    }
+
+</script>

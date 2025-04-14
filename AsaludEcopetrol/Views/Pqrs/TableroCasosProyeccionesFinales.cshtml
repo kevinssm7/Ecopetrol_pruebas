@@ -1,0 +1,424 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+
+@{
+    ViewBag.Title = "TABLERO GESTIÓN PQRS PROYECTADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+    var i = 0;
+}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form name="formulario" id="formulariobuscar" method="post" enctype="multipart/form-data" accept-charset="@Url.Action("TableroControlProyectadas")">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número de caso</label>
+                        <input type="text" class="form-control" name="numcaso" id="numcaso" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número OPC</label>
+                        <input type="text" class="form-control" name="numopc" id="numopc" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número Documento</label>
+                        <input type="text" class="form-control" name="numdocumento" id="numdocumento" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha de creación</label>
+                        <div class="input-group">
+                            <input class="datepickerr" title="datepicker" style="width:100%" name="fechainicial" id="fechainicial" />
+                            <span class="input-group-addon" id="sizing-addon2">A</span>
+                            <input class="datepickerr" title="datepicker" style="width:100%" aria-describedby="sizing-addon2" name="fechafinal" id="fechafinal" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-right">
+                    <button type="button" id="btnbuscar" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (ViewBag.acto > 0)
+                    {
+                        <a role="button" onclick="verReporte();" class="button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                    }
+                </div>
+                <br />
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed table-striped datatable1" style="width:100%; font-size:10px;">
+            <thead>
+                <tr>
+                    <th>Número caso</th>
+                    <th>Número OPC</th>
+                    <th>Ciudad</th>
+                    <th>Id solicitante</th>
+                    <th>Asignación</th>
+                    <th>Ingreso SalesForce</th>
+                    <th>Vencimiento 2 días hábiles SalesForce </th>
+                    <th>Ingreso buzón Asalud </th>
+                    <th>Vencimiento 5 días hábiles buzón Asalud </th>
+                    <th>Analista asignado</th>
+                    <th>Fecha gestión</th>
+                    <th>Repositorio</th>
+                    <th>Gestión</th>
+                    <th>Estado</th>
+                    <th>Devuelto</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_tablero_control_proyectadasFinalesResult order in ViewBag.listaEstado)
+                {
+                    i++;
+                    <tr>
+                        <td>
+                            @order.numero_caso
+                            <input type="hidden" id="numCaso_@i" value="@order.numero_caso" />
+                            <input type="hidden" id="nombreUsuarioGes_@i" name="nombreUsuario_@i" value="@order.usuarioReaperturaGes" />
+                            <input type="hidden" id="observacionGes_@i" name="observacion_@i" value="@order.observacionReaperturaGes" />
+                            <input type="hidden" id="fechaGes_@i" name="fecha_@i" value="@order.fechaReaperturaGes" />
+                        </td>
+                        <td>@order.consecutivo_caso</td>
+                        <td>@order.ciudad_del_caso_descripcion</td>
+                        <td>@order.solicitante_numero_identi</td>
+                        <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada10sales.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada5Buzon.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.usuario_asignado_descrip</td>
+                        <td>
+                            @if (order.fecha_gestion != null)
+                            {
+                                <span>@order.fecha_gestion.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </td>
+
+                        <td>
+                            <button class="button_Asalud_Aceptar" onclick="MostrarArchivos(@order.id_ecop_PQRS, 7);" data-toggle="modal" data-target="#myModalArchivos">
+                                <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button_Asalud_Guardar" onclick="llamarVistaParcial(@order.id_ecop_PQRS,@i);" data-toggle="modal" data-target="#myModal">
+                                Gestionar
+                            </button>
+                        </td>
+                        @if (order.reabierto == 1)
+                        {
+                            <td style="text-align:center;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #A29DD7" onclick="verDetalleReaperturaGes(@i, 1);" data-toggle="modal">
+                                    Reabierto
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style="text-align:left;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #ceefc4" data-toggle="modal">
+                                    PROYECTABLE
+                                </a>
+                            </td>
+                        }
+
+                        @if (order.devuelto_en_cierre == 1)
+                        {
+                            <td style="text-align:center;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #FFDBC0" data-toggle="modal">
+                                    SI
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style="text-align:left;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #ceefc4" data-toggle="modal">
+                                    NO
+                                </a>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalMensaje">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="panel-body">
+                <div class="panel panel-default panel-heading">
+                    <p class="text-primary_asalud">DETALLE CIERRE - <label id="tipoCierre"></label></p>
+                </div>
+                <div class="panel panel-default panel-heading">
+                    <div id="mensaje"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(window).load(function () {
+        $("#loader").fadeOut("slow");
+    });
+
+    $(document).ready(function () {
+
+        $("#btnbuscar").click(function () {
+            LoadingShow();
+            $("#formulariobuscar").submit();
+        })
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+    })
+
+    debugger
+    function llamarVistaParcial(A, conteo) {
+
+        var numero_caso = document.getElementById("numCaso_" + conteo).value;
+
+        var laURLDeLaVista = '@Url.Action("_OpcionProyectada")?ID=' + A + "&numero_caso=" + numero_caso;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function verProyeccion(idecopPqrs) {
+
+        var URL2 = "@Url.Action("GestorUrlProyeccion", "Pqrs")?idecopPqrs=" + idecopPqrs;
+        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    function MostrarArchivos(idPqrs, tipo) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+
+
+    function verDetalleReaperturaGes(i) {
+
+        var nombreUsuario = document.getElementById("nombreUsuarioGes_" + i).value;
+        var observacion = document.getElementById("observacionGes_" + i).value;
+        var fecha = document.getElementById("fechaGes_" + i).value;
+
+        var detalle = "Usuario reabre: " + nombreUsuario + " <br/>";
+        detalle += "<br/>";
+        detalle += "Fecha reapertura: " + fecha + " <br/>";
+        detalle += "<br/>";
+        detalle += "Observación: " + observacion + " <br/>";
+
+        $("#mensaje").html(detalle);
+
+        $("#tipoCierre").html("GESTIÓN");
+
+        $("#modalMensaje").modal('show');
+    }
+
+
+    function verReporte() {
+
+        var url = "@Url.Action("ExportarLstpqrsProyectadasFinales", "Pqrs")";
+        opupWindow = window.open(url, '', 'height=725,width=750,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>

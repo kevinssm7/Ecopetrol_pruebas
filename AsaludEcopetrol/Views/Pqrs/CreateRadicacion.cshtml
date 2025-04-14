@@ -1,0 +1,920 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+
+@{
+    ViewBag.Title = "INGRESO RADICACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+    var regionalPropia = ViewBag.regionalPropia;
+    var conteoLista = ViewBag.conteoLista;
+
+    List<ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_tipo_solicitud> solicitud = new List<ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_tipo_solicitud>();
+    solicitud = ViewBag.tipoSolicitud;
+    solicitud = solicitud.Where(x => x.id_ref_pqrs_tipo_solicitud > 3 && x.id_ref_pqrs_tipo_solicitud != 7 && x.id_ref_pqrs_tipo_solicitud != 11).ToList();
+}
+
+<br>
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active" id="1aDiv">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">INGRESO PQR</a>
+        </li>
+        <li id="2aDiv">
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">CONTROL PQRS</a>
+        </li>
+    </ul>
+    <br />
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+
+            <div class="tab-content form-group" id="mensajeIngreso">
+                @if (rta == 2)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Error al cargar! </strong>@mensaje
+                        </div>
+                    </div>
+                }
+                else if (rta == 1)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-success" role="alert">
+                            <strong>Éxito! </strong>@mensaje
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form id="ingresoRadicacion" runat="Server" enctype="multipart/form-data" method="post" action="CreateRadicacion">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <input type="hidden" id="nombreUsuario" name="nombreUsuario" value="@ViewBag.nombreUsuario" />
+                                <h5><span class="text-secondary_asalud">Número de caso:</span></h5>
+                                <input type="text" id="numero_caso" name="numero_caso" maxlength="49" class="form-control solo-numero" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Consecutivo del caso:</span></h5>
+                                <input type="text" id="consecutivo_caso" name="consecutivo_caso" maxlength="49" class="form-control" required />
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Tipo categorización:</span></h5>
+
+                                <select id="tipo_solicitud" name="tipo_solicitud" class="form-control select2" onchange="MostrarFechaRespuestaSalesforce();" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_tipo_solicitud item in solicitud)
+                                    {
+                                        <option value="@item.id_ref_pqrs_tipo_solicitud">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Fecha ingreso buzón Asalud:</span></h5>
+                                <input class="datepickerr" title="Este campo es obligatorio" style="width:100%" name="fecha_ingreso_buzon_asalud" id="fecha_ingreso_buzon_asalud" value="@DateTime.Now.ToString("dd/MM/yyyy")" readonly required />
+                                <input type="hidden" name="fecha_ingreso_buzon_asaludOK" id="fecha_ingreso_buzon_asaludOK" />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Fecha ingreso SalesForce:</span></h5>
+                                <input class="datepickerr" title="Este campo es obligatorio" style="width:100%" name="fecha_ingreso_salesforce" id="fecha_ingreso_salesforce" required />
+                                <input type="hidden" name="fecha_ingreso_salesforceOK" id="fecha_ingreso_salesforceOK" />
+
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Fecha respuesta programada Salesforce:</span></h5>
+                                <input class="datepickerr" title="Este campo es obligatorio" style="width:100%" name="fecha_egreso_salesforce" id="fecha_egreso_salesforce" required />
+                                <input type="hidden" name="fecha_egreso_salesforceOK" id="fecha_egreso_salesforceOK" />
+
+                            </div>
+                        </div>
+                        <br />
+
+                        <!--<div class="row">-->
+                        @*<div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Tipo categorización:</span></h5>
+                                <select id="tipo_categorizacion" name="tipo_categorizacion" class="form-control select2" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_categorizacion item in ViewBag.tipoCategorizacion)
+                                    {
+                                        <option value="@item.id_ref_categorizacon">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>*@
+                        @*<div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Adjuntar archivo PQRs:</span></h5>
+                                <input type="file" class="form-control" id="file" name="file" runat="server" multiple />
+                            </div>*@
+                        <!--</div>-->
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Regional:</span></h5>
+                                <input type="hidden" id="regionalOpcion" name="regionalOpcion" />
+                                <select id="regional" name="regional" class="form-control select2" onchange="cambioRegional(this.value)" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Ciudad o municipio de ocurrencia del caso::</span></h5>
+                                <select class="form-control select2" id="ciudad_del_caso" name="ciudad_del_caso" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <h5><span class="control-label text-secondary_asalud">Supersalud:</span></h5>
+                                <input type="radio" id="superSaludopcion" value="1" name="superSaludopcion" onclick="validacionSiNo(this.value);" required /> SI
+                                <input type="radio" id="superSaludopcion" value="0" name="superSaludopcion" onclick="validacionSiNo(this.value);" /> NO
+                                <input type="hidden" id="superSalud" name="superSalud" />
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Tipo identificación solicitante:</span></h5>
+                                <select id="tipo_identificacion" name="tipo_identificacion" class="form-control select2" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDocumental)
+                                    {
+                                        <option value="@item.id_ref_tipo_documental">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Nombre solicitante:</span></h5>
+                                <input type="text" id="solicitante_nombre" name="solicitante_nombre" maxlength="199" class="form-control" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Número identificación solicitante:</span></h5>
+                                <input type="text" id="solicitante_numero_identi" name="solicitante_numero_identi" maxlength="49" class="form-control solo-numero" required />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="text-secondary_asalud">¿El solicitante es el mismo beneficiario?</label>
+                                <input type="radio" name="mismoBeneficiario" id="mismoBeneficiario" value="1" onchange="OpcionMismoBeneficiario(this.value);" required /> Si
+                                <input type="radio" name="mismoBeneficiario" id="mismoBeneficiario" value="0" onchange="OpcionMismoBeneficiario(this.value);" /> No
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row" style="display:none;" id="divMismoBeneficiario">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Tipo identificación paciente:</span></h5>
+                                <select id="tipo_identificacion_paciente" name="tipo_identificacion_paciente" class="form-control select2" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDocumental)
+                                    {
+                                        <option value="@item.id_ref_tipo_documental">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Nombre paciente:</span></h5>
+                                <input type="text" id="nombre_paciente" name="nombre_paciente" maxlength="49" class="form-control" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Número identificación paciente:</span></h5>
+                                <input type="text" id="identificacion_paciente" name="identificacion_paciente" maxlength="49" class="form-control solo-numero" required />
+                            </div>
+                        </div>
+
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Solucionador:</span></h5>
+                                <select class="form-control select2" id="solucionador" name="solucionador" onchange="onChange(this.value);" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                                <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">Auxiliar solucionador:</span></h5>
+                                <select class="form-control select2" id="auxiliar_solucionador" name="auxiliar_solucionador" onchange="onChange2(this.value)">
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="text-secondary_asalud">NOTIFICAR A:</label>
+                                <input type="radio" id="notificacionesExternas" name="notificacionesExternas" value="1" onchange="notificaraMostrar(this.value);" />Si
+                                <input type="radio" id="notificacionesExternas" name="notificacionesExternas" value="0" onchange="notificaraMostrar(this.value);" />No
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div id="pnlOtroSolucionador" style="display:none;">
+                                <div class="col-sm-4">
+                                    <h5><span class="text-secondary_asalud">Otro solucionador:</span></h5>
+                                    <input type="text" maxlength="99" id="otro_solucionador" name="otro_solucionador" class="form-control" required />
+                                </div>
+                            </div>
+
+                            <div id="pnlOtroAuxSolucionador" style="display:none;">
+                                <div class="col-sm-4">
+                                    <h5><span class="text-secondary_asalud">Otro Auxiliar solucionador:</span></h5>
+                                    <input type="text" maxlength="99" id="otro_auxiliar_solucionador" name="otro_auxiliar_solucionador" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div id="divNotificaciones" style="display:none">
+                                <div class="col-sm-4">
+                                    <h5><span class="text-secondary_asalud">Correos a notificar (separar por ;):</span></h5>
+                                    <input type="text" maxlength="499" id="correosNotificar" name="correosNotificar" class="form-control" required />
+                                </div>
+                                <div class="col-sm-4">
+                                    <h5><span class="text-secondary_asalud">Correos a copiar (separar por ;):</span></h5>
+                                    <input type="text" maxlength="499" id="correosCopiar" name="correosCopiar" class="form-control" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <h5><span class="text-secondary_asalud">Asunto correo:</span></h5>
+                                    <input type="text" maxlength="200" id="asuntoCorreo" name="asuntoCorreo" class="form-control" required />
+                                </div>
+                                <div class="col-sm-12">
+                                    <h5><span class="text-secondary_asalud">Cuerpo correo:</span></h5>
+                                    <textarea type="text" cols="4" rows="4" class="form-control" maxlength="20000" id="cuerpoCorreo" name="cuerpoCorreo" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h5><span class="text-secondary_asalud">Especificación de la solicitud:</span></h5>
+                                <textarea id="especificacion_solicitud" name="especificacion_solicitud" cols="5" rows="5" class="form-control" maxlength="20000" required></textarea>
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <button type="button" id="BtnActualizar" onclick="validarFormulario();" value="INGRESAR" class="btn button_Asalud_Guardar" /> INGRESAR
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="2a">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <form name="formulario" id="formulario" enctype="multipart/form-data">
+                        <div class="panel-body">
+                            <table class="tableIngreso table-bordered table-condensed table-striped" style="width: 98%; font-size: 10px;">
+                                <thead>
+                                    <tr>
+                                        <th>Id PQR</th>
+                                        <th>Número caso</th>
+                                        <th>Nombre solicitante</th>
+                                        <th>Identificación solicitante</th>
+                                        <th>Nombre paciente</th>
+                                        <th>Identificación paciente</th>
+                                        <th>Analista asignado</th>
+                                        <th>Fecha ingreso SalesForce</th>
+                                        <th>Fecha respuesta programada</th>
+                                        <th>Archivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoLista > 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_sinArchivoInicialResult item in ViewBag.consolidado)
+                                        {
+                                            i++;
+                                    <tr>
+                                        <td>
+                                            @item.id_ecop_PQRS
+                                            <input type="hidden" id="numCaso_@i" name="numCaso_@i" value="@item.numero_caso" />
+                                        </td>
+                                        <td>@item.numero_caso</td>
+                                        <td>@item.solicitante_nombre</td>
+                                        <td>@item.tipo_identi_solicitante - @item.solicitante_numero_identi</td>
+                                        <td>@item.nombre_paciente</td>
+                                        <td>@item.tipo_identificacion - @item.numero_identificacion</td>
+                                        <td>@item.nombreAnalistaAsignado</td>
+
+                                        @if (item.fecha_ingreso_salesforce != null)
+                                        {
+                                            <td>@item.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.fecha_ingreso_salesforce</td>
+                                        }
+
+                                        @if (item.fecha_egreso_salesforce != null)
+                                        {
+                                            <td>@item.fecha_egreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.fecha_egreso_salesforce</td>
+                                        }
+
+                                        <td>
+
+                                            <a class="button_Asalud_Aceptar" onclick="MostrarArchivosRepos(@item.id_ecop_PQRS);" data-toggle="modal">
+                                                <i class="glyphicon glyphicon-file"></i>Ver
+                                            </a>
+
+                                        </td>
+                                    </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="text-align:center; font-size:14px;">
+                                                NO HAY REGISTROS
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+        $('#datepicker1').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#datepicker3').attr('disabled', 'disabled');
+
+        var regionalPro = @regionalPropia;
+        if (regionalPro != null && regionalPro != 0) {
+            $("#regional").val(regionalPro).trigger("change");
+            $("#regional").val(regionalPro);
+            document.getElementById("regionalOpcion").value = regionalPro;
+            document.getElementById("regional").disabled = true;
+
+        } else {
+            document.getElementById("regional").disabled = false;
+        }
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        var respuesta = @rta;
+        if (respuesta == 1) {
+
+            $("#1a").attr("aria-expanded", "false");
+            $("#2a").attr("aria-expanded", "true");
+
+            $("#1aDiv").removeClass("active");
+            $("#2aDiv").addClass("active");
+
+            $("#1a").removeClass("active");
+            $("#2a").addClass("active");
+
+
+            setTimeout(function () {
+                $("#mensajeIngreso").fadeOut(1500);
+            }, 5000);
+        }
+
+
+        var conteoGestionadas = @conteoLista;
+        if (conteoGestionadas == 0) {
+
+            $("#1a").attr("aria-expanded", "true");
+            $("#2a").attr("aria-expanded", "false");
+
+            $("#2aDiv").removeClass("active");
+            $("#1aDiv").addClass("active");
+
+            $("#2a").removeClass("active");
+            $("#1a").addClass("active");
+        }
+
+        var fechaBuzon = $("#fecha_ingreso_buzon_asalud").val();
+        var fechaRompe = fechaBuzon.split("/");
+        var fechaFin = fechaRompe[0] + "/" + fechaRompe[1] + "/" + fechaRompe[2];
+        var fechaFinBuzon = fechaRompe[1] + "/" + fechaRompe[0] + "/" + fechaRompe[2];
+        $("#fecha_ingreso_buzon_asalud").val(fechaFin);
+        $("#fecha_ingreso_buzon_asaludOK").val(fechaFinBuzon);
+
+        $("#fecha_ingreso_salesforce").change(function () {
+
+            var fecha = $("#fecha_ingreso_salesforce").val();
+            if (fecha != null && fecha != undefined && fecha != "") {
+
+                var fechaRompe = fecha.split("/");
+                var fechaFin = fechaRompe[1] + "/" + fechaRompe[0] + "/" + fechaRompe[2];
+                $("#fecha_ingreso_salesforceOK").val(fechaFin);
+
+                var fechaIniIngreso = new Date($("#fecha_ingreso_salesforceOK").val());
+                var fechaFinEgreso = new Date($("#fecha_egreso_salesforceOK").val());
+                var fechaFinBuzon = new Date($("#fecha_ingreso_buzon_asaludOK").val());
+
+                if (fechaIniIngreso != "" && fechaFinBuzon != "" && fechaIniIngreso != undefined) {
+                    if (fechaIniIngreso > fechaFinBuzon) {
+                        alert("Fecha ingreso SalesForce no puede ser mayor a la fecha de ingreso a buzón.");
+                        $("#fecha_ingreso_salesforceOK").val(null);
+                        $("#fecha_ingreso_salesforce").val(null);
+                        return false;
+                    }
+                }
+
+                if (fechaIniIngreso != "" && fechaFinEgreso != "") {
+                    if (fechaIniIngreso > fechaFinEgreso) {
+                        alert("#Fecha ingreso SalesForce no puede ser mayor a la fecha de respuesta programada SalesForce.");
+                        $("#fecha_ingreso_salesforceOK").val(null);
+                        $("#fecha_ingreso_salesforce").val(null);
+                        return false;
+                    }
+
+                }
+
+
+                var tipoSolicitud = $("#tipo_solicitud").val();
+                if (tipoSolicitud != undefined && tipoSolicitud != "" && tipoSolicitud != null) {
+                    MostrarFechaRespuestaSalesforce();
+                }
+            }
+        });
+
+        $("#fecha_egreso_salesforce").change(function () {
+            var fechaEgreso = $("#fecha_egreso_salesforce").val();
+            if (fechaEgreso != null && fechaEgreso != undefined && fechaEgreso != "") {
+                var fechaRompe = fechaEgreso.split("/");
+                var fechaFin = fechaRompe[1] + "/" + fechaRompe[0] + "/" + fechaRompe[2];
+                $("#fecha_egreso_salesforceOK").val(fechaFin);
+
+
+                var fechaIngreso = $("#fecha_ingreso_salesforce").val();
+
+                if (fechaEgreso && fechaIngreso) {
+                    var dateIngreso = parsearFecha(fechaIngreso);
+                    var dateEgreso = parsearFecha(fechaEgreso);
+
+                    if (dateIngreso > dateEgreso) {
+                        alert("La fecha de ingreso SalesForce no puede ser mayor a la fecha de egreso SalesForce.");
+                        $("#fecha_egreso_salesforceOK").val('');
+                        $("#fecha_egreso_salesforce").val('');
+                        return false;
+                    }
+                }
+            }
+        });
+    
+        function parsearFecha(fecha) {
+            var partesFecha = fecha.split("/");
+            var fechaFin = new Date(partesFecha[2], partesFecha[1] - 1, partesFecha[0]);
+
+            return fechaFin; // Año, mes (restamos 1 porque los meses son indexados desde 0 en JavaScript), día
+        }
+
+        $("#numero_caso").change(function () {
+
+            var numeroCaso = $("#numero_caso").val();
+            if (numeroCaso.length > 3) {
+
+                $.ajax({
+                    url: "@Url.Action("buscarNumeroCaso")",
+                    type: "post",
+                    data: {
+                        numeroCaso: numeroCaso,
+                    },
+                    success: function (data) {
+                        if (data == 1) {
+                            alert("Número de caso ya existe");
+                            $("#numero_caso").val("").trigger("change");
+                        }
+                    }
+                })
+            }
+        });
+
+        mostrarTabla();
+
+    })
+
+    function mostrarTabla() {
+        var conteo = "@conteoLista";
+        if (conteo > 0) {
+            $('.tableIngreso').DataTable().destroy();
+
+            $('.tableIngreso').DataTable({
+                "searching": true,
+                "idisplaylength": 15,
+                "lengthchange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    processing: "procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "mostrar menu registros",
+                    info: "mostrando registros del start al end de un total de total registros",
+                    infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(filtrado de un total de max registros)",
+                    infopostfix: "",
+                    loadingrecords: "cargando...",
+                    zerorecords: "no se encontraron resultados",
+                    emptytable: "ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "primero",
+                        previous: "anterior",
+                        next: "siguiente",
+                        last: "último",
+                    },
+                }
+            });
+        }
+    }
+
+    function OpcionMismoBeneficiario(valor) {
+        if (valor == 0) {
+            document.getElementById("divMismoBeneficiario").style.display = "block";
+            $("#tipo_identificacion_paciente").val("").change();
+            $("#nombre_paciente").val("");
+            $("#identificacion_paciente").val("");
+        }
+        else
+        {
+            document.getElementById("divMismoBeneficiario").style.display = "none";
+            $("#tipo_identificacion_paciente").val($("#tipo_identificacion").val()).change();
+            $("#nombre_paciente").val($("#solicitante_nombre").val());
+            $("#identificacion_paciente").val($("#solicitante_numero_identi").val());
+        }
+    }
+
+
+    function cambioRegional(IdRegional) {
+        getlistaauditores();
+        ObtenerCiudades(IdRegional);
+        ObtenerSolucionador(IdRegional);
+    }
+
+    function validacionSiNo(valor) {
+        $("#superSalud").val(valor);
+    }
+
+    function onChange(nombre) {
+
+        if (nombre == "OTRO") {
+
+            $("#otro_solucionador").val("");
+            $("#otro_solucionador_correo").val("");
+            document.getElementById('pnlOtroSolucionador').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlOtroSolucionador').style.display = 'none';
+
+            $("#otro_solucionador").val("");
+            $("#otro_solucionador_correo").val("");
+        }
+
+        obtenerAuxSolucionador(nombre);
+    }
+
+    function onChange2(e) {
+
+        var nombreSolucionador = e;
+
+        if (nombreSolucionador == 'OTRO') {
+            document.getElementById('pnlOtroAuxSolucionador').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlOtroAuxSolucionador').style.display = 'none';
+
+            $("#otro_auxiliar_solucionador").val("");
+            $("#otro_auxiliar_solucionador_correo").val("");
+        }
+    }
+
+    function getlistaauditores() {
+
+        $.ajax({
+            url: "@Url.Action("GetCascadeAuditores")",
+            type: "post",
+            data: {
+                regional: $("#regional").val(),
+                ciudad_del_caso: $("#ciudad_del_caso").val()
+            },
+            success: function (data) {
+                $("#auditor").empty();
+                $("#auditor").append("<option value='0'>Seleccione...</option>");
+                data.forEach(function (data) {
+                    $("#auditor").append("<option value='" + data.id_usuario + "'>" + data.Nombre + "</option>");
+                });
+                $("#auditor").val('@Model.auditor');
+            }
+        })
+    }
+
+    function ObtenerCiudades(a) {
+
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudades", "Pqrs")",
+            type: "post",
+            data: { regional: a },
+            success: function (data) {
+                $("#ciudad_del_caso").empty();
+                $("#ciudad_del_caso").html(data);
+                $("#ciudad_del_caso").val("").trigger("change");
+
+            }
+        })
+    }
+
+    function ObtenerSolucionador(a) {
+
+        $.ajax({
+            url: "@Url.Action("ObtenerSolucionador", "Pqrs")",
+            type: "post",
+            data: { regional: a },
+            success: function (data) {
+
+                var partido = data.split("|");
+                var dato = partido[0];
+                var tipo = partido[1];
+                var nombre = partido[2];
+
+                $("#solucionador").empty();
+                $("#solucionador").html(dato);
+                $("#solucionador").val("").trigger("change");
+
+                if (tipo == 2) {
+                    $("#solucionador").val(nombre).trigger("change");
+                    $("#solucionador").val(nombre);
+                    $("#solucionadorLleno").val(nombre);
+                    document.getElementById("solucionador").disabled = true;
+
+                } else {
+                    document.getElementById("solucionador").disabled = false;
+                }
+            }
+        })
+    }
+
+    function obtenerAuxSolucionador(solucionador) {
+
+        $.ajax({
+            url: "@Url.Action("ObtenerAuxSolucionador", "Pqrs")",
+            type: "post",
+            data: {
+                solucionador: solucionador
+            },
+            success: function (data) {
+                $("#auxiliar_solucionador").empty();
+                $("#auxiliar_solucionador").html(data);
+                $("#auxiliar_solucionador").val("").trigger("change");
+
+            }
+        })
+    }
+
+    $("#file").change(function () {
+        var data = document.getElementById('file').files;
+        if (data != null && data != undefined) {
+
+            var tamaño = data.length;
+
+            if (tamaño > 0) {
+                for (var i = 0; i < tamaño; i++) {
+                    var tamañoFinal = data[i].size;
+                    if (tamañoFinal > 80000000) {
+                        alert("Los archivos deben pesar maximo 80 megas.");
+                        $("#file").val("");
+                        return false;
+                    }
+                }
+            }
+        }
+    });
+
+    function notificaraMostrar(opcion) {
+
+        $("#correosNotificar").val("");
+        $("#asuntoCorreo").val("");
+        $("#cuerpoCorreo").val("");
+
+        if (opcion == 1) {
+            document.getElementById("divNotificaciones").style.display = "block";
+        }
+        else {
+            document.getElementById("divNotificaciones").style.display = "none";
+        }
+    }
+
+    function validarFormulario() {
+
+        var validator = $("#ingresoRadicacion").validate();
+        if (validator.form()) {
+
+            var solucionador = $("#solucionador").val();
+            if (solucionador == "" || solucionador == undefined) {
+                alert("Seleccione solucionador");
+                return false;
+            }
+
+            document.getElementById("regionalOpcion").value = $("#regional").val();
+            LoadingShow();
+
+            $("#ingresoRadicacion").submit();
+        }
+    }
+
+    function MostrarArchivosRepos(idPqr) {
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: '@Url.Action("MostrarRepositorioArchivosIngresoInicial")',
+            data: {
+                idPqr: idPqr,
+            },
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+                $("#myModalArchivos").modal("show");
+            }
+        });
+    }
+
+    function MostrarFechaRespuestaSalesforce() {
+
+        var fechaIngreso = $("#fecha_ingreso_salesforceOK").val();
+        var tipoSolicitud = $("#tipo_solicitud").val();
+
+        if (fechaIngreso != null && fechaIngreso != "" && tipoSolicitud != null) {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: '@Url.Action("DevolverFechaHabil")',
+                data: {
+                    fechaIngreso: fechaIngreso,
+                    tipoSolicitud: tipoSolicitud,
+                },
+                success: function (response) {
+
+                    if (response != null) {
+                        // Convertir la fecha a un formato legible
+                        var fecha = new Date(response);
+                        var formattedDate = ("0" + fecha.getDate()).slice(-2) + "/" + ("0" + (fecha.getMonth() + 1)).slice(-2) + "/" + fecha.getFullYear();
+                        $("#fecha_egreso_salesforce").val(formattedDate).trigger("change");
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        width: 100% !important;
+    }
+
+    .datepickerr label.error {
+        position: absolute;
+        margin-left: -90%;
+        background-color: indianred;
+        color: white;
+        font-size: 13px !important;
+        width: 100% !important;
+    }
+
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .field-validation-error {
+        visibility: visible;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

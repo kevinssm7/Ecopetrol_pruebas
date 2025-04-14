@@ -1,0 +1,239 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Consulta.Consulta
+@{
+    ViewBag.Title = "CONSULTAS ECOPETROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<script src="https://cdn.datatables.net/v/bs4-4.1.1/dt-1.10.18/datatables.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="js/filtergrid.css" media="screen" />
+<script type="text/javascript" src="js/tablefilter.js"></script>
+
+
+<br />
+
+
+@using (Html.BeginForm())
+{
+
+    <a class="btn button_Asalud_descargas" href="@Url.Action("Descargar3", "Consultas", new { fechainicio = Model.fecha_inicio, fechafin = Model.fecha_fin, regional = Model.regional, documento = Model.num_identifi_afil, valor = Model.valor})">
+        DESCARGAR
+    </a>
+
+    <div class="table-responsive" id="mydatatable-container">
+        <table class="records_list table table-striped table-bordered table-hover" id="mydatatable">
+
+            <thead>
+                <tr>
+                    <th class="text-center th">NUMERO_IDENTIFICACION</th>
+                    <th class="text-center th">CLASE IDENTIFICACION</th>
+                    <th class="text-center th">APELLIDOS</th>
+                    <th class="text-center th">NOMBRES</th>
+                    <th class="text-center th">REGIONAL</th>
+                    <th class="text-center th">UNIS</th>
+                    <th class="text-center th">GENERO</th>
+                    <th class="text-center th">EDAD</th>
+                    <th class="text-center th">NUMERO DE FUNCION</th>
+                    <th class="text-center th">HORA DE FUNCION</th>
+                    <th class="text-center th">FECHA FALLECIMIENTO</th>
+                    <th class="text-center th">OBSERVACION FALLECIMIENTO</th>
+                    <th class="text-center th">DX PRINCIPAL EGRESO</th>
+                    <th class="text-center th">NOMBRE DX</th>
+                    <th class="text-center th">NOMBRE IPS</th>
+                    <th class="text-center th">CIUDAD IPS</th>
+                    <th class="text-center th">FECHA DIGITA</th>
+                    <th class="text-center th">TIPO TRABAJADOR </th>
+                    <th class="text-center th">REGIONAL ASALUD</th>
+                    <th class="text-center th">REGIONAL ID</th>
+                    <th class="text-center th">DIAGNOSTICO CAUSA DIRECTA MUERTE</th>
+                    <th class="text-center th">DIAGNOSTICO CAUSA BASICA MUERTE</th>
+                    <th class="text-center th">DIAGNOSTICO CAUSA ANTECEDENTE MUERTE</th>
+                    <th class="text-center th">FECHA EXP CEDULA</th>
+
+
+
+
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var order in Model.ListaMortalidadNuevo)
+                {
+
+                    <tr>
+
+                        <td>@order.Numero_identificacion</td>
+                        <td>@order.Clase_de_identificacion</td>
+                        <td>@order.Apellidos</td>
+                        <td>@order.Nombre</td>
+                        <td>@order.regional</td>
+                        <td>@order.unis</td>
+                        <td>@order.genero</td>
+                        <td>@order.edad</td>
+                        <td>@order.NumeroDefuncion</td>
+                        <td>@order.HoraDefuncion</td>
+                        <td>@order.fecha_fallecimiento</td>
+                        <td>@order.observacion_fallecimiento</td>
+                        <td>@order.DxprincipalEgreso</td>
+                        <td>@order.nombre_cie10</td>
+                        <td>@order.Nombre_Ips</td>
+                        <td>@order.CiudadIPs</td>
+                        <td>@order.fecha_digita</td>
+                        <td>@order.tipo_trabajador</td>
+                        <td>@order.regional_asalud</td>
+                        <td>@order.regional_id</td>
+                        <td>@order.diag_causa_directa_muerte</td>
+                        <td>@order.diag_causa_basica_muerte</td>
+                        <td>@order.diag_causa_antecedente_muerte</td>
+                        <td>@order.fecha_exp_cedula_fallecido</td>
+
+
+
+
+
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="display:none">
+
+        @*@Html.TextBoxFor(u => u.fecha_inicio)
+            @Html.TextBoxFor(u => u.fecha_final)
+            @Html.TextBoxFor(u => u.num_identifi_afil)
+            @Html.TextBoxFor(u => u.regional)
+            @Html.TextBoxFor(u => u.valor)*@
+
+    </div>
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+    });
+
+
+</script>
+<style>
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 8px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 6px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>
+

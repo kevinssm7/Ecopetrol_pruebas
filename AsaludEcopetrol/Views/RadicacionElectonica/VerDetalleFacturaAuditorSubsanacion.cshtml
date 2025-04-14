@@ -1,0 +1,1130 @@
+﻿
+@model ECOPETROL_COMMON.ENTIDADES.managemenet_prestadores_traerDatosFacturasAuditor_idDetalleResult
+
+@{
+    ViewBag.Title = "GESTIÓN SUBSANACIÓN FACTURA AUDITOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    int i = 0;
+}
+
+<div class="container">
+    <form id="formTotalidadFacturas">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS BÁSICOS</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Código prestador</label>
+                        <input type="hidden" id="idCargue" name="idCargue" value="@ViewBag.idCargue" />
+                        <input type="hidden" id="idDetalle" name="idDetalle" value="@ViewBag.idDetalle" />
+                        <input type="hidden" id="regional" name="regional" value="@ViewBag.regional" />
+                        <input type="hidden" id="cuv" name="cuv" value="@Model.cuv" />
+                        <input type="text" id="codigoPrestador" name="codigoprestador" value="@Model.codigo_prestador" class="form-control" maxlength="50" readonly />
+                        <input type="hidden" id="conteoGlosaActivas" name="conteoGlosaActivas" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Nit del prestador</label>
+                        <input type="text" id="nit" name="nit" value="@Model.nit_prestador" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Prestador</label>
+                        <input type="text" id="prestador" name="prestador" value="@Model.prestador" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Número factura</label>
+                        <input type="text" id="factura" name="factura" value="@Model.numero_factura" class="form-control" readonly />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha factura</label>
+                        <input type="text" id="fechafactura" name="fechafactura" style="width:100%;" value="@Model.fecha_factura" class="form-control datepickerr" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha inicio atención</label>
+                        <input type="text" id="fechainicio" name="fechainicio" style="width:100%;" value="@Model.fecha_inicio_atencion" class="form-control datepickerr" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha final atención</label>
+                        <input type="text" id="fechafin" name="fechafin" style="width:100%;" value="@Model.fecha_fin_atencion" class="form-control datepickerr" />
+                    </div>
+                    <br />
+
+                    <div class="col-md-3">
+                        <a class="btn btn-sm button_Asalud_Aceptar" onclick="verArchivos()">
+                            Documentos <i class="glyphicon glyphicon-file" style="align-content:center;"></i>
+                        </a>
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Número contrato</label>
+                        <input type="text" id="textoNumContrato" name="textoNumContrato" value="@Model.numero_contrato" class="form-control" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">GLOSAS SUBSANADAS</strong>
+            </div>
+            <div class="panel-body">
+                <input type="hidden" id="conteoGlosaSubsanada" name="conteoGlosaSubsanada" />
+                <div class="col-md-12 text-left">
+                    <div class="col-md-2">
+                        <a class="btn btn-sm button_Asalud_Aceptar" id="btnMasivoFinalizar" onclick="FinalizarGlosasMasivo();"><i class="glyphicon glyphicon-edit"></i>Finalizar masivo</a>
+                    </div>
+                    <div class="col-md-2">
+                        <a class="btn btn-sm button_Asalud_Aceptar" id="btnMasivoMantener" onclick="MantenerGlosaMasivo();;"><i class="glyphicon glyphicon-edit"></i>Mantener masivo</a>
+                    </div>
+                </div>
+                <br />
+                <br />
+
+                <table id="tablaGlosasSubsanadas" class="table table-striped table-bordered table-condensed datatable table-responsive">
+                    <thead>
+                        <tr>
+                            <th title="Solo se seleccionen los que se muestran por pantalla">Sel todos<input type="checkbox" id="chkTodos" onchange="MarcarTodos()" title="Solo se seleccionen los que se muestran por pantalla" /></th>
+
+                            <th>Id</th>
+                            <th>Nombre beneficiario</th>
+                            <th>Documento beneficiario</th>
+                            <th>Descripción CUPS-CUMS</th>
+                            <th>Observación glosa</th>
+                            <th>Observación subsanación</th>
+                            <th>¿Acepta glosa?</th>
+                            <th>Nota credito</th>
+                            <th>Valor nota credito</th>
+                            <th>Cantidad glosa</th>
+                            <th>Valor glosado</th>
+                            <th>Cantidad subsanada</th>
+                            <th>Valor subsanado</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <div class="col-md-12 text-center">
+                    <label class="text-secondary_asalud">Valor subsanado: <span id="valorTotalGlosasSubsanadas">0</span> </label>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <div class="col-md-12 text-right">
+            <a onclick="ExportarRips();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar detalles</a>
+        </div>
+        <br />
+        <div class="col-md-12 text-center">
+            <label class="text-secondary_asalud">Valor factura: <span id="valortotalFactura">0</span> </label>
+            <input type="hidden" class="form-control solo-numero" id="totalfactura" name="totalfactura" maxlength="12" />
+        </div>
+        <br />
+
+        <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">DETALLES</strong>
+                </div>
+                <div class="panel-body">
+
+                    <table id="tablaDetalle" class="table table-striped table-bordered table-condensed datatable table-responsive" style="width:98%;">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Documento usuario</th>
+                                <th>Usuario</th>
+                                <th>Código CUPS-CUMS</th>
+                                <th>Descripción CUPS-CUMS</th>
+                                <th>Fecha prestación</th>
+                                <th>CIE10</th>
+                                <th>CIE10 relacionado</th>
+                                <th>Cantidad</th>
+                                <th>Valor unitario</th>
+                                <th>valor total detalle</th>
+                                <th>Tipo IVA</th>
+                                <th>Valor con IVA</th>
+                                <th>TIGA</th>
+                                <th>Descripción TIGA</th>
+                                <th>Glosa automática tarifas</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_facturasCuv_conBeneficiariosResult item in ViewBag.listadoCups)
+                            {
+                                var existeBen = item.existeBeneficiario == 1 ? item.nombreUsuario : "NO EXISTE BENEFICIARIO";
+                                var colorExisteBB = item.existeBeneficiario == 0 ? "noExBb" : "";
+
+                                i++;
+
+                                var codGlosa = "";
+
+                                if (item.codConGlosa != null && item.cod_cups == item.codConGlosa)
+                                {
+                                    codGlosa = "class='Sombreado'";
+                                }
+
+                                <tr id="tr_@item.id_registro" style="@colorExisteBB">
+                                    <td @codGlosa id="td_@item.id_registro">@item.id_registro</td>
+                                    @*<td>
+                                            <input type="checkbox" id="chekregistro_@item.id_usuario-@item.id_registro-@item.id_factura-@item.id_recep_facturas_cargue_base-@item.tipo"
+                                                   name="chekregistro_@item.cod_cups-@item.id_usuario-@item.id_registro-@item.id_factura-@item.id_recep_facturas_cargue_base-@item.tipo" />
+
+                                            <input type="hidden" id="codCups_@item.id_registro-@item.id_usuario" value="@item.cod_cups" />
+                                            <input type="hidden" id="codigo_cuv_@item.id_registro-@item.id_usuario" value="@item.cod_cuv" />
+                                            <input type="hidden" id="tipo_@item.id_registro-@item.id_usuario" value="@item.tipo" />
+                                            <input type="hidden" id="valorCups_@item.id_registro-@item.id_usuario" value="@item.valor_cups" />
+                                            <input type="hidden" id="valorindividualCups_@item.id_registro-@item.id_usuario" value="@item.valor_individual" />
+                                            <input type="hidden" id="codPrestador_@i" value="@item.codigo_prestador-@item.id_usuario" />
+                                            <input type="hidden" id="idRips_@item.id_registro-@item.id_usuario" value="@item.id_registro" />
+                                            <input type="hidden" id="cantidad_@item.id_registro-@item.id_usuario" value="@item.conteo_cups" />
+                                            <input type="hidden" id="fechaPrestacion_@item.id_registro-@item.id_usuario" value="@item.fecha_prestacion" />
+
+                                            <input type="hidden" id="cie10_@item.id_registro" name="cie10_@item.id_registro" value="@item.cie10" />
+                                            <input type="hidden" id="descripcioncie10_@item.id_registro" name="descripcioncie10_@item.id_registro" value="@item.descripcion_cie10" />
+                                            <input type="hidden" id="cie10relacionado_@item.id_registro" name="cie10relacionado_@item.id_registro" value="@item.cie10_relacionado" />
+                                            <input type="hidden" id="descripcioncie10relacionado_@item.id_registro" name="descripcioncie10relacionado_@item.id_registro" value="@item.descripcion_cie10_relacionado" />
+                                        </td>*@
+
+                                    <td @codGlosa>@item.documentoUsuario</td>
+                                    <td @codGlosa>@item.nombreUsuario</td>
+                                    <td @codGlosa>@item.cod_cups</td>
+                                    <td @codGlosa>@item.descripcion_cuvs</td>
+                                    <td @codGlosa>@item.fecha_prestacion</td>
+                                    <td @codGlosa>
+                                        @item.cie10 - @item.descripcion_cie10
+                                    </td>
+                                    <td @codGlosa>
+                                        @item.cie10_relacionado - @item.descripcion_cie10_relacionado
+                                    </td>
+
+                                    <td @codGlosa>@item.conteo_cups</td>
+                                    <td @codGlosa>
+                                        @String.Format(new System.Globalization.CultureInfo("es-CO"), "{0:C}", item.valor_individual)
+                                    </td>
+                                    <td @codGlosa>@String.Format(new System.Globalization.CultureInfo("es-CO"), "{0:C}", item.valor_cups)</td>
+
+                                    <td @codGlosa>@item.tipo_iva</td>
+                                    <td @codGlosa>@String.Format(new System.Globalization.CultureInfo("es-CO"), "{0:C}", item.ValorNetoConIVA)</td>
+
+                                    <td @codGlosa>@item.codigo_tiga</td>
+                                    <td @codGlosa>@item.descripcion_tiga</td>
+                                    <td style="background-color:@(item.existeGlosaLevantada == 1 ? "#DBC5C5" : "transparent")">
+                                        @String.Format(new System.Globalization.CultureInfo("es-CO"), "{0:C}", item.glosa_automatica)
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                    <div class="col-md-12 text-center">
+                        <label class="text-secondary_asalud">Total RIPS: <span id="valorTotalCups">0</span> </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">GESTIÓN</strong>
+            </div>
+            <div class="panel-body">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="button_Asalud_Guardar" onclick="AvanzarFactura();">Guardar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="ModalArchivos" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:50%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">DOCUMENTOS CARGADOS</strong>
+                </div>
+                <div class="panel-body">
+                    <table id="tableArchivos" style="width:98%;" class="table table-bordered table-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th>item</th>
+                                <th>Tipo</th>
+                                <th>Nombre documento</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalMantenerGlosa" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:50%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">MANTENER GLOSA</strong>
+                </div>
+                <div class="panel-body">
+                    <form id="formMantenerglosa">
+                        <input type="hidden" id="txtIdRegistro" name="txtIdRegistro" />
+                        <input type="hidden" id="txtIdGlosa" name="txtIdGlosa" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="text-secondary_asalud">Observación</label>
+                                <textarea id="observacionMantener" name="observacionMantener" maxlength="1000" required class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row text-center">
+                            <a class="button_Asalud_Guardar" onclick="validarMantenerGlosa();">Guardar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalMantenerGlosaMasivo" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:50%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">MANTENER GLOSA MASIVO</strong>
+                </div>
+                <div class="panel-body">
+                    <form id="formMantenerglosaMasivo">
+                        <input type="hidden" id="txtIdRegistroMasivo" name="txtIdRegistroMasivo" />
+                        <input type="hidden" id="txtIdGlosaMasivo" name="txtIdGlosaMasivo" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="text-secondary_asalud">Observación</label>
+                                <textarea id="observacionMantenerMasivo" name="observacionMantenerMasivo" maxlength="1000" required class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row text-center">
+                            <a class="button_Asalud_Guardar" onclick="validarMantenerGlosaMasivo();">Guardar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        CalcularTotalFactura();
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        PintarGlosasSubsanadas();
+        paginadorCompletoCups();
+
+    });
+
+    $("#cie10").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarCIE10",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+        select: function (event, ui) {
+
+            var detalle = ui.item.label;
+            var descomposicion = detalle.split('-');
+            var descripcion = descomposicion[1];
+
+            $("#descripcioncie10").val(descripcion);
+
+        }
+    });
+
+    $("#cie10_relacionado").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarCIE10",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+        select: function (event, ui) {
+
+            var detalle = ui.item.label;
+            var descomposicion = detalle.split('-');
+            var descripcion = descomposicion[1];
+
+            $("#descripcioncie10_relacionado").val(descripcion);
+
+        }
+    });
+
+
+    $("#tiga").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarTigas",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+        select: function (event, ui) {
+
+            var detalle = ui.item.label;
+            var descomposicion = detalle.split('-');
+            var descripcion = descomposicion[1];
+            $("#descripcionTiga").val(descripcion);
+        }
+    });
+
+
+    function paginadorCompletoCups() {
+        //$("#tablaDetalle").DataTable().destroy();
+        $("#tablaDetalle").DataTable({
+            "searching": true,
+            "destroy": true, // Permite reinicializar sin eliminar los estilos
+
+            "aLengthMenu": [[30, 50, 100, 250, 500, 1000, 5000, -1], [30, 50, 100, 250, 500, 1000, 5000, "Todos"]],
+            "iDisplayLength": -1,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    }
+
+    function verArchivos() {
+
+        var b = $("#idDetalle").val();
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+            data: {
+                iddetalle: b
+            },
+
+            success: function (data) {
+                LoadingHide();
+                $("#tableArchivos tbody").empty();
+                $("#tableArchivos tbody").html(data);
+                $("#ModalArchivos").modal('show');
+            }
+        })
+    }
+
+    function ReiniciarTablas(idUsuario, tipo) {
+        if (tipo == 2) {
+
+            $('#usuarioPanel_' + idUsuario).on('shown.bs.collapse', function () {
+                PaginadorCups(idUsuario, tipo);
+            });
+        }
+    }
+
+    function AbrirSoporteClinico2(a, b) {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a) {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function PintarGlosasSubsanadas() {
+
+        var b = $("#idDetalle").val();
+
+        debugger
+
+        $.ajax({
+            url: "@Url.Action("TraerGlosaSubsanadaPrestador")",
+            type: "post",
+            data: {
+                idDetalle: b,
+                tipo: 2,
+            },
+
+            success: function (data) {
+                LoadingHide();
+
+                debugger
+
+                var datos = data.split('|');
+                var tabla = datos[0];
+                var conteoGlosa = datos[1];
+                var valorGlosas = datos[2];
+                var conteoActivas = datos[3];
+
+                $("#conteoGlosaSubsanada").val(conteoGlosa);
+                $("#tablaGlosasSubsanadas tbody").empty();
+                $('#tablaGlosasSubsanadas').DataTable().destroy();
+                $("#tablaGlosasSubsanadas tbody").html(tabla);
+                $("#conteoGlosaActivas").val(conteoActivas);
+
+                if (conteoGlosa > 0) {
+                    document.getElementById("btnMasivoFinalizar").style.display = "block";
+                    document.getElementById("btnMasivoMantener").style.display = "block";
+
+                } else {
+                    document.getElementById("btnMasivoFinalizar").style.display = "none";
+                    document.getElementById("btnMasivoMantener").style.display = "none";
+                }
+
+                debugger
+
+                var valorTotal = formatearaPesos(valorGlosas);
+                $("#valorTotalGlosasSubsanadas").text(valorTotal);
+
+                PaginadorGlosasSubsanadas();
+            }
+        });
+    }
+
+    function PaginadorGlosasSubsanadas() {
+
+        $('#tablaGlosasSubsanadas').DataTable({
+            "searching": true,
+            "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+            "iDisplayLength": -1,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    }
+
+    function MantenerGlosaMasivo() {
+
+        debugger
+
+        var conteo = $("#conteoGlosaSubsanada").val();
+        if (conteo > 0) {
+
+            var totalGlosas = [];
+            var totalRegistros = [];
+
+            for (var i = 1; i <= conteo; i++) {
+                if ($("#chS_" + i).is(':checked')) {
+                    totalGlosas.push($("#chS_" + i).val());
+                    totalRegistros.push($("#idRegistro_" + i).val());
+                }
+            }
+
+            if (totalGlosas.length > 0) {
+
+                $("#txtIdGlosaMasivo").val(totalGlosas);
+                $("#txtIdRegistroMasivo").val(totalRegistros);
+                $("#ModalMantenerGlosaMasivo").modal("show");
+            }
+            else {
+                alert("Seleccione glosas a mantener");
+                return false;
+            }
+        }
+        else {
+            alert("No hay glosas para mantener");
+            return false;
+        }
+    }
+
+    function validarMantenerGlosaMasivo() {
+        var validar = $("#formMantenerglosaMasivo").validate();
+        if (validar.form()) {
+
+            var glosas = $("#txtIdGlosaMasivo").val();
+            var registros = $("#txtIdRegistroMasivo").val();
+            var observacionMantenida = $("#observacionMantenerMasivo").val();
+
+            var confirmar = confirm("¿Seguro(a) de mantener estas glosas?");
+            if (confirmar) {
+                $.ajax({
+                    url: "@Url.Action("MantenerGlosaMasivo")",
+                    type: "post",
+                    data: {
+                        glosas: glosas,
+                        registros: registros,
+                        observacionMantenida: observacionMantenida
+                    },
+
+                    success: function (data) {
+
+                        $("#ModalMantenerGlosaMasivo").modal("hide");
+                        LoadingHide();
+                        alert(data.mensaje);
+                        PintarGlosasSubsanadas();
+                    }
+                })
+            }
+        }
+    }
+
+    function MantenerGlosa(idGlosa, idRegistro) {
+
+        $("#txtIdRegistro").val(idRegistro);
+        $("#txtIdGlosa").val(idGlosa);
+        $("#ModalMantenerGlosa").modal("show");
+    }
+
+    function validarMantenerGlosa() {
+
+        var validar = $("#formMantenerglosa").validate();
+        if (validar.form()) {
+
+            var idGlosa = $("#txtIdGlosa").val();
+            var idRegistro = $("#txtIdRegistro").val();
+            var observacionMantenida = $("#observacionMantener").val();
+
+            var confirmar = confirm("¿Seguro(a) de mantener esta glosa?");
+            if (confirmar) {
+                $.ajax({
+                    url: "@Url.Action("MantenerGlosa")",
+                    type: "post",
+                    data: {
+                        idGlosa: idGlosa,
+                        idRegistro: idRegistro,
+                        observacionMantenida: observacionMantenida
+                    },
+
+                    success: function (data) {
+
+                        $("#ModalMantenerGlosa").modal("hide");
+                        LoadingHide();
+                        alert(data.mensaje);
+                        PintarGlosasSubsanadas();
+                    }
+                })
+            }
+        }
+    }
+
+
+
+    function FinalizarGlosa(idGlosa, idRegistro) {
+             var confirmar = confirm("¿Seguro(a) de finalizar esta glosa?");
+        if (confirmar) {
+            $.ajax({
+                url: "@Url.Action("FinalizarGlosa")",
+                type: "post",
+                data: {
+                    idGlosa: idGlosa,
+                    idRegistro: idRegistro
+                },
+
+                success: function (data) {
+
+                    LoadingHide();
+                    alert(data.mensaje);
+                    PintarGlosasSubsanadas();
+                }
+            })
+        }
+    }
+
+    function FinalizarGlosasMasivo() {
+
+        var conteo = $("#conteoGlosaSubsanada").val();
+        if (conteo > 0) {
+
+            var totalGlosas = [];
+            var totalRegistros = [];
+
+            for (var i = 1; i <= conteo; i++) {
+                if ($("#chS_" + i).is(':checked')) {
+                    totalGlosas.push($("#chS_" + i).val());
+                    totalRegistros.push($("#idRegistro_" + i).val());
+                }
+            }
+
+            if (totalGlosas.length > 0) {
+                var confirmar = confirm("¿Seguro(a) de finalizar esta(s) glosas?");
+                if (confirmar) {
+
+                    LoadingShow();
+                    $.ajax({
+                        url: "@Url.Action("FinalizarGlosaMasivos")",
+                        type: "post",
+                        data: {
+                            totalGlosas: totalGlosas,
+                            totalRegistros: totalRegistros
+                        },
+
+                        success: function (data) {
+
+                            LoadingHide();
+                            alert(data.mensaje);
+                            PintarGlosasSubsanadas();
+                        }
+                    })
+                }
+            }
+            else {
+                alert("Seleccione glosas a finalizar");
+                return false;
+            }
+        }
+        else {
+            alert("No hay glosas para finalizar");
+            return false;
+        }
+    }
+
+    function MostrarTextoCompleto(i) {
+        $(".observaciones_" + i).hide();
+        $(".observaciones_completas_" + i).show();
+        $(".botonMostrar_" + i).hide();
+        $(".botonOcultar_" + i).show();
+    }
+
+    function OcultarTextoCompleto(i) {
+        $(".observaciones_" + i).show();
+        $(".observaciones_completas_" + i).hide();
+        $(".botonOcultar_" + i).hide();
+        $(".botonMostrar_" + i).show();
+    }
+
+    function MostrarTextoCompletoSubsanacion(i) {
+        $(".observacionesSubsanacion_" + i).hide();
+        $(".observaciones_completasSubsanacion_" + i).show();
+        $(".botonMostrarSubsanacion_" + i).hide();
+        $(".botonOcultarSubsanacion_" + i).show();
+    }
+
+    function OcultarTextoCompletoSubsanacion(i) {
+        $(".observacionesSubsanacion_" + i).show();
+        $(".observaciones_completasSubsanacion_" + i).hide();
+        $(".botonMostrarSubsanacion_" + i).hide();
+        $(".botonOcultarSubsanacion_" + i).show();
+    }
+
+    //TraerDetalleCupsDetallado
+
+    @*function PintarCups(idUsuario) {
+
+        var cuv = $("#cuv").val();
+        var idDetalle = $("#idDetalle").val();
+
+        $.ajax({
+            url: "@Url.Action("TraerDetalleCupsDetallado")",
+            type: "post",
+            data: {
+                cuv: cuv,
+                idDetalle: idDetalle,
+                idUsuario: idUsuario,
+                tipo: 1
+            },
+
+            success: function (data) {
+                LoadingHide();
+
+                var datos = data.split('|');
+                var tabla = datos[0];
+                var conteoCups = datos[1];
+                var totalCups = datos[2];
+                var cie10 = datos[3];
+                var cie10_rela = datos[4];
+                var tieneglosa = datos[5];
+
+                $("#conteoCups_" + idUsuario).val(conteoCups);
+                $("#tablaDetalle_" + idUsuario+ " tbody").empty();
+                $('#tablaDetalle_' + idUsuario).DataTable().destroy();
+                $("#tablaDetalle_" + idUsuario+ " tbody").html(tabla);
+                //document.getElementById('cie10_' + idUsuario).textContent = cie10;
+
+                var cie10_completo = cie10.split('-');
+                var cie10_completo_rela = cie10_rela.split('-');
+
+                document.getElementById('cie10_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10Descripcion_' + idUsuario).value = cie10_completo[1];
+                document.getElementById('cie10Anterior_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10DescripcionAnterior_' + idUsuario).value = cie10_completo[1];
+
+                document.getElementById('cie10rela_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10Descripcionrela_' + idUsuario).value = cie10_completo_rela[1];
+                document.getElementById('cie10relaAnterior_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10DescripcionrelaAnterior_' + idUsuario).value = cie10_completo_rela[1];
+
+                var valorTotal = formatearaPesos(totalCups);
+                $("#valorTotalCups_" + idUsuario).text(valorTotal);
+
+                var existeNegociacion = "@ViewBag.conContrato";
+
+                $("#anticipo").val("NO").trigger("change");
+
+                var tieneGlosaPartido = tieneglosa.split('-');
+                var existeGlosa = tieneGlosaPartido[1];
+                if (existeGlosa != 0) {
+                    $("#SombreadoUsuario_" + idUsuario).addClass("Sombreado");
+                }
+                else {
+                    $("#SombreadoUsuario_" + idUsuario).removeClass("Sombreado");
+                }
+
+                PaginadorCups(idUsuario, 1);
+            }
+        });
+    }*@
+
+
+    @*function PintarCups(idUsuario) {
+
+        var cuv = $("#cuv").val();
+        var idDetalle = $("#idDetalle").val();
+
+        $.ajax({
+            url: "@Url.Action("TraerDetalleCupsDetallado")",
+            type: "post",
+            data: {
+                cuv: cuv,
+                idDetalle: idDetalle,
+                idUsuario: idUsuario,
+                tipo: 2
+            },
+
+            success: function (data) {
+
+                LoadingHide();
+                var datos = data.split('|');
+                var tabla = datos[0];
+                var conteoCups = datos[1];
+                var totalCups = datos[2];
+                var cie10 = datos[3];
+                var cie10_rela = datos[4];
+                var tieneglosa = datos[5];
+
+                $("#conteoCups_" + idUsuario).val(conteoCups);
+                $("#tablaDetalle_" + idUsuario + " tbody").empty();
+                $('#tablaDetalle_' + idUsuario).DataTable().destroy();
+                $("#tablaDetalle_" + idUsuario + " tbody").html(tabla);
+
+                var cie10_completo = cie10.split('-');
+                var cie10_completo_rela = cie10_rela.split('-');
+
+                document.getElementById('cie10_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10Descripcion_' + idUsuario).value = cie10_completo[1];
+                document.getElementById('cie10Anterior_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10DescripcionAnterior_' + idUsuario).value = cie10_completo[1];
+
+                document.getElementById('cie10rela_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10Descripcionrela_' + idUsuario).value = cie10_completo_rela[1];
+                document.getElementById('cie10relaAnterior_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10DescripcionrelaAnterior_' + idUsuario).value = cie10_completo_rela[1];
+
+                var valorTotal = formatearaPesos(totalCups);
+                $("#valorTotalCups_" + idUsuario).text(valorTotal);
+
+                var tieneGlosaPartido = tieneglosa.split('-');
+                var existeGlosa = tieneGlosaPartido[1];
+                if (existeGlosa != 0) {
+                    $("#SombreadoUsuario_" + idUsuario).addClass("Sombreado");
+                }
+                else {
+                    $("#SombreadoUsuario_" + idUsuario).removeClass("Sombreado");
+                }
+
+                PaginadorCups(idUsuario, 1);
+
+                var existeNegociacion = "@ViewBag.conContrato";
+
+                $("#calcularTodo").val("SI").trigger("change");
+            }
+        });
+    }*@
+
+
+    function PaginadorCups(idUsuario, tipo) {
+
+        if (tipo == 2) {
+            $('#tablaDetalle_' + idUsuario).DataTable().destroy();
+        }
+
+        $('#tablaDetalle_' + idUsuario).DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 30,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    }
+
+    function CalcularTotalFactura() {
+        $.ajax({
+            url: "@Url.Action("DevolverValoresFactura", "RadicacionElectonica")",
+            method: "post",
+            data: { idFactura: "@ViewBag.idDetalle" },
+            type: "post",
+            success: function (data) {
+
+                var particion = data.split("_");
+                var valorFac = particion[0];
+                var valorGlosad = particion[2];
+                var valorCups = particion[3];
+
+                $("#valortotalFactura").text(formatearaPesos(valorFac)).trigger("change");
+                $("#valorTotalCups").text(formatearaPesos(valorCups)).trigger("change");
+                //$("#valorTotalGlosasSubsanadas").text(formatearaPesos(valorGlosad)).trigger("change");
+
+                $("#totalfactura").val(valorFac);
+            }
+        });
+    }
+
+
+    function AvanzarFactura() {
+
+        debugger
+
+        var confirmar = confirm("¿Seguro(a) de gesrionar esta factura subsanada?");
+        if (confirmar == true) {
+
+            var conteoGlosa = $("#conteoGlosaActivas").val();
+
+            if (parseInt(conteoGlosa) > 0 ) {
+                alert("Gestione las glosas y subsanaciones pendientes");
+                return false;
+            }
+
+            var formData = new FormData($("#formTotalidadFacturas")[0]);
+
+            formData.append("idDetalle", $("#idDetalle").val());
+
+            LoadingShow();
+            $.ajax({
+                url: '@Url.Action("AprobarFacturaSubsanada", "RadicacionElectonica")',
+                data: formData,
+                method: "POST",
+                processData: false,
+                contentType: false,
+
+                success: function (response) {
+                    LoadingHide();
+                    alert(response.mensaje);
+                    if (response.rta != 0) {
+                        location.href = "@Url.Action("RefrescarTableroFacturasAuditorSubsanacion", "RadicacionELectonica")";
+                    }
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+    function formatearaPesos(value) {
+        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(value);
+    }
+
+    function ExportarRips() {
+        var id = "@ViewBag.idDetalle";
+        var URL2 = "@Url.Action("DescargarReporteCupsGlosas", "RadicacionElectonica")?idFactura=" + id;
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function MarcarTodos() {
+
+        const chkPrincipal = document.getElementById("chkTodos");
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chS_']`);
+
+        // Iterar sobre todos los checkboxes dinámicos y ajustarlos al estado del principal
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = chkPrincipal.checked;
+        });
+    }
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 1px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #636363;
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        align-items: start !important;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+        align-items: center;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

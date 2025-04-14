@@ -1,0 +1,352 @@
+﻿@model AsaludEcopetrol.Models.Censo.censo
+@{
+    ViewBag.Title = "CENSO SIN GESTIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_Asalud">BÚSQUEDA</strong>
+        </div>
+        <br />
+
+        <div id="pnlPrincipal" class="General">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    @Html.RadioButtonFor(model => model.Items, "1", new { @onclick = "mostrar()" })
+                    @Html.Label("POR IPS")
+
+                    @Html.RadioButtonFor(model => model.Items, "2", new { @onclick = "mostrar1()" })
+                    @Html.Label("TODAS LAS IPS")
+                </div>
+            </div>
+            <br />
+
+        </div>
+
+        <div id='pnlBusquedaDocumento' style='display: none;'>
+            <form action="BuscarControlCenso" method="post" id="FormIps">
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-7" style="text-align:center;">
+                        <div class="col-md-1">
+                            <label class="text-secondary_asalud" style="font-size: 16px;">
+                                IPS
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control select2" id="ips_primaria" name="ips_primaria" required>
+                                <option value="">--Seleccione--</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ips_ciudad item in ViewBag.listadoIps)
+                                {
+                                    <option value="@item.id_ref_ips">@item.NombreIPS</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input id="BtnBuscarDocumento" type="submit" value="BUSCAR" class="btn-sm button_Asalud_Aceptar" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <br />
+        </div>
+
+        <div id='BusquedaID' style='display: none; text-align: center; font-size: 16px;' class="text-center">
+            <form action="BuscarControlCenso" method="post" id="FormIps">
+
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">BUSCAR TODAS LAS IPS</label>
+                    </div>
+                    <div class="col-md-1">
+                        <input id="BtnBuscarId" type="submit" value="BUSCAR" class="btn button_Asalud_Aceptar" />
+                    </div>
+                </div>
+            </form>
+            <br />
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="tablaCensos" class="table datatable1 table-bordered table-condensed" style="font-size:10px; width:98%;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">TIPO DOCUMENTO</th>
+                            <th class="text-center">DOCUMENTO</th>
+                            <th class="text-center">NOMBRE</th>
+                            <th class="text-center">FECHA RECEPCION CENSO</th>
+                            <th class="text-center">FECHA PRÓXIMO CENSO</th>
+                            <th class="text-center">ULTIMA HABITACIÓN</th>
+                            <th class="text-center">CASO CENSO</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="myTable">
+                        @if (ViewBag.conteoL > 0)
+                        {
+                            foreach (var order in Model.Lista)
+                            {
+                                <tr>
+                                    <td class="text-center">@order.tipo_identifi_afiliado</td>
+                                    <td class="text-center">@order.num_identifi_afil</td>
+                                    <td class="text-center">@order.nombre</td>
+                                    <td class="text-center">@order.fecha_recepcion_censo.Value.ToString("dd/MM/yyyy")</td>
+                                    @if (order.proximoEgreso != null)
+                                    {
+                                        <td class="text-center">@order.proximoEgreso.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@order.proximoEgreso</td>
+                                    }
+
+                                    <td class="text-center">@order.descripcionHabitacion</td>
+
+                                    @if (order.fechaEgresoConcu != null || order.fecha_egreso_censo != null)
+                                    {
+                                        if (order.fechaEgresoConcu != null)
+                                        {
+                                            <td class="text-center">
+                                                <a class="text-secondary_asalud">Cierre censo desde concurrencia: @order.fechaEgresoConcu.Value.ToString("dd/MM/yyyy")</a>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center">
+                                                <a class="text-secondary_asalud">Cierre censo: @order.fecha_egreso_censo.Value.ToString("dd/MM/yyyy")</a>
+                                            </td>
+                                        }
+
+                                        <td class="text-center">
+                                            <a class="btn button_Asalud_Rechazar" onclick="admitirCaso(@order.id_censo);">
+                                                CERRAR CENSO
+                                            </a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        if (order.proximoEgreso != null)
+                                        {
+                                            if (order.proximoEgreso <= DateTime.Now)
+                                            {
+                                                <td class="text-center">
+                                                    <a class="btn button_Asalud_Guardar" href="@Url.Action("VerCenso", "Censo", new { ID= order.id_censo,ID2 = order.ips_primaria})">
+                                                        VER CENSO
+                                                    </a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-center">
+                                                    <a class="btn button_Asalud_Aceptar" onclick="CensoInferior(@order.num_identifi_afil)">
+                                                        VER CENSO
+                                                    </a>
+                                                </td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center">
+                                                <a class="btn button_Asalud_Guardar" href="@Url.Action("VerCenso", "Censo", new { ID= order.id_censo,ID2 = order.ips_primaria})">
+                                                    VER CENSO
+                                                </a>
+                                            </td>
+                                        }
+
+
+                                        <td class="text-center">
+                                            <a class="btn button_Asalud_Aceptar" href="@Url.Action("CensoEgreso", "Censo", new { ID= order.id_censo,ID2 = order.ips_primaria})">
+                                                EGRESO CENSO
+                                            </a>
+                                        </td>
+                                    }
+
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        @*var ipsPrimaria = "@Model.ips_primaria";
+
+        if (ipsPrimaria != null && ipsPrimaria != "") {
+            $("#ips_primaria").val(ipsPrimaria).trigger("change");
+        }*@
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+
+        MostrarTabla();
+    });
+
+    function MostrarTabla() {
+
+        debugger
+
+        var conteo = "@ViewBag.conteoL";
+        if (conteo > 0) {
+
+            $('#tablaCensos').DataTable().destroy();
+            $('#tablaCensos').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 50,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+        $("#Items").val(1);
+    };
+
+    function mostrar1() {
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+        $("#Items").val(2);
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+    function admitirCaso(idCenso) {
+        var confirmar = confirm("¿Seguro(a) de cerrar este censo?");
+        if (confirmar == true) {
+            LoadingShow();
+            var laURLDeLaVista = '@Url.Action("SacarCensoTablero", "Censo")';
+            $.ajax({
+                type: "post",
+                url: laURLDeLaVista,
+                method: "post",
+                data: {
+                    idCenso: idCenso
+                },
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function CensoInferior(numIdenti) {
+        alert("El censo del paciente con documento: " + numIdenti + " no puede avanzar por el momento. ");
+    }
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #636363;
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+        position: absolute;
+        margin-top: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+

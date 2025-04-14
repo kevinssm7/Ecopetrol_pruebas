@@ -1,0 +1,561 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasgestionadasdtllCompletaResult>
+@{
+    ViewBag.Title = "MODIFICACIONES DE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">MÓDULO PARA REALIZAR MODIFICACIONES A UNA FACTURA</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="ModificacionesFactura" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Id factura:</label>
+                    <input type="text" class="form-control" id="idFactura" name="idFactura" maxlength="50" value="@ViewBag.idFactura" autocomplete="off" />
+                </div>
+
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Número factura:</label>
+                    <input type="text" class="form-control" id="numFac" name="numFac" maxlength="50" value="@ViewBag.numfactura" autocomplete="off" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Nit</label>
+                    <input type="text" class="form-control" name="nit" id="nit" autocomplete="off" maxlength="50" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Prestador</label>
+                    <input type="text" class="form-control" name="prestador" id="prestador" autocomplete="off" maxlength="60" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">SAP</label>
+                    <input type="text" class="form-control" name="sap" id="sap" autocomplete="off" maxlength="50" />
+                </div>
+                <br />
+                <div class="col-sm-8" style="text-align:center;">
+                    <label style="width:100%;visibility:hidden" class="text-secondary_asalud">Boton buscar:</label>
+                    <button type="button" onclick="ValidarFormulario()" class="btn button_Asalud_Aceptar"><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                </div>
+            </div>
+        </form>
+        <br />
+
+        <table id="tabla" class="table table-bordered tabla">
+            <thead>
+                <tr>
+                    <th>Id lote</th>
+                    <th>Id factura</th>
+                    <th>Número factura</th>
+                    <th>Regional</th>
+                    <th>Nit prestador</th>
+                    <th>Prestador</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    <th>Soportes</th>
+                    <th>Añadir soportes</th>
+                    <th>Modificar factura</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasgestionadasdtllCompletaResult item in Model)
+                {
+                    <tr>
+                        <td>@item.id_cargue_base</td>
+                        <td>@item.id_cargue_dtll</td>
+                        <td>@item.num_factura</td>
+                        <td>@item.nombre_regional</td>
+                        <td>@item.num_id_prestador</td>
+                        <td>@item.nombre_prestador</td>
+                        @if (item.valor_neto != null)
+                        {
+                            <td>@item.valor_neto.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("es-CO"))</td>
+                        }
+                        else
+                        {
+                            <td>@item.valor_neto</td>
+                        }
+
+                        <td>@item.estado_des</td>
+                        <td><a href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.cantidad_soportes soportes</a></td>
+
+
+                        <td><a role="button" href="javascript:añadirsoportes(@item.id_cargue_base , @item.id_cargue_dtll, '@item.num_factura')" class="btn btn-sm button_Asalud_Aceptar">Añadir soportes</a></td>
+                        <td><a role="button" href="javascript:ModificarFactura(@item.id_cargue_base , @item.id_cargue_dtll, '@item.num_factura', '@item.valor_neto','@item.num_id_prestador')" class="btn btn-sm button_Asalud_Guardar">Modificar factura</a></td>
+
+                        @*@if (item.estado_factura != 6 && item.estado_factura != 11 && item.estado_factura != 12)
+                            {
+                                <td><a role="button" href="javascript:añadirsoportes(@item.id_cargue_base , @item.id_cargue_dtll, '@item.num_factura')" class="btn btn-sm button_Asalud_Aceptar">Añadir soportes</a></td>
+                                <td><a role="button" href="javascript:ModificarFactura(@item.id_cargue_base , @item.id_cargue_dtll, '@item.num_factura', '@item.valor_neto','@item.num_id_prestador')" class="btn btn-sm button_Asalud_Guardar">Modificar factura</a></td>
+                            }
+                            else
+                            {
+                                <td>No aplica</td>
+                                <td>No aplica</td>
+                            }*@
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Soportes Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalAddSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cargar soportes clínicos</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario2" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <input type="hidden" id="txtidlote" name="txtidlote" />
+                        <input type="hidden" id="txtidfactura" name="txtidfactura" />
+                        <input type="hidden" id="numFac" name="numFac" />
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Seleccionar documento:</label>
+                            <input type="file" multiple class="form-control" accept=".pdf" required id="file" name="file" onchange="ValidacionArchivo()" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario2()">Subir documentos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalAddSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cargar soportes clínicos</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario2" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <input type="hidden" id="txtidlote" name="txtidlote" />
+                        <input type="hidden" id="txtidfactura" name="txtidfactura" />
+                        <input type="hidden" id="numFac" name="numFac" />
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Seleccionar documento:</label>
+                            <input type="file" multiple class="form-control" accept=".pdf" required id="file" name="file" onchange="ValidacionArchivo()" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario2()">Subir documentos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalModificarFactura" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modificar Factura</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario3" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <input type="hidden" id="txtidlote2" name="txtidlote2" />
+                        <input type="hidden" id="txtidfactura2" name="txtidfactura2" />
+                        <input type="hidden" id="numFac2" name="numFac2" />
+                        <input type="hidden" id="txtvalorneto" name="txtvalorneto" />
+                        <input type="hidden" id="txtnumidprestador" name="txtnumidprestador" />
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Número factura:</label>
+                            <input type="text" class="form-control" id="numfactura" name="numfactura" required maxlength="50" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Valor neto:</label>
+                            <input type="text" class="form-control solo-numero" id="valorneto" name="valorneto" required maxlength="15" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario3()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.tabla').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#prestador").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nombre",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nit").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nit",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+        $("#sap").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Sap",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.sap);
+                }
+            }
+        })
+    })
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+    function versoportes(a, b) {
+        $.ajax({
+            url: "@Url.Action("tablasoportesclinicos")",
+            type: "post",
+            data: {
+                idcargue: a,
+                iddetalle: b
+            },
+            success: function (data) {
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function AbrirSoporteClinico(a) {
+        var url = "@Url.Action("versoporteclinico", "RadicacionElectonica")?idsoporteclinico=" + a;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function añadirsoportes(a, b, c) {
+        $("#txtidlote").val(a);
+        $("#txtidfactura").val(b);
+        $("#numFac").val(c);
+        $("#ModalAddSoportes").modal('show');
+    }
+
+    function ModificarFactura(a, b, c, d, e)
+    {
+        $("#txtidlote2").val(a);
+        $("#txtidfactura2").val(b);
+        $("#numFac2").val(c);
+        $("#numfactura").val(c)
+        $("#txtvalorneto").val(d);
+        $("#valorneto").val(d);
+        $("#txtnumidprestador").val(e);
+        $("#ModalModificarFactura").modal('show');
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function ValidacionArchivo()
+    {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.pdf)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos PDF');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function GuardarDatos()
+    {
+        var formData = new FormData($("#formulario2")[0]);
+        formData.append("id_cargue_dtll", $("#txtidfactura").val());
+        formData.append("id_cargue", $("#txtidlote").val());
+        formData.append("num_factura", $("#numFac").val());
+        formData.append("file", $("input[type=file]")[0].files[0]);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("IngresoSoportes", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+
+            }
+        })
+    }
+
+    function ValidarFormulario3()
+    {
+        var validator = $("#formulario3").validate();
+        if (validator.form())
+        {
+            $.ajax({
+                url: "@Url.Action("ValidarEvistenciaFactura", "RadicacionElectonica")",
+                type:"post",
+                data: {
+                    idfactura : $("#txtidfactura2").val(),
+                    numnuevofactura : $("#numfactura").val(),
+                    numidprestador : $("#txtnumidprestador").val()
+                },
+                success: function (data)
+                {
+                    if (data.success)
+                    {
+                        ModificarFacturadtll();
+                    }
+                    else
+                    {
+                        alert(data.message);
+
+                    }
+                }
+            })
+
+
+
+
+        }
+    }
+
+    function ModificarFacturadtll()
+    {
+        var txt = confirm("¿Seguro que desea modificar los valores de esta factura?");
+        if (txt) {
+            var idlote = $("#txtidlote2").val();
+            var idfactura = $("#txtidfactura2").val();
+            var numanteriorfactura = $("#numFac2").val();
+            var numnuevofactura = $("#numfactura").val();
+            var valoranteriorfactura = $("#txtvalorneto").val();
+            var valornuevofactura = $("#valorneto").val();
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ModificarFactura", "RadicacionElectonica")",
+                type: "post",
+            data: {
+                idlote: idlote,
+                idfactura: idfactura,
+                numanteriorfactura: numanteriorfactura,
+                numnuevofactura: numnuevofactura,
+                valoranteriorfactura: valoranteriorfactura,
+                valornuevofactura: valornuevofactura
+            },
+            success: function (data)
+            {
+                if (data.success)
+                {
+                    LoadingHide();
+                    alert(data.message);
+                    location.reload();
+
+                }
+                else {
+                    LoadingHide();
+                    alert(data.message);
+                }
+            }
+        })
+            }
+    }
+
+</script>
+
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

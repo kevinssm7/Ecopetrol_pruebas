@@ -1,0 +1,77 @@
+﻿
+
+<form id="formularioGestion">
+    <div class="row">
+        <div class="col-sm-6 form-group">
+            <label class="control-label text-secondary_asalud">Descargue de imagen:</label>
+            <div class="row">
+                <label class="col-sm-3"><input type="radio" value="SI" name="chkDescargueImagen" id="chkDescargueImagenUno" onclick="SeleccionarDescargueImagen('SI')" checked />&nbsp;SI</label>
+                <label class="col-sm-3"><input type="radio" value="NO" name="chkDescargueImagen" id="chkDescargueImagenDos" onclick="SeleccionarDescargueImagen('NO')" />&nbsp;NO</label>
+            </div>
+            <input type="hidden" id="valDescargueImagen" value="SI" />
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="control-label text-secondary_asalud">Imagenes sin novedades:</label>
+            <div class="row">
+                <label class="col-sm-3"><input type="radio" value="SI" name="chkImagenesSN" id="chkImagenesSNUno" onclick="SeleccionarImagenesSinNovedades('SI')" checked />&nbsp;SI</label>
+                <label class="col-sm-3"><input type="radio" value="NO" name="chkImagenesSN" id="chkImagenesSNDoS" onclick="SeleccionarImagenesSinNovedades('NO')" />&nbsp;NO</label>
+            </div>
+            <input type="hidden" id="valImagenesSN" value="SI" />
+        </div>
+        <div class="col-sm-12 form-group">
+            <label class="control-label text-secondary_asalud">Observaciones:</label>
+            <textarea class="form-control" rows="4" id="observaciones" name="Observaciones" maxlength="455" required></textarea>
+        </div>
+    </div>
+</form>
+
+<script>
+    function SeleccionarDescargueImagen(opc)
+    {
+        $("#valDescargueImagen").val(opc);
+    }
+
+    function SeleccionarImagenesSinNovedades(opc)
+    {
+        $("#valImagenesSN").val(opc);
+    }
+
+    function ValidarFormularioGuardarGestion()
+    {
+        var validator = $("#formularioGestion").validate();
+        if (validator.form())
+        {
+            GuardarGestionInvetarioFacturaContabilizada();
+        }
+    }
+
+    function GuardarGestionInvetarioFacturaContabilizada()
+    {
+        $("#Modal").modal('hide');
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarGestionInvetarioFacturaContabilizada")",
+            type: "POST",
+            data: {
+                idInventarioCargueDtll: "@ViewBag.idInventarioCargueDtll",
+                descargueImagenes: $("#valDescargueImagen").val(),
+                imagenesSinNovedades: $("#valImagenesSN").val(),
+                observaciones: $("#observaciones").val()
+            },
+            success: function (data)
+            {
+                LoadingHide();
+                if (data.success)
+                {
+                    alertify.alert("¡Proceso exitoso!", "<p style='text-align:justify'>" + data.message + "</p>");
+                    LoadingHide();
+                    location.reload();
+                }
+                else
+                {
+                    alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + data.message + "</p>")
+                }
+            }
+        })
+    }
+</script>

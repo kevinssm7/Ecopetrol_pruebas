@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewBag.Title = "CONFIGURAR PRESTADORES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ 
+    List<ECOPETROL_COMMON.ENTIDADES.indicador_regional> lista = (List<ECOPETROL_COMMON.ENTIDADES.indicador_regional>)ViewData["listaregprestadores"];
+}
+
+<br />
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <div class="col-sm-12 row">
+            <div class="alert alert-info">
+                <strong>Nota:</strong> Seleccione los prestadores que desea configurar para esta regional, y luego presione el botón Guardar.
+            </div>
+            <table class="table table-hover table-striped table-condensed" width="100">
+                <thead style="background-color:#333333; color:white">
+                    <tr>
+                        <th class="text-center">Item</th>
+                        <th>Nombre Prestador</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int i = 0; }
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.indicadores item in ViewBag.listaprestadores)
+                    {
+                        i += 1;
+                        var result = lista.Where(l => l.id_indicador == item.id_indicador && l.id_regional == ViewBag.idregional).FirstOrDefault();
+                        <tr>
+                            @if (result != null)
+                            {
+                                <td class="text-center"><input checked="checked" id="ch_@i" type="checkbox" value="@item.id_indicador" /></td>
+                            }
+                            else
+                            {
+                                <td class="text-center"><input id="ch_@i" type="checkbox" value="@item.id_indicador" /></td>
+                            }
+
+                            <td>@item.nom_indicador</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-12 text-right form-group">
+            <a class="btn btn-default" href="@Url.Action("Regionalprestadores", "ProcesosInternos")" role="button">Volver</a>
+            <button class="btn btn-primary" type="button" onclick="GuardarCambios()">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function GuardarCambios()
+    {
+        LoadingShow();
+        var idregional = "@ViewBag.idregional";
+        var seleccionados = PrestadoresSeleccionados();
+
+        if (seleccionados.length > 0) {
+            $.ajax({
+                url: "@Url.Action("GuardarRegionalPrestadores")",
+                type: "post",
+                data: {
+                    idregional: idregional,
+                    prestadores: seleccionados
+                },
+                success: function (data)
+                {
+                    if (data == 0)
+                    {
+                        var url = "@Url.Action("Regionalprestadores", "ProcesosInternos")";
+                        location.href = url;
+                    }
+
+                    LoadingHide();
+                },
+            })
+        } else
+        {
+            alert("Para Guaradar los cambios, debes seleccionar almenos un prestador");
+            LoadingHide();
+        }
+
+    }
+
+    function PrestadoresSeleccionados()
+    {
+        var contador = "@ViewBag.countprestadores";
+        var seleccionados = [];
+
+        for (var i = 1; i <= contador; i++)
+        {
+            if ($("#ch_" + i).is(':checked'))
+            {
+                seleccionados.push($("#ch_" + i).val());
+            }
+        }
+        return seleccionados;
+    }
+
+</script>
+
+<style>
+    .sorting_asc:after {
+        color: white !important;
+    }
+
+    .pagination > .active > a {
+        background-color: #333333;
+        border-color: white;
+    }
+
+        .pagination > .active > a:hover {
+            background-color: white;
+            color: #333333;
+            border-color: #333333;
+        }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

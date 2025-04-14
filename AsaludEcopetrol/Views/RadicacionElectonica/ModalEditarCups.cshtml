@@ -1,0 +1,252 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.fis_rips_cargue_registrosCompletos
+
+@{
+    var tipoIngreso = ViewBag.tipoIngreso == 1 ? "" : "readonly";
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">
+            EDITAR RIPS: @ViewBag.idRegistro
+        </strong>
+
+    </div>
+    <div class="panel-body">
+        <form id="formEditar">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">CUPS</label>
+                        <input type="hidden" id="idFactura" name="idFactura" value="@ViewBag.idFactura" />
+                        <input type="hidden" id="id_registro" name="id_registro" value="@Model.id_registro" />
+                        <input type="hidden" id="idUsuario" name="idUsuario" value="@ViewBag.idUsuario" />
+                        <input type="hidden" id="idTransaccion" name="idTransaccion" value="@ViewBag.idTransaccion" />
+
+                        <input type="text" class="form-control" name="cod_cups" id="cod_cups" maxlength="50" required value="@Model.cod_cups" @tipoIngreso />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Descripción CUPS</label>
+                        <input type="text" class="form-control" name="descripcion_cuvs" id="descripcion_cuvs" maxlength="499" required value="@Model.descripcion_cuvs" @tipoIngreso />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Cantidad</label>
+                        <input type="text" class="form-control solo-numero" name="conteo_cups" id="conteo_cups" maxlength="50" required value="@Model.conteo_cups" @tipoIngreso />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Valor CUP</label>
+                        <input type="text" class="form-control solo-numero" name="valor_individual" id="valor_individual" maxlength="50" required value="@Model.valor_individual" @tipoIngreso />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">TIGA</label>
+                        <input type="text" class="form-control solo-numero" name="codigo_tiga" id="codigo_tiga" maxlength="50" value="@Model.codigo_tiga" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Descripción TIGA</label>
+                        <input type="text" class="form-control solo-numero" name="descripcion_tiga" id="descripcion_tiga" maxlength="50" value="@Model.descripcion_tiga" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Fecha prestación</label>
+                        <input type="text" class="form-control datepickerr" id="fecha_prestacion" name="fecha_prestacion" style="width:100%;" required value="@Model.fecha_prestacion" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row text-center">
+                    <a class="button_Asalud_Guardar" onclick="validarForm()">Guardar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        //$(".datepickerr").kendoDatePicker({
+        //    format: "MM/dd/yyyy"
+        //});
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+      
+        var fechaPrestacion = "@Html.Raw(Model.fecha_prestacion)";
+
+        if (fechaPrestacion) {
+            // Establecer el valor en el campo de fecha
+            $("#fecha_prestacion").val(fechaPrestacion).trigger("change");
+
+            // Remover la instancia previa del DatePicker si existe
+            if ($("#fecha_prestacion").data("kendoDatePicker")) {
+                $("#fecha_prestacion").data("kendoDatePicker").destroy();
+            }   
+
+            // Volver a inicializar el DatePicker
+            $("#fecha_prestacion").kendoDatePicker({
+                format: "MM/dd/yyyy",
+                value: fechaPrestacion // Asegurar que se aplique la fecha al DatePicker también
+            });
+        }
+        else {
+            $("#fecha_prestacion").kendoDatePicker({
+                format: "MM/dd/yyyy",
+            });
+        }
+
+        $(".k-input").attr('readonly', true);
+
+
+        $("#cod_cups").autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 2) {
+                    $.ajax({
+                        url: "/RadicacionElectonica/BuscarCUPS",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data.length > 0 && data != null) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                    };
+                                }));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            },
+            select: function (event, ui) {
+                var detalle = ui.item.label;
+                var descomposicion = detalle.split('-');
+                var descripcion = "";
+
+                if (descomposicion.length == 3) {
+                    descripcion = descomposicion[2];
+                }
+                else {
+                    descripcion = descomposicion[1];
+                }
+
+                $("#descripcion_cuvs").val(descripcion);
+            },
+            open: function () {
+                var menu = $(this).autocomplete("widget");
+                menu.css({
+                    'max-height': '200px',
+                    'overflow-y': 'auto'
+                });
+            }
+        });
+
+
+        $("#codigo_tiga").autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 0) {
+                    $.ajax({
+                        url: "/RadicacionElectonica/BuscarTigas",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data.length > 0 && data != null) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                    };
+                                }));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            },
+            select: function (event, ui) {
+                var detalle = ui.item.label;
+                var descomposicion = detalle.split('-');
+                var descripcion = descomposicion[1];
+                $("#descripcion_tiga").val(descripcion);
+            }
+        });
+
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+    });
+
+    function validarForm() {
+        var validar = $("#formEditar").validate();
+        if (validar.form()) {
+            GuardarEdicion();
+        }
+    }
+
+    function GuardarEdicion() {
+        var formData = new FormData($("#formEditar")[0]);
+
+        formData.append("id_registro", $("#id_registro").val());
+        formData.append("cod_cups", $("#idRips").val());
+        formData.append("descripcion_cuvs", $("#descripcion_cuvs").val());
+        formData.append("conteo_cups", $("#conteo_cups").val());
+        formData.append("valor_individual", $("#valor_individual").val());
+        formData.append("fecha_prestacion", $("#fecha_prestacion").val());
+
+        formData.append("tiga", $("#codigo_tiga").val());
+        formData.append("descripcion_tiga", $("#descripcion_tiga").val());
+        formData.append("idFactura", $("#idFactura").val());
+        formData.append("idUsuario", $("#idUsuario").val());
+        formData.append("idTransaccion", $("#idTransaccion").val());
+
+        var idFactura = $("#idFactura").val();
+        var idRegistro = $("#id_registro").val();
+
+        LoadingShow();
+        $.ajax({
+            url: '@Url.Action("GuardarEdicionRips", "RadicacionElectonica")',
+            data: formData,
+            method: "POST",
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                if (response.rta != 0) {
+                    debugger
+
+                    $("#modalRegistroRips").modal("hide");
+                    PintarCupsIndividual(idFactura, idRegistro);
+                }
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+</script>

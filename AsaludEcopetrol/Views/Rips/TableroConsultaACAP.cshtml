@@ -1,0 +1,467 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO RIPS AC - AP";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Consulta RIPS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" name="formulario">
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Tipo RIPS</label>
+                    <select id="tipoBusqueda" name="tipoBusqueda" class="select2 form-control" onchange="MostrarDivs(this.value)" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="1">-AP-</option>
+                        <option value="2">-AC-</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Código CUPS</label>
+                    @*<textarea id="codCups" name="codCups" class="form-control" cols="1" rows="1"></textarea>*@
+                    <input type="text" maxlength="2000" id="codCups" name="codCups" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Diagnóstico</label>
+                    <input type="text" maxlength="2000" id="diagnostico" name="diagnostico" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Cédula</label> 
+                    <input type="text" maxlength="2000" id="cedulas" name="cedulas" class="form-control" />
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div style="display:none;" id="divAP">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha inicio procedimiento</label>
+                        <input class="form-control datepickerr" id="fechaFiltroInicioAP" name="fechaFiltroInicioAP" style="width:100%;" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha fin procedimiento</label>
+                        <input class="form-control datepickerr" id="fechaFiltroFinAP" name="fechaFiltroFinAP" style="width:100%;" required />
+                    </div>
+                </div>
+                <div style="display:none;" id="divAC">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha inicio consulta</label>
+                        <input class="form-control datepickerr" id="fechaFiltroInicioAC" name="fechaFiltroInicioAC" style="width:100%;" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha fin consulta</label>
+                        <input class="form-control datepickerr" id="fechaFiltroFinAC" name="fechaFiltroFinAC" style="width:100%;" required />
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-sm-12 form-group text-center">
+                    <a class="btn button_Asalud_descargas" onclick="ExportarDatos()"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    function MostrarDivs(tipo) {
+
+        debugger
+        if (tipo == 1) {
+            document.getElementById("divAP").style.display = "block";
+            document.getElementById("divAC").style.display = "none";
+        } else if (tipo == 2) {
+            document.getElementById("divAP").style.display = "none";
+            document.getElementById("divAC").style.display = "block";
+        }
+    }
+
+    function ExportarDatos() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            var codCups = document.getElementById("codCups").value;
+            var cedula = document.getElementById("cedulas").value;
+            var diagnostico = document.getElementById("diagnostico").value;
+            var tipoBusqueda = document.getElementById("tipoBusqueda").value;
+            var ruta = "";
+            var nombreArchivo = "";
+
+
+            if (tipoBusqueda != null && tipoBusqueda != 0) {
+                if ((codCups.trim() != "" && codCups.trim() != null) || (cedula.trim() != "" && cedula.trim() != null) || (diagnostico.trim() != null && diagnostico.trim() != "")) {
+                    if (tipoBusqueda == 1) {
+                        var fechaIni = $("#fechaFiltroInicioAP").val();
+                        var fechaFin = $("#fechaFiltroFinAP").val();
+
+                        ruta = "@Url.Action("DescargarRipsAP", "Rips")";
+                        nombreArchivo = "ReporteConsultaRipsAP_" + kendo.toString(new Date(), "dd/MM/yyyy HH:mm") + ".xlsx";
+
+                    } else if (tipoBusqueda == 2) {
+                        var fechaIni = $("#fechaFiltroInicioAC").val();
+                        var fechaFin = $("#fechaFiltroFinAC").val();
+
+                        ruta = "@Url.Action("DescargarRipsAC", "Rips")";
+                        nombreArchivo = "ReporteConsultaRipsAC_" + kendo.toString(new Date(), "dd/MM/yyyy HH:mm") + ".xlsx";
+                    }
+
+                    if (fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") {
+                        // Crear un objeto con los datos a enviar
+                        LoadingShow();
+
+                        var data = {
+                            codCups: codCups,
+                            cedula: cedula,
+                            diagnostico: diagnostico,
+                            fechaInicio: fechaIni,
+                            fechaFin: fechaFin
+                        };
+
+                        debugger
+
+                        // Realizar una solicitud POST para enviar los datos al servidor
+                        fetch(ruta, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(data)
+                        })
+                            .then(function (response) {
+                                return response.blob();
+                            })
+                            .then(function (blob) {
+                                var url = window.URL.createObjectURL(blob);
+                                var a = document.createElement('a');
+                                a.href = url;
+                                a.download = nombreArchivo; // Puedes establecer un nombre de archivo personalizado
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                alert("DESCARGA COMPLETA.");
+                                LoadingHide();
+                                location.reload();
+                            })
+                            .catch(function (error) {
+                                console.error('Error al descargar el archivo:', error);
+                            });
+                    } else {
+                        alert("Seleccione periodo");
+                    }
+                } else {
+                    alert("Aparte del tipo, llene una de las otras opciones.");
+                }
+            } else {
+                alert("Seleccione tipo RIPS");
+            }
+        }
+    }
+
+
+    @*function ExportarDatos() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            var codCups = document.getElementById("codCups").value;
+            var cedula = document.getElementById("cedulas").value;
+            var diagnostico = document.getElementById("diagnostico").value;
+            var tipoBusqueda = document.getElementById("tipoBusqueda").value;
+
+            if (tipoBusqueda != null && tipoBusqueda != 0) {
+                if ((codCups.trim() != "" && codCups.trim() != null) || (cedula.trim() != "" && cedula.trim() != null) || (diagnostico.trim() != null && diagnostico.trim() != "")) {
+                    if (tipoBusqueda == 1) {
+                        var fechaIni = $("#fechaFiltroInicioAP").val();
+                        var fechaFin = $("#fechaFiltroFinAP").val();
+                    } else if (tipoBusqueda == 2) {
+                        var fechaIni = $("#fechaFiltroInicioAC").val();
+                        var fechaFin = $("#fechaFiltroFinAC").val();
+                    }
+
+                    if (fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") {
+
+                        var data = {
+                            codCups: codCups,
+                            cedula: cedula,
+                            diagnostico: diagnostico,
+                            fechaInicio: fechaIni,
+                            fechaFin: fechaFin
+                        };
+
+                        LoadingShow();
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("DescargarRipsAP", "Rips")",
+                            data: data,
+                            success: function (response) {
+                                debugger
+                                var newTab = window.open('', '_blank');
+                                newTab.location.href = response;
+                                LoadingHide();
+                            },
+                            error: function (xhr, status, error) {
+
+                            }
+                        });
+                    } else {
+                        alert("Seleccione periodo");
+                    }
+                } else {
+                    alert("Aparte del tipo, llene una de las otras opciones.");
+                }
+            } else {
+                alert("Seleccione tipo RIPS");
+            }
+            LoadingHide();
+        }
+    }*@
+
+
+
+    @*function ExportarDatos() {
+
+
+        var validator = $("#formulario").validate();
+        if (validator.form) {
+
+            var codCups = document.getElementById("codCups").value;
+            var cedula = document.getElementById("cedulas").value;
+            var diagnostico = document.getElementById("diagnostico").value;
+            var tipoBusqueda = document.getElementById("tipoBusqueda").value;
+
+            debugger
+
+            if (tipoBusqueda != null && tipoBusqueda != 0) {
+
+                if ((codCups.trim() != "" && codCups.trim() != null) || (cedula.trim() != "" && cedula.trim() != null) || (diagnostico.trim() != null && diagnostico.trim() != "")) {
+
+                    if (tipoBusqueda == 1) {
+
+                        var fechaIni = $("#fechaFiltroInicioAP").val();
+                        var fechaFin = $("#fechaFiltroFinAP").val();
+
+                        if (fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") {
+                            var URL = "@Url.Action("DescargarRipsAP", "Rips")?codCups=" + codCups + "&cedula=" + cedula + "&diagnostico=" + diagnostico + "&fechaInicio=" + fechaIni + "&fechaFin=" + fechaFin;
+                            window.open(URL, '', 'width=450,height=30,left=5,top=750,toolbar=yes');
+                        } else {
+                            alert("Seleccione periodo");
+                        }
+                    }
+
+                    else if (tipoBusqueda == 2) {
+
+                        var fechaIni = $("#fechaFiltroInicioAC").val();
+                        var fechaFin = $("#fechaFiltroFinAC").val();
+                        if (fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") {
+                            var URL = "@Url.Action("DescargarRipsAC", "Rips")?codCups=" + codCups + "&cedula=" + cedula + "&diagnostico=" + diagnostico + "&fechaInicio=" + fechaIni + "&fechaFin=" + fechaFin;
+                            window.open(URL, '', 'width=450,height=30,left=5,top=750,toolbar=yes');
+                        } else {
+                            alert("Seleccione periodo");
+                        }
+                    }
+
+                } else {
+                    alert("Aparte del tipo, llene una de las otras opciones.");
+                }
+
+            } else {
+                alert("Seleccione tipo RIPS");
+            }
+            LoadingHide();
+        }
+    }*@
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

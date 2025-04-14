@@ -1,0 +1,904 @@
+﻿@using Kendo.Mvc.UI;
+@model ECOPETROL_COMMON.ENTIDADES.alertas_dispensacion_detalle
+
+@{
+    ViewBag.Title = "INGRESO GESTIÓN ALERTA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var tipoGestion = ViewBag.idDetalle != 0 ? 2 : 1;
+
+}
+<br>
+
+<form id="formAlerta" enctype="multipart/form-data" method="post" action="@Url.Action("GestionarCasoAlerta","MedicamentosCalidad")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">Datos alerta</strong>
+                </div>
+                <div class="panel-body">
+
+                    <table id="tabla" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Dependencia salud</th>
+                                <th>Nombre comercial</th>
+                                <th>Número fórmula</th>
+                                <th>Tipo fórmula</th>
+                                <th>Identificación beneficiario</th>
+                                <th>Beneficiario</th>
+                                <th>Ciudad despacho</th>
+                                <th>UNIS</th>
+                                <th>IPS atención</th>
+                                <th>Fecha prescripción</th>
+                                <th>Laboratorio fabricante</th>
+                                <th>Id prescriptor</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int i = 0;}
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.management_alertasDispensacion_tableroControl_idResult item in ViewBag.listado)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@item.id_registro</td>
+                                    <td class="text-center">@item.dependencia_salid</td>
+                                    <td class="text-center">@item.nombre_comercial_medicamento</td>
+                                    <td class="text-center">@item.numero_formula</td>
+                                    <td class="text-center">@item.tipo_formula</td>
+                                    <td class="text-center">@item.tipo_identificacion_beneficiario-@item.numero_documento_beneficiario</td>
+                                    <td class="text-center">@item.nombre_beneficiario</td>
+                                    <td class="text-center">@item.ciudad_despacho</td>
+                                    <td class="text-center">@item.unis</td>
+                                    <td class="text-center">@item.nombre_ips_atencion</td>
+                                    <td class="text-center">@item.fecha_prescripcion_formula</td>
+                                    <td class="text-center">@item.laboratorio_fabricante</td>
+                                    <td class="text-center">@item.id_prescriptor</td>
+                                    <td class="text-center">@item.valor</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">Facturación</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="hidden" id="id_alerta" name="id_alerta" value="@ViewBag.idAlerta" />
+                            <input type="hidden" id="id_registro" name="id_registro" value="@ViewBag.idRegistro" />
+                            <input type="hidden" id="id_detalle" name="id_detalle" value="@ViewBag.idDetalle" />
+
+                            <label class="text-secondary_asalud">¿Tiene factura?</label>
+                            <select class="form-control" id="tienefactura" name="tienefactura" onchange="MostrarFacturacion(this.value)" required>
+                                <option value="">- Seleccione -</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Número factura</label>
+                            <input type="text" maxlength="50" id="numero_factura" name="numero_factura" class="form-control" value="@Model.numero_factura" @(ViewBag.idDetalle != 0 ? "required" : "") />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Valor facturado</label>
+                            <input type="text" maxlength="12" id="valor_facturado" name="valor_facturado" class="form-control solo-numero" value="@(Model.valor_facturado.ToString().Split('.')[0])" @(ViewBag.idDetalle != 0 ? "required" : "") />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="text-align:right">
+                    <a class="btn button_Asalud_Aceptar" onclick="MostrarDivPertinencia(@tipoGestion)">SIGUIENTE</a>
+                </div>
+            </div>
+            <br />
+
+            <div id="divPertinencia" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">Pertinencia y validación de prescripción</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="text-secondary_asalud">Diagnóstico asociado al medicamento HC</label>
+                                <input type="text" maxlength="12" id="diagnosticoHC" name="diagnosticoHC" class="form-control" autocomplete="off" value="@Model.diagnostico_asociaco_medicamento_hc" @(ViewBag.idDetalle != 0 ? "required" : "") />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-secondary_asalud">¿Medicamento pertinente?</label>
+                                <select class="form-control" id="medicamento_pertinente" name="medicamento_pertinente" @(ViewBag.idDetalle != 0 ? "required" : "")>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="SI">SI</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-secondary_asalud">¿Cantidad corresponde a la prescrita?</label>
+                                <select class="form-control" id="cantCorrespondePres" name="cantCorrespondePres" @(ViewBag.idDetalle != 0 ? "required" : "")>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="SI">SI</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-secondary_asalud">¿Cantidad pertinente?</label>
+                                <select class="form-control" id="cantPertinente" name="cantPertinente" @(ViewBag.idDetalle != 0 ? "required" : "")>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="SI">SI</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="text-align:right">
+                        <a class="btn button_Asalud_Aceptar" onclick="MostrarDivHallazgos(@tipoGestion)">SIGUIENTE</a>
+                    </div>
+                </div>
+                <br />
+            </div>
+
+            <div id="divHallazgos" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">Hallazgos de calidad</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">¿Es hallazgo de calidad de la data? S/N</label>
+                                <select class="form-control" id="desviacion" name="desviacion" onchange="mostrarCausaDesviacion(this.value)" required>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="SI">SI</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" id="divTipoDato" style="display:none;">
+                                <label class="text-secondary_asalud">Tipo dato</label>
+                                <select class="form-control" id="tipoDato" name="tipoDato" @(ViewBag.idDetalle != 0 ? "required" : "")>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="FALTANTES">Datos faltantes</option>
+                                    <option value="INCORRECTOS">Datos incorrectos</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4" id="divCausaHallazgo" style="display:none;">
+                                <label class="text-secondary_asalud">Causa del hallazgo</label>
+                                <input type="text" maxlength="200" id="causa_desviacion" name="causa_desviacion" class="form-control" value="@Model.causa_desviacion" @(ViewBag.idDetalle != 0 ? "required" : "") />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12" style="text-align:right">
+                        <a class="btn button_Asalud_Aceptar" onclick="MostrarDivConfirmacion(@tipoGestion)">SIGUIENTE</a>
+                    </div>
+                </div>
+                <br />
+            </div>
+            <br />
+
+            <div id="divConfirmacion" style="display:none;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">Confirmación de la alerta</strong>
+                    </div>
+                    <div class="panel-body">
+
+                        @if (ViewBag.idDetalle != 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_alertasDispensacion_datosTramiteResult item in ViewBag.listaTramite)
+                            {
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="text-secondary_asalud">¿Ya cuenta con soporte @item.descripcionTipo?</label>
+                                        <select id="tiene_soporte_@item.id_gestionTramite" name="tiene_soporte_@item.id_gestionTramite" class="form-control" onchange="mostrarTieneSoporte(this.value, @item.id_gestionTramite)" required>
+                                            <option value="">-Seleccione-</option>
+                                            <option value="SI">SI</option>
+                                            <option value="NO">NO</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4" id="divFechaRecepcion_@item.id_gestionTramite" style="display:none">
+                                        <label class="text-secondary_asalud">Fecha recepción</label>
+                                        <input type="text" id="fecha_recepcion_soporte_@item.id_gestionTramite" name="fecha_recepcion_soporte_@item.id_gestionTramite" class="form-control datepickerrRe_@item.id_gestionTramite" style="width:100%;" required />
+                                    </div>
+
+                                    <div class="col-md-8" id="divObservacionRecepcion_@item.id_gestionTramite" style="display:none">
+                                        <label class="text-secondary_asalud">Observación motivo</label>
+                                        <textarea type="text" id="observacion_soporte_@item.id_gestionTramite" name="observacion_soporte" class="form-control" style="width:100%;" required cols="5" rows="6"></textarea>
+                                    </div>
+                                </div>
+                                <br />
+                                <br />
+                            }
+                        }
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Confirmación alerta dispensación</label>
+                                <select class="form-control" id="confirmacionAlerta" name="confirmacionAlerta" onchange="CambiarObservacion(this.value)" required>
+                                    <option value="">- Seleccione -</option>
+                                    <option value="Confirmado">Confirmado</option>
+                                    <option value="Descartado">Descartado</option>
+
+                                    @if (ViewBag.idDetalle == 0)
+                                    {
+                                        <option value="Tramite">Tramite</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-6" id="divTipoTramite" style="display:none;">
+                                <label class="text-secondary_asalud">Tipo tramites</label>
+                                <input name="tipoTramite" id="tipoTramite" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            </div>
+
+                            <div class="col-md-12" id="divFechasAdicionales" style="display:none;">
+
+                            </div>
+
+                            <div class="col-md-4" id="divPlanAccion" style="display:none">
+                                <label class="text-secondary_asalud">Plan de acción</label>
+                                <input type="text" maxlength="200" id="plan_accion" name="plan_accion" class="form-control" value="@Model.plan_accion" @(ViewBag.idDetalle != 0 ? "required" : "") />
+                            </div>
+                            <div class="col-md-4" id="divResponsable" style="display:none">
+                                <label class="text-secondary_asalud">Responsable desviación</label>
+                                <select id="responsable_desviacion" name="responsable_desviacion" class="form-control" @(ViewBag.idDetalle != 0 ? "required" : "")>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="Operador Logistico">Operador Logistico</option>
+                                    <option value="Prescriptor">Prescriptor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-md-9" id="divObservaciones" style="display:none;">
+                                <label for="observaciones" class="text-secondary_asalud"></label>
+                                <textarea id="observaciones" name="observaciones" class="form-control" maxlength="499" rows="4" cols="6" @(ViewBag.idDetalle != 0 ? "required" : "")></textarea>
+                            </div>
+
+                            <div class="col-md-3" id="divSoportes" style="display:none;">
+                                <label class="text-secondary_asalud">Cargar soporte</label>
+                                <input type="file" id="soportes" name="soportes" class="form-control" multiple />
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <input id="BtnGuardar" onclick="ValidarFormulario();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="ArrayTipoTramite" name="ArrayTipoTramite" />
+                        <input type="hidden" id="ArrayTipoTramiteRespuestas" name="ArrayTipoTramiteRespuestas" />
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script>
+
+    var arrayDetalleTramite = [];
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        debugger
+
+        var id = parseInt("@ViewBag.idDetalle", 10);
+
+        if (id && id !== 0) {
+            Aplicarfechas();
+        }
+
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        var idDetalle = "@ViewBag.idDetalle";
+        if (idDetalle != 0) {
+            llenarCampos();
+        }
+    });
+
+    function Aplicarfechas() {
+
+        var ids = "@ViewBag.listaIdTramite";
+        if (ids != "") {
+
+            var fechas = "@ViewBag.listaFechasTramite";
+            var listaFechas = fechas.split("|");
+
+            var listaids = ids.split("|");
+            for (var i = 0; i < listaids.length; i++) {
+
+                var fechaTexto = listaFechas[i].split(" ")[0]; // Extraer solo la parte de la fecha (sin la hora)
+                var fechaArray = fechaTexto.split("/"); // Separar mes, día, y año
+
+                // Crear la fecha en formato yyyy/MM/dd
+                var fechaModificada = fechaArray[2] + "/" + fechaArray[0] + "/" + fechaArray[1];
+
+                $(".datepickerrRe_" + listaids[i]).kendoDatePicker({
+                    format: "MM/dd/yyyy",
+                    min: new Date(fechaModificada),
+                    max: new Date(),
+                });
+            }
+        }
+    }
+
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function MostrarTipoTramite() {
+
+        $("#tipoTramite").kendoDropDownTree({
+            checkboxes: true,
+            change: changeTipo,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("traerTipoTramite", "MedicamentosCalidad")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+                // Cambia el texto de "Check all"
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+            }
+        });
+    }
+
+    function changeTipo(e) {
+
+        var dropdowntree = $("#tipoTramite").data("kendoDropDownTree");
+        var lista = dropdowntree.value();
+        var llenadoFechas = "<br/>";
+
+        var dataSource = e.sender.dataSource._pristineData;
+
+        for (var i = 0; i < dataSource.length; i++) {
+            for (var j = 0; j < lista.length; j++) {
+                if (lista[j] == dataSource[i].value) {
+                    var valor = dataSource[i].value; // Aseguramos el acceso correcto
+                    var texto = dataSource[i].text;
+
+                    llenadoFechas += `
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">Fecha ${texto}</label>
+                    <input type="text" class="datepickerr form-control" id="fechaTipo_${valor}" name="fechaTipo_${valor}" style="width:100%;" required/>
+                </div>`;
+                }
+            }
+        }
+
+        if (llenadoFechas != "") {
+            document.getElementById("divFechasAdicionales").style.display = "block";
+            $("#divFechasAdicionales").html(llenadoFechas);
+
+            $(".datepickerr").kendoDatePicker({
+                format: "MM/dd/yyyy",
+                max: new Date()
+            });
+
+            $(".k-input").attr('readonly', true);
+        }
+    }
+
+    function llenarCampos() {
+        debugger
+
+        $("#tienefactura").val("@Model.factura").trigger("change");
+        $("#medicamento_pertinente").val("@Model.es_medicamento_pertinente").trigger("change");
+        $("#cantCorrespondePres").val("@Model.cantidad_dispensada_corresponde_prescrita").trigger("change");
+        $("#cantPertinente").val("@Model.cantidades_pertinentes").trigger("change");
+        $("#desviacion").val("@Model.es_desviacion").trigger("change");
+        $("#tipoDato").val("@Model.tipoDato").trigger("change");
+        $("#confirmacionAlerta").val("@Model.confirmacion_alerta_dispensacion").trigger("change");
+        $("#responsable_desviacion").val("@Model.responsable_desviacion").trigger("change");
+
+        document.getElementById("observaciones").textContent = "@Model.observacion";
+    }
+
+    $("#diagnosticoHC").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/MedicamentosCalidad/BuscarCIE10",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item.label,
+                                value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                            };
+                        }));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+    });
+
+    $("#valor_facturado").change(function () {
+
+        var valor = $("#valor_facturado").val();
+        if (valor <= 0) {
+            alert("Valor facturado debe ser mayor a 0");
+            $("#valor_facturado").val("");
+        }
+    });
+
+    function MostrarFacturacion(valor) {
+
+        if (valor == "NO") {
+            $("#numero_factura").prop("required", false);
+            $("#valor_facturado").prop("required", false);
+
+            $("#numero_factura").prop("readonly", true);
+            $("#valor_facturado").prop("readonly", true);
+
+            $("#numero_factura").val("");
+            $("#valor_facturado").val("");
+
+            document.getElementById("divPertinencia").style.display = "none";
+
+        }
+        else {
+            $("#numero_factura").prop("required", true);
+            $("#valor_facturado").prop("required", true);
+
+            $("#numero_factura").prop("readonly", false);
+            $("#valor_facturado").prop("readonly", false);
+        }
+    }
+
+    function ValidacionArchivoConfirmados() {
+        var data = document.getElementById('soporte');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        for (contador; contador < distintosArchivos.length; contador++) {
+
+            var nameext = data.files[contador].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["pdf", "Pdf", "PDF"];
+
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos PDF.");
+                $("#soporte").val("");
+            }
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function mostrarCausaDesviacion(valor) {
+        if (valor == "SI") {
+            document.getElementById("divCausaHallazgo").style.display = "block";
+            document.getElementById("divTipoDato").style.display = "block";
+        }
+        else {
+            document.getElementById("divCausaHallazgo").style.display = "none";
+            document.getElementById("divTipoDato").style.display = "none";
+            document.getElementById("divConfirmacion").style.display = "none";
+        }
+    }
+
+    function CambiarObservacion(valor) {
+
+        $("#plan_accion").val("");
+        $("#responsable_desviacion").val("");
+        $("#soportes").val("");
+        $("#divFechasAdicionales").html("");
+
+        document.getElementById("divSoportes").style.display = "none";
+        document.getElementById("divResponsable").style.display = "none";
+        document.getElementById("divPlanAccion").style.display = "none";
+        document.getElementById("divObservaciones").style.display = "none";
+        document.getElementById("divPlanAccion").style.display = "none";
+        document.getElementById("divTipoTramite").style.display = "none";
+        document.getElementById("divFechasAdicionales").style.display = "none";
+
+        if (valor == "Confirmado") {
+            $('label[for="observaciones"]').text('Justificación de la confirmación de la alerta');
+            document.getElementById("divSoportes").style.display = "block";
+            document.getElementById("divResponsable").style.display = "block";
+            document.getElementById("divPlanAccion").style.display = "block";
+            document.getElementById("divObservaciones").style.display = "block";
+
+        } else if (valor == "Descartado") {
+            $('label[for="observaciones"]').text('Motivo de descarte de la alerta');
+            document.getElementById("divObservaciones").style.display = "block";
+
+        } else if(valor == "Tramite"){
+            document.getElementById("divTipoTramite").style.display = "block";
+            MostrarTipoTramite();
+
+        }
+    }
+
+    function MostrarDivPertinencia(tipoValida) {
+
+        var tienefactura = $("#tienefactura").val();
+        var numero_factura = $("#numero_factura").val();
+        var valor_facturado = $("#valor_facturado").val();
+
+        if (tipoValida == 1) {
+            document.getElementById("divPertinencia").style.display = "block";
+        }
+
+        else {
+            if (tienefactura != null && tienefactura != 0) {
+                if (tienefactura == "SI") {
+                    if (numero_factura != "" && numero_factura != null && valor_facturado != null && valor_facturado != 0) {
+                        document.getElementById("divPertinencia").style.display = "block";
+                    }
+                    else {
+                        alert("Complete todos los campos de Facturación");
+                    }
+                }
+                else {
+                    document.getElementById("divPertinencia").style.display = "block";
+                }
+            }
+            else {
+                alert("Complete todos los campos de Facturación");
+            }
+        }
+    }
+
+    function MostrarDivHallazgos(tipoValida) {
+
+        var diagnosticoHC = $("#diagnosticoHC").val();
+        var medicamento_pertinente = $("#medicamento_pertinente").val();
+        var cantCorrespondePres = $("#cantCorrespondePres").val();
+        var cantPertinente = $("#cantPertinente").val();
+
+        //document.getElementById("divHallazgos").style.display = "block";
+
+        if (tipoValida == 1) {
+            document.getElementById("divHallazgos").style.display = "block";
+        }
+        else {
+            if (diagnosticoHC != null && diagnosticoHC != "" && medicamento_pertinente != "" && cantPertinente != null && cantPertinente != "" && medicamento_pertinente != null && cantCorrespondePres != null && cantCorrespondePres != 0) {
+                document.getElementById("divHallazgos").style.display = "block";
+            }
+            else {
+                alert("Complete todos los campos Pertinencia y validación de prescripción");
+            }
+        }
+    }
+
+    function MostrarDivConfirmacion(tipoValida) {
+        var desviacion = $("#desviacion").val();
+        var tipoDato = $("#tipoDato").val();
+        var causa_desviacion = $("#causa_desviacion").val();
+
+        //document.getElementById("divConfirmacion").style.display = "block";
+
+        if (tipoValida == 1) {
+            document.getElementById("divConfirmacion").style.display = "block";
+        }
+        else {
+            if (desviacion != null && desviacion != "") {
+                if (desviacion == "SI") {
+                    if (tipoDato != "" && tipoDato != null && causa_desviacion != null && causa_desviacion != "") {
+                        document.getElementById("divConfirmacion").style.display = "block";
+                    }
+                    else {
+                        alert("Complete todos los campos de Hallazgos de calidad");
+                    }
+                } else {
+                    document.getElementById("divConfirmacion").style.display = "block";
+                }
+            }
+        }
+
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formAlerta").validate();
+        if (validator.form()) {
+            LoadingShow();
+            ArmarArrayTramite();
+            ArmarArrayTramiteRespuesta();
+            $("#formAlerta").submit();
+        }
+    }
+
+    function ArmarArrayTramite() {
+
+        var confirmacionAlerta = $("#confirmacionAlerta").val();
+        if (confirmacionAlerta == "Tramite") {
+
+            var dropdowntree = $("#tipoTramite").data("kendoDropDownTree");
+            var lista = dropdowntree.value();
+            var llenadoFechas = "";
+
+            var dataSource = dropdowntree.dataSource._pristineData;
+
+            for (var i in lista) {
+                var valor = dataSource[i].value;
+                var fechaTomada = $("#fechaTipo_" + valor).val();
+
+                if (llenadoFechas == "") {
+                    llenadoFechas += valor + "_" + fechaTomada;
+                } else {
+                    llenadoFechas += "|" + valor + "_" + fechaTomada;
+                }
+            }
+
+            if (llenadoFechas != "") {
+                $("#ArrayTipoTramite").val(llenadoFechas);
+            }
+        }
+    }
+
+    function mostrarTieneSoporte(valor, id) {
+        if (valor == "SI") {
+
+            $("#fecha_recepcion_soporte_" + id).val("").trigger("change");
+             $("#observacion_soporte_" + id).val("");
+
+
+            document.getElementById("divFechaRecepcion_" + id).style.display = "block";
+            document.getElementById("divObservacionRecepcion_" + id).style.display = "none";
+        } else {
+            document.getElementById("divFechaRecepcion_" + id).style.display = "none";
+            document.getElementById("divObservacionRecepcion_" + id).style.display = "block";
+        }
+    }
+
+    function ArmarArrayTramiteRespuesta() {
+        var ids = "@ViewBag.listaIdTramite";
+        var resultado = "";
+        debugger
+
+        if (ids != "") {
+            var listaids = ids.split("|");
+
+            for (var i = 0; i < listaids.length; i++) {
+
+                var id = listaids[i];
+
+                var tieneSoporte = $("#tiene_soporte_" + id).val();
+                var fecha = $("#fecha_recepcion_soporte_" + id).val();
+                var observacion = $("#observacion_soporte_" + id).val();
+
+                if (resultado == "") {
+                    resultado += listaids[i] + "_" + tieneSoporte + "_" + fecha + "_" + observacion;
+                } else {
+                    resultado += "|" + listaids[i] + "_" + tieneSoporte + "_" + fecha + "_" + observacion;
+
+                }
+            }
+
+            $("#ArrayTipoTramiteRespuestas").val(resultado);
+
+        }
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>
+
+

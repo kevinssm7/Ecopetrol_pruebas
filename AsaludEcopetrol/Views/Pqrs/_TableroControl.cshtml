@@ -1,0 +1,260 @@
+﻿@using ECOPETROL_COMMON.ENTIDADES
+
+@{
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+}
+
+<div class="tab-pane active" id="1a">
+    <div class="col-md-12 text-right divDescarga">
+        <a class="button_Asalud_descargas botonFiltro" onclick="descargarPqrNormal(1);" style="text-align:right;"><i class="glyphicon glyphicon-download"></i> DESCARGAR</a>
+    </div>
+
+    <div class="container">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <form id="divFiltro" method="post" action="TableroControl" enctype="multipart/form-data">
+                    <div class="row">
+
+                        <div class="col-md-4 form-group" style="font-size:13px; text-align:center;">
+                            <div>
+                                <a class="text-primary_asalud" style="color: #636363;" onclick="mostrarEstados(1)">
+                                    SEMAFORIZACIÓN
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #D9DBDE; color: #636363 " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363;" onclick="mostrarEstados(1)">
+                                    Total casos: @ViewBag.Total
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #b0c2f2; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363;" onclick="mostrarEstados(2)">
+                                    Supersalud:  @ViewBag.conteoFiltradas["SuperSalud"]
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #A29DD7; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363;" onclick="mostrarEstados(9)">
+                                    Reabiertos: @ViewBag.conteoFiltradas["Reabiertos"]
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #FFDBC0; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363;" onclick="mostrarEstados(10)">
+                                    Devueltos cierre: @ViewBag.conteoFiltradas["Devueltocierre"]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #883344; color: #c5c5c5; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #c5c5c5;" onclick="mostrarEstados(3)">
+                                    Vencidos:  @ViewBag.conteoFiltradas["Vencidas"]
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #dbc5c5; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363; " onclick="mostrarEstados(4)">
+                                    En alerta: @ViewBag.conteoFiltradas["Alerta"]
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #FFFAE0; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363; " onclick="mostrarEstados(5)">
+                                    Por priorizar: @ViewBag.conteoFiltradas["Priorizar"]
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #DCF2D2; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363; " onclick="mostrarEstados(6)">
+                                    En tiempos: @ViewBag.conteoFiltradas["Tiempos"]
+                                </a>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #CF9CE3; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363; " onclick="mostrarEstados(7)">
+                                    Ampliación: @ViewBag.conteoFiltradas["Ampliacion"]
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 form-group" style="font-size:13px;">
+                            <div style="background-color: #E88693; color: #636363; " class="contenedor1">
+                                <a class="text-secondary_asalud" style="color: #636363; " onclick="mostrarEstados(8)">
+                                    Ampliación vencidos: @ViewBag.conteoFiltradas["AmpliacionVen"]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel-group" id="accordion" style="overflow-x:auto;">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="col-md-3">
+
+                        <a data-toggle="collapse" data-parent="#accordion" class="text-secondary_asalud collapse1" href="#collapse1">
+                            En revisión con auditoría: @ViewBag.filtrado["listaRevision"]
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a data-toggle="collapse" data-parent="#accordion" class="text-secondary_asalud collapse2" href="#collapse2">
+                            En revisión por analista: @ViewBag.filtrado["listaSinrevision"]
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a data-toggle="collapse" data-parent="#accordion" class="text-secondary_asalud collapse3" href="#collapse3">
+                            VoBo auditor: @ViewBag.filtrado["listaRespuestSi"]
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a data-toggle="collapse" data-parent="#accordion" class="text-secondary_asalud collapse4" href="#collapse4">
+                            Sin VoBo auditor: @ViewBag.filtrado["listaRespuestNo"]
+                        </a>
+                    </div>
+                </div>
+                <br />
+                <div id="collapse1" class="panel-collapse collapse">
+                    <div class="table-responsive">
+                        @Html.Action("_conRevision", "Pqrs")
+                    </div>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse in">
+                    <div class="table-responsive">
+                        @Html.Action("_sinRevision", "Pqrs")
+                    </div>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+                    @Html.Action("_voBoAuditor", "Pqrs")
+                </div>
+                <div id="collapse4" class="panel-collapse collapse">
+                    @Html.Action("_voBoAuditorNo", "Pqrs")
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+
+        mostrarTabla(2);
+
+        $('#collapse1').on('shown.bs.collapse', function () {
+            mostrarTabla(1);
+        });
+        $('#collapse2').on('shown.bs.collapse', function () {
+            mostrarTabla(2);
+        });
+
+        $('#collapse3').on('shown.bs.collapse', function () {
+            mostrarTabla(3);
+        });
+        $('#collapse4').on('shown.bs.collapse', function () {
+            mostrarTabla(4);
+        });
+    });
+
+    function mostrarTabla(tipo) {
+
+        var dato = $("#collapse" + tipo).hasClass("in");
+
+        if (dato) {
+
+            $('.tableReparto').DataTable().destroy();
+
+            $('.tableReparto').DataTable({
+                "searching": true,
+                "idisplaylength": 10,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    processing: "procesando...",
+                    search: "buscar:",
+                    lengthmenu: "mostrar menu registros",
+                    info: "mostrando registros del start al end de un total de total registros",
+                    infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(filtrado de un total de max registros)",
+                    infopostfix: "",
+                    loadingrecords: "cargando...",
+                    zerorecords: "no se encontraron resultados",
+                    emptytable: "ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "primero",
+                        previous: "anterior",
+                        next: "siguiente",
+                        last: "último",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarArchivos(idPqrs, tipo) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+
+            }
+        });
+    }
+
+    function descargarPqrNormal(tipo) {
+        var URL = "@Url.Action("ExportarInformePQRS", "Pqrs")?tipo=" + tipo;
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+
+    .collapse {
+        display: none;
+    }
+
+
+    .collapsing {
+        height: 0;
+        overflow: hidden;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+
+    .reabierto {
+        width: 25px;
+        height: 18px;
+        border-radius: 5px;
+        margin-left: -20px;
+    }
+</style>

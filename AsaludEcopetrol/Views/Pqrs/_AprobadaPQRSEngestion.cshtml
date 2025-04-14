@@ -1,0 +1,363 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+
+@{
+    ViewBag.Title = "GESTION APROBADA PQRS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+@using (Html.BeginForm("_AprobadaPQRSEngestion", "Pqrs", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+
+    <div class="row">
+
+        <div class="panel panel-default">
+
+            <div class="panel-heading">
+
+                <strong class="text-primary_asalud">Gestion Pqrs</strong>
+            </div>
+
+            <div class="panel-body">
+
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.estado_gestion)</span></h4>
+                        @Html.DropDownListFor(model => model.estado_gestion, new SelectList(Model.PqrsEstadoGest, "id_ref_PQRS_estado_Gestion", "descripcion"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(u => u.estado_gestion, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-6">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h4>
+                        @(Html.Kendo().DropDownListFor(m => m.prestador)
+                           .Name("prestador")
+                           .HtmlAttributes(new { style = "width:90%" })
+
+                           .DataTextField("Nombre")
+                           .DataValueField("id_ref_ips_cuentas")
+                           .Filter(FilterType.Contains)
+                           .Events(events => events.Select("CustomerSelect2"))
+           .DataSource(source =>
+           {
+               source.Read(read =>
+               {
+                   read.Action("GetCascadeIPS", "Pqrs");
+               });
+           })
+                        )
+
+                        @Html.ValidationMessageFor(u => u.prestador, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-sm-6 form-group">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_pqrs_subtematica)</span></h4>
+                        @*@Html.DropDownListFor(model => model.id_pqrs_subtematica, new SelectList(Model.PqrSubtematica, "id_pqrs_subtematica", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "mostrar1()" })*@
+
+                        @(Html.Kendo().DropDownListFor(m => m.id_pqrs_subtematica)
+          .Name("id_pqrs_subtematica")
+          .HtmlAttributes(new { style = "width:90%" })
+
+          .DataTextField("descripcion")
+          .DataValueField("id_pqrs_subtematica")
+          .Filter(FilterType.Contains)
+          .Events(events => events.Select("CustomerSelect1"))
+           .DataSource(source =>
+           {
+               source.Read(read =>
+               {
+                   read.Action("GetCascadeSubtematica", "Pqrs");
+               });
+           })
+                        )
+
+                        @Html.ValidationMessageFor(u => u.id_pqrs_subtematica, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-6 form-group">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_gestion)</span></h4>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_gestion)
+         .Name("datepicker4")
+        .Format("dd/MM/yyyy")
+        .Events(e =>
+        {
+            e.Change("change4");
+        })
+        .HtmlAttributes(new { style = "width: 90%", title = "Vigencia desde" })
+
+
+                        )
+                        @Html.ValidationMessageFor(u => u.fecha_gestion, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.evento_adverso)</span></h4>
+                        @Html.RadioButtonFor(model => model.evento_adverso, "SI")@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.evento_adverso, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.evento_adverso, "NO")@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.evento_adverso, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-6 form-group">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.requirio_llamada)</span></h4>
+                        @Html.RadioButtonFor(model => model.requirio_llamada, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.requirio_llamada, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.requirio_llamada, "NO", new { @onclick = "mostrar3()" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.requirio_llamada, null, new { @class = "label label-danger" })
+                    </div>
+
+
+                    <div id='pnlllamada' style='display:none;' class="General">
+                        <div class="col-sm-4 form-group">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.a_quie_llamo)</span></h4>
+                            @Html.DropDownListFor(model => model.a_quie_llamo, new SelectList(Model.PqrsLLamada, "id_ref_PQRS_llamada", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.a_quie_llamo, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.nombre_quien_llamo)</span></h4>
+                            @Html.TextBoxFor(p => p.nombre_quien_llamo, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.nombre_quien_llamo, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="">
+
+
+                    <div id='pnlaceptada' class="General">
+                        <div class="row">
+                            <div class="col-sm-3 form-group">
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.validez)</span></h4>
+                                @Html.RadioButtonFor(model => model.validez, "SI")@Html.Label("SI")
+                                @Html.ValidationMessageFor(u => u.validez, null, new { @class = "label label-danger" })
+                                &nbsp;
+                                @Html.RadioButtonFor(model => model.validez, "NO")@Html.Label("NO")
+                                @Html.ValidationMessageFor(u => u.validez, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4 form-group">
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.atributo)</span></h4>
+                                @Html.DropDownListFor(model => model.atributo, new SelectList(Model.PqrsAtributo, "id_ref_pqrs_atributo", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.atributo, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4 form-group">
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.pdf)</span></h4>
+                                <input type="file" id="FileUpload1" name="FileUpload1" class="form-control" />
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <h5><span class="control-label text-primary">@Html.LabelFor(p => p.fechaenvioprestador)</span></h5>
+                                <input type="text" class="datepicker" id="fechap_1" style="width: 100%" onchange="change6()" name="datepicker7" required="required" />
+                                <span id="lerror1" style="display:none" class="label label-danger">Este campo es obligatorio *</span>
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <h5><span class="control-label text-primary">@Html.LabelFor(p => p.fecharecepcionprestador)</span></h5>
+                                <input type="text" class="datepicker" id="fechap_2" onchange="change7()" style="width: 100%" name="datepicker8" required="required" />
+                                <span id="lerror2" style="display:none" class="label label-danger">Este campo es obligatorio *</span>
+                            </div>
+                            </div>
+
+                        </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-8 form-group">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.observacion_gestion)</span></h4>
+                        @Html.TextAreaFor(p => p.observacion_gestion, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.observacion_gestion, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+
+                <div id="pnlGuardar" class="General">
+                    <div align="center">
+
+                        <input id="BtnActualizar" type="submit" value="ACTUALIZAR" class="btn btn-success" />
+
+                        <div class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </div>
+
+                        <div style="display:none">
+
+                            @Html.TextBoxFor(u => u.fecha_ingreso_salesforceOK)
+                            @Html.TextBoxFor(u => u.fecha_ingreso_buzon_asaludOK)
+                            @Html.TextBoxFor(u => u.fecha_asignacionOK)
+                            @Html.TextBoxFor(u => u.fecha_gestionOK)
+                            @Html.TextBoxFor(u => u.id_ecop_PQRS)
+                            @Html.TextBoxFor(u => u.auditor)
+                            @Html.TextBoxFor(u => u.fecha_ampliacionok)
+                            @Html.TextBoxFor(u => u.estado_gestion)
+                            @Html.TextBoxFor(u => u.id_ecop_PQRA_enrevision)
+                            @Html.TextBoxFor(u => u.fechaenvioprestador)
+                            @Html.TextBoxFor(u => u.fecharecepcionprestador)
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+    <br />
+
+}
+
+<script>
+
+
+    $(document).ready(function () {
+
+        $('#datepicker4').attr('disabled', 'disabled');
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+    });
+
+
+    function change4() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_gestionOK]').val(DataItem);
+
+    }
+    function change6()
+    {
+        var DataItem = $("#fechap_1").val();
+        $('input:text[id$=fechaenvioprestador]').val(DataItem);
+
+    }
+
+    function change7()
+    {
+        var DataItem = $("#fechap_2").val();
+        $('input:text[id$=fecharecepcionprestador]').val(DataItem);
+
+    }
+
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_pqrs_subtematica").val(DataItem.id_pqrs_subtematica);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#prestador").val(DataItem.id_ref_ips_cuentas);
+    }
+
+
+
+    function mostrar2() {
+        document.getElementById('pnlllamada').style.display = 'block';
+    };
+    function mostrar3() {
+        document.getElementById('pnlllamada').style.display = 'none';
+    };
+
+
+</script>
+
+<style>
+
+
+    .letraa {
+        color: #337ab7;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        margin: 1px;
+        text-align: left;
+        width: 1107px;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 9px;
+        border-bottom: 2px solid #fff;
+        color: #000000;
+        border-top: 1px solid transparent;
+        border: 1px solid #ccc;
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+</style>

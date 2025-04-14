@@ -1,0 +1,318 @@
+﻿
+@{
+    ViewBag.Title = "AddDocumentosPQR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+@{ string alerta = (string)ViewData["alerta"];
+    string tipodocumento = (string)ViewData["tipodocumento"];
+}
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-filestyle/2.1.0/bootstrap-filestyle.min.js"></script>
+
+
+<br />
+<br />
+<br />
+<br />
+<br />
+@using (Html.BeginForm("Cargardocumentopqrs", "GestorDocumental", FormMethod.Post, new { enctype = "multipart/form-data", name = "formapqrs" }))
+{
+    <div class="container">
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <p class="title">
+                        <h4>
+                            <a data-toggle="collapse" data-parent="#accordion">INGRESO DOCUMENTOS</a>
+                        </h4>
+                    </p>
+                    @if (!String.IsNullOrEmpty(alerta))
+                    {
+                        @Html.Raw(alerta);
+                    }
+
+                </div>
+
+
+                <form id="frm-alumno">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-2 form-group">
+                            </div>
+                            <div class="col-sm-6 form-group" ">
+                                <label for="documento">Número Caso:</label>
+
+
+                                <input type="hidden" class="form-control" value="@ViewBag.pqrs" name="idpqrs" id="idpqrs" />
+                                <input type="text" class="form-control" name="numerocaso" readonly value="@ViewBag.numerocaso" />
+
+                            </div>
+                            <div class="col-sm-2 form-group" ">
+                            </div>
+                        </div>
+                        <div class="row ">
+                            <div class="col-sm-2">
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="documento">Tipo Documento:</label>
+
+                                </div>
+                                <div>
+                                    <select class="form-control" id="tipodocumental" name="tipodocumental">
+                                        <option value="">Seleccione...</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_gestion_tipo_documental item in ViewBag.lstdocumental)
+                                        {
+                                            if (tipodocumento != null)
+                                            {
+                                                if (tipodocumento == Convert.ToString(item.id_tipo_documental))
+                                                {
+                                                    <option selected value="@item.id_tipo_documental">@item.nombre</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@item.id_tipo_documental">@item.nombre</option>
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.id_tipo_documental">@item.nombre</option>
+                                            }
+
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+
+
+                        <div class="row form-group">
+                            <div class="col-sm-2">
+                            </div>
+
+                            <div class="col-sm-8">
+                                <div class="form-group">
+                                    <label for="documento">Observacion:</label>
+
+                                </div>
+                                <div>
+                                    <textarea onkeyup="this.value = this.value.toUpperCase();" class="form-control" rows="3" placeholder="Escriba aqui" name="observacion"></textarea>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+
+                        @*<div class="row">
+
+                                <div class="col-sm-2">
+                                </div>
+                                <div class="col-sm-8">
+                                    <h4><span class="label label-primary">Archivo Excel - PDF - JPG - PNG</span></h4>
+
+                                </div>
+                                <div class="col-sm-2">
+                                </div>
+                            </div>*@
+
+
+                        @*<div class="row">
+                                <div class="col-sm-2">
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div style="position:relative;">
+                                        <a class='btn btn-primary' href='javascript:void(0)'>
+                                            Seleccione Archivo..
+                                            <input type="file" id="FileUpload1" name="FileUpload" style='position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);opacity:0;background-color:transparent;color:transparent;' size="50" onchange='$("#upload-file-info").html($(this).val());'>
+                                        </a>
+                                        &nbsp;
+                                        <h3 class='label label-danger' id="upload-file-info"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                </div>
+                            </div>*@
+                        <div class="row form-group">
+                            <div class="col-sm-2">
+                            </div>
+                            <div class="col-sm-8">
+                                <label for="documento">Archivo PDF:</label>
+                                <br />
+                                <input type="file" id="FileUpload1" name="FileUpload1">
+
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-sm-2">
+                            </div>
+
+                            <div class="col-sm-8">
+                                <button class="k-button k-primary" id="get" style="margin-top: 2em; float: none;">CARGAR</button>
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+
+                        <table align="center" style='display:none;'>
+                            <tr>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            <tr><td>Archivo Excel - PDF - JPG - PNG </td></tr>
+                            <tr>
+
+                                @*<td><input type="file" id="FileUpload1" name="FileUpload1" /></td>*@
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="k-button k-primary" type="submit" id="get" style="margin-top: 2em; float: right;">Cargar</button>
+
+                                </td>
+
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationSummary(true, "")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style='display:none;'></td>
+
+                            </tr>
+
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+<script>
+    $(document).ready(function () {
+
+        $("form[name='formapqrs']").validate({
+            lang: 'Es',
+            rules: {
+                FileUpload: "required",
+                observacion: "required",
+                tipodocumental: { required: true },
+            },
+            messages: {
+                file: 'No se ha seleccionado ningun archivo'
+            },
+            submitHandler: function (form) {
+                form.submit();
+            }
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+    })
+</script>
+
+
+<style>
+    label.error {
+        color: indianred;
+    }
+
+    a.btn.btn-primary label.error {
+        color: white;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

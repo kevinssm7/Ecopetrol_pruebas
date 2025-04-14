@@ -1,0 +1,188 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE MASIVO BASE BENEFICIARIOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int usuario = (int)ViewBag.idusuario;
+    int? rta = (int?)ViewBag.rta;
+}
+
+<br />
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@ViewData["msj"]
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong>@ViewData["msj"]
+            </div>
+        </div>
+    }
+
+    <div class="tab-pane active " id="obligado">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Cargue</strong>
+            </div>
+            <div class="panel-body">
+                <form id="form" action="GuardarBaseBeneficiariosMasivo" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Seleccionar archivo:</label>
+                            <input type="file" class="form-control" id="file" name="file" required onchange="ValidacionArchivo()" />
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Mes:</label>
+                            <select class="form-control select2" id="mes" name="mes" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Año:</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" id="año" name="año" maxlength="4" required />
+                        </div>
+                        <div class="col-sm-12 text-center">
+                            <label style="width:100%; visibility:hidden" class="text-secondary_asalud">Seleccionar archivo:</label>
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar registros</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".k-input").attr('readonly', true);
+
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    })
+
+    function ValidarFormulario() {
+        var validator = $("#form").validate();
+        if (validator.form()) {
+            if (ValidacionArchivo()) {
+                LoadingShow()
+                $("#form").submit();
+            }
+        }
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.xls|\.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .xls o .xlsx');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+</script>
+<style>
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

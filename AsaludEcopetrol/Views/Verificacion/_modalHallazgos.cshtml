@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "_modalHallazgos";
+    var tipo = ViewBag.tipo;
+}
+
+
+<div class="table-responsive">
+    <div>
+        <label class="text-secondary_asalud">ÍTEMS</label>
+    </div>
+
+    <table class="table table-bordered table-condensed" style="font-size:10px; width:99%;">
+        <thead>
+            <tr>
+                <th>ítem</th>
+                <th>Evaluación</th>
+                <th>Criterio</th>
+                <th>Peso</th>
+                <th>Valor</th>
+                <th>Resultado</th>
+                <th>impacto</th>
+                <th>Prestador</th>
+                <th>Redional</th>
+                <th>Farmacia</th>
+                <th>Observaciones</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                if (ViewBag.total != 0)
+                {
+
+                    var i = 0;
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacion_total_hallazgoResult item in ViewBag.list)
+                    {
+                        i++;
+                        <tr>
+                            <td class="text-center">@item.id_tipoCriterio</td>
+                            <td class="text-center">@item.id_evaluacion</td>
+                            <td>@item.nombre_criterio</td>
+                            <td>@item.peso</td>
+                            <td>@item.valor</td>
+                            <td>@item.resultado_total</td>
+                            <td>@item.impacto</td>
+                            <td>@item.nit_prestador-@item.nombre_prestador</td>
+                            <td>@item.regional</td>
+                            <td>@item.nombre_farmacia</td>
+                            <td>@item.observacionHallazgo</td>
+
+                            @if (tipo == 1)
+                            {
+                                <td>
+                                    @if (item.estado_hallazgo == null)
+                                    {
+                                        <a class="button_Asalud_Aceptar" onclick="validacion2(@item.id_total, @item.id_tipoCriterio);">EVALUAR</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="button_Asalud_Aceptar" onclick="validacion2(@item.id_total, @item.id_tipoCriterio);">@item.descripcion_estado</a>
+                                    }
+                                </td>
+                            }
+                            else
+                            {
+                                <td><label class="text-secondary_asalud">Cerrado</label></td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    if (tipo == 1)
+                    {
+
+
+                        <tr>
+                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                <label>No hay hallazgos por subsanar</label>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+
+                        <tr>
+                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                <label>No hay hallazgos subsanados</label>
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+
+    //$(document).ready(function () {
+    //    $('.select2').select2({
+    //        width: '100%'
+    //    });
+
+    //    $(".datepickerr").kendoDatePicker({
+    //        format: "MM/dd/yyyy",
+    //    });
+
+    //    $(".k-input").attr('readonly', true);
+    //});
+
+
+    function validarformularioCerrar() {
+        var validator = $("#formHallazgos").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formHallazgos").submit();
+        }
+    }
+</script>

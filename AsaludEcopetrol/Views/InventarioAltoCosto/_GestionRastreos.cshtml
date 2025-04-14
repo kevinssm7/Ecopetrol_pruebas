@@ -1,0 +1,217 @@
+﻿
+<form id="formGestion" action="GuardarGestionRastreo" method="post" enctype="multipart/form-data">
+    <input type="hidden" id="id_registro" name="id_registro" value="@ViewBag.id" />
+    <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+
+    <div class="panel panel-default">
+        @if (ViewBag.conteoGestiones > 0)
+        {
+            <div class="panel panel-default">
+
+                <div class="panel-body table-responsive">
+                    <table class="table table-bordered table-responsive">
+                        <tbody>
+                            <tr>
+                                <th class="text-center">Id gestión</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Observaciones</th>
+                                <th class="text-center">Estadio</th>
+                                <th class="text-center">Fecha diagnóstico</th>
+                                <th class="text-center">Año diagnóstico</th>
+                                <th class="text-center">Fecha gestión</th>
+                                <th class="text-center">Usuario gestiona</th>
+                            </tr>
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.management_cuentasAltoCosto_gestionesResult item in ViewBag.gestiones)
+                            {
+                                <tr>
+                                    <td>@item.id_gestion</td>
+                                    <td>@item.descripcionTipo </td>
+                                    <td>@item.descripcionEstado </td>
+                                    <td>@item.observaciones </td>
+                                    <td>@item.estadio </td>
+                                    <td>@item.fecha_diagnostico </td>
+                                    <td>@item.año_diagnostico </td>
+                                    <td>@item.fecha_gestion </td>
+                                    <td>@item.nombreCarga </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger" role="alert">
+                SIN GESTIÓN.
+            </div>
+        }
+
+        <div class="panel-body">
+            <div id="tipoCancer" style="display:none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Confirmación diagnóstica:</label>
+                        <select id="confirmacionDiagnostico" name="confirmacionDiagnostico" class="form-control select3" onchange="validacionObliga(this.value)" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cargue_cuentas_altoCosto_estados item in ViewBag.estado)
+                            {
+                                <option value="@item.id_estado">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Fecha diagnóstico:</label>
+                        <input id="fecha_diagnostico" name="fecha_diagnostico" style="width:100%;" class="form-control datepickerr" required />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Estadio:</label>
+                        <input type="text" id="estadio" name="estadio" class="form-control" maxlength="199" required />
+                    </div>
+                </div>
+            </div>
+
+            <div id="CasosAparte" style="display:none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Estado caso:</label>
+                        <select id="estado_caso" name="estado_caso" class="form-control select3" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cargue_cuentas_altoCosto_estados item in ViewBag.estado)
+                            {
+                                <option value="@item.id_estado">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observaciones:</label>
+                    <textarea id="observaciones" name="observaciones" class="form-control char-count" maxlength="5000" cols="4" rows="4" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button onclick="ValidarFormularioGestion()" class="btn button_Asalud_Guardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+
+        var tipo = "@ViewBag.tipo";
+        if (tipo == 1) {
+            document.getElementById("tipoCancer").style.display = "block";
+            document.getElementById("CasosAparte").style.display = "none";
+        } else {
+            document.getElementById("tipoCancer").style.display = "none";
+            document.getElementById("CasosAparte").style.display = "block";
+        }
+
+        $('.select3').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date(),
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+
+        MostrarTablaGestiones();
+
+    });
+
+    function validacionObliga(opcion){
+        if (opcion == 1) {
+            $('#fecha_diagnostico').prop("required", true);
+            $('#estadio').prop("required", true);
+        } else {
+            $('#fecha_diagnostico').prop("required", false);
+            $('#estadio').prop("required", false);
+        }
+    }
+
+    function MostrarTablaGestiones() {
+         var conteo = "@ViewBag.conteoGestiones";
+        if (conteo > 0) {
+            $('.table2').DataTable().destroy();
+            $('.table2').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function ValidarFormularioGestion() {
+
+        var validator = $("#formGestion").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formGestion").submit();
+        }
+    }
+
+</script>
+<style>
+    .charCount {
+        font-size: 10px;
+    }
+</style>

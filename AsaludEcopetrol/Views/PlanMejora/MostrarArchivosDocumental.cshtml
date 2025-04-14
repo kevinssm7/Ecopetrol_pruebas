@@ -1,0 +1,273 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS PLAN MEJORA: @ViewBag.idPlan </a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+
+
+                <table id="tableGestionDocumental" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+                            <th class="text-center">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoArchivos > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_DocumentosPlanResult item in ViewBag.listaArchivos)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_digita</td>
+                                    }
+
+                                    <td class="text-center">@item.descripcionTipoArchivo</td>
+                                    <td class="text-center">@item.nombre_archivo</td>
+                                    <td class="text-center">@item.nombreCarga</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_archivo);'>Ver archivo</a>
+                                    </td>
+
+                                    @*@if (ViewBag.rol == "1" || ViewBag.rol == "10" || ViewBag.rol == "34")*@
+
+                                    <td class="text-center">
+                                        <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_archivo);">
+                                            eliminar
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        <div id="divFormulario">
+            <form id="formularioArchivosIngreso">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Adjuntar:</label><span style="color:red"></span>
+                        <input type="file" class="form-control" name="archivos" id="archivos" multiple />
+                        <input type="hidden" id="idPlanI" name="idPlanI" value="@ViewBag.idPlan" />
+                        <input type="hidden" id="tipoI" name="tipoI" value="@ViewBag.tipo" />
+
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioArchivos()">GUARDAR</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="text-right" style="margin-right:5%;">
+        <button class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        //$("#tipoArchivo").find("option[value='3']").remove();
+        $("#CargaDoc").val("@ViewBag.cargaDocumentos");
+        MostrarDetalle();
+    });
+
+    function MostrarDetalle() {
+        var conteo = "@ViewBag.conteoArchivos";
+        if (conteo > 0) {
+            $('#tableGestionDocumental').DataTable().destroy();
+            $('#tableGestionDocumental').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function ValidarformularioArchivos() {
+        var validator = $("#formularioArchivosIngreso").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function MostrarArchivo(idArchivo) {
+        var url = "@Url.Action("VerArchivoPM", "PlanMejora")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idPlan", $("#idPlanI").val());
+        formData.append("tipo", $("#tipoI").val());
+
+        var archivos = $("#archivos").get(0).files;
+        for (i = 0; i < archivos.length; i++) {
+            formData.append("files", archivos[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarArchivoPlanMejora", "PlanMejora")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                debugger
+                MostrarArchivos("@ViewBag.idPlan","@ViewBag.tipo", 2);
+            }
+        })
+
+    }
+
+    function EliminarArchivo(idArchivo) {
+        if (confirm('Está a punto de eliminar un archivo ¿Desea continuar?')) {
+            EliminarRegistro(idArchivo);
+        }
+    }
+
+    function EliminarRegistro(idArchivo) {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idArchivo", idArchivo);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarArchivoPM", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                LoadingHide();
+                alert(response.mensaje);
+                MostrarArchivos("@ViewBag.idPlan","@ViewBag.tipo");
+            }
+        })
+    }
+
+
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>

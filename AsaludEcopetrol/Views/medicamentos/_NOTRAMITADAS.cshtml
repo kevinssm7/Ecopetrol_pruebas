@@ -1,0 +1,138 @@
+﻿<div class="tab-pane active" id="1a">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="text-secondary_asalud">Total en trámite: @ViewBag.total</label>
+        </div>
+
+        @if (ViewBag.total > 0)
+        {
+            <div class="col-md-6" style="text-align: right;">
+                <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:excelAprobadas(3)">
+                    <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                </a>
+            </div>
+        }
+    </div>
+
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form id="formAprobadas" action="tableroCierrePrefacturas" name="formAprobadas" enctype="multipart/form-data" method="post">
+                <div class="panel-body">
+
+                    @if (ViewBag.total == 0)
+                    {
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                                <p style="font-family:'Century Gothic'">@Html.Raw("Use los filtros para seguir buscando")</p>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional:</label>
+                            <select class="form-control select2" name="regional" id="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Prestador:</label>
+                            <select class="form-control select2" name="prestador" id="prestador">
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                                {
+                                    if (item.id_ref_proveedor != 0)
+                                    {
+                                        <option value="@item.id_ref_proveedor">@item.nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Nro pre-factura</label>
+                            <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                        </div>
+                        <br />
+                        <div class="col-sm-3 form-group text-right">
+                            <button class="button_Asalud_Guardar" onclick="buscarPrefacturas()" id="buscarAprobadas"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="tablaDatos table-bordered table-condensed" style="font-size:10px; width:98%;" id="tabla1">
+                            <thead>
+                                <tr>
+                                    <th>Ítem</th>
+                                    <th>Nro cargue</th>
+                                    <th>Nro prefactura</th>
+                                    <th>Regional</th>
+                                    <th>Conteo prefacturas</th>
+                                    <th>Valor individual valor</th>
+                                    <th>Valor total</th>
+                                    <th>Nuevo valor total</th>
+                                    <th>Usuario auditor</th>
+                                    <th>Cerrar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.total != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_prefacturas_consolidado_abiertasResult item in ViewBag.lista)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>
+                                                    @i
+                                                    <input id="numPrefactura_@i" type="hidden" value="@item.remision_prefactura_fact" />
+                                                    <input id="idBase_@i" type="hidden" value="@item.id_cargue_base" />
+                                                    <input id="valorTotal_@i" type="hidden" value="@item.valorTotalPrefacturas" />
+                                                </td>
+                                                <td>@item.id_cargue_base</td>
+                                                <td>@item.remision_prefactura_fact</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.conteoPrefacturas</td>
+                                                <td>@item.vlrUnitario_suma</td>
+                                                <td>@item.valorTotalPrefacturas</td>
+                                                <td>@item.nuevoValor_suma</td>
+                                                <td>@item.nombre</td>
+
+                                                <td class="text-center" style="color:#77b589">
+                                                    ABIERTA &nbsp; <a role="button" href="javascript:CerrarPrefactura(@i)" class="btn button_Asalud_Aceptar btn-xs">Cerrar&nbsp;<i class="glyphicon glyphicon-save"></i> </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                                <label>No hay prefacturas abiertas.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('.select2').select2({
+        width: '100%'
+    });
+
+    $('.solo-numero').keyup(function () {
+        this.value = (this.value + '').replace(/[^0-9.]/g, '');
+    });
+</script>

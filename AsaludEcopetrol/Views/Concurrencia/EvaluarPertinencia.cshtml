@@ -1,0 +1,333 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.categorizacion_egreso_hospitalario
+@{
+    Layout = null;
+}
+
+<form id="frm-categorizacion" enctype="multipart/form-data" method="post" action="@Url.Action("categorizacionegresohosp", "Concurrencia")">
+    <div class="row">
+        <input type="hidden" name="idegreso" value="@ViewBag.idegreso" />
+        <input type="hidden" name="idcategorizacion" value="@Model.id_categorizacion_egreso_hospitalario" />
+        <input type="hidden" name="idevolucion" value="@ViewBag.id_evolucion" />
+        <input type="hidden" id="id_concurrencia" name="id_concurrencia" value="@ViewBag.idConcurrencia" />
+        <input type="hidden" id="patologia" name="patologia" value="@ViewBag.patologia" />
+        
+        <div class="col-sm-4 form-group">
+            <label class="text-secondary_asalud">Tipo de patología catastrófica</label>
+            <select class="form-control select2" id="tipopatologia" name="tipopatologia" required>
+                <option value="">-Seleccionar-</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_lesiones_severas_y_alto_costo item in ViewBag.tipopatologiacatastrofica)
+                {
+                    if (Model.id_tipo_patologia_catastrofica != 0)
+                    {
+                        if (Model.id_tipo_patologia_catastrofica == item.id_lesion_severa)
+                        {
+                            <option selected="selected" value="@item.id_lesion_severa">@item.descripcion</option>
+                        }
+                        else
+                        {
+                            <option value="@item.id_lesion_severa">@item.descripcion</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="@item.id_lesion_severa">@item.descripcion</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="text-secondary_asalud">Tipo de hospitalización</label>
+            <select class="form-control select2" id="tipohospitalizacion" name="tipohospitalizacion" onchange="Calcularcondicionestancia()" required>
+                <option value="">-Seleccionar-</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipo_hospitalizacion item in ViewBag.tipohospitalizacion)
+                {
+                    <option selected="@ViewBag.tipoHabitacion" value="@item.id_ref_tipo_hospitalizacion">@item.descripcion</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="text-secondary_asalud">Condición de estancia prolongada</label>
+            <input type="hidden" id="condicioneprolongada" name="condicioneprolongada" value="@Model.id_condicion_estancia_prolongada" />
+            <select class="form-control select2" disabled id="condicioneprolongada1" name="condicioneprolongada1" required>
+                <option value="">-Seleccionar-</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_condicion_estancia_prolongada item in ViewBag.estanciaprolongada)
+                {
+                    if (Model.id_condicion_estancia_prolongada != 0)
+                    {
+                        if (Model.id_condicion_estancia_prolongada == item.id_ref_condicion_estancia_prolongada)
+                        {
+                            <option selected value="@item.id_ref_condicion_estancia_prolongada">@item.descripcion</option>
+                        }
+                        else
+                        {
+                            <option value="@item.id_ref_condicion_estancia_prolongada">@item.descripcion</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="@item.id_ref_condicion_estancia_prolongada">@item.descripcion</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-sm-4 form-group">
+            <label class="text-secondary_asalud">Días hospitalización</label>
+            <input type="text" class="form-control solo-numero" readonly id="diash" value="@ViewBag.diasestancia" name="diash" onblur="Calcularcondicionestancia()" required />
+        </div>
+
+        <div class="col-sm-4 form-group">
+            <label class="text-secondary_asalud">¿Tiene pertinencia estancia?</label>
+            <input type="hidden" id="tieneEstancia" value="@ViewBag.pertinenciaestancia" />
+            <select class="form-control select2" id="estanciaPertinente" name="estanciaPertinente" onchange="mostrarEstancia(this.value)" required>
+                <option value="">-Seleccionar-</option>
+                <option value="1">SI</option>
+                <option value="2">NO</option>
+            </select>
+        </div>
+
+        <div id="tienePertinencia" style="display:none;">
+            <div class="col-sm-4 form-group" id="divtipo">
+                <label class="text-secondary_asalud">Tipo: Médico / Administrativa</label>
+                <select class="form-control" id="tipomedicoadmin" name="tipomedicoadmin" required>
+                    <option value="">-Seleccionar-</option>
+                    <option value="Medica">Médica</option>
+                    <option value="Administrativa">Administrativa</option>
+                </select>
+            </div>
+
+            <div class="col-sm-4 form-group" id="divdias">
+                <label class="text-secondary_asalud">Número de días no pertinentes</label>
+                <input type="text" class="solo-numero form-control" id="dias" name="dias" maxlength="3" required value="@Model.num_dias_no_pertinentes" />
+            </div>
+            <div class="col-sm-4 form-group" id="divresponsable">
+                <label class="text-secondary_asalud">Responsable de la no pertinencia</label>
+                <select class="form-control select2" id="responsable_pertinencia" name="responsable_pertinencia" required>
+                    <option value="">-Seleccionar-</option>
+                    <option value="Proveedor">Proveedor</option>
+                    <option value="IPS">IPS</option>
+                    <option value="Ecopetrol">Ecopetrol</option>
+                    <option value="Administrativa">Administrativa</option>
+                </select>
+            </div>
+            <div class="col-sm-4 form-group" id="divvalor">
+                <label class="text-secondary_asalud">Valor aproximado de la no pertinencia</label>
+                @*<input type="text" class="solo-numero form-control" maxlength="11" onkeyup="format(this)" onchange="format(this)" id="valor" name="valor" required value="@ViewBag.valorGlosas" />*@
+                <input id="valor" name="valor" type="text" class="form-control solo-numero solo-numero2" maxlength="11" required value="@ViewBag.valorGlosas" />
+
+            </div>
+            <div class="col-sm-4 form-group" id="divcausal">
+                <label class="text-secondary_asalud">Causal de la no pertinencia</label>
+                <input type="text" id="causal" name="causal" class="form-control" maxlength="499" />
+            </div>
+            <div class="col-sm-12 form-group">
+                <label class="text-secondary_asalud">Observación</label>
+                <textarea class="form-control" rows="4" id="observaciones" name="observaciones" maxlength="499">@Model.observaciones</textarea>
+            </div>
+        </div>
+        <div class="col-sm-12 form-group text-center">
+            <button class="btn button_Asalud_Guardar" type="button" onclick="validarformulario()" id="btnguardar">Guardar Cambios</button>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        var item1 = "@Model.responsable_no_pertinencia"
+        if (item1 != "") {
+            $("#responsable_pertinencia").val(item1);
+        }
+
+        var item2 = "@Model.tipo_medico_admin"
+        if (item2 != "") {
+            $("#tipomedicoadmin").val(item2);
+        }
+
+
+        var tipohab = "@ViewBag.tipohabitacion";
+        if (tipohab != "") {
+            debugger
+            $("#tipohospitalizacion").val(tipohab).trigger("change");
+
+            if (tipohab == "5" || tipohab == "6" || tipohab == "7") {
+                $("#tipopatologia").val(16).trigger("change");
+            }
+            else {
+                //var lesion = "@ViewBag.lesion";
+                var lesion = document.getElementById("patologia").value;
+
+                if (lesion == "0") {
+                    $("#tipopatologia").val("21").trigger("change");
+                }
+                else {
+                    $("#tipopatologia").val(lesion).trigger("change");
+                }
+            }
+
+            Calcularcondicionestancia();
+            //validar();
+        } else {
+            var patologia = document.getElementById("patologia").value;
+            $("#tipopatologia").val(patologia).trigger("change");
+            Calcularcondicionestancia();
+        }
+
+        /*se pone el valos si ha tenido al menos una pertinencia prolongada*/
+        $("#pertinenciaeprolongada").val("@ViewBag.pertinenciaestancia").trigger("change");
+
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        //$("#condicioneprolongada1").change(function ()
+        //{
+
+        //    var value = $(this).val();
+        //    if (value == 1)
+        //    {
+        //        //$("#pertinenciaeprolongada").val("").trigger("change");
+        //        //$("#pertinenciaeprolongada").prop("disabled", true);
+        //        //$("#pertinenciaeprolongada").prop("required", true);
+        //        $("#divpertinencia").css("display", 'none');
+        //        $("#divtipo").css("display", 'none');
+        //        $("#divresponsable").css("display", 'none');
+        //        $("#divdias").css("display", 'none');
+        //        $("#divvalor").css("display", 'none');
+        //        $("#divcausal").css("display", 'none');
+
+
+        //    } else {
+        //        $("#pertinenciaeprolongada").prop("disabled", false);
+        //        $("#pertinenciaeprolongada").prop("required", false);
+        //        $("#divpertinencia").css("display", 'block');
+        //        $("#divtipo").css("display", 'block');
+        //        $("#divresponsable").css("display", 'block');
+        //        $("#divdias").css("display", 'block');
+        //        $("#divvalor").css("display", 'block');
+        //        $("#divcausal").css("display", 'block');
+        //    }
+        //})
+        debugger
+        var estancia = document.getElementById("tieneEstancia").value;
+
+        var estanciaValue = 0;
+        if (estancia == "SI") {
+            estanciaValue = 1;
+        } else if (estancia == "NO") {
+            estanciaValue = 2;
+        } else {
+            estanciaValue = 0;
+        }
+
+        $("estanciaPertinente").val(estanciaValue);
+        $("#estanciaPertinente").val(estanciaValue).trigger("change");
+        //mostrarEstancia(estancia);
+
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+    });
+
+    function mostrarEstancia(tipo) {
+
+        //alert(tipo);
+        if (tipo == 2) {
+            document.getElementById("tienePertinencia").style.display = "block";
+        } else {
+            document.getElementById("tienePertinencia").style.display = "none";
+        }
+    }
+
+
+    function format(input) {
+        var num = input.value.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+    }
+
+    function Calcularcondicionestancia()
+    {
+        var tipohospitalizacion = $("#tipohospitalizacion").val();
+        var diash = $("#diash").val();
+        if (tipohospitalizacion != "" && diash != "")
+        {
+            if (tipohospitalizacion == 3 && diash >= 10) {
+                $("#condicioneprolongada1").val(5).trigger('change');
+                $("#condicioneprolongada").val(5);
+            }
+            else if (tipohospitalizacion == 1 && diash > 7) {
+                $("#condicioneprolongada1").val(3).trigger('change');
+                $("#condicioneprolongada").val(3);
+            }
+            else if (tipohospitalizacion == 4 && diash > 2) {
+                $("#condicioneprolongada1").val(2).trigger('change');
+                $("#condicioneprolongada").val(2);
+            }
+            else if (tipohospitalizacion == 7 && diash >= 6) {
+                $("#condicioneprolongada1").val(4).trigger('change');
+                $("#condicioneprolongada").val(4);
+            }
+            else if (tipohospitalizacion == 5 && diash >= 6) {
+                $("#condicioneprolongada1").val(4).trigger('change');
+                $("#condicioneprolongada").val(4);
+            }
+            else if (tipohospitalizacion == 6 && diash >= 10) {
+                $("#condicioneprolongada1").val(5).trigger('change');
+                $("#condicioneprolongada").val(5);
+            }
+            else if (tipohospitalizacion == 2 && diash >= 6) {
+                $("#condicioneprolongada1").val(4).trigger('change');
+                $("#condicioneprolongada").val(4);
+            }
+            else if (tipohospitalizacion == 2 && diash >= 6) {
+                $("#condicioneprolongada1").val(4).trigger('change');
+                $("#condicioneprolongada").val(4);
+            }
+            else {
+                $("#condicioneprolongada1").val(1).trigger('change');
+                $("#condicioneprolongada").val(1);
+            }
+
+        }
+    }
+
+
+    function validar() {
+        var value = $("#condicioneprolongada1").val();
+        if (value == 1) {
+
+            $("#divpertinencia").css("display", 'none');
+            $("#divtipo").css("display", 'none');
+            $("#divresponsable").css("display", 'none');
+            $("#divdias").css("display", 'none');
+            $("#divvalor").css("display", 'none');
+            $("#divcausal").css("display", 'none');
+
+
+        } else {
+            $("#pertinenciaeprolongada").prop("disabled", false);
+            $("#pertinenciaeprolongada").prop("required", false);
+            $("#divpertinencia").css("display", 'block');
+            $("#divtipo").css("display", 'block');
+            $("#divresponsable").css("display", 'block');
+            $("#divdias").css("display", 'block');
+            $("#divvalor").css("display", 'block');
+            $("#divcausal").css("display", 'block');
+        }
+    }
+
+    function validarformulario() {
+        var validator = $("#frm-categorizacion").validate();
+        if (validator.form()) {
+            $("#frm-categorizacion").submit();
+        }
+    }
+
+</script>

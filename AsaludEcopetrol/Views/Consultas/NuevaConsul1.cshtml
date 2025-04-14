@@ -1,0 +1,303 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Consulta.Consulta
+@{
+    ViewBag.Title = "CONSULTAS ECOPETROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="https://cdn.datatables.net/v/bs4-4.1.1/dt-1.10.18/datatables.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="js/filtergrid.css" media="screen" />
+<script type="text/javascript" src="js/tablefilter.js"></script>
+
+<br />
+
+
+@using (Html.BeginForm())
+{
+    <div class="container" style="font-family:'Century Gothic'">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">RESULTADOS CONSULTA</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12 text-right">
+                        <a class="btn button_Asalud_descargas" href="@Url.Action("Descargar1", "Consultas", new { fechainicio = Model.fecha_inicio, fechafin = Model.fecha_fin, regional = Model.regional, documento = Model.num_identifi_afil, valor = Model.valor})">
+                            <i class="glyphicon glyphicon-download"></i>&nbsp; DESCARGAR
+                        </a>
+                    </div>
+                </div>
+                <br />
+                <div class="table-responsive" id="mydatatable-container">
+                    <table class="records_list table table-striped table-bordered table-hover" id="mydatatable">
+                        <thead>
+                            <tr>
+                                <th class="text-center th">ID CENSO</th>
+                                <th class="text-center th">ID CONCURRENCIA</th>
+                                <th class="text-center th">ID EVOLUCIÓN</th>
+                                <th class="text-center th">TIPO IDENTIFICACIÓN USUARIO</th>
+                                <th class="text-center th">IDENTIFICACIÓN USUARIO</th>
+                                <th class="text-center th">TIPO SALUD</th>
+                                <th class="text-center th">CIUDAD SERVICIOS MÉDICOS</th>
+                                <th class="text-center th">REGIONAL</th>
+                                <th class="text-center th">REGIONAL BENEFICIARIO</th>
+                                <th class="text-center th">UNIS</th>
+                                <th class="text-center th">FECHA RECEPCIÓN CENSO</th>
+                                <th class="text-center th">PRIMER APELLIDO</th>
+                                <th class="text-center th">SEGUNDO APELLIDO</th>
+                                <th class="text-center th">PRIMER NOMBRE</th>
+                                <th class="text-center th">SEGUNDO NOMBRE</th>
+                                <th class="text-center th">FECHA NACIMIENTO</th>
+                                <th class="text-center th">EDAD</th>
+                                <th class="text-center th">GÉNERO</th>
+                                <th class="text-center th">FECHA INGRESO</th>
+                                <th class="text-center th">TIPO INGRESO</th>
+                                <th class="text-center th">ORIGEN EVENTO</th>
+                                <th class="text-center th">TIPO HABITACIÓN</th>
+                                <th class="text-center th">MÉDICO AUDITOR</th>
+                                <th class="text-center th">NIT IPS</th>
+                                <th class="text-center th">SAP IPS</th>
+                                <th class="text-center th">NIT SUIS</th>
+                                <th class="text-center th">NOMBRE IPS</th>
+                                <th class="text-center th">RAZÓN SOCIAL IPS</th>
+                                <th class="text-center th">CIUDAD IPS</th>
+                                <th class="text-center th">DX ACTUAL</th>
+                                <th class="text-center th">DESCRIPCIÓN CIE10</th>
+                                <th class="text-center th">ALTO COSTO</th>
+                                <th class="text-center th">NOMBRE ALTO COSTO</th>
+                                <th class="text-center th">SALUD PUBLICA</th>
+                                <th class="text-center th">NOMBRE SALUD PUBLICA</th>
+                                <th class="text-center th">CÓDIGO CIE10 CONCURRENCIA</th>
+                                <th class="text-center th">NOMBRE CIE10 CONCURRENCIA</th>
+                                <th class="text-center th">TRIAGE</th>
+                                <th class="text-center th">REINGRESO</th>
+                                <th class="text-center th">GESTANTES</th>
+                                <th class="text-center th">FECHA EGRESO</th>
+                                <th class="text-center th">DX PRINCIPAL EGRESO</th>
+                                <th class="text-center th">CIE10 EGRESO</th>
+                                <th class="text-center th">CONDICIÓN ALTA</th>
+                                <th class="text-center th">HOSPITALIZACIÓN PREVENIBLE</th>
+                                <th class="text-center th">NOMBRE HOSPITALIZACIÓN PREVENIBLE</th>
+                                <th class="text-center th">NÚMERO DEFUNCIÓN</th>
+                                <th class="text-center th">HORA DEFUNCIÓN</th>
+                                <th class="text-center th">TIPO INSTANCIA</th>
+                                <th class="text-center th">MEDIO TRATANTE</th>
+                                <th class="text-center th">MEGA</th>
+                                <th class="text-center th">ESPECIALIDAD</th>
+                                <th class="text-center th">PROCEDIMIENTO QX</th>
+                                <th class="text-center th">CUPS QX</th>
+                                <th class="text-center th">NOMBRE CUPS</th>
+                                <th class="text-center th">INCAPACIDADES</th>
+                                <th class="text-center th">DESCRIPCIÓN EVOLUCIÓN</th>
+                                <th class="text-center th">FECHA EVOLUCIÓN</th>
+                                <th class="text-center th">TIPO HABITACIÓN EVOLUCIÓN</th>
+                                <th class="text-center th">TIENE ESTANCIA PERTINENTE</th>
+                                <th class="text-center th">EPOC</th>
+                                <th class="text-center th">PAD</th>
+                                <th class="text-center th">RCV</th>
+                                <th class="text-center th">COHORTES GESTANTES</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var order in Model.ListaNuevasConsultas2)
+                            {
+                                <tr>
+                                    <td>@order.id_censo</td>
+                                    <td>@order.id_concurrencia</td>
+                                    <td>@order.id_evolucion</td>
+                                    <td>@order.tipo_identifi_afiliado</td>
+                                    <td>@order.num_identifi_afil</td>
+                                    <td>@order.tipo_salud</td>
+                                    <td>@order.Ciudad_Serv_Medicos</td>
+                                    <td>@order.regional</td>
+                                    <td>@order.Regional_Beneficiario</td>
+                                    <td>@order.unis</td>
+                                    <td>@order.fecha_recepcion_censo</td>
+                                    <td>@order.primer_apellido</td>
+                                    <td>@order.segundo_apellido</td>
+                                    <td>@order.primer_nombre</td>
+                                    <td>@order.segundo_nombre</td>
+                                    <td>@order.fecha_nacimiento</td>
+                                    <td>@order.edad</td>
+                                    <td>@order.genero</td>
+                                    <td>@order.fecha_ingreso</td>
+                                    <td>@order.Tipo_ingresoo</td>
+                                    <td>@order.Origen_evento</td>
+                                    <td>@order.Tipo_Habitacion</td>
+                                    <td>@order.Medico_Auditor</td>
+                                    <td>@order.Nit_Ips</td>
+                                    <td>@order.Documento_SAP_Ips</td>
+                                    <td>@order.NIT_SUIS</td>
+                                    <td>@order.Nombre_Ips</td>
+                                    <td>@order.RAZON_SOCIAL_SUIS</td>
+                                    <td>@order.CiudadIPs</td>
+                                    <td>@order.dx_actual</td>
+                                    <td>@order.Descripcion_Cie10</td>
+                                    <td>@order.ALTO_COSTO</td>
+                                    <td>@order.DESCRIPCION_ALTO_COSTO</td>
+                                    <td>@order.salud_publica</td>
+                                    <td>@order.nombre_salud_publica</td>
+                                    <td>@order.Codigo_CIE10_concurrencia</td>
+                                    <td>@order.NOMBRE_CIE10_concurrencia</td>
+                                    <td>@order.triage</td>
+                                    <td>@order.reingreso</td>
+                                    <td>@order.gestantes</td>
+                                    <td>@order.fecha_egreso</td>
+                                    <td>@order.DxprincipalEgreso</td>
+                                    <td>@order.nombre_cie10_EGRESO</td>
+                                    <td>@order.CondicionAlta</td>
+                                    <td>@order.hospitalizacion_prevenible</td>
+                                    <td>@order.descripcion_prevenible</td>
+                                    <td>@order.NumeroDefuncion</td>
+                                    <td>@order.HoraDefuncion</td>
+                                    <td>@order.tipo_instancia</td>
+                                    <td>@order.medico_tratante</td>
+                                    <td>@order.MEGA</td>
+                                    <td>@order.especialidad</td>
+                                    <td>@order.procedimientoqx</td>
+                                    <td>@order.id_cups_qx</td>
+                                    <td>@order.nombre_cups</td>
+                                    <td>@order.incapacidades</td>
+                                    <td>@order.Descripcion_evolucion</td>
+                                    <td>@order.Fecha_evolucion</td>
+                                    <td>@order.TIPO_HABITACION_evolucion</td>
+                                    <td>@order.TIENE_ESTANCIA_PERTINENTE</td>
+                                    <td>@order.EPOC</td>
+                                    <td>@order.PAD</td>
+                                    <td>@order.RCV</td>
+                                    <td>@order.cohortes_GESTANTES</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div style="display:none">
+
+        @Html.TextBoxFor(u => u.fecha_inicio)
+        @Html.TextBoxFor(u => u.fecha_fin)
+        @Html.TextBoxFor(u => u.num_identifi_afil)
+        @Html.TextBoxFor(u => u.regional)
+        @Html.TextBoxFor(u => u.valor)
+
+    </div>
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.records_list').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    });
+</script>
+
+<style>
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+</style>

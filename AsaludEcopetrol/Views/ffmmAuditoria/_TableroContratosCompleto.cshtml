@@ -1,0 +1,216 @@
+﻿<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">Prestadores con contrato</strong>
+            </div>
+            <div class="panel-body">
+                <form id="formularioC" method="post" action="TableroContratos">
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Nit prestador</label>
+                            <input type="text" autocomplete="off" class="form-control solo-numero" name="nit2" id="nit2" maxlength="100" />
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <input type="text" autocomplete="off" class="form-control" name="prestador2" id="prestador2" maxlength="100" />
+                        </div>
+                        <div class="col-sm-4 form-group text-right">
+                            <label style="width:100%;visibility:hidden" class="text-secondary_asalud">Boton buscar:</label>
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="validar2(2)"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                        </div>
+                    </div>
+                </form>
+                <table id="tabla2" class="tabla2 table-bordered table-condensed" style="font-size:10px; width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Nit prestador</th>
+                            <th>Prestador</th>
+                            <th>Valor</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha fin</th>
+                            <th>Departamento</th>
+                            <th>Municipio</th>
+                            <th>Contrato</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    //$(document).ready(function () {
+
+    //    verTablero2();
+    //    verTablero2();
+
+     
+    //});
+
+    $("#prestador2").autocomplete({
+        source: "/ffmmAuditoria/buscarPrestadorNombre",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.nombre);
+            }
+        }
+    });
+
+    $("#nit2").autocomplete({
+        source: "/ffmmAuditoria/buscarPrestadorCod",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.Nit);
+            }
+        }
+    });
+
+    function validar2(tipo) {
+
+        var nit = document.getElementById("nit2").value;
+        var prestador = document.getElementById("prestador2").value;
+
+        if ((nit == "" || nit == null) && (prestador == "" || prestador == null)) {
+            alert("Filtre por nombre o por nit de prestador.");
+            return false;
+        } else {
+            verTablero2(tipo);
+        }
+    }
+
+    function abrirducumento(id) {
+        var url = "@Url.Action("VerDocumentoCargado", "ffmmAuditoria")?idContrato=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function verTablero2(tipo) {
+
+        var nit = document.getElementById("nit2").value;
+        var prestador = document.getElementById("prestador2").value;
+
+        $.ajax({
+            url: "@Url.Action("prestadoresconContrato")",
+            type: "post",
+            data: {
+                nit: nit,
+                prestador: prestador,
+                tipo: tipo
+            },
+            success: function (data) {
+                $("#tabla2 tbody").empty();
+                $("#tabla2 tbody").html(data);
+            }
+        })
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .tabla2 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 1%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .tabla2 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .tabla2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tabla2 tbody {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tabla2 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

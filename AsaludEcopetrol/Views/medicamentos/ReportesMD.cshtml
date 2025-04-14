@@ -1,0 +1,712 @@
+﻿
+@{
+    ViewBag.Title = "REPORTES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud"></strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-6 form-group">
+                <label class="text-secondary_asalud">Tipo de reporte</label>
+                <select class="form-control dropdownlist" id="chktipoconsolidado" name="chktipoconsolidado" onchange="MostrarFiltros($(this).val())">
+                    <option value="">- Seleccionar -</option>
+                    <option value="8">- Consulta cargue masivo -</option>
+                    <option value="9">- Consulta puntos de control -</option>
+                    <option value="1">- Detalle de objeciones -</option>
+                    <option value="2">- Facturación radicada -</option>
+                    <option value="3">- Causales de glosa -</option>
+                    <option value="4">- Tiempo trascurrido fecha notificación fecha cierre -</option>
+                    <option value="5">- Conciliación glosa mensual -</option>
+                    <option value="6">- Vitales no disponible -</option>
+                    <option value="7">- Desagregado por ESM -</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Filtros de búsqueda</strong>
+    </div>
+    <div class="panel-body" id="panel_1" style="display:none;">
+        <form id="formconsolidadosttos1" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosA", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialA" id="fecha_inicialA" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalA" id="fecha_finalA" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos1" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="panel-body" id="panel_2" style="display:none;">
+        <form id="formconsolidadosttos2" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosB", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialB" id="fecha_inicialB" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalB" id="fecha_finalB" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos2" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" id="panel_3" style="display:none;">
+        <form id="formconsolidadosttos3" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosC", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialC" id="fecha_inicialC" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalC" id="fecha_finalC" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos3" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" id="panel_4" style="display:none;">
+        <form id="formconsolidadosttos4" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosD", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialD" id="fecha_inicialD" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalD" id="fecha_finalD" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos4" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" id="panel_5" style="display:none;">
+        <form id="formconsolidadosttos5" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosE", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialE" id="fecha_inicialE" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalE" id="fecha_finalE" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos5" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" id="panel_6" style="display:none;">
+        <form id="formconsolidadosttos6" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosF", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialF" id="fecha_inicialF" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalF" id="fecha_finalF" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos6" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" id="panel_7" style="display:none;">
+        <form id="formconsolidadosttos7" method="post" enctype="multipart/form-data" action="@Url.Action("ConsultasMedicamentos", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Consulta</label>
+                        <select class="form-control select2" required id="opc" name="opc" autocomplete="off">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_consultas item in ViewBag.consutas2)
+                            {
+                                <option value="@item.id_ref_consultas">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialT" id="fecha_inicialT" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalT" id="fecha_finalT" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos7" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="panel-body" id="panel_8" style="display:none;">
+        <form id="formconsolidadosttos8" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosCargueMasivo", "medicamentos")">
+            <div class="row">
+
+                @*<div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Inicial</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_inicialM" id="fecha_inicialM" required autocomplete="off" />
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha Final</label>
+                        <input class="datepickerr" value="" title="Este Campo es Obligatorio *" style="width:100%" name="fecha_finalM" id="fecha_finalM" required autocomplete="off" onchange="calcular($(this).val())" />
+                    </div>
+                </div>*@
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos8" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="panel-body" id="panel_9" style="display:none;">
+        <form id="formconsolidadosttos9" method="post" enctype="multipart/form-data" action="@Url.Action("ConsolidadosG", "medicamentos")">
+            <div class="row">
+
+                <div class="col-sm-12 text-left">
+                    <div class="form-group">
+                        <input type="hidden" name="GridHtml" />
+                        <button type="button" id="btnconsolidadosttos9" class="btn btn-success"><i class="glyphicon glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+</div>
+<br />
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function ()
+    {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            messages: {
+                custom: function (input) {
+                    return $(input).parents().find('label').text();
+                }
+            }
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+
+        $("#btnconsolidadosttos1").click(function () {
+
+            var validator = $("#formconsolidadosttos1").validate();
+            if (validator.form()) {
+                $("#formconsolidadosttos1").submit();
+            }
+        })
+
+         $("#btnconsolidadosttos2").click(function () {
+
+            var validator = $("#formconsolidadosttos2").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos2").submit();
+            }
+        })
+
+
+        $("#btnconsolidadosttos3").click(function () {
+
+            var validator = $("#formconsolidadosttos3").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos3").submit();
+            }
+          })
+          $("#btnconsolidadosttos4").click(function () {
+
+            var validator = $("#formconsolidadosttos4").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos4").submit();
+            }
+          })
+          $("#btnconsolidadosttos5").click(function () {
+
+            var validator = $("#formconsolidadosttos5").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos5").submit();
+            }
+          })
+          $("#btnconsolidadosttos6").click(function () {
+
+            var validator = $("#formconsolidadosttos6").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos6").submit();
+            }
+          })
+          $("#btnconsolidadosttos7").click(function () {
+
+            var validator = $("#formconsolidadosttos7").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos7").submit();
+            }
+          })
+
+           $("#btnconsolidadosttos8").click(function () {
+
+            var validator = $("#formconsolidadosttos8").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos8").submit();
+            }
+          })
+
+        $("#btnconsolidadosttos9").click(function () {
+
+            var validator = $("#formconsolidadosttos9").validate();
+             if (validator.form()) {
+                 LoadingHide();
+                $("#formconsolidadosttos9").submit();
+            }
+          })
+
+        $(".k-input").attr('readonly', true);
+    })
+
+    function calcular(a) {
+
+            var fechaI = document.getElementById("fecha_inicialT").value;
+            
+            var fechaF =  a;
+
+            if (fechaI > fechaF) {
+                alert('VALOR NO PUEDE SER MENOR ALA FECHA INICIAL' + ' ' +  fechaI);
+                $("#fecha_finalT").val('');
+            }
+    }
+    
+
+    function LimpiarCambios()
+    {
+        $("#regional").val("");
+        $("#regional2").val("");
+        $("#mes").val("");
+        $("#mes2").val("");
+        $("#año").val("");
+        $("#año2").val("");
+    }
+
+    function MostrarFiltros(a)
+    {
+        switch (a) {
+            case "1":
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+                $("#panel_1").removeAttr('style');
+                break;
+            case "2":
+               
+                $("#panel_1").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+                $("#panel_2").removeAttr('style');
+
+                break;
+            case "3":
+               
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+                $("#panel_3").removeAttr('style');
+
+                break;
+            case "4":
+               
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+                $("#panel_4").removeAttr('style');
+
+                break;
+              case "5":
+               
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_5").removeAttr('style');
+
+                break;
+             case "6":
+               
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+
+                $("#panel_6").removeAttr('style');
+
+                break;
+            case "7":
+                
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+                 $("#panel_8").css('display', 'none');
+                $("#panel_7").removeAttr('style');
+
+                break;
+             case "8":
+                
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                 $("#panel_9").css('display', 'none');
+                $("#panel_8").removeAttr('style');
+                     break;
+             case "9":
+                
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_9").removeAttr('style');
+                $("#panel_8").css('display', 'none');
+
+                break;
+
+            default:
+                $("#panel_1").css('display', 'none');
+                $("#panel_2").css('display', 'none');
+                $("#panel_3").css('display', 'none');
+                $("#panel_4").css('display', 'none');
+                $("#panel_5").css('display', 'none');
+                $("#panel_6").css('display', 'none');
+                $("#panel_7").css('display', 'none');
+                $("#panel_8").css('display', 'none');
+                $("#panel_9").css('display', 'none');
+
+                break;
+        }
+    }
+
+   
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+

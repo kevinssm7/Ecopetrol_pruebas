@@ -1,0 +1,222 @@
+﻿
+@{
+    ViewBag.Title = "GestionCambiodeclave";
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CAMBIO DE CLAVE</strong>
+    </div>
+    <div class="panel-body">
+
+        <div class="panel-body" id="panel_formulario">
+            <form class="animated fadeInDown" id="formulario">
+
+                <div class="row">
+                    <div class="alert alert-info">
+                        <strong>Alerta!</strong> El código fue enviado  a su correo corporativo!.
+                    </div>
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Código</label>
+                        <input rows="4" cols="100" type="text" class="form-control" name="txtCodigo" id="txtCodigo" required maxlength="6" onchange="Validar()" />
+                    </div>
+                    <panel></panel>
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Nueva contraseña</label>
+                        <input rows="4" cols="100" type="password" class="form-control" name="txtcontraseña" id="txtcontraseña" required maxlength="50" onchange="CheckValidAmount(this.value)" />
+                    </div>
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Confirmar contraseña</label>
+                        <input rows="4" cols="100" type="password" class="form-control" name="txtNcontraseña" id="txtNcontraseña" required maxlength="50" onchange="validarContraseñas(this.value)" />
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button class="button_Asalud_Aceptar" type="button" onclick="ValidarFormulario()">Guardar</button>
+
+                    </div>
+                </div>
+                <div style="display:none">
+                    <input class="form-control" type="text" name="id_usuario" id="id_usuario" value="@ViewBag.id_usuario" />
+                    <input class="form-control" type="text" name="codigo" id="codigo" value="@ViewBag.codigo" />
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+      $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $('.solo-numero2').keydown(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $('.solo-numero3').focusout(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+    })
+
+
+     function ValidarFormulario() {
+         var validator = $("#formulario").validate(
+             {
+                 rules: {
+                     txtCodigo: {
+                         required: true,
+                     }
+                 }
+
+             }
+
+         );
+        if (validator.form()) {
+
+            GuardarDatos();
+        }
+     }
+
+
+    function GuardarDatos() {
+
+        var ff = $("#txtusuario").val();
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_usuario", $("#id_usuario").val());
+        formData.append("contraseñaNueva", $("#txtcontraseña").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveCambiarClave2", "Usuario")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                LoadingHide();
+                if (response.success) {
+
+
+                    alert(response.message);
+                    location.reload();
+                }
+                else {
+
+                    alert(response.message);
+                }
+
+            }
+        })
+    }
+
+    function Validar() {
+
+        var value1 = $("#txtCodigo").val();
+        var value2 = $("#codigo").val();
+
+        if (value1 != value2)
+        {
+            alert("Código incorrecto...");
+            $("#txtCodigo").val("");
+            $("#txtcontraseña").val("");
+            $("#txtNcontraseña").val("");
+        }
+    };
+    function validarContraseñas() {
+
+        var value1 = $("#txtcontraseña").val();
+        var value2 = $("#txtNcontraseña").val();
+
+        if (value1 != value2) {
+            alert("Contraseñas no son iguales...");
+            $("#txtNcontraseña").val("");
+        }
+    };
+
+
+    function CheckValidAmount(amount) {
+       // var a = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[$!%*#?&])[A-Za-z\d$!%*#?&]{8,}$";
+        var a = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!$%^&*-]).{8,14}$";
+
+        if (amount.match(a)) {
+
+        } else {
+
+            $("#txtcontraseña").val("");
+            $("#txtNcontraseña").val("");
+            alert("La nueva contraseña debe contener mínimo 8 caracteres y máximo 14 una letra mayúscula, una letra minúscula, un número y un carácter especial (!#$%&/()=?¡/*)");
+        }
+    }
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

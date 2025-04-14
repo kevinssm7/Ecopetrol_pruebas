@@ -1,0 +1,679 @@
+﻿@{
+    ECOPETROL_COMMON.ENTIDADES.mortalidad_registros Model = (ECOPETROL_COMMON.ENTIDADES.mortalidad_registros)ViewBag.reg;
+}
+
+@{
+    ViewBag.Title = "INGRESO MORTALIDAD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<br>
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="formMortalidad" enctype="multipart/form-data" method="post" action="@Url.Action("ReporteMortalidad","MorNat")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">INSERCIÓN</strong>
+                </div>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group">
+                            <input type="hidden" id="idMortalidad" name="idMortalidad" value="@ViewBag.idMortalidad" />
+                            <input type="hidden" id="Version" name="Version"/>
+
+                            <label class="text-secondary_asalud">Año:</label>
+                            <select id="año" name="año" class="form-control select2" required>
+                                <option value="">-Seleccione--</option>
+                                @foreach (var item in ViewBag.años)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            </select>
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Mes:</label>
+                            <select class="form-control select2" id="Mes" name="Mes" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional:</label>
+                            <select class="form-control select2" id="Regional" name="Regional" onchange="CargarUnis($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" id="Unis" name="Unis" onchange="ObtenerCiudades($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad SMed</label>
+                            <select class="form-control select2" id="CiudadSmed" name="CiudadSmed" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Tipo de documento</label>
+                            <select id="TipoDocumento" name="TipoDocumento" class="form-control select2" required>
+                                <option value="">--Seleccione--</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDoc)
+                                {
+                                    <option value="@item.id_ref_tipo_documental">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Número documento</label>
+                            <input type="text" class="form-control solo-numero" id="NumeroDocumento" name="NumeroDocumento" maxlength="12" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Apellidos</label>
+                            <input type="text" class="form-control" id="Apellidos" name="Apellidos" maxlength="100" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nombres</label>
+                            <input type="text" class="form-control" id="Nombres" name="Nombres" maxlength="100" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Género</label>
+                            <select id="Genero" name="Genero" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha nacimiento</label>
+                            <input class="form-control datepickerr" id="FechaNacimiento" name="FechaNacimiento" onchange="ValidarFechas();" style="width:100%" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha fallecimiento</label>
+                            <input class="form-control datepickerr" id="FechaFallecimiento" name="FechaFallecimiento" onchange="ValidarFechas();" style="width:100%" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Edad</label>
+                            <input class="form-control solo-numero" id="Edad" name="Edad" maxlength="3" style="width:100%" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Tipo beneficiario</label>
+                            <select id="TipoBeneficiario" name="TipoBeneficiario" class="form-control select2" required>
+                                <option value="">--Seleccione--</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_tiposBeneficiarioResult item in ViewBag.tipoBeneficiario)
+                                {
+                                    <option value="@item.id_tipo">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nro certificado</label>
+                            <input class="form-control" id="NroCertificado" name="NroCertificado" maxlength="49" style="width:100%" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Causa fallecimiento</label>
+                            <input type="text" maxlength="12" id="CausaFallecimiento" name="CausaFallecimiento" class="form-control" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">¿Confirmado o descartado?</label>
+                            <select id="ConfirmadoDescartado" name="ConfirmadoDescartado" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="Confirmado">Confirmado</option>
+                                <option value="Descartado">Descartado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha notificación</label>
+                            <input class="form-control datepickerr" id="FechaNotificacion" name="FechaNotificacion"  onchange="ValidarFechas();" style="width:100%" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fuente</label>
+                            <input class="form-control" id="Fuente" name="Fuente" maxlength="49" style="width:100%" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observación:</label>
+                            <textarea type="text" class="form-control char-count" id="observacion" name="observacion" cols="1" rows="3" maxlength="1000" required></textarea>
+                            <p class="charCount">Te quedan 1000 caracteres.</p>
+                        </div>
+                    </div>
+
+                    <br />
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input id="BtnGuardar" onclick="ValidarFormulario();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+        window.onbeforeunload = function () {
+            window.history.replaceState(null, null, window.location.href);
+        };
+    }
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date()
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        var idMortalidad = $("#idMortalidad").val();
+        if (!isNaN(idMortalidad && idMortalidad != 0)) {
+            PintarDatos();
+        }
+
+        var fechaActual = new Date();
+        var añoActual = fechaActual.getFullYear();
+        $("#año").val(añoActual).trigger("change");
+
+        PintarMes();
+
+        $("#año").change(function () {
+            PintarMes();
+        });
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+
+    });
+
+    function ValidarFechas() {
+
+        const fechaNacimientoInput = document.getElementById("FechaNacimiento").value;
+        const fechaFallecimientoInput = document.getElementById("FechaFallecimiento").value;
+        const fechaNotificacionInput = document.getElementById("FechaNotificacion").value;
+
+        const fechaNacimiento = new Date(fechaNacimientoInput);
+        const fechaFallecimiento = new Date(fechaFallecimientoInput);
+        const fechaNotificacion = new Date(fechaNotificacionInput);
+
+        if (fechaNacimiento && fechaFallecimiento) {
+            if (fechaNacimiento > fechaFallecimiento) {
+                alert("La fecha de fallecimiento no puede ser menor a la fecha de nacimiento.");
+                $("#FechaFallecimiento").val("");
+                return;
+            }
+        }
+
+        if (fechaFallecimiento && fechaNotificacion) {
+            if (fechaFallecimiento > fechaNotificacion) {
+                alert("La fecha de fallecimiento no puede ser mayor a la fecha de notificación.");
+                $("#FechaNotificacion").val("");
+                return;
+            }
+        }
+
+        let aniosTranscurridos = fechaFallecimiento.getFullYear() - fechaNacimiento.getFullYear();
+
+        // Ajustar si el mes/día de la fecha de nacimiento no ha pasado en el año actual
+        const mesNacimiento = fechaNacimiento.getMonth();
+        const diaNacimiento = fechaNacimiento.getDate();
+        const mesFallecimiento = fechaFallecimiento.getMonth();
+        const diaFallecimiento = fechaFallecimiento.getDate();
+
+        if (mesFallecimiento < mesNacimiento || (mesFallecimiento === mesNacimiento && diaFallecimiento < diaNacimiento)) {
+            aniosTranscurridos--;
+        }
+
+        $("#Edad").val(aniosTranscurridos);
+    }
+
+    function PintarMes() {
+        var fechaActual = new Date();
+        var añoActual = fechaActual.getFullYear();
+        var mesActual = fechaActual.getMonth() + 1; // Se suma 1 porque getMonth() devuelve el mes base 0 (enero es 0)
+        var añoSeleccionado = parseInt($("#año").val());
+
+        // Limpiar el select de meses
+        $("#Mes").empty();
+
+        // Si el año seleccionado es igual al año actual
+        if (añoSeleccionado == añoActual) {
+            // Agregar opciones de meses hasta el mes actual
+            for (var i = 1; i <= mesActual; i++) {
+                $("#Mes").append('<option value="' + i + '">' + obtenerNombreMes(i) + '</option>');
+            }
+            $("#Mes").val(mesActual);
+
+        } else {
+            // Agregar todas las opciones de meses
+            for (var i = 1; i <= 12; i++) {
+                $("#Mes").append('<option value="' + i + '">' + obtenerNombreMes(i) + '</option>');
+            }
+        }
+    }
+
+    // Función para obtener el nombre del mes dado su número (1-12)
+    function obtenerNombreMes(numeroMes) {
+        var nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        return nombresMeses[numeroMes - 1];
+    }
+
+    function PintarDatos() {
+
+        var fechaNacimiento = '@Model.fecha_nacimiento'.split(' ')[0];
+        var fechaFallecimiento = '@Model.fecha_fallecimiento'.split(' ')[0];
+        var fechaNotificacion = '@Model.fecha_notificacion'.split(' ')[0];
+
+        $("#año").val('@Model.año').trigger("change");
+        $("#Mes").val('@Model.mes').trigger("change");
+
+        $("#Regional").val('@Model.regional').trigger("change");
+        $("#TipoDocumento").val('@Model.tipo_documento').trigger("change");
+        $("#NumeroDocumento").val('@Model.numero_documento');
+        $("#Apellidos").val('@Model.apellidos');
+        $("#Nombres").val('@Model.nombres');
+        $("#Genero").val('@Model.genero').trigger("change");
+        $("#Edad").val('@Model.edad');
+        $("#TipoBeneficiario").val('@Model.tipo_beneficiario').trigger("change");
+        $("#NroCertificado").val('@Model.nro_certificado');
+        $("#CausaFallecimiento").val('@Model.causa_fallecimiento').trigger("change");
+        $("#ConfirmadoDescartado").val('@Model.confirmado_descartado').trigger("change");
+        $("#Fuente").val('@Model.fuente');
+        $("#Version").val('@Model.version');
+
+        $("#FechaNacimiento").val(fechaNacimiento).trigger("change");
+        $("#FechaFallecimiento").val(fechaFallecimiento).trigger("change");
+        $("#FechaNotificacion").val(fechaNotificacion).trigger("change");
+
+        var observacion = "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.observacion))";
+        $("#observacion").val(observacion).trigger("change");
+    }
+
+    $("#NumeroDocumento").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "/MorNat/BuscarBeneficiarios",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id,
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+        select: function (event, ui) {
+            ElegirBB(ui.item.value); // Llama a la función ElegirBB pasando el valor del elemento seleccionado
+        }
+    });
+
+    function ElegirBB(idBB) {
+        $.ajax({
+            url: "@Url.Action("LlenarDatosBB")",
+            type: "post",
+            data: { idBB: idBB },
+            success: function (data) {
+
+                var datos = data.split('|');
+                var existeRegistro = datos[0];
+                if (existeRegistro != 0) {
+                    alert("Mortalidad ya existe");
+                    $("#NumeroDocumento").val("").trigger("change");
+                } else {
+
+                    $("#NumeroDocumento").val(datos[1]);
+                    $("#TipoDocumento").val(datos[3]).trigger("change");
+                    $("#Apellidos").val(datos[4]);
+                    $("#Nombres").val(datos[5]);
+                    $("#Genero").val(datos[6]).trigger("change");
+                    $("#FechaNacimiento").val(datos[7]).trigger("change");
+                    $("#TipoBeneficiario").val(datos[8]).trigger("change");
+                }
+            }
+        });
+    }
+
+    $("#CausaFallecimiento").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/MorNat/BuscarCIE10",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+    });
+
+    $("#CausaFallecimiento").change(function () {
+
+        var causa = $("#CausaFallecimiento").val();
+        if (causa.length > 2) {
+            $.ajax({
+                url: "/MorNat/BuscarCIE10",
+                type: "POST",
+                dataType: "json",
+                data: { term: causa },
+                success: function (data) {
+
+                    if (data.length > 0 && data != null) {
+                    } else {
+                        alert("NO EXISTE ESTA CAUSA FALLECIMIENTO");
+                        $("#CausaFallecimiento").val("");
+                        return false;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    });
+
+    function ValidacionArchivoConfirmados() {
+        var data = document.getElementById('soporte');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        for (contador; contador < distintosArchivos.length; contador++) {
+
+            var nameext = data.files[contador].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["pdf", "Pdf", "PDF"];
+
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos PDF.");
+                $("#soporte").val("");
+            }
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function CargarUnis(a) {
+
+        if (a != "") {
+            $("#CiudadSmed").empty();
+            $("#Unis").empty();
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#Unis").empty();
+                    $("#Unis").html(data);
+                    $("#Unis").val("").trigger("change");
+                    var idMortalidad = $("#idMortalidad").val();
+                    if (!isNaN(idMortalidad) && idMortalidad != 0) {
+                        if ("@Model.unis" != null) {
+                            $("#Unis").val("@Model.unis").trigger("change");
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#CiudadSmed").empty();
+                    $("#CiudadSmed").html(data);
+                    $("#CiudadSmed").val("").trigger("change");
+
+                    var idMortalidad = $("#idMortalidad").val();
+                    if (!isNaN(idMortalidad) && idMortalidad != 0) {
+                        if ("@Model.ciudad_smed" != null) {
+                            $("#CiudadSmed").val("@Model.ciudad_smed").trigger("change");
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formMortalidad").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formMortalidad").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .charCount {
+        font-size: 10px;
+    }
+</style>
+
+

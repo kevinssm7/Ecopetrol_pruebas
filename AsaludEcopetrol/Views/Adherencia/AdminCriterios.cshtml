@@ -1,0 +1,377 @@
+﻿
+@{
+    ViewBag.Title = "ADMINISTRACIÓN DE CRITERIOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    List<ECOPETROL_COMMON.ENTIDADES.adh_tipocriterio> lista = (List<ECOPETROL_COMMON.ENTIDADES.adh_tipocriterio>)ViewBag.adh_tipoadherencia;
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="col-sm-12 form-group text-right">
+                    <button id="btnaddcriterio" name="btnaddcriterio" class="btn button_Asalud_Aceptar btn-sm"><i class="glyphicon glyphicon-plus"></i>&nbsp; Nuevo tipo de criterio</button>
+                </div>
+                <form id="formulario">
+                    <table id="tbltipocriterio" class="table table-striped table-bordered table-funcion" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Indice</th>
+                                <th>Tipo criterio</th>
+                                <th>Grupo cumplimiento</th>
+                                <th style="max-width:10px"></th>
+                                <th style="max-width:10px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int i = 0; }
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_adh_tipo_criterio item in ViewBag.reftipocriterio)
+                            {
+                                i += 1;
+                                var obj = lista.Where(l => l.id_tipo_criterio == item.id_tipo_criterio).FirstOrDefault();
+                                <tr>
+                                    @if (obj != null)
+                                    {
+                                        <td class="text-center"><input value="@item.id_tipo_criterio" checked="checked" id="chk_@i" type="checkbox" class="check" onchange="activ(@i)" /></td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center"><input value="@item.id_tipo_criterio" id="chk_@i" type="checkbox" class="check" onchange="activ(@i)" /></td>
+                                    }
+                                    <td>@item.indice</td>
+                                    <td>@item.nom_tipo_criterion</td>
+                                    <td>
+                                        @if (obj != null)
+                                        {
+                                            <select class="form-control" id="cbxgrupo_@i" required name="cbxgrupo_@i">
+                                                <option value="">-Seleccionar-</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_adh_grupo_tipocriterio item2 in ViewBag.refadhGrupoTipoAdherencia)
+                                                {
+                                                    if (obj.id_grupo_tipocriterio != null)
+                                                    {
+                                                        if (obj.id_grupo_tipocriterio == item2.id_ref_adh_grupo_tipocriterio)
+                                                        {
+                                                            <option selected value="@item2.id_ref_adh_grupo_tipocriterio">@item2.nom_adh_grupo_tipocriterio</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@item2.id_ref_adh_grupo_tipocriterio">@item2.nom_adh_grupo_tipocriterio</option>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item2.id_ref_adh_grupo_tipocriterio">@item2.nom_adh_grupo_tipocriterio</option>
+                                                    }
+
+                                                }
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <select class="form-control" id="cbxgrupo_@i" required name="cbxgrupo_@i" disabled>
+                                                <option value="">-Seleccionar-</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_adh_grupo_tipocriterio item2 in ViewBag.refadhGrupoTipoAdherencia)
+                                                {
+                                                    <option value="@item2.id_ref_adh_grupo_tipocriterio">@item2.nom_adh_grupo_tipocriterio</option>
+                                                }
+                                            </select>
+                                        }
+
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-sm button_Asalud_Aceptar" title="Editar" href="javascript:GetDatosTipoCriterio(@item.id_tipo_criterio)">
+                                            <i class="glyphicon glyphicon-pencil"></i>&nbsp;Editar
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-sm button_Asalud_Rechazar" title="Eliminar" href="javascript:EliminarTipoCriterio(@item.id_tipo_criterio, @ViewBag.tipoadherencia)">
+                                            <i class="glyphicon glyphicon-trash"></i>&nbsp;Eliminar
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </form>
+
+            </div>
+            <div class="panel-footer text-center">
+                <a role="button" href="@Url.Action("ConfiguracionAdherencia","Adherencia")" class="btn button_Asalud_Rechazar">Volver</a>
+                <button class="btn button_Asalud_Guardar" onclick="GuardarAdminCriterios()" type="button">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalAdd2" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="form_add_tipo_criterio">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input type="hidden" id="txtidtipocriterio" name="txtidtipocriterio" value="0" />
+                            <div class="form-group">
+                                <label class="text-secondary_asalud">Indice:</label>
+                                <input autocomplete="off" type="text" class="form-control" id="txtindicetipocriterio" name="txtindicetipocriterio" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="text-secondary_asalud">Nombre tipo criterio:</label>
+                                <input autocomplete="off" type="text" class="form-control" id="txtnomtipocriterio" name="txtnomtipocriterio" required />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="Validar_formulario_2()" class="btn button_Asalud_Guardar">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#btnaddcriterio").click(function () {
+            $("#txtidtipocriterio").val(0)
+            $("#txtindicetipocriterio").val("");
+            $("#txtnomtipocriterio").val("");
+            $(".modal-title").text("Agregar nuevo tipo de criterio");
+            $("#ModalAdd2").modal('show');
+        })
+    })
+
+    function ValidarSeleccionados() {
+        var seleccionados = [];
+        $("#tbltipocriterio tbody tr td .check").each(function () {
+            var value = $(this).val();
+            if ($(this).is(':checked')) {
+                seleccionados.push(value);
+            }
+        })
+        return seleccionados;
+    }
+
+    function ValidarSeleccionados2() {
+        var count = "@i";
+        var seleccionados = [];
+        for (var i = 1; i <= count; i++) {
+            if ($("#chk_" + i).is(':checked')) {
+                seleccionados.push($("#cbxgrupo_" + i).val());
+            }
+        }
+
+        return seleccionados;
+    }
+
+    function Validar_formulario_2() {
+        var validator = $("#form_add_tipo_criterio").validate();
+        if (validator.form()) {
+            $("#ModalAdd2").modal('hide');
+            GuardarTipoCriterio();
+        }
+    }
+
+    function GuardarTipoCriterio() {
+        debugger
+        LoadingShow();
+        var id = "@ViewBag.tipoadherencia";
+        $.ajax({
+            url: "@Url.Action("GuardarTipoCriterio")",
+            type: "post",
+            data: {
+                idtipocriterio: $("#txtidtipocriterio").val(),
+                indice: $("#txtindicetipocriterio").val(),
+                NomTipoCriterio: $("#txtnomtipocriterio").val(),
+            },
+            success: function (data) {
+                if (data.rta == 0) {
+                    var url = "@Url.Action("AdminCriterios", "Adherencia")?idtipoadherencia=" + id;
+                    location.href = url;
+                }
+                else {
+                    alert(data.msj);
+                }
+            }
+        })
+    }
+
+    function GetDatosTipoCriterio(a) {
+        var idtipocriterio = a;
+        $.ajax({
+            url: "@Url.Action("GetdatosTipoCriterio")",
+            type: "post",
+            data: { idtipocriterio: idtipocriterio },
+            success: function (data) {
+                if (data != 0) {
+
+                    $("#txtidtipocriterio").val(data.idtipocriterio)
+                    $("#txtindicetipocriterio").val(data.idc);
+                    $("#txtnomtipocriterio").val(data.nomtipocriterio);
+                    $(".modal-title").text("Editar nuevo tipo de cohorte");
+                    $("#ModalAdd2").modal('show');
+                }
+                else {
+                    alert("No se ha encontrado el tipo de cohorte");
+                }
+            }
+        });
+    }
+
+
+    function EliminarTipoCriterio(a, b) {
+        var idtipocriterio = a;
+        var tipoadh = b;
+        Swal.fire({
+            title: 'Estas Seguro(a)?',
+            text: "Este tipo de criterio quedara eliminado permanentemente, y con el todos los criterios que estén asociados al mismo.",
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                var url = "@Url.Action("EliminarTipoCriterio", "Adherencia")?idtipocriterio=" + idtipocriterio + "&tipoahd=" + tipoadh;
+                location.href = url;
+            }
+        })
+    }
+
+    function GuardarAdminCriterios() {
+        var validator = $("#formulario").validate();
+
+        if (validator.form()) {
+            var id = "@ViewBag.tipoadherencia";
+            var seleccionados = ValidarSeleccionados();
+            var seleccionados2 = ValidarSeleccionados2();
+            if (seleccionados.length > 0) {
+                $.ajax({
+                    url: "@Url.Action("GuardarAdmincriterios")",
+                    type: "post",
+                    data: {
+                        tipoadherencia: id,
+                        seleccionados: seleccionados,
+                        seleccionados2: seleccionados2
+                    },
+                    success: function (data) {
+                        if (data.rta == 1) {
+                            var url = "@Url.Action("ConfiguracionAdherencia", "Adherencia")";
+                            location.href = url;
+                        }
+                        else {
+                            Swal.fire(
+                                'Algo salio mal!',
+                                data.msj,
+                                'error'
+                            )
+                        }
+                    }
+                })
+            } else {
+                Swal.fire(
+                    'Algo salio mal!',
+                    'Debe seleccionar al menos un tipo de criterio.',
+                    'error'
+                )
+            }
+        }
+
+    }
+
+    function activ(i) {
+        if ($("#chk_" + i).is(':checked')) {
+            $("#cbxgrupo_" + i).prop('disabled', false);
+        } else {
+            $("#cbxgrupo_" + i).val("");
+            $("#cbxgrupo_" + i).prop('disabled', true);
+        }
+    }
+</script>
+
+<style>
+    #pnlPrincipal {
+        padding-left: 1%;
+        padding-right: 2%;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+     table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+</style>

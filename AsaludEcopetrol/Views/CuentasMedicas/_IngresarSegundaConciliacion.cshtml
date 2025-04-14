@@ -1,0 +1,212 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.cuentasmedicas
+
+<form id="formularioPrimeraGlosa">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">
+                Guardar registro de la vista de segunda conciliación
+            </strong>
+        </div>
+        <div class="panel-body">
+            <input type="hidden" id="id_glosat" value="@ViewBag.id_glosa" />
+
+            <div class="row col-lg-12">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label class="text-secondary_asalud">Vr. glosa ratificada por primera conciliación para segunda</label>
+                        <input type="number" disabled="disabled" class="k-textbox form-control" name="vlr_glosa_ratificada_contratista_segunda_conciliacion" id="vlr_glosa_ratificada_contratista_segunda_conciliacion" required="required" value="@ViewBag.vlr_glosa_ratificada_contratista_segunda_conciliacion" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label class="text-secondary_asalud">Fecha  conciliación</label>
+                        <input class="datepickerr" required value="" title="Este campo  es obligatorio*" name="fecha_segunda_conciliacion" id="fecha_segunda_conciliacion" />
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="text-secondary_asalud">Vr. aceptado IPS/Prestador</label>
+                        <input type="number" class="k-textbox form-control" name="vlr_aceptado_segunda_conciliacion" id="vlr_aceptado_segunda_conciliacion" required="required" onchange="operarValorAceptado()" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label class="text-secondary_asalud">Vr. levantado conciliación</label>
+                        <input type="number" class="k-textbox form-control" name="vlr_levantado_segunda_conciliacion" id="vlr_levantado_segunda_conciliacion" required="required" onchange="operarValorLevantado()" />
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="text-secondary_asalud">Vr. glosa definitiva</label>
+                        <input type="number" class="k-textbox form-control" name="vlr_glosa_definitiva_segunda_conciliacion" id="vlr_glosa_definitiva_segunda_conciliacion" required="required" disabled="disabled" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label class="text-secondary_asalud">Descripción glosa definitiva</label>
+                        <textarea class="form-control" id="descripcion_glosa_definitiva" name="descripcion_glosa_definitiva" rows="5" cols="12" maxlength="5000" required></textarea>
+                    </div>
+                </div>
+                <br /><br />
+                <div class="row">
+                    <div class="text-center" id="divBotones">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormularioPrimeraGlosa()">GUARDAR</button>
+                        <button class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+
+
+
+<script>
+
+    $(document).ready(function () {
+        traerRespuestaGlosa();
+    });
+
+    var today = new Date()
+
+    $(".datepickerr").kendoDatePicker({
+        format: "MM/dd/yyyy",
+        value: new Date()
+    });
+    $("#fecha_respuesta_glosa_inicial").attr('readonly', true);
+    $("#fecha_primera_conciliacion").attr('readonly', true);
+
+    $(".date").datepicker();
+
+
+    function ValidarFormularioPrimeraGlosa() {
+
+
+        var validator = $("#formularioPrimeraGlosa").validate();
+        if (validator.form()) {
+            GuardarDatosModal();
+        } else {
+
+        }
+
+
+    }
+
+    function GuardarDatosModal() {
+
+        var formData = new FormData($("form")[0]);
+        var id_glosa_Var = document.getElementById("id_glosat").value;
+        formData.append("id_glosa", id_glosa_Var);
+
+        formData.append("fecha_segunda_conciliacion", $("#fecha_segunda_conciliacion").val());
+        formData.append("vlr_aceptado_segunda_conciliacion", $("#vlr_aceptado_segunda_conciliacion").val());
+        formData.append("vlr_levantado_segunda_conciliacion", $("#vlr_levantado_segunda_conciliacion").val());
+        formData.append("vlr_glosa_definitiva_segunda_conciliacion", $("#vlr_glosa_definitiva_segunda_conciliacion").val());
+        formData.append("descripcion_glosa_definitiva", $("#descripcion_glosa_definitiva").val());
+        $.ajax({
+            url: "@Url.Action("SaveSegudnaConciliacion", "CuentasMedicas")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    var url = "@Url.Action("TableroDeVisitasProgramadas", "CuentasMedicas")";
+                    location.href = url;
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+
+            }
+
+        })
+
+
+    }
+
+    function traerRespuestaGlosa() {
+
+        $("#id_traer_glosa").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Select ...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: "traerRespuestaGlosa",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+
+        });
+    }
+
+
+
+    function operarValorAceptado() {
+
+        var levantado = document.getElementById("vlr_levantado_segunda_conciliacion").value;
+        var aceptado = document.getElementById("vlr_aceptado_segunda_conciliacion").value;
+        var glosaUno = document.getElementById("vlr_glosa_ratificada_contratista_segunda_conciliacion").value;
+        if (levantado == "") {
+            levantado = 0;
+        }
+        if (aceptado == "") {
+            aceptado = 0;
+        }
+        var resultado = 0;
+
+        if (parseInt(glosaUno) - (parseInt(levantado) + parseInt(aceptado)) < 0) {
+            alert("El valor aceptado no puede ser superior al valor de la glosa ratificada. Por favor intente de nuevo.");
+            document.getElementById("vlr_aceptado_segunda_conciliacion").value = 0;
+        } else {
+            resultado = parseInt(glosaUno) - (parseInt(levantado) + parseInt(aceptado));
+            document.getElementById("vlr_glosa_definitiva_segunda_conciliacion").value = parseInt(resultado);
+
+        }
+
+    }
+
+
+    function operarValorLevantado() {
+
+        var levantado = document.getElementById("vlr_levantado_segunda_conciliacion").value;
+        var glosaUno = document.getElementById("vlr_glosa_ratificada_contratista_segunda_conciliacion").value;
+        var aceptado = document.getElementById("vlr_aceptado_segunda_conciliacion").value;
+        if (levantado == "") {
+            levantado = 0;
+        }
+        if (aceptado == "") {
+            aceptado = 0;
+        }
+        var resultado = 0;
+
+        if (parseInt(glosaUno) - (parseInt(levantado) + parseInt(aceptado)) < 0) {
+            alert("El valor aceptado no puede ser superior al valor de la glosa ratificada. Por favor intente de nuevo.");
+            document.getElementById("vlr_levantado_segunda_conciliacion").value = 0;
+        } else {
+            resultado = parseInt(glosaUno) - (parseInt(levantado) + parseInt(aceptado));
+
+            document.getElementById("vlr_glosa_definitiva_segunda_conciliacion").value = parseInt(resultado);
+
+        }
+
+    }
+
+
+</script>

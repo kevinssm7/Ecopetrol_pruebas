@@ -1,0 +1,270 @@
+﻿
+@{
+    var i = 0;
+    var j = 0;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS PQR</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idPqrs</label>
+            </h5>
+            <input type="hidden" id="idPqrs" value="@ViewBag.idPqrs" />
+        </p>
+    </div>
+
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <div class="panel-default">
+                    <strong class="text-secondary_asalud">PROYECCIÓN FINAL</strong>
+                </div>
+                <table id="TablaCon" class="tableroCon table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+                            @*<th></th>*@
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteoCon > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_mirarArchivosResult item in ViewBag.listaCon)
+                            {
+                                i++;
+
+                                <tr class="claseColorMarcacion">
+                                    <td style="text-align:center;">
+                                        @i
+                                    </td>
+                                    @if (item.cargue_fecha != null)
+                                    {
+                                        <td class="text-center">@item.cargue_fecha.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.cargue_fecha</td>
+                                    }
+
+                                    <td class="text-center">@item.descripcionTipo</td>
+                                    <td class="text-center">@item.nombreArchivo</td>
+                                    <td class="text-center">@item.nombreCargador</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_gestion_documental_pqrs);'>Ver archivo</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <div class="panel-default">
+                    <strong class="text-secondary_asalud">ANEXOS DEL CASO</strong>
+                </div>
+                <table id="tablaSin" class="tableroSin table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem </th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+                            @*<th></th>*@
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteoSin > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_mirarArchivosResult item in ViewBag.listaSin)
+                            {
+                                j++;
+
+                                <tr class="claseColorMarcacion">
+                                    <td>@j</td>
+
+                                    @if (item.cargue_fecha != null)
+                                    {
+                                        <td class="text-center">@item.cargue_fecha.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.cargue_fecha</td>
+                                    }
+
+                                    <td class="text-center">@item.descripcionTipo</td>
+                                    <td class="text-center">@item.nombreArchivo</td>
+                                    <td class="text-center">@item.nombreCargador</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_gestion_documental_pqrs);'>Ver archivo</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+        <br />
+        <br />
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        mostrarCon();
+        mostrarSin();
+
+    });
+
+    function mostrarCon() {
+        var conteo = "@ViewBag.conteoCon";
+        if (conteo > 0) {
+            $('.tableroCon').DataTable().destroy();
+            $('.tableroCon').DataTable({
+                "searching": true,
+                "iDisplayLength": 5,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+
+    function mostrarSin() {
+        var conteo = "@ViewBag.conteoSin";
+        if (conteo > 0) {
+            $('.tableroSin').DataTable().destroy();
+            $('.tableroSin').DataTable({
+                "searching": true,
+                "iDisplayLength": 5,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+
+    function MostrarArchivo(idArchivo) {
+        var url = "@Url.Action("VerArchivoIngresoPqr", "Pqrs")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    @*function EliminarArchivo(idArchivo, idPqrs) {
+        if (confirm('Está a punto de eliminar un archivo ¿Desea continuar?')) {
+            EliminarRegistro(idArchivo, idPqrs);
+        }
+    }
+
+    function EliminarRegistro(idArchivo, idPqrs) {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idArchivo", idArchivo);
+        formData.append("idPqrs", idPqrs);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarArchivoPqrCierre", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+            }
+        })
+    }*@
+
+</script>

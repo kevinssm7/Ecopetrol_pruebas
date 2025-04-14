@@ -1,0 +1,334 @@
+﻿@model AsaludEcopetrol.Models.ProcesosInternos.reportevisitas
+@using AsaludEcopetrol.Models.ProcesosInternos
+@{
+    Layout = null;
+    int i = 0;
+    ProcesosInternos procesos = new ProcesosInternos();
+    string collapse = "collapse in";
+    string signo_condicion = "";
+    double califiacionGeneral = 0, sumapesogeneral = 0;
+    List<ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle> detalle = procesos.Getdetalllescronograma(Model.idcronograma);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+
+        .caja {
+            float: left;
+            margin-left: 5px;
+            font-size: 15px
+        }
+
+        .text-secondary_asalud {
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            color: #556da2;
+            font-weight: bold;
+        }
+
+        table {
+            font-size: 12px;
+            margin: 10px;
+            width: 500px;
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+
+        thead {
+            display: table-header-group
+        }
+
+        tfoot {
+            display: table-row-group
+        }
+
+        tr {
+            page-break-inside: avoid
+        }
+
+        th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+        .table-condensed thead > tr > th, .table-condensed tbody > tr > th, .table-condensed tfoot > tr > th, .table-condensed thead > tr > td, .table-condensed tbody > tr > td, .table-condensed tfoot > tr > td {
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body style="font-family:'Century Gothic'; font-size:10px">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <img style="text-align:right; width:15%" src="~/Resources/SelloFirma.png" />
+            </div>
+        </div>
+        <br />
+        <center><h3 style="font-weight:bold; font-family:'Century Gothic'">EVALUACIÓN DE INDICADORES</h3></center>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="tableUno">
+                    <tr>
+                        <td class="text-secondary_asalud">FECHA DE LA VISITA:</td>
+                        <td>@Model.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                        @*<td>@Model.fecha_final_visita</td>*@
+                    </tr>
+                    <tr>
+                        <td class="text-secondary_asalud">FECHA DE LA PROXIMA VISITA:</td>
+                        <td>@Model.proximafecha.Value.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary_asalud">PERIODO A EVALUAR:</td>
+                        <td>@Model.periodo_desde.Value.ToString("dd/MM/yyyy") A @Model.periodo_hasta.Value.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary_asalud">NOMBRE DEL PRESTADOR:</td>
+                        <td style="font-family:'Century Gothic'">@Model.NomPrestador</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary_asalud">NIT PRESTADOR:</td>
+                        <td>@Model.Nit</td>
+                    </tr>
+                    @*<tr>
+                            <td class="text-secondary_asalud">CONTRATO VIGENTE NO:</td>
+                            <td>@Model.NoContrato</td>
+                        </tr>*@
+                </table>
+            </div>
+        </div>
+        <br />
+        <div class="row" style="margin: 10px; border: solid 1px #000; padding:3%">
+            <table class="table table-bordered" style="width:98%; margin:0%">
+                <tr>
+                    <th>Capitulo</th>
+                    <th style="text-align:center">Item &nbsp;-&nbsp; Peso gnral &nbsp;-&nbsp; Peso ind&nbsp;-&nbsp; Meta &nbsp;-&nbsp; Puntuación &nbsp;-&nbsp; Puntuación max </th>
+                    <th>suma puntuaciones</th>
+                    <th>Peso General</th>
+                    <th>Total</th>
+                    <th>Evaluación Final</th>
+                </tr>
+
+                @if (detalle.Count > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle_indicador o in Model.listacapitulos)
+                    {
+
+                        double? puntuacion = 0;
+                        decimal total = 0;
+                        int contador = 0, countitems = 0, countaplica = 0;
+                        double puntuacion_adicional = 0, pa = 0, puntuacion_final = 0;
+
+                        <tr id="accordion_@i" class="@collapse">
+
+                            <td>@o.capitulos.nom_capitulo</td>
+                            <td>
+                                <table class="table table-condensed table-striped" style="font-size:10px;">
+                                    @{
+                                        var prlista = detalle.Where(l => l.id_capitulo == o.id_capitulo).ToList();
+                                    }
+
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle item in prlista)
+                                    {
+
+                                        puntuacion = 0;
+                                        signo_condicion = procesos.ObtenerSignoCondicion(item.id_item, item.cap_condicion_meta);
+                                        if (item.aplica.Value)
+                                        {
+                                            contador += 1;
+                                            puntuacion = procesos.ObtenerPuntuacionNuevoFormato(item.id_item, item.cap_condicion_meta, item.valor_digitado, item.cap_valor_meta, item.cap_peso_individual);
+                                        }
+                                        <tr>
+                                            @if (o.id_capitulo == item.id_capitulo && o.id_regional == item.item_capitulo.regional_id && o.id_indicador == item.item_capitulo.indicador_id)
+                                            {
+                                                double? puntuacionmaxima = 0;
+                                                i += 1;
+                                                <th>@item.item_capitulo.nom_item.ToUpper()</th>
+                                                <td>@item.cap_peso_individual%</td>
+                                                if (item.aplica.Value == true)
+                                                {
+                                                    <td>@item.valor_digitado%</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>N/A</td>
+                                                }
+                                                <th style="width:15%; text-align:center">@signo_condicion</th>
+
+                                                if (item.aplica.Value)
+                                                {
+                                                    pa = Convert.ToDouble(item.cap_peso_individual);
+                                                    if (puntuacion > 0)
+                                                    {
+                                                        puntuacionmaxima = (puntuacion * 100) / Convert.ToDouble(item.cap_peso_individual);
+                                                    }
+                                                    else
+                                                    {
+                                                        puntuacionmaxima = (puntuacion * 100);
+                                                    }
+
+                                                    <td class="text-center">@Math.Round(puntuacion.Value, 2)%</td>
+                                                    <td class="text-center">@Math.Round(puntuacionmaxima.Value, 2)%</td>
+                                                }
+                                                else
+                                                {
+                                                    pa = 0;
+                                                    <td>&nbsp;</td>
+                                                    <td>&nbsp;</td>
+                                                }
+
+                                                puntuacion_adicional += pa;
+                                                puntuacion_final += puntuacion.Value;
+                                            }
+                                        </tr>
+
+                                    }
+                                </table>
+                            </td>
+                            @{
+                                double suma_puntuaciones = 0;
+                                if (puntuacion_adicional > 0)
+                                {
+                                    suma_puntuaciones = (puntuacion_final / puntuacion_adicional) * 100;
+                                }
+                                total = Convert.ToDecimal((suma_puntuaciones * o.peso_general_capitulo) / 100);
+                            }
+                            <td class="text-center">@Math.Round(Convert.ToDouble(suma_puntuaciones), 2)%</td>
+                            <td class="text-center">@o.peso_general_capitulo%</td>
+                            <td class="text-center">@Math.Round(Convert.ToDecimal(total), 2)%</td>
+                            <td class="text-center">@Math.Round(Convert.ToDecimal(total), 2)%</td>
+                        </tr>
+
+                        countitems = prlista.Where(l => l.id_capitulo == o.id_capitulo).ToList().Count();
+                        countaplica = prlista.Where(l => l.id_capitulo == o.id_capitulo && l.aplica == false).ToList().Count();
+
+                        if (countitems == 1)
+                        {
+                            if (countitems != countaplica)
+                            {
+                                sumapesogeneral += Convert.ToDouble(o.peso_general_capitulo);
+                            }
+                        }
+                        else
+                        {
+                            //leo
+                            if (countitems != countaplica)
+                            {
+                                sumapesogeneral += Convert.ToDouble(o.peso_general_capitulo);
+                            }
+
+                        }
+
+                        califiacionGeneral = califiacionGeneral + Convert.ToDouble(total);
+                    }
+
+                    califiacionGeneral = ((califiacionGeneral / sumapesogeneral) * 100);
+
+                    <tr>
+                        <td colspan="4"></td>
+                        <th>Califiación General</th>
+                        <th class="text-center">@Math.Round(califiacionGeneral, 2)%</th>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" rowspan="2" style="text-align:center"> No se encuentran capitulos configurados para este prestador en esta regional</td>
+                    </tr>
+                }
+
+
+                <tr>
+                    <td colspan="4"></td>
+                    <td colspan="2" class="text-center">
+
+                        @if (califiacionGeneral < 70)
+                        {
+                            <strong>1 Estrella</strong>
+                        }
+                        else if (califiacionGeneral >= 70 && califiacionGeneral < 80)
+                        {
+                            <strong>2 Estrellas</strong>
+                        }
+                        else if (califiacionGeneral >= 80 && califiacionGeneral < 90)
+                        {
+                            <strong>3 Estrellas</strong>
+                        }
+                        else if (califiacionGeneral >= 90 && califiacionGeneral < 96)
+                        {
+                            <strong>4 Estrellas</strong>
+                        }
+                        else
+                        {
+                            <strong>5 Estrellas</strong>
+                        }
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br />
+
+        <div class="row" style="margin: 10px; border: solid 1px #000; padding:2.5%; font-size: 12px !important">
+            <p><strong class="text-secondary_asalud">Observaciones:</strong>&nbsp;<label style="font-weight:normal">@Model.Observaciones</label></p>
+        </div>
+        <br />
+
+
+        <div class="row" style="margin:10px">
+            <div style=" min-width:100%; padding-bottom:15%; font-size:10px;">
+                <div class="caja" style="min-width:45%">
+                    <strong>@Model.NomAuditor </strong><br />
+                    <strong class="text-secondary_asalud">AUDITOR ASALUD -ECOPETROL</strong><br />
+                </div>
+                <div class="caja pull-right" style="min-width:45%">
+                    <strong>@Model.NomPrestador</strong><br />
+                    <strong class="text-secondary_asalud">REPRESENTANTE PRESTADOR</strong><br />
+                </div>
+            </div>
+            <br />
+            <div style="min-width:100%;">
+                <div class="caja" style="min-width:45%">
+                    <strong>__________________________________________</strong><br />
+                    <strong>FIRMA AUDITOR Asalud SAS-ECOPETROL</strong><br />
+                </div>
+                <div class="caja pull-right" style="min-width:45%">
+                    <strong>__________________________________________</strong><br />
+                    <strong>FIRMA REPRESENTANTE PRESTADOR</strong><br />
+                </div>
+            </div>
+        </div>
+
+        <footer style="margin-top:5%">
+            <div class="row" style="margin:10px">
+                <center> <h4 class="text-secondary_asalud" style="text-decoration: underline">Los indicadores fueron medidos de acuerdo con la GAB – F – 297 -referente normativo Ecopetrol</h4></center>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

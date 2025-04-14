@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "ELIMINAR DOCUMENTOS PQRS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+    @using (Html.BeginForm())
+    {
+
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+
+                    <th class="text-center th">FECHA CARGUE</th>
+                    <th class="text-center th">NUMERO CASO</th>
+                    <th class="text-center th">TIPO DOCUMENTAL</th>
+                    <th class="text-center th">RUTA</th>
+                    <th class="text-center th">OBSERVACIONES</th>
+                    <th class="text-center th"></th>
+
+                </tr>
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.GestionDocumentalPQRS item in ViewBag.docspqrs)
+                {
+
+                <tr>
+
+                    <td>@item.cargue_fecha</td>
+                    <td>@item.numero_caso</td>
+                    <td>@item.Ref_gestion_tipo_documental.nombre</td>
+                    <td>@item.ruta</td>
+                    <td>@item.obs</td>
+                    <td>
+                        <h5> <a href="#" class="btn btn-primary" onclick="javascript:window.open('@Url.Action("GestorDocsPQR", "GestorDocumental" , new { Ruta = item.ruta  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER DOCUMENTO</a></h5>
+                        <h5><a class="btn btn-danger" href="javascript:EliminarDocumento(@item.id_gestion_documental_pqrs, '@item.numero_caso')">EliMINAR DOCUMENTO</a></h5>
+                    </td>
+                    @*@Url.Action("EliminarDocPQRS", "GestorDocumental", new { id = item.id_gestion_documental_pqrs, numcaso = item.numero_caso, ruta = item.ruta })*@
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        <div style="display:none">
+
+
+
+
+        </div>
+    }
+
+
+<script>
+
+
+    function EliminarDocumento(a, b)
+    {
+        var id = a;
+        var numcaso = b;
+
+        var opcion = confirm("¿Seguro que desea eliminar este documento?");
+        if (opcion == true)
+        {
+            window.location = "@Url.Action("EliminarDocPQRS", "GestorDocumental")?id=" + id + "&numcaso=" + numcaso;
+        } else
+        {
+            return false
+        }
+        
+    }
+</script>
+
+
+    <style>
+        .k-autocomplete.k-header {
+            width: 300px;
+        }
+
+        .Acordion {
+            width: 820px;
+        }
+
+        .AcordionVentana {
+            width: 100px;
+            height: 100px;
+        }
+
+        .Error {
+            color: #800000;
+            font-size: small;
+            font-weight: bold;
+        }
+
+        .Info {
+            color: #800000;
+            font-size: small;
+            text-align: justify;
+            font-weight: bold;
+            width: 700px;
+        }
+
+        .Enca {
+            width: 700px;
+            text-align: center;
+            background-color: #284775;
+            color: #ffffff;
+        }
+
+        .ListCaja {
+            width: 50%;
+            border-collapse: collapse;
+        }
+
+        .th {
+            background: #333;
+            color: white;
+            font-weight: bold;
+        }
+
+        .td {
+            padding: 6px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        .General {
+            font-size: x-small;
+            font-family: Calibri;
+        }
+
+        .TamañoImag {
+            height: 200px;
+            position: center;
+        }
+
+        .TamañoDiv {
+            position: page;
+            /*width:1100px;*/
+        }
+
+        .btn-glyphicon {
+            padding: 8px;
+            background: #ffffff;
+            margin-right: 4px;
+        }
+
+        .icon-btn {
+            padding: 1px 15px 3px 2px;
+            border-radius: 50px;
+        }
+    </style>

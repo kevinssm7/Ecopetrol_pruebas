@@ -1,0 +1,185 @@
+﻿@{
+    List<ECOPETROL_COMMON.ENTIDADES.ref_cuentas_medicas_analista> asignados = (List<ECOPETROL_COMMON.ENTIDADES.ref_cuentas_medicas_analista>)ViewBag.asignacion;
+    int i = 0;
+}
+
+<form id="formulario" name="formulario">
+    <input type="hidden" id="regional" name="regional" value="@ViewBag.regional" />
+    <input type="hidden" id="presta" name="presta" value="@ViewBag.prestador" />
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p class="text-primary_asalud">Asignar analistas</p>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-condensed table-striped datatable1">
+                <thead style="background-color:#333333; color:white">
+                    <tr>
+                        <th class="text-center">Ítem</th>
+                        <th>Nombre del analista</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_analistas_recepcion item in ViewBag.usuarios)
+                    {
+                        i += 1;
+                        var anl = asignados.Where(x => x.id_usuario == item.id_usuario).FirstOrDefault();
+                        <tr>
+                            @if (anl == null)
+                            {
+                                <td class="text-center"><input id="ch_@i" type="checkbox" value="@item.id_usuario" /></td>
+                            }
+                            else
+                            {
+                                <td class="text-center"><input id="ch_@i" type="checkbox" checked="checked" value="@item.id_usuario" /></td>
+                            }
+                            <td>@item.nom_analista.ToUpper()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+
+            <div class="col-sm-12 text-center form-group">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="GuardarSeleccionAnalistas()">Guardar Cambios</button>
+            </div>
+            <br />
+        </div>
+    </div>
+</form>
+<script>
+
+
+    $(document).ready(function () {
+
+        $('.datatable1').DataTable({
+            "searching": true,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 15,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+    });
+
+    debugger
+    function GuardarSeleccionAnalistas() {
+
+        var seleccionados = analistasSeleccionados();
+
+        var regional = $("#regional").val();
+        var idPrestador = $("#presta").val();
+
+        if (seleccionados.length > 0) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("GuardarAnalistasSeleccion")",
+                type: "post",
+                data: {
+                    analistas: seleccionados,
+                    idRegional: regional,
+                    prestador: idPrestador,
+                },
+                success: function (data) {
+                    alert(data.msg);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        } else {
+            alert("Debe seleccionar almenos uno de los analistas.");
+        }
+    }
+
+    function analistasSeleccionados() {
+        var contador = "@i";
+        var seleccionados = [];
+
+        for (var i = 1; i <= contador; i++) {
+            if ($("#ch_" + i).is(':checked')) {
+                seleccionados.push($("#ch_" + i).val());
+            }
+        }
+        return seleccionados;
+    }
+</script>
+
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

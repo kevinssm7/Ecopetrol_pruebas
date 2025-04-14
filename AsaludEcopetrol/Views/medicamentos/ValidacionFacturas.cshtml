@@ -1,0 +1,905 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "VALIDACIÓN PRE-FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+<div class="breadcrumb">
+    <div class="row">
+        <label class="control-label col-sm-4">
+            <span class="text-secondary_asalud"> #Cargue: </span> @ViewBag.idFactura
+        </label>
+        <label class="control-label col-sm-4">
+            <span class="text-secondary_asalud"> Prestador: </span> @ViewBag.prestador
+            <input type="hidden" id="idCargueLupe" value="@ViewBag.idCargue" />
+            <input type="hidden" id="idCarguePrefactura" value="@ViewBag.idFactura" />
+            <input type="hidden" id="abierta" value="@ViewBag.abierta" />
+            <input type="hidden" name="validador" id="validador" disabled />
+        </label>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <ul class="nav nav-pills">
+            <li role="presentation" class="active"><a href="#aprobados" data-toggle="tab">Aprobados</a></li>
+            <li role="presentation"><a href="#noaprobados" data-toggle="tab">No aprobados</a></li>
+        </ul>
+        <hr />
+        <div class="tab-content form-group">
+            <div class="tab-pane active" id="aprobados">
+                <div>
+                    <button class="button_Asalud_Aceptar" id="buttonDesaprobarSels">Desaprobar seleccionados</button>
+
+                    <div class="form-group text-right">
+                        <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:ReporteAprobados()">
+                            <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                        </a>
+                    </div>
+
+                    <div>
+                        <div id="grid"></div>
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="Lista_checkDesa" id="Lista_checkDesa" required />
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="noaprobados">
+                <div>
+                    @if (ViewBag.abierta == true)
+                    {
+                        <button class="button_Asalud_Aceptar" id="showSelection">Aprobar todos</button>
+                        <button class="button_Asalud_Aceptar" id="showSelection2">Aprobar seleccionados</button>
+                        <button href="javascript:void(0)" id="btnaprobarfacturas2" class="button_Asalud_Aceptar">Aprobar Facturas desde excel</button>
+                        <button class="button_Asalud_Guardar" id="showSelection3" onclick="NotificarOPL();">Notificar a OPLS</button>
+                        <button class="button_Asalud_Guardar" id="showSelection4" onclick="mostrarPdfOPL();">Generar PDF</button>
+                    }
+                    <br />
+                    <div class="form-group text-right">
+                        <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:ReporteNoAprobados()">
+                            <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                        </a>
+                    </div>
+                    <div>
+                        <div id="grid2"></div>
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="Lista_check2" id="Lista_check2" required />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Aprobar pre-facturas</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formaprobacion">
+                    <input type="hidden" id="id_detprefactura" name="id_detprefactura" />
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <div class="col-sm-6 row">
+                                <label class="text-secondary_asalud">Nuevo valor</label>
+                                <input type="text" class="form-control solo-numero" id="nuevovalor" name="nuevovalor" maxlength="9" required />
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea class="form-control" rows="4" name="txtobservaciones" id="txtobservaciones" placeholder="- Observaciones -" maxlength="4999" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a id="btnval1" href="javascript:ValidarFormulario()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <a id="btnval2" href="javascript:ValidarFormulario2()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <a id="btnval3" href="javascript:ValidarFormulario3()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar rechazadar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal2" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Aprobar prefacturas desde excel</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formaprobacionmasiva">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Seleccionar documento prefacturas: *</label>
+                            <input type="file" class="form-control" name="txtdoc" id="txtdoc" onchange="ValidacionArchivo();" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required="required" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observaciones:</label>
+                            <textarea id="observacionArchivo" class="form-control" cols="4" rows="4" maxlength="3999" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario4()" class="button_Asalud_Guardar" type="submit">Guardar Cambios &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalDesaprobacion" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud">Desaprobar prefacturas</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formDesaprobacion">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observación:</label>
+                            <textarea id="observacionDesaprobacion" class="form-control" cols="4" rows="4" maxlength="499" required></textarea>
+                            <input id="idCargue" name="idCargue" type="hidden" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarFormulaioDesa()" class="button_Asalud_Guardar" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+
+    var seleccionados = [];
+    var seleccionadosDesaprobar = [];
+    var carguefacturas;
+
+    $(document).ready(function () {
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        cruzan_ckeck = [];
+        noCruzan_ckeck = [];
+        carguefacturas = $("#idCarguePrefactura").val();
+
+        LoadingShow();
+
+        $("#grid").kendoGrid({
+            dataSource: {
+                pageSize: 50,
+                transport: {
+                    read: {
+                        url: "Selection_ReadCruzan",
+                        dataType: "json",
+                        type: "POST",
+                        data: {
+                            carguefacturas: carguefacturas,
+                        }
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "id_detalle_prefactura"
+                    }
+                }
+            },
+            toolbar: ["search"],
+            pageable: {
+                refresh: true,
+                pageSizes: [20, 50, 100, 200, 300],
+                buttonCount: 50
+            },
+            scrollable: true,
+            persistSelection: true,
+            sortable: true,
+            persistSelection: true,
+            groupable: true,
+            filterable: true,
+            dataBound: function (e) {
+
+                var validador = document.getElementById("validador").value;
+
+                if (validador == 1) {
+                    LoadingHide();
+                } else {
+                    document.getElementById("validador").value = 1;
+                }
+            },
+            change: onchangeDesa,
+
+            columns: [
+                {
+                    selectable: true, width: "35px",
+                    hidden: false,
+                },
+                { field: "id_detalle_prefactura", title: "Código" },
+                { field: "num_tirilla", title: "Num tirilla" },
+                { field: "num_prefactura", title: "Código factura" },
+                { field: "nit", title: "Nit" },
+                { field: "cum", title: "CUM" },
+                { field: "cod", title: "Cod interno" },
+                { field: "valor_total", title: "Valor prefactura" },
+                { field: "fecha_despacho_formula", title: "Fecha despacho", format: "{0:MM/dd/yyyy}", encoded: true },
+            ]
+        });
+
+        $("#grid2").kendoGrid({
+            dataSource: {
+                pageSize: 50,
+                transport: {
+                    read: {
+                        url: "Selection_ReadNoCruzan",
+                        dataType: "json",
+                        type: "POST",
+                        data: {
+                            carguefacturas: carguefacturas,
+                        }
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "id_detalle_prefactura"
+                    }
+                }
+            },
+            toolbar: ["search"],
+            pageable: {
+                refresh: true,
+                pageSizes: [20, 50, 100, 200, 300],
+                buttonCount: 50
+            },
+            scrollable: true,
+            persistSelection: true,
+            sortable: true,
+            persistSelection: true,
+            groupable: true,
+            filterable: true,
+            dataBound: function (e) {
+
+                var validador = document.getElementById("validador").value;
+
+                if (validador == 1) {
+                    LoadingHide();
+                } else {
+                    document.getElementById("validador").value = 1;
+                }
+            },
+            change: onChange2,
+
+            columns: [
+                {
+                    selectable: true, width: "35px",
+                    hidden: false,
+                },
+                { field: "id_detalle_prefactura", title: "Código" },
+                { field: "num_tirilla", title: "Num tirilla" },
+                { field: "num_prefactura", title: "Código factura" },
+                { field: "nit", title: "Nit" },
+                { field: "cum", title: "CUM" },
+                { field: "cod", title: "Cod interno" },
+                { field: "valor_total", title: "Valor prefactura" },
+                { field: "fecha_despacho_formula", title: "Fecha despacho", format: "{0:MM/dd/yyyy}", encoded: true },
+                {
+                    command: [{
+                        name: "Aprobar",
+                        visible: function (dataItem) {
+                            return dataItem.abiertaPrefactura == 1
+                        },
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            AprobarFactura(data.id_detalle_prefactura);
+                        }
+                    }]
+                },
+            ]
+        });
+
+
+        //$("#grid2").kendoGrid({
+        //    dataSource: {
+        //        pageSize: 50,
+        //        transport: {
+        //            read: {
+        //                url: "Selection_ReadNoCruzan",
+        //                dataType: "json",
+        //                type: "POST",
+        //                data: {
+        //                    carguefacturas: carguefacturas,
+        //                }
+        //            }
+        //        },
+        //        schema: {
+        //            model: {
+        //                id: "id_detalle_prefactura"
+        //            }
+        //        }
+        //    },
+
+        //    toolbar: ["search"],
+        //    pageable: {
+        //        refresh: true,
+        //        pageSizes: [20, 50, 100, 200, 300],
+        //        buttonCount: 50
+        //    },
+        //    scrollable: true,
+        //    persistSelection: true,
+        //    sortable: true,
+        //    persistSelection: true,
+        //    groupable: true,
+        //    filterable: true,
+
+        //    dataBound: function (e) {
+
+        //        var validador = document.getElementById("validador").value;
+
+        //        if (validador == 1) {
+        //            LoadingHide();
+        //        } else {
+        //            document.getElementById("validador").value = 1;
+        //        }
+        //    },
+        //    change: onChange2,
+        //    columns: [
+        //        {
+        //            selectable: true, width: "35px",
+        //            hidden: false,
+        //        },
+        //        { field: "id_detalle_prefactura", title: "Código" },
+        //        { field: "num_tirilla", title: "Num tirilla" },
+        //        { field: "num_prefactura", title: "Código factura" },
+        //        { field: "nit", title: "Nit" },
+        //        { field: "cum", title: "CUM" },
+        //        { field: "cod", title: "Cod interno" },
+        //        { field: "valor_total", title: "Valor prefactura" },
+        //        { field: "fecha_despacho_formula", title: "Fecha despacho", format: "{0:MM/dd/yyyy}", encoded: true },
+
+        //        {
+        //            command: [{
+        //                name: "Aprobar",
+        //                visible: function (dataItem) {
+        //                    return dataItem.abiertaPrefactura == 1
+        //                },
+        //                click: function (e) {
+        //                    e.preventDefault();
+        //                    var tr = $(e.target).closest("tr");
+        //                    var data = this.dataItem(tr);
+        //                    AprobarFactura(data.id_detalle_prefactura);
+        //                }
+        //            }]
+        //        },
+        //    ],
+        //});
+
+        $("#showSelection").bind("click", function () {
+
+            $("#txtobservaciones").val("");
+            $("#nuevovalor").val("");
+            $("#btnval1").css('display', 'none');
+            $("#btnval2").css('display', 'none');
+            $("#btnval3").css('display', 'block');
+            $("#Modal").modal('show');
+        });
+
+        $("#buttonDesaprobarSels").click(function () {
+
+            var lista = $("#Lista_checkDesa").val();
+
+            if (lista != "") {
+                var str = $("#Lista_checkDesa").val();
+                let arr = str.split(',');
+                seleccionadosDesaprobar = [];
+                seleccionadosDesaprobar = arr;
+            } else {
+                var str = $("#Lista_checkDesa").val();
+                let arr = [];
+                seleccionadosDesaprobar = [];
+                seleccionadosDesaprobar = arr;
+            }
+
+            if (seleccionadosDesaprobar.length > 0 && seleccionadosDesaprobar != "undefined") {
+                var confirmar = confirm("¿Está seguro(a) de desaprobar estos ítems?")
+                if (confirmar == true) {
+
+                    $("#observacionDesaprobacion").val("");
+                    $("#ModalDesaprobacion").modal('show');
+                }
+            }
+            else {
+                alert("Debe seleccionar al menos uno de los ítems");
+            }
+        });
+
+        $("#showSelection2").bind("click", function () {
+
+            var lista = $("#Lista_check2").val();
+            if (lista != "") {
+                var str = $("#Lista_check2").val();
+                let arr = str.split(',');
+                seleccionados = [];
+                seleccionados = arr;
+            } else {
+                var str = $("#Lista_check2").val();
+                let arr = [];
+                seleccionados = [];
+                seleccionados = arr;
+            }
+
+            if (seleccionados.length > 0) {
+                $("#txtobservaciones").val("");
+                $("#nuevovalor").val("");
+                $("#btnval1").css('display', 'none');
+                $("#btnval3").css('display', 'none');
+                $("#btnval2").css('display', 'block');
+                $("#Modal").modal('show');
+            }
+            else {
+                alert("Debe seleccionar al menos uno de los ítems");
+            }
+        });
+
+        var abierta = $("#abierta").val();
+
+        if (!abierta) {
+
+            var grid = $("#grid2").data("kendoGrid");
+            grid.hideColumn(grid.columns[8]);
+            grid.columns[8].hideColumn = true;
+        }
+    });
+
+    function onchangeDesa(arg) {
+        cruzan_ckeck = this.selectedKeyNames().join();
+        $("#Lista_checkDesa").val(cruzan_ckeck);
+    }
+
+    function onChange2(arg) {
+        noCruzan_ckeck = this.selectedKeyNames().join();
+        $("#Lista_check2").val(noCruzan_ckeck);
+    }
+
+    $("#btnaprobarfacturas").click(function () {
+        $("#txtobservaciones").val("");
+        $("#nuevovalor").val("");
+        $("#btnval1").css('display', 'none');
+        $("#btnval3").css('display', 'none');
+        $("#btnval2").css('display', 'block');
+        var count = getaprobados();
+        if (count > 0) {
+            $("#Modal").modal('show');
+        }
+        else {
+            alert('Debe seleccionar al menos una factura para realizar este proceso.')
+        }
+    });
+
+    $("#btnaprobarfacturas2").click(function () {
+        $("#Modal2").modal('show');
+    });
+
+
+    function getaprobados() {
+        var count = 0;
+
+        $("#tblnoaprobados tbody .check").each(function () {
+
+            if ($(this).is(':checked')) {
+                count += 1;
+            }
+        });
+
+        return count;
+    }
+
+    function getaprobadosList() {
+        var count = 1;
+        var listadoprefacturas = [];
+        $("#tblnoaprobados tbody tr td .check").each(function () {
+            if ($(this).is(':checked')) {
+                var valor = $("#value_" + count).val();
+                listadoprefacturas.push(valor);
+            }
+            count += 1;
+        });
+
+        return listadoprefacturas;
+    }
+
+    function AprobarFactura(a) {
+        $("#txtobservaciones").val("");
+        $("#nuevovalor").val("");
+        $("#id_detprefactura").val(a);
+        $("#btnval1").css('display', 'block');
+        $("#btnval2").css('display', 'none');
+        $("#btnval3").css('display', 'none');
+        $("#Modal").modal('show');
+    }
+
+    function ValidarFormulario() {
+        hasChangue = false;
+        var validator = $("#formaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            $("#Modal").modal('hide');
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefactura")",
+                type: "post",
+                data: {
+                    id_detprefactura: $("#id_detprefactura").val(),
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor
+                },
+                success: function (data) {
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario2() {
+        hasChangue = false;
+        var validator = $("#formaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefacturaList")",
+                type: "post",
+                data: {
+                    ListaIds: seleccionados,
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor
+                },
+                success: function (data) {
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function validarformulario4() {
+
+        hasChangue = false;
+        var validator = $("#formaprobacionmasiva").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            var formData = new FormData();
+            var archivos = $('#txtdoc')[0].files;
+
+            formData.append('file', $('#txtdoc')[0].files[0]);
+            formData.append('observaciones', $('#observacionArchivo').val());
+            formData.append('idPrefactura', $('#idCarguePrefactura').val());
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("AprobacionMasivaExcel")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+
+                    alert(data.message);
+                    LoadingHide();
+                    $("#Modal2").modal('hide');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function ValidarFormulario3() {
+        hasChangue = false;
+        var validator = $("#formaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var idCargue = $('#idCarguePrefactura').val();
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefacturaListTotal")",
+                type: "post",
+                data: {
+                    idCargue: idCargue,
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor
+                },
+                success: function (data) {
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function validarFormulaioDesa() {
+
+        hasChangue = false;
+        var validator = $("#formDesaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+
+        if (validator.form()) {
+            var observacion = $("#observacionDesaprobacion").val();
+            var idCargue = $("#idCarguePrefactura").val();
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("DesaprobarPrefacturas")",
+                type: "post",
+                data: {
+                    ListaIds: seleccionadosDesaprobar,
+                    observacion: observacion,
+                    idCargue: idCargue,
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function ReporteNoAprobados() {
+        var url = "@Url.Action("ExportarExcelNoAprobados", "medicamentos")";
+        opupWindow = window.open(url, '', 'height=125,width=450,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function ReporteAprobados() {
+        var url = "@Url.Action("ExportarExcelAprobados", "medicamentos")";
+        opupWindow = window.open(url, '', 'height=125,width=450,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+
+    function NotificarOPL() {
+
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        var pasa = confirm('¿Seguro de notificar las prefacturas no aprobada al OPL?');
+        if (pasa) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EnviarCaso", "medicamentos")",
+                type:"post",
+                data: {
+                    idCargue: idCargue
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                }
+            })
+        }
+    }
+
+    function mostrarPdfOPL() {
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+
+        var url = "@Url.Action("MostrarNotificacionOPL", "medicamentos")?idCargue=" + idCargue;
+        opupWindow = window.open(url, '', 'height=725,width=750,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('txtdoc');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + "  no es válida. Por favor, solo subir archivos excel.");
+            $("#txtdoc").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+
+
+</script>
+<style>
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-grid2 tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid2 .k-button {
+        margin: .16em;
+    }
+
+    .k-grouping-header {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #fff;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid2-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid2-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+
+    .ButtonG {
+        width: 30%;
+        position: relative;
+        margin-left: 35%;
+        margin-top: -1%;
+        /*text-align: center;*/
+    }
+
+    .rechazadar {
+        position: relative;
+        margin-top: -10%;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>

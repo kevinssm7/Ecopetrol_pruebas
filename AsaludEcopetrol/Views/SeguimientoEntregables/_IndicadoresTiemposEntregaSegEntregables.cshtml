@@ -1,0 +1,163 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.Management_SeguimientoEntregables_IndicadorVencimientoResult>
+@{
+    Layout = null;
+    string responsable = (string)ViewBag.responsable;
+    int? idProceso = (int?)ViewBag.idProceso;
+    int? año = (int?)ViewBag.año;
+}
+
+<form>
+    <div class="row">
+        <div class="col-sm-3 form-group">
+            <label class="control-label text-secondary_asalud">Persona responsable</label>
+            <select class="form-control select2" id="personaResponsable" name="personaResponsable" onchange="filtrarResultados()">
+                <option value="">- TODOS -</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_responsables item in ViewBag.usuarios)
+                {
+                    if (!string.IsNullOrEmpty(responsable))
+                    {
+                        if (responsable == item.usuario)
+                        {
+                            <option selected value="@item.usuario">@item.nombre.ToUpper()</option>
+                        }
+                        else
+                        {
+                            <option value="@item.usuario">@item.nombre.ToUpper()</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="@item.usuario">@item.nombre.ToUpper()</option>
+                    }
+
+                }
+            </select>
+        </div>
+
+        <div class="col-sm-3 form-group">
+            <label class="control-label text-secondary_asalud">Proceso / componente</label>
+            <select class="form-control select2" id="proceso" name="proceso" onchange="filtrarResultados()">
+                <option value="">- TODOS -</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_proceso_entregable item in ViewBag.procesos)
+                {
+                    if (idProceso != null)
+                    {
+                        if (idProceso == item.id_ref_proceso_entregable)
+                        {
+                            <option selected value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                        }
+                        else
+                        {
+                            <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                    }
+
+                }
+            </select>
+        </div>
+        <div class="col-sm-3 form-group">
+            <label class="control-label text-secondary_asalud">Año</label>
+            <input name="año" id="año" maxlength="4" placeholder="-AÑO-" type="text" class="form-control solo-numero year" value="@año" onchange="filtrarResultados()" autocomplete="off" />
+        </div>
+    </div>
+</form>
+<br />
+
+<table id="tabla" class="table table-hover table-bordered datatable" style="width:100%; margin:0px">
+    <thead>
+        <tr>
+            <th>Responsable</th>
+            <th>Componente</th>
+            <th>Año</th>
+            <th>Entregables presentados</th>
+            <th>Entregables presentados a tiempo</th>
+            <th>Entregables vencidos</th>
+            <th>Sumatoria dias vencidos</th>
+            <th>Promedio dias</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ECOPETROL_COMMON.ENTIDADES.Management_SeguimientoEntregables_IndicadorVencimientoResult item in Model)
+        {
+        <tr>
+            <td>@item.nom_persona_responsable</td>
+            <td>@item.proceso</td>
+            <td>@item.año</td>
+            <td class="text-right">@item.num_entregables_presentados</td>
+            <td class="text-right">@item.num_entregables_aTiempo</td>
+            <td class="text-right">@item.num_entregables_vencidos</td>
+
+            @if (item.sum_dias_vencidos == null)
+            {
+                <td class="text-right">0</td>
+                <td class="text-right">0%</td>
+            }
+            else
+            {
+                <td class="text-right">@item.sum_dias_vencidos</td>
+                <td class="text-right">
+                    @{
+                        decimal dividendo = (item.sum_dias_vencidos.Value * (-1));
+                        decimal divisor = Convert.ToDecimal(item.num_entregables_presentados.Value);
+                        decimal resultado = (dividendo / divisor);
+                    }
+                    <span>@Math.Round(resultado, 1)%</span>
+                </td>
+            }
+
+
+        </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+
+    $(document).ready(function () {
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        var table = $('#tabla').DataTable({
+            orderCellsTop: true,
+            scrollX: true,
+            "lengthChange": false,
+            "language":
+            {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+    })
+
+
+
+
+    function filtrarResultados()
+    {
+       var responsable = $("#personaResponsable").val();
+       var proceso = $("#proceso").val();
+       var year = $("#año").val();
+
+        LoadingShow();
+        $("#divContenidoInformesEntregables").empty();
+        $("#divContenidoInformesEntregables").load("@Url.Action("_IndicadoresTiemposEntregaSegEntregables", "SeguimientoEntregables")?responsable=" + responsable + "&idProceso=" + proceso + "&año=" + year, function ()
+        {
+            LoadingHide();
+         });
+
+    }
+</script>

@@ -1,0 +1,160 @@
+﻿@using AsaludEcopetrol.Extensions;
+@model  AsaludEcopetrol.Models.Medicamentos.GestionMedicamentos
+@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "GLOSA DETALLE";
+    
+}
+
+@using (Html.BeginForm())
+{
+    <h2>Glosa Detalle</h2>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center th">NOMBRE COMERCIAL</th>
+                <th class="text-center th">NOMBRE LABORATORIO</th>
+                <th class="text-center th">CANTIDAD ENTREGADA</th>
+                <th class="text-center th">VALOR  TOTAL</th>
+                <th class="text-center th">NUMERO FORMULA</th>
+                <th class="text-center th">GLOSA  DETALLE</th>
+
+            </tr>
+
+            @foreach (var order in Model.ListFacturasDetalle)
+            {
+
+                <tr>
+
+                    <td>@order.nombre_comercial</td>
+                    <td>@order.nombre_laboratorio</td>
+                    <td>@order.cat_entregada</td>
+                    <td>@order.valor_total</td>
+                    <td>@order.numero_formula</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" onclick="llamarVistaParcial(@order.valor_total);">
+                            GLOSAR
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div id="resultado" class='reveal-modal' data-reveal aria-hidden="true" role="dialog">
+    
+    </div>
+
+
+}
+
+<script>
+
+    function llamarVistaParcial(A) {
+
+        var textBox1 = $('input:text[id$=numero_formula]').keyup();
+        var value2 = textBox1.val();
+
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado2').style.display = 'none';
+
+        var laURLDeLaVista = '@Url.Action("GlosaGeneralDetalle")/' + value2 + "?valor=" + A
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "post",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+        table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+   
+</style>
+
+
+
+
+
+

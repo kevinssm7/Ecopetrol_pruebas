@@ -1,0 +1,481 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "EVALUACIÓN DE CALIDAD";
+    List<ECOPETROL_COMMON.ENTIDADES.vw_visitas> Modelo = (List<ECOPETROL_COMMON.ENTIDADES.vw_visitas>)ViewBag.cronograma;
+    Modelo = Modelo.Where(l => l.id_cronograma_novedades == null).ToList();
+}
+
+<br />
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+
+<div class="container">
+    <input type="hidden" id="estadoevaluacion" name="estadoevaluacion" value="@ViewBag.estadoevaluacion" />
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-body">
+                <div id="pnlPrincipal" class="General">
+                    <form id="formbuscar" action="EvaluacionCalidad" method="post">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Tipo Prestador</label>
+                                <select class="form-control select2" style="width:100%" name="tipoprestador" id="tipoprestador">
+                                    <option value="">Selecccione...</option>
+                                    @{List<ECOPETROL_COMMON.ENTIDADES.indicadores> tipoprestador = (List<ECOPETROL_COMMON.ENTIDADES.indicadores>)ViewBag.ref_tipoprestador; }
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.indicadores item in tipoprestador)
+                                    {
+                                        if (ViewBag.idprestador != null)
+                                        {
+                                            if (ViewBag.idprestador == item.id_indicador)
+                                            {
+                                                <option selected value="@item.id_indicador">@item.nom_indicador</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.id_indicador">@item.nom_indicador</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.id_indicador">@item.nom_indicador</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="control-label text-secondary_asalud ">Regional</label>
+                                <select class="form-control select2" style="width:100%" name="idregional" id="selectregional">
+                                    <option value="">Selecccione...</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        if (ViewBag.idregional != null)
+                                        {
+                                            if (ViewBag.idregional == item.id_ref_regional)
+                                            {
+                                                <option selected value="@item.id_ref_regional">@item.indice</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.id_ref_regional">@item.indice</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.id_ref_regional">@item.indice</option>
+                                        }
+
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label text-secondary_asalud ">Fecha visita Desde</label>
+                                <input class="datepickerr" title="datepicker" value="@ViewBag.fechainicial" style="width: 100%" name="fechainicial" id="fechainicial" />
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label text-secondary_asalud ">Fecha visita Hasta</label>
+                                <input class="datepickerr" title="datepicker" value="@ViewBag.fechafinal" style="width: 100%" name="fechafinal" id="fechafinal" />
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label text-secondary_asalud ">Nit</label>
+                                <input type="text" class="form-control solo-numero" value="@ViewBag.numnut" maxlength="13" name="num_nit" id="num_nit" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label class="control-label text-secondary_asalud ">Codigo SAP</label>
+                                <input type="text" class="form-control solo-numero" value="@ViewBag.cod_sap" maxlength="13" name="cod_sap" id="cod_Sap" />
+                            </div>
+                            <div class="col-sm-2">
+                                <label class="control-label text-secondary_asalud ">N° contrato</label>
+                                <input type="text" class="form-control solo-numero" value="@ViewBag.num_contrato" maxlength="13" name="num_contrato" id="num_contrato" />
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="control-label text-secondary_asalud ">Razon social</label>
+                                <input type="text" class="form-control" name="razon_social" value="@ViewBag.razon_social" id="razon_social" />
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud" style="width:100%;visibility:hidden">boton buscar</label>
+                                <button class="btn button_Asalud_Aceptar" type="submit"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-body">
+
+                <div class="col-sm-12 row">
+                    <table class="table table-bordered table-condensed datatable" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Regional</th>
+                                <th>Num Id Prestador</th>
+                                <th>Razón Social</th>
+                                <th>Especialidad</th>
+                                <th>Fecha Visita</th>
+                                <th>Tipo</th>
+                                <th>No Contrato</th>
+                                <th>Fecha Inicio Contrato</th>
+                                <th>Fecha Fin Contrato</th>
+                                <th>Auditor Responsable</th>
+                                <th>Evaluar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_visitas item in Modelo)
+                            {
+                                <tr>
+                                    <td>@item.id_cronograma_visitas</td>
+                                    <td>@item.nombre_regional</td>
+                                    <td>@item.no_id_prestador</td>
+                                    <td>@item.razon_social</td>
+                                    <td>@item.descripcion</td>
+                                    <th>@item.fecha_visita.Value.ToString("dd/MM/yyyy")</th>
+                                    <td>@item.nom_tipo_prestador</td>
+                                    <td>@item.num_contrato</td>
+                                    @if (item.fecha_inicio_contrato != null)
+                                    {
+                                        <td>@item.fecha_inicio_contrato.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td>&nbsp;</td>
+                                    }
+
+                                    @if (item.fecha_fin_contrato != null)
+                                    {
+                                        <td>@item.fecha_fin_contrato.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td>&nbsp;</td>
+                                    }
+
+                                    <td>@item.Auditor_Asignado</td>
+                                    <td class="text-center">
+                                        <a role="button" class="btn button_Asalud_Aceptar btn-sm" href="javascript:realizarevaluacion(@item.id_cronograma_visitas,@item.id_regional, @item.tipo_prestador, @item.cod_sap)">Realizar Evaluación</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" data-backdrop="static" data-keyboard="false" role="dialog">
+    <div class="modal-dialog" style="margin-left:5px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btncerrarmodal" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Evaluar indicador</h4>
+            </div>
+            <div class="modal-body">
+                <div id="body-evaluacion">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        $("#razon_social").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 3
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+        });
+
+        abrirevaluacion();
+
+        $('#Modal').on('hidden.bs.modal', function (e)
+        {
+            LoadingShow();
+            cambiarestadoevaluacion(2);
+            location.reload();
+        })
+
+        $("#form_cronograma").validate({
+            lang: 'Es',
+            rules: {
+                fechaestimadavisita: "required",
+                responsable: "required",
+            },
+
+            submitHandler: function (form) {
+                $("#form_cronograma").submit();
+            }
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            filtering: function (e) {
+                var filter = e.filter;
+
+                if (!filter.value) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        if ('@ViewBag.prestador' != '') {
+            $("#tipoprestador").val('@ViewBag.prestador');
+        }
+
+        if ('@ViewBag.idregional' != '') {
+            $("#selectregional").val('@ViewBag.idregional');
+        }
+
+        $('.date').datepicker({
+            autoclose: true,
+            format: 'mm/dd/yyyy',
+            orientation: "bottom"
+        });
+
+
+        $('.table').DataTable({
+            "searching": true,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+    })
+
+    function AbrirModal(a) {
+        var idcronograma = a;
+
+        $.ajax({
+            url: "@Url.Action("getcronograma","ProcesosInternos")",
+            type: 'post',
+            data: { idcronograma: idcronograma },
+            success: function (data) {
+                $("#txtfechavisita").datepicker('setDate', data.fechaesvisita);
+                $("#txtresponsable").val(data.res);
+                $("#txtidcronograma").val(idcronograma);
+                $('#popup').fadeIn('slow');
+                $('.popup-overlay').fadeIn('slow');
+                $('.popup-overlay').height($(window).height());
+                return false;
+            }
+        })
+    }
+
+    function abrirevaluacion() {
+        $.ajax({
+            url: "@Url.Action("Comprobarestadoevaluacion")",
+            type: "post",
+            data: {},
+            success: function (data) {
+                if (data == 0) {
+                    $("#estadoevaluacion").val("");
+                } else {
+                    $("#estadoevaluacion").val("Activa");
+                }
+            }
+        })
+    }
+
+    function realizarevaluacion(a, b, c, d)
+    {
+        var url = "@Url.Action("EvaluacionIndicadores", "ProcesosInternos")?idcronograma=" + a + "&idregional=" + b + "&TipoIndicador=" + c + "&sap=" + d;
+        abrirevaluacion();
+        var estadoevaluacion = $("#estadoevaluacion").val();
+        if (estadoevaluacion == "")
+        {
+            $('#Modal').find("#body-evaluacion").html("<p>Cargando...</p>");
+            $('#Modal').modal('show').find("#body-evaluacion").load(url);
+        } else {
+            alert("Porfavor revise las ventanas de su navegador, puede que haya una evaluación sin terminar");
+        }
+
+    }
+    @*function realizarevaluacion(a, b, c) {
+        abrirevaluacion();
+        var estadoevaluacion = $("#estadoevaluacion").val();
+        if (estadoevaluacion == "") {
+            var url = "@Url.Action("EvaluacionIndicadores", "ProcesosInternos")?idcronograma=" + a + "&idregional=" + b + "&TipoIndicador=" + c;
+            var ventana = window.open(url, 'newWin', 'fullscreen="yes"');
+            var tiempo = 0;
+            var interval = setInterval(function () {
+                if (ventana.closed !== false) {
+                    window.clearInterval(interval)
+                    cambiarestadoevaluacion(2);
+                    LoadingShow();
+                    location.reload();
+                } else {
+                    tiempo += 1;
+                    $("#estadoevaluacion").val("Activa");
+                }
+            }, 1000)
+        } else {
+            alert("Porfavor revise las ventanas de su navegador, puede que haya una evaluación sin terminar");
+        }
+    }*@
+
+    function cambiarestadoevaluacion(a) {
+        $.ajax({
+            url: "@Url.Action("cambiarestadoevaluacion")",
+            type: "post",
+            data: { estado: a },
+            success: function (data) {
+                if (data == 0) {
+                    $("#estadoevaluacion").val("");
+                } else {
+                    $("#estadoevaluacion").val("Activa");
+                }
+            }
+        })
+    }
+
+
+</script>
+
+<style>
+
+    #Modal .modal-dialog {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .content-popup {
+        margin-top: 9% !important;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

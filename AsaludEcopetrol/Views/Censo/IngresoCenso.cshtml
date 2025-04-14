@@ -1,0 +1,607 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Censo.censo
+
+@{
+    ViewBag.Title = "CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<script src="~/Scripts/kendo.culture.es-PA.min.js"></script>
+<script src="~/Scripts/kendo.modernizr.custom.js"></script>
+
+<br>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-center">HISTÓRICO BASE BENEFICIARIOS</strong>
+        </div>
+        <div class="panel-body">
+            <table id="tabla" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center">Tipo de documento</th>
+                        <th class="text-center">Número de documento</th>
+                        <th class="text-center">Apellidos</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Fecha de nacimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.ListBase != null && Model.ListBase.Count > 0)
+                    {
+
+                        foreach (var item in Model.ListBase)
+                        {
+                            switch (item.Clase_de_identificacion)
+                            {
+                                case "Tarjeta de Identidad":
+                                    Model.tipo_identifi_afiliado = "TI";
+                                    break;
+                                case "Registro Civil":
+                                    Model.tipo_identifi_afiliado = "RC";
+                                    break;
+                                case "Pasaporte":
+                                    Model.tipo_identifi_afiliado = "PA";
+                                    break;
+                                case "Cedula de Extranjeria":
+                                    Model.tipo_identifi_afiliado = "CE";
+                                    break;
+                                case "Cedula de Ciudadania":
+                                    Model.tipo_identifi_afiliado = "CC";
+                                    break;
+                            };
+
+
+                            String[] separadasapelli;
+                            separadasapelli = item.Apellidos.Split(' ');
+
+                            if (separadasapelli.Length <= 1)
+                            {
+                                Model.primer_apellido = separadasapelli[0];
+                                Model.segundo_apellido = "";
+                            }
+                            else
+                            {
+                                Model.primer_apellido = separadasapelli[0];
+                                Model.segundo_apellido = separadasapelli[1];
+                            }
+
+                            String[] separadasnombre;
+                            separadasnombre = item.Nombre.Split(' ');
+                            if (separadasnombre.Length <= 1)
+                            {
+                                Model.primer_nombre = separadasnombre[0];
+                                Model.segundo_nombre = "";
+                            }
+                            else
+                            {
+                                Model.primer_nombre = separadasnombre[0];
+                                Model.segundo_nombre = separadasnombre[1];
+                            }
+
+
+                            Model.fecha_nacimiento = Convert.ToDateTime(item.fecha_nacimiento);
+                            Model.fecha_nacimientook = Convert.ToDateTime(item.fecha_nacimiento);
+                            Model.edad = Convert.ToInt32(item.edad);
+
+                            <tr>
+                                <td class="text-center">
+                                    @item.Clase_de_identificacion
+                                </td>
+                                <td class="text-center">
+                                    @item.Numero_identificacion
+                                </td>
+                                <td class="text-center">
+                                    @item.Apellidos
+                                </td>
+                                <td class="text-center">
+                                    @item.Nombre
+                                </td>
+                                <td class="text-center">
+                                    @item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")
+                                </td>
+
+                            </tr>
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">No se ha encontrado ningún registro.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br />
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-center">CENSO</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario" action="IngresoCenso" method="post">
+                <div class="row">
+                    @*<input type="hidden" id="BB" name="BB" value="@ViewBag.BB" />*@
+                    @Html.TextBoxFor(p => p.BB, new { @class = "form-control hidden", @readonly = "readonly" })
+                    @Html.TextBoxFor(p => p.TI, new { @class = "form-control hidden", @readonly = "readonly" })
+                    @*<input type="hidden" id="TI" name="TI" value="@ViewBag.TI" />*@
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_identifi_afiliado)</span>
+                        @Html.DropDownListFor(model => model.tipo_identifi_afiliado, new SelectList(Model.ListTipoDoc, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control obligatorio", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(u => u.tipo_identifi_afiliado, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.num_identifi_afil)</span>
+                        @Html.TextBoxFor(p => p.num_identifi_afil, new { @class = "form-control obligatorio", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(u => u.num_identifi_afil, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.genero)</span>
+                        <div style="width:100%">
+
+                            @Html.RadioButtonFor(model => model.genero, "M", false)@Html.Label("Masculino")
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.genero, "F", false)@Html.Label("Femenino")
+                            @Html.ValidationMessageFor(u => u.genero, null, new { @class = "label label-danger" })
+
+                        </div>
+                    </div>
+                    @*<div class="col-sm-4 form-group">
+                            <span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_recepcion_censo)</span>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_recepcion_censo)
+
+                            .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+                            .Name("datepicker3")
+                            .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change3");
+                             })
+
+                            )
+
+                            @Html.ValidationMessageFor(u => u.fecha_recepcion_censo, null, new { @class = "label label-danger" })
+                        </div>*@
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.primer_apellido)</span>
+                        @Html.TextBoxFor(p => p.primer_apellido, new { @class = "form-control obligatorio" })
+                        @Html.ValidationMessageFor(u => u.primer_apellido, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.segundo_apellido)</span>
+                        @Html.TextBoxFor(p => p.segundo_apellido, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.segundo_apellido, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.primer_nombre)</span>
+                        @Html.TextBoxFor(p => p.primer_nombre, new { @class = "form-control obligatorio" })
+                        @Html.ValidationMessageFor(model => model.primer_nombre, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.segundo_nombre)</span>
+                        @Html.EditorFor(model => model.segundo_nombre, new { htmlAttributes = new { @class = "form-control" } })
+                        @*@Html.ValidationMessageFor(model => model.segundo_nombre, "", new { @class = "label label-danger" })*@
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_nacimiento)</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_nacimiento)
+                            .Name("datepicker")
+                            .Format("dd/MM/yyyy")
+                            .Max(DateTime.Now.Date) // Establece la fecha mínima como hoy
+
+                             .Events(e =>
+                             {
+                                 e.Change("change");
+                             })
+                            .HtmlAttributes(new { @class = "fechas", style = "width: 100%", title = "Vigencia desde" })
+
+                            //.Value(DateTime.Now)
+
+                            )
+
+                        @Html.ValidationMessageFor(u => u.fecha_nacimiento, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.ips_primaria)</span>
+                        @Html.DropDownListFor(model => model.ips_primaria, new SelectList(Model.ListIPSOK, "id_ref_ips", "Nombre"), "Seleccione...", new { @class = "form-control select2 selectObliga" })
+                        @Html.ValidationMessageFor(model => model.ips_primaria, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.edad)</span>
+                        @Html.TextBoxFor(p => p.edad, "{0:#.#}", new { @class = "form-control obligatorio" })
+                        @Html.ValidationMessageFor(model => model.edad, "", new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso)</span>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_ingreso)
+                            .Name("datepicker2")
+                            .Format("dd/MM/yyyy")
+                            .Max(DateTime.Now.Date) // Establece la fecha mínima como hoy
+                             .Events(e =>
+                             {
+                                 e.Change("change2");
+                             })
+                            .HtmlAttributes(new { @class = "fechas", style = "width: 100%", title = "Vigencia desde" })
+                            )
+                        @Html.ValidationMessageFor(u => u.fecha_ingreso, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_ingreso)</span>
+                        @Html.DropDownListFor(model => model.tipo_ingreso, new SelectList(Model.ListTipoIngreso, "id_ref_tipo_ingreso", "descripcion"), "Seleccione...", new { @class = "form-control selectObliga" })
+                        @Html.ValidationMessageFor(model => model.tipo_ingreso, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.origen_evento)</span>
+                        @Html.DropDownListFor(model => model.origen_evento, new SelectList(Model.ListOrigenEvento, "id_ref_origen_evento", "descripcion"), "Seleccione...", new { @class = "form-control select2 selectObliga" })
+                        @Html.ValidationMessageFor(model => model.origen_evento, "", new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_habitacion)</span>
+                        @Html.DropDownListFor(model => model.tipo_habitacion, new SelectList(Model.ListTipoHabitacion, "id_ref_tipo_habitacion", "descripcion"), "Seleccione...", new { @class = "form-control select2 selectObliga", @onchange = "format()" })
+                        @Html.ValidationMessageFor(model => model.tipo_habitacion, "", new { @class = "label label-danger" })
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">@Html.LabelFor(p => p.id_medico_auditor)</span>
+                        @Html.DropDownListFor(model => model.id_medico_auditor, new SelectList(Model.ListAuditorOK, "id_usuario", "nombre"), "Seleccione...", new { @class = "form-control selectObliga" })
+                        @Html.ValidationMessageFor(model => model.id_medico_auditor, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">Línea de pago</span>
+                        @Html.DropDownListFor(model => model.linea_pago, new SelectList(Model.ListLineasPago, "id_linea", "descripcion"), "Seleccione...", new { @class = "form-control selectObliga" })
+                        @Html.ValidationMessageFor(model => model.linea_pago, "", new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <span class="text-secondary_asalud">Caso especial</span>
+                        <div style="width:100%">
+                            @Html.RadioButtonFor(model => model.caso_Especial, "1", false)@Html.Label("SI")
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.caso_Especial, "0", false)@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.caso_Especial, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4 form-group" id="divCasoEspecial" style="display:none">
+                        <span class="text-secondary_asalud">Caso</span>
+                        @Html.DropDownListFor(model => model.caso_Especial_detalle, new SelectList(Model.ListCasoEspecial, "id_caso", "descripcion"), "Seleccione...", new { @class = "form-control select2 selectObliga" })
+                        @Html.ValidationMessageFor(model => model.caso_Especial_detalle, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8 form-group">
+                        <table>
+                            <tr>
+                                <td>
+                                    <span class="text-secondary_asalud">@Html.LabelFor(p => p.dx_actual)</span>
+
+                                    @(Html.Kendo().AutoComplete()
+                                    .Name("dx1")
+                                    .Placeholder("Seleccione...")
+                                    .HtmlAttributes(new { style = "width:800px" })
+                                    .DataTextField("des")
+                                    .Events(events => events.Select("CustomerSelect"))
+                                    .Filter(FilterType.Contains)
+
+                                    .DataSource(source =>
+                                    {
+                                        source.Read(read =>
+                                        {
+                                            read.Action("GetCie10", "Concurrencia");
+                                        });
+
+                                    })
+                                )
+                                    @Html.HiddenFor(x => x.dx_actual)
+                                    @Html.ValidationMessageFor(p => p.dx_actual, null, new { @class = "label label-danger" })
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <a id="BtnActualizar" onclick="GuardarCambios()" class="btn button_Asalud_Guardar">INGRESAR</a>
+                    </div>
+                    <div>
+                        @Html.ValidationSummary(true, "")
+                    </div>
+                    <div style="display:none">
+                        @Html.TextBoxFor(u => u.num_identifi_afil)
+                        @Html.TextBoxFor(u => u.tipo_identifi_afiliado)
+                        @Html.TextBoxFor(u => u.fecha_nacimientook)
+                        @Html.TextBoxFor(u => u.fecha_ingresook)
+                        @Html.TextBoxFor(u => u.fecha_recepcion_censoOK)
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx_actual").val(DataItem.id_cie10);
+    }
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#datepicker3').attr('disabled', 'disabled');
+
+        //$(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('input[name="caso_Especial"]').change(function () {
+            var valorSeleccionado = $('input[name="caso_Especial"]:checked').val();
+            if (valorSeleccionado === "1") {
+
+                // Si se selecciona "SI", mostrar el campo "caso_especial_detalle"
+                $("#divCasoEspecial").show();
+            } else {
+                // Si se selecciona "NO", ocultar el campo "caso_especial_detalle"
+                $("#divCasoEspecial").hide();
+            }
+        });
+
+        $('input[name="genero"]').addClass('radioObligatorio');
+        $('input[name="caso_Especial"]').addClass('radioObligatorio');
+
+    });
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_nacimientook]').val(DataItem);
+
+        var age = calcularEdad(DataItem);
+
+        $('input:text[id$=edad]').val(age);
+    }
+
+    function format(input) {
+
+        var textBox1 = $('input:text[id$=edad]').keyup();
+
+        var mivalor = $("#tipo_habitacion").val()
+        var mitexto = $("#tipo_habitacion option:selected").text()
+
+        var value1 = textBox1.val();
+
+        if (mivalor == 5) {
+            if (value1 > 1) {
+                alert('NEONATAL SOLO PARA MENORES A 1 AÑO');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 6) {
+            if (value1 > 16) {
+                alert('UCI PEDIATRICA SOLO PARA MENORES DE 16 AÑOS');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 14) {
+            if (value1 > 1) {
+                alert('UNIDAD DE QUEMADOS NEONATAL SOLO PARA MENORES DE 1 AÑO');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 16) {
+            if (value1 > 16) {
+                alert('UNIDAD DE QUEMADOS PEDIATRIA SOLO PARA MENORES DE 16 AÑOS');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 4) {
+            if (value1 <= 16) {
+                alert('UCI ADULTO SOLO PARA MAYORES DE 16 AÑOS');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+
+        if (mivalor == 15) {
+            if (value1 <= 16) {
+                alert('UNIDAD DE QUEMADOS ADULTOS SOLO PARA MAYORES DE 16 AÑOS');
+                $("#tipo_habitacion")[0].selectedIndex = 0;
+            }
+        }
+    }
+
+    function calcularEdad(fecha) {
+        var hoy = new Date();
+        var cumpleanos = new Date(fecha);
+        var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+        var m = hoy.getMonth() - cumpleanos.getMonth();
+
+        if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+            edad--;
+        }
+
+        return edad;
+    }
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_ingresook]').val(DataItem);
+    }
+
+    function change3() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_recepcion_censoOK]').val(DataItem);
+    }
+
+    function validarCampos() {
+        var camposSelect = $('select.selectObliga:visible');
+        var camposInput = $('.obligatorio').not(':button'); // Todos los campos de entrada excepto los botones
+        var camposCheck = $('.radioObligatorio').not(':button'); // 
+        var fechaNacimiento = $('#datepicker').data('kendoDateTimePicker').value();
+        var fechaIngreso = $('#datepicker2').data('kendoDateTimePicker').value();
+
+        var validacionCorrecta = true;
+
+        if (validacionCorrecta) {
+            camposCheck.each(function () {
+
+                var groupName = $(this).attr('name');
+
+                if (!$('input[name="' + groupName + '"]:checked').length) {
+                    var nombreCampo = $(this)[0].labels[0].innerHTML;
+                    alert("Por favor, asegúrate de seleccionar una opción para el campo requerido: " + nombreCampo);
+                    validacionCorrecta = false;
+                    return false; // Salir del bucle si no hay ninguna opción seleccionada
+                }
+            });
+        }
+
+        if (validacionCorrecta == true) {
+            camposInput.each(function () {
+                if ($(this).val().trim() === '') {
+                    var nombreCampo = $(this).prev('span').text();
+                    alert("Por favor, asegúrate de llenar el campo requerido: " + nombreCampo);
+                    validacionCorrecta = false;
+                    return validacionCorrecta;  // Salir del bucle si se encuentra un campo vacío
+                }
+            });
+        }
+
+        if (validacionCorrecta == true) {
+            camposSelect.each(function () {
+
+                if ($(this).prop('selectedIndex') === 0) {
+                    var nombreCampo = $(this).prev('span').text();
+                    alert("Por favor, asegúrate de seleccionar una opción para el campo requerido: " + nombreCampo);
+                    validacionCorrecta = false;
+                    return validacionCorrecta;  // Salir del bucle si se encuentra un campo sin selección
+                }
+            });
+        }
+
+
+        if (validacionCorrecta && (!fechaNacimiento || fechaNacimiento === null)) {
+            alert("Por favor, selecciona una fecha de nacimiento válida.");
+            validacionCorrecta = false;
+        }
+
+        if (validacionCorrecta && (!fechaIngreso || fechaIngreso === null)) {
+            alert("Por favor, selecciona una fecha de ingreso válida.");
+            validacionCorrecta = false;
+        }
+
+
+        return validacionCorrecta;
+    }
+
+    function GuardarCambios() {
+
+        if (validarCampos() == true) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>
+
+
+
+
+

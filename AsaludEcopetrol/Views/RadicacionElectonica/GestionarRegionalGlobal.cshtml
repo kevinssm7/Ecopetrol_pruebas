@@ -1,0 +1,135 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CAMBIO REGIONAL MASIVO</strong>
+    </div>
+    <div class="panel-body">
+        <form class="animated fadeInDown" id="cambioRegional">
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" id="regional" name="regional">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionalesG)
+                        {
+                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                        }
+                    </select>
+
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-sm-12" align="center">
+                    <button class="button_Asalud_Guardar" type="button" onclick="btnCambioRegional()">GUARDAR</button>
+                </div>
+            </div>
+            <div style="display:none">
+                <input class="form-control" type="text" name="items" id="items" value="@ViewBag.items" />
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+    function btnCambioRegional() {
+        var validator = $("#cambioRegional").validate();
+        if (validator.form()) {
+            agregarRegional();
+        }
+    }
+
+
+    function agregarRegional() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("items", $("#items").val());
+        formData.append("regional", $("#regional").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveGestionarRegionalGlobal", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                LoadingHide();
+                alert(response.message);
+                $("#myModal4").modal('hide');
+                location.reload();
+            }
+        })
+    }
+
+</script>
+
+
+@*<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>*@
+
+
+
+
+
+

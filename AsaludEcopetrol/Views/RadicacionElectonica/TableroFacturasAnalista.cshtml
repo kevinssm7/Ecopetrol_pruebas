@@ -1,0 +1,807 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.managment_prestadores_facturas2Result>
+@{
+    ViewBag.Title = "TABLERO FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    int rta = (int)ViewData["rta"];
+    string msj = (string)ViewData["msj"];
+    int count = Model.Count;
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de facturas</strong>
+    </div>
+    <div class="panel-body">
+        @if (rta != 0)
+        {
+            <div>
+                @if (rta == 1)
+                {
+                    <div class="alert alert-success" role="alert">@msj</div>
+                }
+                else
+                {
+                    <div class="alert alert-danger" role="alert">@msj</div>
+                }
+            </div>
+        }
+        <div>
+            @if (Model.Count > 0)
+            {
+                <div class="row">
+                    <div class="col-sm-12 text-left">
+                        <a href="javascript:MostrarDireccionCargue(@ViewBag.idcargue, 0, 0, 2)" class="btn button_Asalud_Guardar btn-sm">Aceptar facturas</a>
+                        <a href="javascript:rechazarlotefacturas(@ViewBag.idcargue)" class="btn button_Asalud_Rechazar btn-sm">Rechazar todas las facturas</a>
+                    </div>
+                </div>
+            }
+
+            <br />
+
+            <table id="TablaFacturas" class="table table-striped table-bordered table-condensed datatable table-responsive">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="chkSeleccionarTodos" name="chkSeleccionarTodos" /></th>
+                        <th>Id lote</th>
+                        <th>Id factúra</th>
+                        <th>Días Trascurridos</th>
+                        <th>Razón social </th>
+                        <th>No. factúra</th>
+                        <th>Código prestador</th>
+                        <th>Nit</th>
+                        <th>Prestador</th>
+                        <th>Observación prestador</th>
+                        <th>Fecha Recepción Factura</th>
+                        <th>Vlr neto a pagar</th>
+                        <th></th>
+                        <th>Factura digital</th>
+                        <th>Soportes clínicos</th>
+                        <th>Archivos comprimidos</th>
+                        <th>Id VIM</th>
+                        <th>Número factura SAP</th>
+                        <th>CUV</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 0; }
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.managment_prestadores_facturas2Result item in Model)
+                    {
+                        i++;
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="chkFactura_@i" name="chkFactura@(item.id_cargue_dtll)" value="@item.id_cargue_dtll" class="chkFactura" />
+                                <input type="hidden" id="codPrestador_@i" name="codPrestador_@(item.id_cargue_dtll)" value="@item.codigo_prestador" />
+                            </td>
+                            <td>@item.id_cargue_base</td>
+                            <td>@item.id_cargue_dtll</td>
+                            <td>@item.dias_trascurridos Días</td>
+                            @if (item.nombre_prestador.Length > 30)
+                            {
+                                <td>@item.nombre_prestador.Substring(0, 30).ToUpper().....</td>
+                            }
+
+                            else
+                            {
+                                <td>@item.nombre_prestador.ToUpper()</td>
+                            }
+                            <td>@item.num_factura</td>
+                            <td>@item.codigo_prestador</td>
+                            <td>@item.num_id_prestador</td>
+                            <td>@item.nombre_prestador</td>
+                            <td>@item.observacionesDelPrestador</td>
+                            <td>@item.fecha_ultima_gestion.Value.ToString("dd/MM/yyyy")</td>
+
+                            <td>@item.valor_neto</td>
+                            @if (item.estado_factura == 7)
+                            {
+                                <td>@Html.Raw("<img src='/Images/ver2.png'  data-toggle='modal' data-target='#myModal2' title='Motivo Rechazo' onclick='VerRechazo(" + item.id_cargue_dtll + "," + item.id_cargue_base + ")' />") Ver rechazo anterior</td>
+                            }
+                            else if (item.estado_factura == 8)
+                            {
+                                <td>@Html.Raw("<img src='/Images/ver2.png'  data-toggle='modal' data-target='#myModal3' title='Devolucion' onclick='VerDevolucion(" + item.id_cargue_dtll + ")' />") Ver Devolucion anterior</td>
+                            }
+                            else if (item.factura_subsanada == "SI")
+                            {
+                                if (item.subsanada_por == "R")
+                                {
+                                    <td>
+                                        @item.id_af_factura_subsanada
+                                    </td>
+                                }
+                                else if (item.subsanada_por == "D")
+                                {
+                                    <td>@Html.Raw("<img src='/Images/ver2.png'  data-toggle='modal' data-target='#myModal3' title='Devolucion' onclick='VerDevolucion(" + item.id_af_factura_subsanada + ")' />") Devolucion en otra Radicaciòn</td>
+                                }
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            <td>
+                                <a style="text-decoration-color:#5168a8" class="alink" onclick="AbrirArchivoSoporte('@item.idGestionDocumental', @item.id_cargue_dtll)"> Ver Documento </a>
+                            </td>
+
+                            <td><a style="text-decoration-color:#5168a8" class="alink" href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.count_soportes Documento Cargados</a></td>
+                            @if (item.count_soportes_zip > 0)
+                            {
+                                <td>
+                                    <a style="text-decoration-color:#5168a8" class="alink" onclick="AbrirArchivoZip(@item.id_cargue_dtll)"> Ver Archivo Comprimido </a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            <td>@item.id_vim</td>
+                            <td>@item.numero_facturas_sap</td>
+                            <td>@item.cuv</td>
+
+                            <td>
+                                <a class="button_Asalud_Aceptar" onclick="MostrarDireccionCargue(@item.id_cargue_base, @item.id_cargue_dtll, @i, 1)"> Aceptar </a>
+                            </td>
+                            <td>
+                                <button class="button_Asalud_Rechazar" onclick="GestionRechazarFacturas(@item.id_cargue_base, @item.id_cargue_dtll);" data-toggle="modal" data-target="#myModal">
+                                    Rechazar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-lg-12 text-center form-group">
+                <a class="btn btn-sm button_Asalud_Rechazar" role="button" href="@Url.Action("TableroRecepcionFacturasAnalistas","RadicacionElectonica")">vOLVER</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="ModalOptarOpcion">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title asalud" id="myModalLabel">VALIDACIÓN</h4>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <label class="text-secondary_asalud">Tipo validación</label>
+                <input type="hidden" id="txtIdCargue" name="txtIdCargue" />
+                <input type="hidden" id="txtIdDetalle" name="txtIdDetalle" />
+                <input type="hidden" id="txtI" name="txtI" />
+                <input type="hidden" id="tipoCargue" name="tipoCargue" />
+                <input type="hidden" id="txtSeleccionadas" name="txtSeleccionadas" />
+                <input type="hidden" id="txtCodSeleecionados" name="txtCodSeleecionados" />
+
+                <button type="button" class="btn button_Asalud_Aceptar" id="conJson">Con JSON</button>
+                <button type="button" class="btn button_Asalud_Rechazar" id="sinJson">Sin JSON</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="Modalrechazo" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Rechazar factura</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario_rechazo" method="post" enctype="multipart/form-data" action="TableroFacturas">
+                    <div class="row">
+                        <input type="hidden" id="idcargue" name="idcargue" />
+                        <input type="hidden" id="detalle" name="detalle" />
+                        <input type="hidden" id="accion" name="accion" value="2" />
+                        <div class="col-sm-12">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label text-primary">Motivo Rechazo</label>
+                                <select class="form-control select2" required id="id_motivo_rechazo" name="id_motivo_rechazo">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_rechazos_Fac item in ViewBag.List)
+                                    {
+                                        <option value="@item.id_ref_rechazos_Fac">@item.descripcion</option>
+                                    }
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label text-primary">Obserbaciones</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="4" placeholder="Escriba el texto" maxlength="250" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="button_Asalud_Guardar" onclick="ValidarFormularioRechazo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Soportes Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="ModalRips">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoRips"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*<script src="~/Scripts/jquery.redirect.js"></script>*@
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function ()
+    {
+        debugger
+        MostrarTabla();
+
+        $("#chkSeleccionarTodos").change(function () {
+            if ($(this).is(':checked')) {
+                $("#TablaFacturas tbody tr td .chkFactura").each(function () {
+                    $("#TablaFacturas  tbody tr td .chkFactura").prop('checked', true);
+                })
+            }
+            else {
+                $("#TablaFacturas  tbody tr td .chkFactura").each(function () {
+                    $("#TablaFacturas  tbody tr td .chkFactura").prop('checked', false);
+                })
+            }
+        });
+
+    })
+
+
+    function MostrarTabla() {
+          var conteo = '@ViewBag.conteo';
+        if (conteo > 0) {
+
+            $('#TablaFacturas').DataTable().destroy();
+            $('#TablaFacturas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": true,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    $("#conJson").on("click", function () {
+
+        var idCargue = $("#txtIdCargue").val();
+        var idDetalle = $("#txtIdDetalle").val();
+        var i = $("#txtI").val();
+        var tipoCargue = $("#tipoCargue").val();
+        var seleccionadas = $("#txtSeleccionadas").val();
+        var codSeleecionados = $("#txtCodSeleecionados").val();
+        $("#ModalOptarOpcion").modal("hide");
+
+        ModalCargueRipsMasivo(idCargue, idDetalle, i, seleccionadas, codSeleecionados);
+
+    });
+
+    $("#sinJson").on("click", function () {
+
+        var idCargue = $("#txtIdCargue").val();
+        var idDetalle = $("#txtIdDetalle").val();
+        var i = $("#txtI").val();
+        var seleccionadas = $("#txtSeleccionadas").val();
+        var codSeleecionados = $("#txtCodSeleecionados").val();
+        var tipoCargue = $("#tipoCargue").val();
+
+        EnviarDatosValidarSinJson(idCargue, idDetalle, i, seleccionadas, codSeleecionados, tipoCargue);
+    });
+
+
+    function VerRechazo(AI, BI) {
+
+
+        var laURLDeLaVista = '@Url.Action("VerRechazo")'
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {
+                ID: AI,
+                IDBASE: BI
+            },
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+    function VerDevolucion(AI) {
+        var laURLDeLaVista = '@Url.Action("VerDevolucion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+
+    function ValidarFirma(a, b) {
+         var usuario = a;
+         var regional = $("#regional").val();
+        if (usuario != "") {
+            $.ajax({
+                url: "@Url.Action("ValidarFirma", "RadicacionElectonica")",
+                type: "post",
+                data: { usuario: usuario,regional:regional },
+                success: function (data) {
+                    if (data.message != 1) {
+                      alert('ERROR... no puede ser rechazado porque el analista no tiene firma digital en SAMI.');
+
+                    } else
+                    {
+                        GestionRechazarFacturas();
+                    }
+
+                }
+            })
+        }
+
+    }
+
+    function GestionRechazarFacturas(a, b) {
+
+        var laURLDeLaVista = '@Url.Action("GestionarFacRechazadas")?ID=' + a  + '&ID2=' + b
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function MostrarDireccionCargue(idBase, idDetalle, i, tipo) {
+
+
+
+        $("#txtIdCargue").val(idBase);
+        $("#txtIdDetalle").val(idDetalle);
+        $("#txtI").val(i);
+        $("#tipoCargue").val(tipo);
+
+        if (tipo == 2) {
+            var seleccionadas = ObtenerFacturasSeleccionadas();
+            var codSeleecionados = ObtenerCodPrestadorSeleccionados();
+
+            if (seleccionadas.length > 0) {
+                var txt = confirm("¿Está seguro/a de aceptar las facturas seleccionadas?");
+                if (txt) {
+                    $("#txtSeleccionadas").val(seleccionadas);
+                    $("#txtCodSeleecionados").val(codSeleecionados);
+                    $("#ModalOptarOpcion").modal("show");
+                }
+            } else {
+                alert("No se ha seleccionado ninguna factura");
+                return false;
+            }
+        }
+        else {
+            $("#ModalOptarOpcion").modal("show");
+        }
+    }
+
+    function AceptarFacturas(a, b) {
+
+
+
+        var confirmar = confirm("¿Seguro(a) de aceptar esta factura?");
+        if (confirmar == true) {
+
+
+            var detalle = b;
+            var laURLDeLaVista = '@Url.Action("SaveTableroFacturas", "RadicacionElectonica")?detalle=' + detalle + "&idCargue=" + a;
+
+            $.ajax({
+                url: laURLDeLaVista,
+                type: "post",
+                data: {},
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    alert(response.message);
+                    LoadingHide();
+
+                    if (response.success) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+    }
+
+    function ModalCargueRipsMasivo(idCargue, idDetalle, i, seleccionadas, codSeleecionados) {
+
+        var codPrestador = $("#codPrestador_" + i).val();
+        var laURLDeLaVista = '@Url.Action("ModalRipsMasivo")?idDetalle=' + idDetalle + "&idCargue=" + idCargue + "&tipo=2" + "&codPrestador=" + codPrestador + "&listadoFacturas=" + seleccionadas + "&listadoCodPrestador=" + codSeleecionados;
+
+        $.ajax({
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoRips').html('');
+                $('#resultadoRips').html(response);
+                $("#ModalRips").modal("show");
+            }
+        });
+    }
+
+    function EnviarDatosValidarSinJson(idCargue, idDetalle, i, seleccionadas, codSeleecionados, tipo) {
+        var confirmar = confirm("¿Seguro(a) de validar factura(s) sin JSON?");
+        if (confirmar == true) {
+            $("#ModalOptarOpcion").modal("hide");
+
+            var codPrestador = $("#codPrestador_" + i).val();
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("ValidarConMasivo")",
+                type: "post",
+                data: {
+                    idCargue: idCargue,
+                    idDetalle: idDetalle,
+                    codPrestador: codPrestador,
+                    seleccionadas: seleccionadas,
+                    codSeleecionados: codSeleecionados,
+                    tipoCargue: tipo
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+    }
+
+    function ValidarFormularioRechazo() {
+        var validator = $("#formulario_rechazo").validate();
+        if (validator.form()) {
+            $("#formulario_rechazo").submit();
+        }
+    }
+
+    function versoportes(a, b) {
+        $.ajax({
+            url: "@Url.Action("tablasoportesclinicos")",
+            type: "post",
+            data: {
+                idcargue: a,
+                iddetalle: b
+            },
+            success: function (data) {
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function AbrirSoporteClinico(a)
+    {
+        var url = "@Url.Action("SoportesClinicos", "RadicacionElectonica")?idsoporteclinico=" + a;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function rechazarlotefacturas(idcargue)
+    {
+        LoadingShow();
+        var laURLDeLaVista = '@Url.Action("GestionarLoteFacRechazadas")?ID=' + idcargue;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                LoadingHide();
+                $("#myModal").modal('show');
+            }
+        });
+    }
+
+    function ObtenerFacturasSeleccionadas()
+    {
+        var seleccionada = [];
+        var numregistros = parseInt("@count");
+
+        for (var i = 1; i <= numregistros; i++)
+        {
+            var value = $("#chkFactura_" + i).val();
+            if ($("#chkFactura_" + i).is(':checked'))
+            {
+                seleccionada.push(value);
+            }
+
+        }
+        return seleccionada;
+    }
+
+    function ObtenerCodPrestadorSeleccionados()
+    {
+        var seleccionada = [];
+        var numregistros = parseInt("@count");
+
+        for (var i = 1; i <= numregistros; i++)
+        {
+            var value = $("#codPrestador_" + i).val();
+            if ($("#chkFactura_" + i).is(':checked'))
+            {
+                seleccionada.push(value);
+            }
+
+        }
+        return seleccionada;
+    }
+
+    //function AceptarfacturasMasivamente() {
+
+    //
+
+    //    var seleccionadas = ObtenerFacturasSeleccionadas();
+    //    var codSeleecionados = ObtenerCodPrestadorSeleccionados();
+
+    //    if (seleccionadas.length > 0) {
+    //        var txt = confirm("¿Está seguro/a de aceptar las facturas seleccionadas?");
+    //        if (txt) {
+
+    //            var idCargue = $("#txtIdCargue").val();
+    //            var idDetalle = $("#txtIdDetalle").val();
+    //            var i = $("#txtI").val();
+    //            var seleccionadas = $("#seleccionadas").val();
+    //            var codSeleecionados = $("#codSeleecionados").val();
+
+    //            EnviarDatosValidarSinJson(idCargue, idDetalle, i, seleccionadas, codSeleecionados);
+
+    //        }
+    //    } else {
+    //        alert("No se ha seleccionado ninguna factura");
+    //    }
+    //}
+
+    function AbrirArchivoSoporte(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirArchivoZip(idcarguedtll) {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + idcarguedtll;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .text_titulos_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #EEEDED;
+    }
+</style>

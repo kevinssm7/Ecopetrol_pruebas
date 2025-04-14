@@ -1,0 +1,933 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Odontologia.ProtesisRemovible
+@{
+    ViewBag.Title = "TRATAMIENTO DE REHABILITACION ORAL -PRÓTESIS REMOVIBLE Y/O TOTAL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    String[] tratamiento = { "1", "2" };
+    String[] parametro = { "prótesis total", "prótesis removible", " sobredentadura sobre implantes" };
+
+}
+
+<br>
+
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso tratamiento</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control select2" required id="cbxmes" name="mes" autocomplete="off">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Año</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="5" required name="año" id="año" autocomplete="off">
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidades($(this).val())" required id="cbxunis" name="unis">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="cbxlocalidad" name="localidad">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Documento identidad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " onchange="format($(this).val())" maxlength="18" required name="documento" id="documento" />
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Nombre  del beneficiario</label>
+                            <input type="text" maxlength="100" class="form-control" name="nombre" id="nombre" required />
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Edad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="edad" maxlength="2" id="edad" required />
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Tiempo de duracion tratamiento en meses </label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="TratamientoMeses" maxlength="2" id="TratamientoMeses" />
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6 form-group">
+                            <label class="text-secondary_asalud">Odontologo PPE que realiza remision</label>
+                            <select class="form-control select2" id="cbxprofesionalOdon" required name="profesionalOdon">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-6 form-group">
+                            <label class="text-secondary_asalud">Especialista tratante</label>
+                            <select class="form-control select2" id="cbxprofesional" required name="profesional">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Paciente satisfecho  con tratamiento </label>
+                            <select class="form-control select" required id="optsatisfecho" name="optsatisfecho">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Hubo colaboración paciente</label>
+                            <select class="form-control select" required id="optradio" name="optradio">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-sm-5 form-group">
+                            <label class="text-secondary_asalud">Tratamiento realizado dentro en tiempos de garantia </label>
+                            <select class="form-control select" required id="opttiemposG" name="opttiemposG">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Numero de prótesis total y/o removibles auditadas </label>
+                            <input class="form-control" type="text" name="numprotesis" id="numprotesis" required readonly />
+                        </div>
+                        <div class="col-sm-5 form-group">
+                            <label class="text-secondary_asalud">Paciente que usa prótesis removible y/o total por primera vez ó repetida </label>
+                            <select class="form-control select" required id="optpriemeraRepetida" name="optpriemeraRepetida">
+                                <option value="">- Seleccionar -</option>
+                                <option value="SI">PRIMERA VEZ</option>
+                                <option value="NO">REPETIDA</option>
+                            </select>
+                        </div>
+
+                        <div id="pnlrepetida" style="display:none" class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Hace cuanto realizó la prótesis anterior</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="TrealizoProtesis" maxlength="2" id="TrealizoProtesis" required />
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Se verifica  evolución de  tratamiento en historia clínica</label>
+                            <select class="form-control select" required id="optverifica" name="optverifica">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Es prótesis total - sobredentadura realizada sobre implantes</label>
+                            <select class="form-control select" required id="optsobredentadura" name="optsobredentadura">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div id="pnlrepetida" style="display:none" class="col-sm-3 form-group">
+
+                        </div>
+
+                    </div>
+
+                    <div class="row" id="fieldlist">
+
+                        <table id="table2">
+                            <thead>
+                                <tr>
+                                    <th>PARAMETROS EVALUACION</th>
+                                    <th>PORCENTAJE</th>
+                                    <th>TERMINOLOGIA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MUY BUENO</td>
+                                    <td>100%</td>
+                                    <td>TRATAMIENTO TERMINADO DE OPTIMA CALIDAD</td>
+                                </tr>
+                                <tr>
+                                    <td>BUENO</td>
+                                    <td>80%</td>
+                                    <td>TRATAMIENTO TERMINADO  DE BUENA CALIDAD</td>
+                                </tr>
+                                <tr>
+                                    <td>REGULAR</td>
+                                    <td>60%</td>
+                                    <td>ASPECTOS A MEJORAR, NO  SE  AUTORIZA  TRATAMIENTO TERMINADO</td>
+                                </tr>
+
+                                <tr>
+                                    <td>DEFICIENTE</td>
+                                    <td>40%</td>
+                                    <td>DEBE REEVALUAR TRATAMIENTO</td>
+                                </tr>
+                                <tr>
+                                    <td>MALO</td>
+                                    <td>20%</td>
+                                    <td>DEBE REEVALUAR TRATAMIENTO</td>
+                                </tr>
+                                <tr>
+                                    <td>NO CALIFICABLE</td>
+                                    <td>0%</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-responsive" id="pnlPorcentaje">
+                        <table class="row table table-bordered table-condensed table-striped" id="table2">
+                            <thead>
+                                <tr>
+                                    <th>ELIIJA TRATAMIENTO REALIZADO A VERIFICAR</th>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+
+                                            <select id="tbl2_id_tratamiento_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                <option value="0">Seleccione...</option>
+                                                @foreach (var item in Model.LIsttratamientosRem)
+                                                {
+                                                    <option value="@item.id_tratamiento_auditado">@item.descripcion</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PARAMETROS AUDITADOS</td>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+
+                                            <select id="tbl2_id_parametro_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                <option value="0">Seleccione...</option>
+                                                @foreach (var item in Model.LIstParametrosRem)
+                                                {
+                                                    <option value="@item.id_param_auditado_rem">@item.descripcion</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <td>ESTABILIDAD</td>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_est_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+
+                                </tr>
+                                <tr>
+                                    <td>FUNCION OCLUSAL</td>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_ocl_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+
+                                </tr>
+                                <tr>
+                                    <td>TERMINADO</td>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_ter_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+
+                                </tr>
+                                <tr>
+                                    <td>DISEÑO</td>
+                                    @for (int i = 0; i < ViewBag.numero_protesis; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_dis_@i" onchange="obtenervalores()" style="text-align-last:center; min-width:100%" required>
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <input class="form-control" type="text" name="Observaciones" maxlength="500" id="Observaciones" required />
+                        </div>
+                        <div class="col-sm-2 form-group">
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 form-group text-right">
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                        </div>
+                    </div>
+
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="detalle" id="detalle" />
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        obtenervalores();
+         $("#optpriemeraRepetida").change(function () {
+
+
+            var mivalor = $("#optpriemeraRepetida").val()
+              var mitexto = $("#optpriemeraRepetida option:selected").text()
+
+              if (mivalor == "NO") {
+                 document.getElementById('pnlrepetida').style.display = 'block';
+              } else {
+                  document.getElementById('pnlrepetida').style.display = 'none';
+              }
+          })
+    })
+
+     function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_unis").val(DataItem.id_ref_unis);
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_ref_ciudades").val(DataItem.id_ref_ciudades);
+    }
+
+        function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ortodoncista_tratante").val(DataItem.id_ref_odont_prestadores);
+    }
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ppe_quien_realiza").val(DataItem.id_ref_odont_prestadores);
+    }
+
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#colaboracion_paciente").val(DataItem.id_ref_ffmm_sino);
+
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            ValidarSelects();
+        }
+    }
+
+    function ValidarSelects() {
+        var selects = document.querySelectorAll("select[required]");
+
+        for (var i = 0; i < selects.length; i++) {
+            var select = selects[i];
+            if (select.value == "" || select.value == null) {
+                alert("Por favor, selecciona una opción en todos los campos obligatorios.");
+                event.preventDefault(); // Evita que el formulario se envíe si falta una selección
+                return false;
+            }
+        }
+        GuardarDatos();
+    }
+
+    function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("mesIngresado", $("#cbxmes").val());
+        formData.append("ano", $("#año").val());
+        formData.append("id_regional", $("#cbxregional").val());
+        formData.append("id_unis", $("#cbxunis").val());
+        formData.append("id_localidad", $("#cbxlocalidad").val());
+        formData.append("documento_identidad", $("#documento").val());
+        formData.append("nombre", $("#nombre").val());
+        formData.append("edad", $("#edad").val());
+        formData.append("tiempo_tratamiento", $("#TratamientoMeses").val());
+        formData.append("paciente_satisfecho", $("#optsatisfecho").val());
+
+        formData.append("especialista_tratante", $("#cbxprofesional").val());
+        formData.append("colaboracion_paciente", $("#optradio").val());
+        formData.append("ppe_quien_realiza", $("#cbxprofesionalOdon").val());
+        formData.append("se_realizo_en_los_tiempos", $("#opttiemposG").val());
+        formData.append("numero_protesis", $("#numprotesis").val());
+        formData.append("protesis", $("#optpriemeraRepetida").val());+
+        formData.append("tiempo_protesis_aterior", $("#TrealizoProtesis").val());
+        formData.append("hc_tratamiento_realizado", $("#optverifica").val());
+        formData.append("sobredentadura", $("#optsobredentadura").val());
+        formData.append("observaciones", $("#Observaciones").val());
+        formData.append("detalle", $("#detalle").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveRemovible", "odontologia")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+
+                     LoadingHide();
+                     alert(response.message);
+                     location.reload();
+                    var URL2 = "@Url.Action("CrearPdfOdontRemovible", "odontologia")?id=" + response.ID;
+                    window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+                }
+                else
+                 {
+                     LoadingHide();
+                   alert(response.message);
+
+                }
+
+            }
+        })
+    }
+
+    function LimpiarFormulario() {
+
+    }
+
+    function GuardarDatos2() {
+        $.ajax({
+            url: "@Url.Action("GuardarRemisionesVerificacion", "odontologia")",
+            type: "post",
+            data: {
+                fechainicial: $("#fechainicial2").val(),
+                fechafinal: $("#fechafinal2").val(),
+                unis: $("#cbxregional2").val(),
+                odontologo: $("#cbxprofesional2").val(),
+                localidad: $("#cbxlocalidad2").val(),
+                regional: $("#cbxregional2").val(),
+                porManuales: $("#porcenmanuales").val(),
+                porEsalud: $("#porcenesalud").val(),
+            },
+            success: function (data) {
+                LimpiarFormulario();
+                $("#tbodytbl2").empty();
+                $("#tbodytbl2").html(data);
+            }
+        })
+    }
+
+    function LimpiarFormulario2() {
+        $("#fechainicial2").val("");
+        $("#fechafinal2").val("");
+        $("#cbxregional2").val("").trigger("change");
+        $("#cbxprofesional2").val("").trigger("change");
+        $("#cbxlocalidad2").val("").trigger("change");
+        $("#cbxregional2").val("").trigger("change");
+        $("#porcenmanuales").val("");
+        $("#porcenesalud").val("");
+    }
+
+    function CargarUnis(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis", "odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis2").empty();
+                    $("#cbxunis").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxunis2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxunis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                        $("#cbxunis2").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                    CargarEspecialista(regional);
+                    CargarOdontologos(regional);
+                }
+            })
+        }
+
+    }
+
+    function CargarLocalidades(a)
+    {
+        var unis = a;
+        if (unis != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeLocalidades", "odontologia")",
+                type: "post",
+                data: { unis: unis },
+                success: function (data) {
+                    $("#cbxlocalidad").empty();
+                    $("#cbxlocalidad2").empty();
+                    $("#cbxlocalidad").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxlocalidad2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxlocalidad").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                        $("#cbxlocalidad2").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                    })
+                }
+            })
+        }
+
+    }
+
+     function CargarEspecialista(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasOdont","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesional").empty();
+                    $("#cbxprofesional").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesional").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+
+    function CargarOdontologos(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasTotal","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesionalOdon").empty();
+                    $("#cbxprofesionalOdon").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesionalOdon").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+     function format(a) {
+
+         var mivalor = a;
+
+              $.ajax({
+                url: '@Url.Action("ListaBeneficiario")/' + mivalor,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    $('input:text[id$=nombre]').val(data.OBJ.Nombre);
+                    $('input:text[id$=edad]').val(data.OBJ.edad);
+                },
+                  error: function (xhr) {
+                     $('input:text[id$=nombre]').val("");
+                     $('input:text[id$=edad]').val(0);
+
+                    alert('error');
+                }
+            });
+    }
+    function obtenervalores()
+    {
+        var mivalor = '@ViewBag.numero_protesis'
+
+        $("#numprotesis").val(mivalor);
+
+        if (mivalor == 1) {
+             var parametro = new Array(1);
+        } else if (mivalor == 2) {
+             var parametro = new Array(2);
+        }
+        for (var i = 0; i < parametro.length; i++)
+        {
+            parametro[i] = new Array(5);
+            parametro[i][0] = $("#tbl2_id_tratamiento_"+i).val();
+            parametro[i][1] = $("#tbl2_id_parametro_" + i).val();
+            parametro[i][2] = $("#tbl2_est_"+i).val();
+            parametro[i][3] = $("#tbl2_ocl_"+i).val();
+            parametro[i][4] = $("#tbl2_ter_" + i).val();
+            parametro[i][5] = $("#tbl2_dis_" + i).val();
+
+             if (parametro[i][0] == 0 || parametro[i][1] == 0 )
+            {
+                $("#tbl2_est_" + i).prop('disabled', true);
+                $("#tbl2_ocl_" + i).prop('disabled', true);
+                $("#tbl2_ter_" + i).prop('disabled', true);
+                $("#tbl2_dis_" + i).prop('disabled', true);
+            }
+            else
+             {
+                $("#tbl2_est_" + i).prop('disabled', false);
+                $("#tbl2_ocl_" + i).prop('disabled', false);
+                $("#tbl2_ter_" + i).prop('disabled', false);
+                $("#tbl2_dis_" + i).prop('disabled', false);
+
+                 if (i == 0) {
+
+                 if ($("#tbl2_id_tratamiento_" + i ).val() == 1)
+                 {
+                     $("#tbl2_id_tratamiento_" + 1).prop('disabled', true);
+                     $("#tbl2_id_tratamiento_" + 1).val(2);
+
+                 } else if ($("#tbl2_id_tratamiento_" + i ).val() == 2) {
+                     $("#tbl2_id_tratamiento_" + 1).prop('disabled', true);
+                     $("#tbl2_id_tratamiento_" + 1).val(1);
+                 }
+
+                 }
+            }
+
+        }
+
+        $("#detalle").val(parametro);
+    }
+
+
+    function validar() {
+
+         document.getElementById('pnlPorcentaje').style.display = 'block';
+         var mivalor = $("#numero_protesis").val()
+
+
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+

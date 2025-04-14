@@ -1,0 +1,78 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    var conteo = 0;
+
+}
+
+
+
+
+
+@*modal*@
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modal5">
+    <div class="modal-dialog" style="width: 900px;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoGlosa"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    var arreglo = [0];
+
+
+    $('#tbGestionGlosa').DataTable({
+        "searching": false,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+    function llamarParcial5(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_IngresarSegundaConciliacion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoGlosa').html('');
+                $('#resultadoGlosa').html(response);
+            }
+        });
+    }
+
+
+
+
+</script>
+

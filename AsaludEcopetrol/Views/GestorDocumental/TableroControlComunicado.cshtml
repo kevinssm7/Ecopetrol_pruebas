@@ -1,0 +1,259 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.GestorDocumental.GestorDocumental
+@{
+    ViewBag.Title = "COMUNICADOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+
+
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+
+            <strong class="text-primary_asalud">Tablero control datos comunicados</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <table class="table table-bordered table-condensed" style="font-size:9px">
+                <thead>
+
+                    <tr>
+
+
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Dirigido</th>
+                        <th class="text-center">Ciudad punto dispensación</th>
+                        <th class="text-center">Nombre punto dispensación</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Observaciones</th>
+                        <th class="text-center">Fecha Comunicado</th>
+                        <th class="text-center">Usuario ingreso</th>
+                        <th class="text-center">Fecha Digita</th>
+                        <th class="text-center">Opcion</th>
+
+
+                    </tr>
+
+
+                </thead>
+                <tbody>
+
+
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_md_datos_comunicado item in ViewBag.listacomunicado)
+                    {
+
+                        <tr>
+
+                            <td class="text-center">@item.id_md_comunicaciones </td>
+                            <td class="text-center">@item.nombre_dirigido </td>
+                            @if (item.ciudad_municipio != null)
+                            {
+                                <td class="text-center">@item.ciudad_municipio</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            @if (item.nombre_esm != null)
+                            {
+
+                                <td class="text-center">@item.nombre_esm </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td class="text-center">@item.des_com_tipo </td>
+                            <td class="text-center">@item.observaciones </td>
+                            @if (item.fecha != null)
+                            {
+                                <td class="text-center">@item.fecha.Value.ToString("MM/dd/yyyy") </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            <td class="text-center">@item.nombre_digita </td>
+
+                            @if (item.fecha_digita != null)
+                            {
+                                <td class="text-center">@item.fecha_digita.Value.ToString("MM/dd/yyyy") </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            <td class="text-center">
+                                <a  href='javascript:verDocumento(@item.id_md_comunicaciones)'>
+                                     VER PDF
+                                </a>
+
+                                <script>
+
+                                                    function verDocumento(a) {
+
+                                                        var iddocumento = a;
+
+                                                        $.ajax({
+                                                            url: "@Url.Action("ArtefactoDocumento")",
+
+                                                            type: "GET",
+                                                            data:
+                                                            {
+                                                                iddocumento: iddocumento
+                                                            },
+                                                            success: function (data) {
+                                                                var URL2 = "@Url.Action("GestorUrlArtefactoDocumento", "GestorDocumental")?id_documental=" + data.iddocumento;
+                                                                window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+
+
+                                                            },
+                                                            error: function (data) {
+                                                                alert("error al momento de realizar el procedimiento")
+                                                            }
+
+                                                        })
+
+                                                    }
+
+
+                                </script>
+                            </td>
+
+
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $('.table').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+</script>
+
+<style>
+
+    .letraa {
+        color: #337ab7;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        margin: 1px;
+        text-align: left;
+        width: 1107px;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 9px;
+        border-bottom: 2px solid #fff;
+        color: #000000;
+        border-top: 1px solid transparent;
+        border: 1px solid #ccc;
+    }
+</style>
+
+
+
+
+
+

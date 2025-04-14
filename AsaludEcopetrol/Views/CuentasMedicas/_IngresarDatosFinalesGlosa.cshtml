@@ -1,0 +1,221 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    var conteo = 0;
+
+}
+
+<form id="formulario2">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">
+                Ingresar registro de la vista
+            </strong>
+        </div>
+        <div class="panel-body">
+            <input type="hidden" id="id_glosa" value="@ViewBag.id_glosa" />
+
+            <div class="panel-body">
+
+                <div class="row">
+
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <BR />
+                            <table id="tbGestionGlosa" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                                <thead>
+                                    <tr>
+                                        <th class="text">IdFactura</th>
+                                        <th class="text-center">Prefijo factura</th>
+                                        <th class="text-center">Factura</th>
+                                        <th class="text-center">Día radicación</th>
+                                        <th class="text-center">Valor</th>
+                                        <th class="text-center">Fecha acta 1er Conciliación</th>
+                                        <th class="text-center">No. Acta</th>
+                                        <th class="text-center">Fecha acta 2da Conciliación</th>
+                                        <th class="text-center">No. Acta</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodytbl2">
+
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ffmm_glosas item in ViewBag.lista)
+                                    {
+                                        conteo++;
+                                        <tr>
+                                            <td class="text">@item.id_glosa</td>
+                                            <td class="text-center">@item.prefijo_factura</td>
+                                            <td class="text-center">@item.numero_factura</td>
+                                            <td class="text-center">@item.año_mes_radicado</td>
+                                            <td class="text-center">$@item.vlr_factura</td>
+                                            <td class="text-center">
+                                                @if (@item.fecha_acta_primera_conciliacion == null)
+                                                {
+                                                    <a class="button_Asalud_Guardar" font-weight:bold" onclick="llamarVistaParcialPA(@item.id_glosa);" data-toggle="modal" data-target="#modalPA">
+                                                        INGRESAR
+                                                    </a>}
+                                                else
+                                                {
+                                                    @item.fecha_acta_primera_conciliacion
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (@item.fecha_acta_primera_conciliacion == null)
+                                                {
+
+                                                    <a style="text-decoration: none">No disponible</a>
+
+
+                                                }
+                                                else
+                                                {
+                                                    @item.numero_acta_primera_conciliacion
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (@item.fecha_acta_segunda_conciliacion == null )
+                                                {
+                                                    <a class="button_Asalud_Guardar" font-weight:bold" onclick="llamarVistaParcialSA(@item.id_glosa);" data-toggle="modal" data-target="#modalSA">
+                                                        INGRESAR
+                                                    </a>}
+                                                else
+                                                {
+                                                    @item.fecha_acta_segunda_conciliacion
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (@item.fecha_acta_segunda_conciliacion == null)
+                                                {
+                                                    <a style="text-decoration: none">No disponible</a>
+                                                }
+                                                else
+                                                {
+                                                    @item.numero_acta_segunda_conciliacion
+                                                }
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+
+
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center" id="divBotones">
+
+                        <button class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+
+
+@*modal*@
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalPA">
+    <div class="modal-dialog" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoPA"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*modal*@
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalSA">
+    <div class="modal-dialog" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoSA"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var arreglo = [0];
+
+
+    $('#tbGestionGlosa').DataTable({
+        "searching": false,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+    function llamarVistaParcialPA(AI) {
+        var laURLDeLaVista = '@Url.Action("_IngresarFechaPrimeraActa")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoPA').html('');
+                $('#resultadoPA').html(response);
+            }
+        });
+    }
+
+
+    function llamarVistaParcialSA(AI) {
+     
+        var laURLDeLaVista = '@Url.Action("_IngresarFechaSegundaActa")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoSA').html('');
+                $('#resultadoSA').html(response);
+            }
+        });
+    }
+
+
+
+</script>
+
+

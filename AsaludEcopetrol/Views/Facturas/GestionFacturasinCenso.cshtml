@@ -1,0 +1,290 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Facturacion.FacturasinCenso
+@{
+    ViewBag.Title = "GESTIÓN FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">INGRESAR</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_factura)</span></h4>
+                            @Html.TextBoxFor(p => p.numero_factura, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.numero_factura, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_factura_result)</span></h4>
+                            @Html.TextBoxFor(model => model.fecha_factura_result, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.fecha_factura_result, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_factura_result)</span></h4>
+                            @Html.TextBoxFor(model => model.fecha_factura_result, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.fecha_factura_result, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.ips)</span></h4>
+                            @Html.TextBoxFor(p => p.ips, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.ips, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.valor_factura)</span></h4>
+                            @Html.TextBoxFor(p => p.valor_factura, "{0:#.#}", new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.valor_factura, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            @if (Model.tipo_factura == "PREFACTURA")
+                            {
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.valor_factura_definitiva)</span></h4>
+                                @Html.TextBoxFor(p => p.valor_factura_definitiva, "{0:#.#}", new { @class = "form-control", @onclick = "format(this)", @onchange = "format(this)" })
+                                @Html.ValidationMessageFor(u => u.valor_factura_definitiva, null, new { @class = "label label-danger" })
+                            }
+                            else
+                            {
+
+                            }
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.tiene_costo_evitado)</span></h4>
+                            @Html.RadioButtonFor(model => model.tiene_costo_evitado, "SI", new { @onclick = "mostrar1()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.tiene_costo_evitado, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.tiene_costo_evitado, "NO")@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.tiene_costo_evitado, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            @if (Model.tipo == "MULTIUSUARIO")
+                            {
+
+                            }
+                            else
+                            {
+                                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.diagnostico)</span></h4>
+                                @Html.RadioButtonFor(model => model.diagnostico, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                                @Html.ValidationMessageFor(u => u.diagnostico, null, new { @class = "label label-danger" })
+                            }
+
+
+                        </div>
+                        <div class="col-sm-4">
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+
+                    <div class="hidden">
+                        @Html.TextBoxFor(u => u.id_factura_sin_censo)
+                        @Html.TextBoxFor(u => u.tipo_factura)
+                    </div>
+                    
+                    @*<div id="pnlGuardar" class="General">
+                        <table align="left">
+                            <tr>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationSummary(true, "")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="display:none">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>*@
+
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+
+
+
+    //$("#costo_evitado")
+    //var valor = $("#costo_evitado").val()
+    //var valor2 = "NO";
+    //$('input:text[id$=costo_evitado]').val(valor2);
+
+
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_facturaOK]').val(DataItem);
+
+    }
+
+
+    $(document).ready(function () {
+
+        $('#datepicker2').attr('disabled', 'disabled');
+
+    });
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_recepcionOK]').val(DataItem);
+
+    }
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ciudad_ips").val(DataItem.id_ciu);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+    }
+
+    function mostrar1() {
+
+        window.open('@Url.Action("Costoevitado", "Facturas", new { id=Model.id_factura_sin_censo})', '', 'width =700,height =600,left =50,top =50,toolbar =yes');
+    };
+
+    function mostrar2() {
+
+        window.open('@Url.Action("diagnosticosFactura", "Facturas", new { id=Model.id_factura_sin_censo})', '', 'width =700,height =600,left =50,top =50,toolbar =yes');
+    };
+
+
+
+    function format(input) {
+
+        var textBox1 = $('input:text[id$=valor_factura_definitiva]').keyup();
+        var n = textBox1.val();
+
+        var num = n.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            input.value = input.value.replace(/[^\d\.]*/g, '');
+        }
+    }
+
+
+
+</script>
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

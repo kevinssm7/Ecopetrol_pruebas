@@ -1,0 +1,149 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Odontologia.PlanMejora
+@{
+    ViewBag.Title = "INGRESO PLAN DE MEJORA BENEFICIARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <div class="container">
+            <form id="frm-alumno">
+                <div class="row">
+
+                    <div class="col-sm-5">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.documento_identidad)</span></h4>
+                        @Html.TextBoxFor(p => p.documento_identidad, "{0:#.#}", new { @class = "form-control solo-numero", @onchange = "format()", @onclick = "format()" })
+                        @Html.ValidationMessageFor(u => u.documento_identidad, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-5">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.nombre)</span></h4>
+                        @Html.TextBoxFor(p => p.nombre, new { @class = "form-control", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(u => u.nombre, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-2">
+
+                        <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                    </div>
+
+                </div>
+
+                <div id="pnlGuardar" class="General">
+                    <table align="center">
+                        <tr>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="display:none">
+
+                                @* @Html.TextBoxFor(u => u.fecha_ingreso_salesforceOK)*@
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+}
+
+
+<script>
+
+      function format(input) {
+
+        var mivalor = $("#documento_identidad").val()
+
+              $.ajax({
+                url: '@Url.Action("ListaBeneficiario")/' + mivalor,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    $('input:text[id$=nombre]').val(data.OBJ.Nombre);
+                    $('input:text[id$=edad]').val(data.OBJ.edad);
+                },
+                  error: function (xhr) {
+                     $('input:text[id$=nombre]').val("");
+                     $('input:text[id$=edad]').val(0);
+
+                    alert('error');
+                }
+            });
+    }
+
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>
+

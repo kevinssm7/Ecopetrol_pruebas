@@ -1,0 +1,406 @@
+﻿@{
+    ViewBag.Title = "MEDICIÓN RENDIMIENTO SAMI";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">MÉTRICAS</strong>
+        </div>
+        <form>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-md-10">
+
+                        <table class="table-condensed" style="width:98%">
+                            <thead>
+                                <tr>
+                                    <th>Indicador</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>FCP (First Contentful Paint)</td>
+                                    <td>
+                                        <div class="range-container">
+                                            <input type="range" id="fcpRange" name="fcpRange" min="0" max="4000" step="1">
+                                            <span id="forfcpRange" class="spanRange text-right">4020</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>SI (Speed Index)</td>
+                                    <td>
+                                        <div class="range-container">
+                                            <input type="range" id="siRange" name="siRange" min="0" max="5000" step="1">
+                                            <span id="forsiRange" class="spanRange  text-right">5000</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>LCP (Largest Contentful Paint)</td>
+                                    <td>
+                                        <div class="range-container">
+                                            <input type="range" id="lcpRange" name="lcpRange" min="0" max="6000" step="1">
+                                            <span id="forlcpRange" class="spanRange text-right">6000</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TBT (Total Blocking Time)</td>
+                                    <td>
+                                        <div class="range-container">
+                                            <input type="range" id="tbtRange" name="tbtRange" min="0" max="2000" step="1">
+                                            <span id="fortbtRange" class="spanRange text-right">2000</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CLS (Cumulative Layout Shift)</td>
+                                    <td>
+                                        <div class="range-container">
+                                            <input type="range" id="clsRange" name="clsRange" min="0" max="0.82" step="0.01">
+                                            <span id="forclsRange" class="spanRange text-right">0.82</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">MEDICIÓN RENDIMIENTO</strong>
+        </div>
+        <div class="panel-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <input type="hidden" id="loading" name="loading" />
+                        <a onclick="Calculadora()" class="btn button_Asalud_Aceptar">Medir</a>
+                    </div>
+                </div>
+                <br />
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="circle-container">
+                            <div class="circle-input" id="crrendimiento">
+                                <input type="text" class="text-center" id="vlrrendimiento" readonly>
+                                <label class="text-secondary_asalud">Rendimiento</label>
+                            </div>
+                            <div class="circle-input" id="craccesibilidad">
+                                <input type="text" class="text-center" id="vlraccesibilidad" readonly>
+                                <label class="text-secondary_asalud">Accesibilidad</label>
+                            </div>
+
+                            <div class="circle-input" id="crpracticas">
+                                <input type="text" class="text-center" id="vlrpracticas" readonly>
+                                <label class="text-secondary_asalud">Buenas prácticas</label>
+                            </div>
+                            <div class="circle-input" id="crseo">
+                                <input type="text" class="text-center" id="vlrseo" readonly>
+                                <label class="text-secondary_asalud">SEO</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var scoreRendimiento = 0;
+    var scoreAccesibilidad = 0;
+    var scorePracticas = 0;
+    var scoreSEO = 0;
+    var urlToAnalyze = "https://ecopetrol.aplicativoasalud.co";
+    var apiKey = "AIzaSyDFgoHA5uK0JRwPmhCYbjIdMXevty_cq0Q";
+    var strategy = "desktop";
+
+    function Calculadora() {
+
+        LoadingShow();
+
+        $("#loading").val(0);
+
+        calcularRendimiento();
+        calcularAccesibilidad();
+        calcularPracticas();
+        calcularSEO();
+
+    }
+
+    function calcularRendimiento() {
+
+        var category = "PERFORMANCE";
+        var apiUrl = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(urlToAnalyze) + "&category=" + category + "&strategy=" + strategy + "&key=" + apiKey;
+
+        $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+
+                var lighthouseResult = data.lighthouseResult;
+                var categories = lighthouseResult.categories;
+                var audits = lighthouseResult.audits;
+
+                scoreRendimiento = categories.performance.score;
+                var valorRendimiento = convertirPorcentaje(scoreRendimiento);
+                $("#vlrrendimiento").val(valorRendimiento);
+
+                var estilo = DevolverStyle(valorRendimiento);
+                $("#vlrrendimiento").addClass(estilo);
+
+                var metricas = audits["metrics"];
+                var itemsMetricas = metricas.details.items;
+
+                var fcp = 0;
+                var si = 0;
+                var lcp = 0;
+                var tbt = 0;
+                var cls = 0;
+
+                fcp = itemsMetricas[0]["firstContentfulPaint"];
+
+                si = itemsMetricas[0]["speedIndex"];
+
+                lcp = itemsMetricas[0]["lcpLoadStart"];
+
+                tbt = itemsMetricas[0]["totalBlockingTime"];
+
+                cls = itemsMetricas[0]["cumulativeLayoutShift"];
+
+                $("#fcpRange").val(fcp);
+                $("#forfcpRange").text(fcp + " ms");
+
+                $("#siRange").val(si);
+                $("#forsiRange").text(si + " ms");
+
+                $("#lcpRange").val(lcp);
+                $("#forlcpRange").text(lcp + " ms");
+
+                $("#tbtRange").val(tbt);
+                $("#fortbtRange").text(tbt + " ms");
+
+                $("#clsRange").val(cls);
+                $("#forclsRange").text(cls.toFixed(4));
+
+                var idLoaging = parseInt($("#loading").val());
+                var totalLoading = idLoaging + 1;
+                $("#loading").val(totalLoading);
+
+                ocultarLoading();
+
+            },
+            error: function (xhr, status, error) {
+                console.log("Error al hacer la solicitud:", error);
+            }
+
+        });
+    }
+
+    function calcularAccesibilidad() {
+
+        var category = "ACCESSIBILITY";
+        var apiUrl = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(urlToAnalyze) + "&category=" + category + "&strategy=" + strategy + "&key=" + apiKey;
+
+        $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+
+
+
+                var lighthouseResult = data.lighthouseResult;
+                var categories = lighthouseResult.categories;
+                scoreAccesibilidad = categories.accessibility.score;
+                var valorAccesibilidad = convertirPorcentaje(scoreAccesibilidad);
+                $("#vlraccesibilidad").val(valorAccesibilidad);
+
+
+                var estilo = DevolverStyle(valorAccesibilidad);
+                $("#vlraccesibilidad").addClass(estilo);
+
+
+                var idLoaging = parseInt($("#loading").val());
+                var totalLoading = idLoaging + 1;
+                $("#loading").val(totalLoading);
+
+                ocultarLoading();
+            },
+            error: function (xhr, status, error) {
+                console.log("Error al hacer la solicitud:", error);
+            }
+        });
+    }
+
+    function calcularPracticas() {
+
+        var category = "BEST_PRACTICES";
+        var apiUrl = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(urlToAnalyze) + "&category=" + category + "&strategy=" + strategy + "&key=" + apiKey;
+
+        $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+
+                var lighthouseResult = data.lighthouseResult;
+                var categories = lighthouseResult.categories;
+                scorePracticas = categories['best-practices'].score;
+
+                var valorPracticas = convertirPorcentaje(scorePracticas);
+                $("#vlrpracticas").val(valorPracticas);
+
+                var estilo = DevolverStyle(valorPracticas);
+                $("#vlrpracticas").addClass(estilo);
+
+
+
+                var idLoaging = parseInt($("#loading").val());
+                var totalLoading = idLoaging + 1;
+                $("#loading").val(totalLoading);
+
+                ocultarLoading();
+
+
+            },
+            error: function (xhr, status, error) {
+                console.log("Error al hacer la solicitud:", error);
+            }
+        });
+    }
+
+    function calcularSEO() {
+
+        var category = "SEO";
+        var apiUrl = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(urlToAnalyze) + "&category=" + category + "&strategy=" + strategy + "&key=" + apiKey;
+
+        $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+
+                var lighthouseResult = data.lighthouseResult;
+                var categories = lighthouseResult.categories;
+                scoreSEO = categories.seo.score;
+
+                var valorSEO = convertirPorcentaje(scoreSEO);
+                $("#vlrseo").val(valorSEO);
+
+                var estilo = DevolverStyle(valorSEO);
+                $("#vlrseo").addClass(estilo);
+
+
+                var idLoaging = parseInt($("#loading").val());
+                var totalLoading = idLoaging + 1;
+                $("#loading").val(totalLoading);
+
+                ocultarLoading();
+            },
+            error: function (xhr, status, error) {
+                console.log("Error al hacer la solicitud:", error);
+                LoadingHide();
+
+            }
+        });
+    }
+
+    function ocultarLoading() {
+
+        var valorLoading = parseInt($("#loading").val());
+        if (valorLoading >= 4) {
+            LoadingHide();
+        }
+    }
+
+    function convertirPorcentaje(valor) {
+
+        var devolver = (valor * 100);
+        return devolver.toFixed(2);
+    }
+
+
+    function DevolverStyle(valor) {
+        var estilo = "";
+
+        if (valor < 50) {
+            estilo = "faseUno";
+        }
+        else if (valor >= 50 && valor <= 89) {
+            estilo = "faseDos"; // Corrección: "yellow" en lugar de "yelow"
+        }
+        else {
+            estilo = "faseTres";
+        }
+
+        return estilo;
+    }
+
+</script>
+
+<style>
+    .circle-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .circle-input {
+        text-align: center;
+    }
+
+        .circle-input input {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #ccc; /* Cambia el color del borde según tu preferencia */
+            margin-bottom: 6px; /* Espacio entre los inputs y los labels */
+        }
+
+        .circle-input label {
+            display: block;
+        }
+
+
+
+    .faseUno {
+        background-color: #dbc5c5;
+        color: black;
+        border-color: #f33 !important;
+    }
+
+
+    .faseDos {
+        background-color: #FFFAE0;
+        border-color: #fa3 !important;
+    }
+
+    .faseDos {
+        background-color: #FFFAE0;
+        border-color: #fa3 !important;
+    }
+
+    .faseTres {
+        background-color: #DCF2D2;
+        border-color: #018642 !important;
+    }
+
+    .range-container .spanRange {
+        margin-top: 5px;
+        margin-left: 85%;
+    }
+</style>

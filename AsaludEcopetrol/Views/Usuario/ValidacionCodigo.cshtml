@@ -1,0 +1,223 @@
+﻿@model  AsaludEcopetrol.Models.InicioSesion.Login
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ECOPETROL_COMMON.ENTIDADES.sis_configuracion logo = (ECOPETROL_COMMON.ENTIDADES.sis_configuracion)ViewBag.logo;
+    ECOPETROL_COMMON.ENTIDADES.sis_configuracion sami = (ECOPETROL_COMMON.ENTIDADES.sis_configuracion)ViewBag.sami;
+    ECOPETROL_COMMON.ENTIDADES.sis_configuracion hsflogo = (ECOPETROL_COMMON.ENTIDADES.sis_configuracion)ViewBag.hsflogo;
+    ECOPETROL_COMMON.ENTIDADES.sis_configuracion logosami = (ECOPETROL_COMMON.ENTIDADES.sis_configuracion)ViewBag.logosami;
+
+    var mensaje = ViewBag.mensaje;
+}
+
+<div class="container">
+    <div class="panel-body stylelogin style2" style="text-align:center; align-content:center">
+        <form id="formValida" name="formValida" action="ValidacionCodigo" method="post" style="text-align:center; align-content:center;">
+            <div class="row">
+                <br />
+
+                <div class="imagenesHsf">
+                    <div class="col-md-12">
+                        <img src="@Url.Content("~/Resources/"+logosami.valor_parametro)" alt="" width="220" height="100" />
+                    </div>
+
+                    <!--<div class="col-md-12 hsfLogo">-->
+                    @*<label>Un desarrollo de </label>*@
+                    <!--<img src="@Url.Content("~/Resources/"+logosami.valor_parametro)" alt="" width="150" height="55" />
+                    </div>-->
+                </div>
+            </div>
+            <br />
+            <br />
+            <div class="contenido">
+                <div class="row">
+                    @if (String.IsNullOrEmpty(mensaje))
+                    {
+                        <div class="alert alert-info row">
+                            <strong>¡Atención!</strong> Para continuar con el uso del aplicativo, digite el código de verificación enviado a su correo electrónico.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger row">
+                            <strong>¡Lo sentimos!</strong> "@ViewBag.mensaje"
+                        </div>
+                    }
+
+
+                    <div class="col-md-4" style="text-align:left">
+                        <h4><span class="label text-secondary_asalud">Código</span></h4>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="hidden" id="usuario" name="usuario" value="@ViewBag.usuario" />
+                        @Html.TextBoxFor(u => u.codigo, new { @class = "form-control" })
+                        <div class="Error">
+                            @Html.ValidationMessageFor(u => u.codigo)
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <a class="btn button_Asalud_Guardar" onclick="ValidarCodigo()">VALIDAR CÓDIGO</a>
+                </div>
+
+                <div class="Error">
+                    @Html.ValidationSummary(true, "")
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <img src="@Url.Content("~/Resources/"+logo.valor_parametro)" style="width:30%;" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal1">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado1"></div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>*@
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarCodigo() {
+        var validate = $("#formValida").validate();
+        if (validate) {
+            $("#formValida").submit();
+        }
+    }
+
+</script>
+
+<style>
+
+    body {
+        background-color: #6B7787;
+    }
+
+    .container {
+        margin-top: 10%;
+    }
+
+    .style2 {
+        width: 400px;
+        margin-left: 30%;
+        margin-right: 30%;
+    }
+
+    .stylelogin {
+        border-radius: 18px;
+        text-align: center;
+        align-content: center;
+        background: rgba(255,255,255,1);
+        background: -moz-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,255,255,1)), color-stop(99%, rgba(255,255,255,1)), color-stop(100%, rgba(237,237,237,1)));
+        background: -webkit-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: -o-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+    }
+
+    .panel-body.style2 img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    #formInicio {
+        margin-top: 5%;
+    }
+
+    .contenido {
+        margin-left: 8%;
+        margin-right: 8%;
+    }
+
+    .imagenesHsf {
+        margin-left: 8%;
+        margin-right: 8%;
+    }
+
+        .imagenesHsf .hsfLogo {
+            position: relative;
+            transform: rotate(-90deg);
+            margin-left: 68%;
+            margin-top: -15%;
+        }
+
+            .imagenesHsf .hsfLogo label {
+                color: rgba(255,255,255,1);
+                font-size: 10px;
+                font-family: 'Century Gothic';
+            }
+
+    .Error {
+        color: #800000;
+        font-size: x-small;
+        font-weight: bold;
+    }
+
+    /*  .text-primary_asalud {
+            font-family: "Century Gothic", "Century Gothic";
+            color: white;
+        }
+    */
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic";
+        color: #6B7787;
+    }
+
+
+    .button_Asalud_Guardar {
+        color: white;
+        background-color: #6B7787;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 6px;
+        padding-left: 16px;
+        padding-right: 16px;
+        font-size: 12px;
+        border-radius: 8px;
+        border: 2px #006505;
+        font-family: "Century Gothic", "Century Gothic";
+        text-align: center;
+    }
+
+        .button_Asalud_Guardar:hover {
+            opacity: 0.6;
+            text-decoration: none;
+        }
+
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+</style>

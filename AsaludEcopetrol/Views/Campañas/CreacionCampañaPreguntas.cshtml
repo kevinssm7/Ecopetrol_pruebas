@@ -1,0 +1,48 @@
+﻿
+@{
+    var i = ViewBag.conteo;
+}
+
+<hr class="separador">
+
+<div class="row">
+    <div class="col-md-4">
+        <label class="text-secondary_asalud">Pregunta</label>
+        <input type="text" id="pregunta_@i" name="pregunta_@i" class="form-control" maxlength="199" required />
+    </div>
+    <div class="col-md-4">
+        <label class="text-secondary_asalud">Tipo pregunta</label>
+        <select id="tipoPregunta_@i" name="tipoPregunta_@i" class="form-control select2" required onchange="MostrarTipoPregunta(this.value, @i)">
+            <option value="">--Seleccione--</option>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_campana_tipoPregunta item in ViewBag.tipoPregunta)
+            {
+                <option value="@item.id_tipo">@item.descripcion</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="text-secondary_asalud">Obligatoria</label>
+        <input type="radio" id="obligatorioSi_@i" name="obligatorio_@i" value="1" required /> Si
+        <input type="radio" id="obligatorioNo_@i" name="obligatorio_@i" value="0" required /> No
+    </div>
+    <br />
+
+    <div class="col-md-2">
+        <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarDivPregunta(@i)">Eliminar</a>
+    </div>
+</div>
+<div class="row" id="divMostrarTipo_@i">
+    <br />
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#conteoFinal").val("@i");
+    });
+</script>
+

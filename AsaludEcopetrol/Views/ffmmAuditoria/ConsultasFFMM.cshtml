@@ -1,0 +1,516 @@
+﻿@{
+    ViewBag.Title = "CONSULTAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="gj-margin-top-10">
+            <div class="gj-float-left">
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Consulta</label>
+                        <select class="form-control select" id="filtro" name="filtro" required>
+                            <option value="">- Seleccionar -</option>
+                            <option value=1>TRAZABILIDAD</option>
+                            <option value=2>CUENTAS MEDICAS</option>
+                            <option value=3>CONCURRENCIA</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div style="display:none" id="pnltrazabilidad">
+                    <form class="display-inline" id="formulariobuscar">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Tipo de consulta</label>
+                                <select class="form-control select" id="consulta" name="consulta" required>
+                                    <option value="">- Seleccionar -</option>
+                                    <option value=1>Trazabilidad Cuentas medicas</option>
+                                    <option value=2>Trazabilidad PAD</option>
+                                    <option value=3>Trazabilidad Concurrencia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Fecha inicial</label>
+                                <input type="text" class="datepicker" value="" style="width: 100%" name="fechainicial" id="fechainicial" required="required" />
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="text-secondary_asalud">Fecha final</label>
+                                    <input type="text" class="datepicker" value="" style="width: 100%" name="fechafinal" id="fechafinal" required="required" />
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <br />
+                        <button id="btnDescarga1" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                        <button id="btnClear" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+                    </form>
+                </div>
+
+
+                <div style="display:none" id="pnlcuentas">
+                    <form class="display-inline" id="formulariobuscar2">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Tipo de consulta</label>
+                                <select class="form-control select" id="consulta2" name="consulta2" required>
+                                    <option value="">- Seleccionar -</option>
+                                    <option value=1>Estado entrega factura</option>
+                                    <option value=2>Estado radicación por IPS</option>
+                                    <option value=3>Estado proceso auditoria cuentas medicas</option>
+                                    <option value=4>Top 10 usuarios mayor consumo</option>
+                                    <option value=5>Top 10 Patologias mayor remisión</option>
+
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Unidad regionalizadora</label>
+                                <select class="form-control select2" onchange="CargarUnidad($(this).val())" required id="unidad_regionalizadora" name="unidad_regionalizadora">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unudadR item in ViewBag.regional)
+                                    {
+                                        <option value="@item.id_ref_ffmm_unudadR">@item.descripcion</option>
+                                    }
+
+                                </select>
+
+
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Unidad Satelite</label>
+                                <select class="form-control select2" required id="unidad_satelite" name="unidad_satelite">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div style="display:none" id="pnlIPS">
+                                <div class="col-sm-4">
+                                    <label class="text-secondary_asalud">IPS</label>
+                                    <select class="form-control select2" required id="cbxips" name="cbxips">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unudadR item in ViewBag.regional)
+                                        {
+                                            <option value="@item.id_ref_ffmm_unudadR">@item.descripcion</option>
+                                        }
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Fecha inicial</label>
+                                <input type="text" class="datepicker" value="" style="width: 100%" name="fechainicial2" id="fechainicial2" required="required" />
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="text-secondary_asalud">Fecha final</label>
+                                    <input type="text" class="datepicker" value="" style="width: 100%" name="fechafinal2" id="fechafinal2" required="required" />
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <button id="btnDescarga2" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                                <button id="btnClear2" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div style="display:none" id="pnlconcurrencia">
+                <form class="display-inline" id="formulariobuscar3">
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Tipo de consulta</label>
+                            <select class="form-control select" id="consulta3" name="consulta3" required>
+                                <option value="">- Seleccionar -</option>
+                                <option value=1>No visitas realizadas</option>
+                                <option value=2>Causas hospitalización por servicio</option>
+                                <option value=3>Causas hospitalización por genero</option>
+                                <option value=4>Causas hospitalización por grupo etario</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Unidad</label>
+                            <select class="form-control select2" required id="cbxunidad" name="cbxunidad">
+                                <option value="">-Seleccione una opción-</option>
+                                <option value="100">- Todas -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unidad_satelite item in ViewBag.UnidadSatelite)
+                                {
+                                    <option value="@item.id_ref_ffmm_unidad_satelite">@item.descripciion</option>
+                                }
+                            </select>
+
+                        </div>
+                        <div style="display:none" id="pnlAuditor">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Auditor</label>
+                                <select class="form-control select2" required id="auditor" name="auditor">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                    <option value="1">- Auditor 1 -</option>
+                                    <option value="2">- Auditor 2 -</option>
+                                    <option value="3">- Auditor 3 -</option>
+                                    <option value="4">- Auditor 4 -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:none" id="pnlServicio">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Origen del servicio</label>
+                                <select class="form-control select2" required id="cbxorigenS" name="cbxorigenS">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_origen_servicio item in ViewBag.origen_servicio)
+                                    {
+                                        <option value="@item.id_ref_ffmm_origen_servicio">@item.descripcion</option>
+                                    }
+                                </select>
+
+                            </div>
+                        </div>
+                        <div style="display:none" id="pnlGenero">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Genero</label>
+                                <select class="form-control select2" required id="cbxgenero" name="cbxgenero">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                    <option value="M">- Masculino -</option>
+                                    <option value="F">- Femenino -</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:none" id="pnlgrupo">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Grupo etario</label>
+                                <select class="form-control select" required id="cbxetario" name="cbxetario">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="100">- Todas -</option>
+                                    <option value="1">PRIMERA INFANCIA</option>
+                                    <option value="2">INFANCIA</option>
+                                    <option value="3">ADOLESCENCIA</option>
+                                    <option value="4">JUVENTUD</option>
+                                    <option value="5">ADULTEZ</option>
+                                    <option value="6">VEJEZ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Fecha inicial</label>
+                            <input type="text" class="datepicker" value="" style="width: 100%" name="fechainicial3" id="fechainicial3" required="required" />
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Fecha final</label>
+                                <input type="text" class="datepicker" value="" style="width: 100%" name="fechafinal3" id="fechafinal3" required="required" />
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <br />
+                    <button id="btnDescarga3" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                    <button id="btnClear3" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+                </form>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        //$(".datepickerr").kendoDatePicker({
+        //    format: "MM/dd/yyyy",
+        //});
+
+        //$(".k-input").attr('readonly', true);
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        var var1 = $('input:text[id$=fechainicial]').keyup();
+        var var2 = $('input:text[id$=fechafinal]').keyup();
+
+
+        $('#btnClear').on('click', function () {
+            $('#consulta').val('');
+            $('#fechainicial').val('');
+            $('#fechafinal').val('');
+        });
+
+        $('#btnDescarga1').on('click', function () {
+
+            var validator = $("#formulariobuscar").validate();
+            if (validator.form()) {
+
+                var var1 = $("#consulta").val();
+                var var2 = $("#fechainicial").val();
+                var var3 = $("#fechafinal").val();
+
+                var url = "@Url.Action("DownloadExcelEPPlus", "ffmmAuditoria")?lista_consultas=" + var1 + '&fechainicial=' + var2 + '&fechafin=' + var3 ;
+                window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+            }
+        });
+
+
+        $('#btnDescarga2').on('click', function () {
+
+            var validator = $("#formulariobuscar2").validate();
+            if (validator.form()) {
+
+                var var1 = $("#consulta2").val();
+                var var2 = $("#fechainicial2").val();
+                var var3 = $("#fechafinal2").val();
+                var var4 = $("#unidad_regionalizadora").val();
+                var var5 = $("#unidad_satelite").val();
+                var var6 = $("#cbxips").val();
+
+
+                var url = "@Url.Action("DownloadExcelEPPlus2", "ffmmAuditoria")?lista_consultas=" + var1 + '&fechainicial=' + var2 + '&fechafin=' + var3 + '&id_regional=' + var4 + '&id_unidad=' + var5 + '&id_ips=' + var6;
+                window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+            }
+        });
+        $('#btnClear2').on('click', function () {
+            $('#consulta2').val('');
+            $('#fechainicial2').val('');
+            $('#fechafinal2').val('');
+            $("#unidad_regionalizadora").empty();
+            $("#unidad_regionalizadora").append("<option value=''> - Seleccionar - </option>");
+            $("#unidad_satelite").empty();
+            $("#unidad_satelite").append("<option value=''> - Seleccionar - </option>");
+            $("#cbxips").empty();
+            $("#cbxips").append("<option value=''> - Seleccionar - </option>");
+        });
+
+
+
+        $('#btnDescarga3').on('click', function () {
+
+            var validator = $("#formulariobuscar3").validate();
+            if (validator.form()) {
+
+                var var1 = $("#consulta3").val();
+                var var2 = $("#fechainicial3").val();
+                var var3 = $("#fechafinal3").val();
+                var var4 = $("#auditor").val();
+                var var5 = $("#cbxunidad").val();
+                var var6 = $("#cbxorigenS").val();
+                var var7 = $("#cbxgenero").val();
+                var var8 = $("#cbxetario").val();
+
+                var url = "@Url.Action("DownloadExcelEPPlus3", "ffmmAuditoria")?lista_consultas=" + var1 + '&fechainicial=' + var2 + '&fechafin=' + var3 + '&id_auditor=' + var4 + '&id_unidad=' + var5 + '&servicio=' + var6 + '&genero=' + var7 + '&grupoE=' + var8;
+                window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+            }
+        });
+        $('#btnClear3').on('click', function () {
+            $('#consulta3').val('');
+            $('#fechainicial3').val('');
+            $('#fechafinal3').val('');
+            $("#auditor").empty();
+            $("#auditor").append("<option value=''> - Seleccionar - </option>");
+            $("#cbxunidad").empty();
+            $("#cbxunidad").append("<option value=''> - Seleccionar - </option>");
+            $("#cbxorigenS").empty();
+            $("#cbxorigenS").append("<option value=''> - Seleccionar - </option>");
+
+        });
+
+
+        $("#filtro").change(function () {
+            var valor = $("#filtro").val();
+            $('#consulta').val('');
+            $('#fechainicial').val('');
+            $('#fechafinal').val('');
+
+
+            if (valor == 1)
+            {
+                document.getElementById('pnltrazabilidad').style.display = 'block';
+                document.getElementById('pnlcuentas').style.display = 'none';
+                document.getElementById('pnlconcurrencia').style.display = 'none';
+            }
+            else if (valor == 2)
+            {
+                document.getElementById('pnlcuentas').style.display = 'block';
+                document.getElementById('pnltrazabilidad').style.display = 'none';
+                document.getElementById('pnlconcurrencia').style.display = 'none';
+            }
+            else if (valor == 3)
+            {
+                document.getElementById('pnlconcurrencia').style.display = 'block';
+                document.getElementById('pnltrazabilidad').style.display = 'none';
+                document.getElementById('pnlcuentas').style.display = 'none';
+            }
+        });
+
+
+        $("#consulta2").change(function () {
+            var valor = $("#consulta2").val();
+
+            if (valor == 3) {
+                document.getElementById('pnlIPS').style.display = 'block';
+
+            }
+            else{
+                document.getElementById('pnlIPS').style.display = 'none';
+
+            }
+
+        });
+
+        $("#consulta3").change(function () {
+            var valor = $("#consulta3").val();
+
+            if (valor == 1)
+            {
+                document.getElementById('pnlAuditor').style.display = 'block';
+                document.getElementById('pnlServicio').style.display = 'none';
+                document.getElementById('pnlGenero').style.display = 'none';
+                document.getElementById('pnlgrupo').style.display = 'none';
+
+
+            }
+            else if (valor == 2)
+            {
+                document.getElementById('pnlAuditor').style.display = 'none';
+                document.getElementById('pnlServicio').style.display = 'block';
+                document.getElementById('pnlGenero').style.display = 'none';
+                document.getElementById('pnlgrupo').style.display = 'none';
+            }
+            else if (valor == 3) {
+                document.getElementById('pnlAuditor').style.display = 'none';
+                document.getElementById('pnlServicio').style.display = 'none';
+                document.getElementById('pnlGenero').style.display = 'block';
+                document.getElementById('pnlgrupo').style.display = 'none';
+            }
+            else if (valor == 4) {
+                document.getElementById('pnlAuditor').style.display = 'none';
+                document.getElementById('pnlServicio').style.display = 'none';
+                document.getElementById('pnlGenero').style.display = 'none';
+                document.getElementById('pnlgrupo').style.display = 'block';
+            }
+        });
+
+
+
+    });
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+
+
+    function CargarUnidad(a) {
+        var unidad = a;
+        if (unidad != "")
+        {
+                $.ajax({
+                    url: "@Url.Action("GetCascadeSatelite", "CuentasMedicas")",
+                    type: "post",
+                    data: { unidad: unidad },
+                    success: function (data) {
+                        $("#unidad_satelite").empty();
+                        $("#unidad_satelite").append("<option value=''> - Seleccionar - </option>");
+                        $("#unidad_satelite").append("<option value='100'> - Todas - </option>");
+                        data.forEach(function (b) {
+                            $("#unidad_satelite").append("<option value='" + b.id_ref_ffmm_unidad_satelite + "'>" + b.nombre + "</option>");
+                        });
+                    }
+                })
+
+        }
+
+    }
+
+</script>
+
+
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

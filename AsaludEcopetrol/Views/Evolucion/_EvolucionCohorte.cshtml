@@ -1,0 +1,68 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Evolucion.Evolucion
+@{
+    ViewBag.Title = "EVOLUCION COHORTE";
+    var conteoCohortes = ViewBag.conteoCohortes;
+}
+
+<form id="formCohortes" method="post" enctype="multipart/form-data">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p class="text-primary_asalud">COHORTES</p>
+        </div>
+        <table class="table table-bordered table-condensed table-striped datatable" id="tblCohortesBeneficiario">
+            <thead>
+                <tr style="background-color:#636363;color:white; font-weight:bold">
+                    <th>#</th>
+                    <th>Cohorte</th>
+                    <th>Fecha</th>
+                    <th>Regional</th>
+                    <th>Año</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @if (conteoCohortes > 0)
+                {
+                    int count = 0;
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_cohortesBeneficiarioResult item in ViewBag.listaCohortes)
+                    {
+                        count = count + 1;
+                        <tr>
+                            <td>@count</td>
+                            <td id="cohorte">@item.descripcion</td>
+                            <td id="fecha">@item.Fecha</td>
+                            <td id="regional">@item.regional</td>
+                            <td id="año">@item.año_cohorte</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10" style="text-align:center">No se han agregado cohortes para este beneficiario.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "order": [[1, "desc"]],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+    });
+
+</script>
+
+

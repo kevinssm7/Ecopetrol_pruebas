@@ -1,0 +1,828 @@
+﻿@using AsaludEcopetrol.Models.ProcesosInternos
+@{
+    bool evaluo = (bool)ViewData["Evaluo"];
+    Layout = "";
+    ViewBag.Title = "EvaluacionIndicadores";
+
+    ProcesosInternos procesos = new ProcesosInternos();
+    List<ECOPETROL_COMMON.ENTIDADES.capitulo_indicador> Listado = (List<ECOPETROL_COMMON.ENTIDADES.capitulo_indicador>)ViewBag.listacapitulos;
+    List<ECOPETROL_COMMON.ENTIDADES.item_capitulo> listaitems = (List<ECOPETROL_COMMON.ENTIDADES.item_capitulo>)Session["itemcapitulo"];
+    string signo_condicion = "";
+    int numcapiulos = Listado.Count;
+    int valorinicial = (int)ViewBag.sum;
+    int sap = (int)ViewBag.sap;
+}
+
+<div class="container">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">EVALUACIÓN DE INDICADORES - DIGITAR RESULTADOS DE LA EVALUACIÓN</strong>
+        </div>
+        <div class="panel-body">
+            <div class="form-group col-sm-12 row">
+                <div class="col-sm-6 row">
+                    <strong>Regional: </strong>@ViewBag.regional
+                    <input type="hidden" id="pasaContrato" name="pasaContrato" value="@ViewBag.pasaContrato" />
+                </div>
+                <div class="col-sm-6">
+                    <strong>Prestador: </strong>@ViewBag.indicador
+                </div>
+            </div>
+
+            <div id="pnlPrincipal" class="General">
+                <div class="col-sm-12 row form-group">
+                    <table class="table table-bordered table-condensed table-striped datatable" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Capitulo</th>
+                                <th style="text-align:center;">Item &nbsp;-&nbsp; Peso Gnral &nbsp;-&nbsp; Peso Individual &nbsp;-&nbsp; Meta &nbsp;-&nbsp; Puntuación &nbsp;-&nbsp; Puntuacion Max</th>
+                                <th>Suma puntuaciones.</th>
+                                <th>Peso General</th>
+                                <th>Total</th>
+                                <th>Evaluación Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int i = 0, j = 0, y = 0;}
+                            @if (Listado.Count() > 0)
+                            {
+                                double califiacionGeneral = 0, sumapesogeneral = 0;
+                                foreach (ECOPETROL_COMMON.ENTIDADES.capitulo_indicador o in ViewBag.listacapitulos)
+                                {
+                                    y = y + 1;
+                                    double? puntuacion = 0;
+                                    decimal total = 0;
+                                    int contador = 0, countitems = 0, countaplica = 0;
+                                    double puntuacion_adicional = 0, pa = 0, puntuacion_final = 0;
+
+
+                                    <tr class='common clickable' align='left' style='height:50px; cursor:pointer;' data-toggle="collapse" data-target="#accordion_@i">
+                                        <th colspan='6' style="color:#636363">@o.capitulos.nom_capitulo</th>
+                                    </tr>
+
+                                    j = i;
+                                    <tr id="accordion_@i" class="collapse">
+                                        <td style="color:#636363">@o.capitulos.nom_capitulo</td>
+                                        <td>
+
+                                            @{var seleccion = listaitems.Where(l => l.capitulo_id == o.capitulo_id).ToList();}
+                                            <table class="table table-condensed ">
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.item_capitulo item in seleccion)
+                                                {
+                                                    puntuacion = 0;
+                                                    signo_condicion = procesos.ObtenerSignoCondicion(item.id_item, item.condicion_meta);
+                                                    if (item.Aplica.Value)
+                                                    {
+                                                        contador += 1;
+                                                        puntuacion = procesos.ObtenerPuntuacionNuevoFormato(item.id_item, item.condicion_meta, item.Valor_digitado, item.valor_meta, item.Peso_individual);
+                                                    }
+
+                                                    <tr>
+                                                        @if (o.capitulo_id == item.capitulo_id && o.indicador_id == item.indicador_id)
+                                                        {
+                                                            double? puntuacionmaxima = 0;
+                                                            i += 1;
+
+                                                            <th style="font-size: 8px;">@item.nom_item</th>
+                                                            <td style="text-align:center">@item.Peso_individual%</td>
+                                                            <td style="padding-right:2%">
+                                                                <div class="input-group">
+                                                                    @if (item.activo.Value)
+                                                                    {
+                                                                        <input type="text" id="txt_@i" title="Puntuacion" class="form-control solo-numero" value="@item.Valor_digitado" readonly onclick="active(@i,@item.indicador_id, @item.capitulo_id, @item.id_item)" onblur="inactive(@j, @i)" onchange="" onkeyup="validarvalor(@i)" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input style="pointer-events:none" title="Este item no esta habilitado" type="text" id="txt_@i" class="form-control solo-numero" value="@item.Valor_digitado" readonly onclick="active(@i,@item.indicador_id, @item.capitulo_id, @item.id_item)" onblur="inactive(@j, @i)" onkeyup="validarvalor(@i)" />
+                                                                    }
+
+                                                                    @if (item.Aplica == false)
+                                                                    {
+                                                                        if (item.activo.Value)
+                                                                        {
+                                                                            <span title="No aplica" class="input-group-addon"><input type="checkbox" checked="checked" id="chk_@i" class="big-checkbox" onchange="NoAplica(@j,@i,@item.indicador_id, @item.capitulo_id, @item.id_item)" /></span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span title="No aplica" class="input-group-addon"><input style="pointer-events:none" type="checkbox" checked="checked" id="chk_@i" class="big-checkbox" onchange="NoAplica(@j,@i,@item.indicador_id, @item.capitulo_id, @item.id_item)" /></span>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span title="No aplica" class="input-group-addon"><input type="checkbox" id="chk_@i" class="big-checkbox" onchange="NoAplica(@j,@i,@item.indicador_id, @item.capitulo_id, @item.id_item)" /></span>
+                                                                    }
+
+                                                                </div>
+                                                            </td>
+                                                            <td style="width: 15%; text-align:center"> @signo_condicion</td>
+
+                                                            if (item.Aplica.Value)
+                                                            {
+                                                                /*Nueva columna de puntuacion*/
+                                                                pa = Convert.ToDouble(item.Peso_individual);
+                                                                if (puntuacion > 0)
+                                                                {
+                                                                    puntuacionmaxima = (puntuacion * 100) / Convert.ToDouble(item.Peso_individual);
+                                                                }
+                                                                else
+                                                                {
+                                                                    puntuacionmaxima = (puntuacion * 100);
+                                                                }
+
+                                                                <td style="text-align:center">@Math.Round(puntuacion.Value, 2)%</td>
+                                                                <td>@Math.Round(puntuacionmaxima.Value, 2)%</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                pa = 0;
+                                                                <td>&nbsp;</td>
+                                                                <td>&nbsp;</td>
+                                                            }
+
+                                                            puntuacion_adicional += pa;
+                                                            puntuacion_final += puntuacion.Value;
+                                                        }
+
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </td>
+                                        @{
+                                            double suma_puntuaciones = 0;
+                                            if (puntuacion_adicional > 0)
+                                            {
+                                                suma_puntuaciones = (puntuacion_final / puntuacion_adicional) * 100;
+                                            }
+
+                                            total = Convert.ToDecimal((suma_puntuaciones * o.peso_general_capitulo) / 100);
+                                        }
+
+
+                                        <td>@Math.Round(Convert.ToDouble(suma_puntuaciones), 2)%</td>
+                                        <td>@o.peso_general_capitulo%</td>
+                                        <td>@Math.Round(Convert.ToDouble(total), 2)%</td>
+                                        <td>
+                                            <input type="hidden" id="txtnumcap_@y" value="@o.capitulo_id" />
+                                            <input type="text" id="txtcal_@y" value="@Math.Round(Convert.ToDouble(total), 2)%" readonly class="form-control" />
+                                        </td>
+                                    </tr>
+                                    countitems = seleccion.Where(l => l.capitulo_id == o.capitulo_id).ToList().Count();
+                                    countaplica = seleccion.Where(l => l.capitulo_id == o.capitulo_id && l.Aplica == false).ToList().Count();
+
+                                    if (countitems == 1)
+                                    {
+                                        if (countitems != countaplica)
+                                        {
+                                            sumapesogeneral += Convert.ToDouble(o.peso_general_capitulo);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (countitems != countaplica)
+                                        {
+                                            sumapesogeneral += Convert.ToDouble(o.peso_general_capitulo);
+                                        }
+
+                                    }
+
+                                    califiacionGeneral = califiacionGeneral + Convert.ToDouble(total);
+                                }
+
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <th colspan="3" style="color:#636363">Califiación General</th>
+                                    <th>
+                                        @if (valorinicial > 0)
+                                        {
+                                            <input type="text" class="form-control" id="txtcalificacionfinal" name="txtcalificacionfinal" readonly value="@Math.Round(((califiacionGeneral / sumapesogeneral)*100), 2)" />
+                                        }
+                                    </th>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" rowspan="2" style="text-align:center"> No se encuentran capitulos configurados para este prestador en esta regional</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="txtindicador" />
+                    <input type="hidden" id="txtcapitulo" />
+                    <input type="hidden" id="txtitem" />
+                    <input type="hidden" id="txtvalcalificaciones" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form id="formulario">
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">¿Actualizar datos del contrato?</label>
+                            <input type="radio" id="seAcrualizaFechas" name="seAcrualizaFechas" onclick="mostrarDivActualizacion(this.value);" value="1" required /> Si
+                            <input type="radio" id="seAcrualizaFechas" name="seAcrualizaFechas" onclick="mostrarDivActualizacion(this.value);" value="0" /> No
+                            <input type="hidden" id="seActualiza" name="seActualiza" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-9" id="divActualizacion" style="display:none;">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Fecha inicio nueva</label>
+                            <input class="datepicker" title="Este campo es obligatorio" style="width: 100%" name="fechaInicioNueva" id="fechaInicioNueva" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Fecha fin nueva</label>
+                            <input class="datepicker" title="Este campo es obligatorio" style="width: 100%" name="fechaFinNueva" id="fechaFinNueva" required />
+
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Número contrato</label>
+                            <input type="text" class="form-control" name="nuevonroContrato" id="nuevonroContrato" required />
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                @if (ViewBag.pasaContrato == 1)
+                {
+                    <div class="text-center" id="divMensajePrestador">
+                        <div class="row">
+
+                            <div class="col-md-12 text-center">
+                                <h4>
+                                    Actualmente el prestador tiene los siguientes datos de su contrato:
+                                </h4>
+                            </div>
+
+                            <div class="col-md-4 text-center">
+                                <label class="text-secondary_asalud">Fecha inicio</label>
+                                <label class="text-secondary_asalud labelInput">@ViewBag.fechaInicioContrato</label>
+                                @*<input id="fechaInicioContrato" name="fechaInicioContrato" class="form-control text-center" value="@ViewBag.fechaInicioContrato" readonly />*@
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <label class="text-secondary_asalud">Fecha fin</label>
+                                <label class="text-secondary_asalud labelInput">@ViewBag.fechaFinContrato</label>
+                                @*<input id="fechaFinContrato" name="fechaFinContrato" class="form-control text-center" value="@ViewBag.fechaFinContrato" readonly />*@
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <label class="text-secondary_asalud">Número contrato</label>
+                                <label class="text-secondary_asalud labelInput">@ViewBag.numContrato</label>
+                                <input type="hidden" id="idContrato" name="idContrato" value="@ViewBag.idContrato" />
+                            </div>
+                        </div>
+                    </div>
+                }
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Fecha final de la visita</label>
+                            <input autocomplete="off" class="datepicker" style="width:100%" name="fechafinalvisita" id="fechafinalvisita" required />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Periodo evaluado</label>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <input autocomplete="off" class="datepicker" style="margin-top:0% !important" name="fechainicialeva" id="fechainicialeva" placeholder="Fecha inicial" required />
+                                </div>
+                                <div class="col-sm-6">
+                                    @*<input type="text" id="fechafinaleva" name="fechafinaleva" class="form-control" required style="width:100%" readonly placeholder="Fecha final" />*@
+                                    <input autocomplete="off" class="datepicker" style="width:100%" name="fechafinaleva" id="fechafinaleva" placeholder="Fecha final" required />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='col-sm-4'>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Ingrese la fecha de la proxima visita</label>
+                            <input class="datepicker" value="" title="Este campo es obligatorio" style="width: 100%" name="fechaestimadavisita" id="txtfechavisita" required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                        <label class="text-secondary_asalud">Observaciones</label>
+                        <textarea class="form-control" rows="3" name="txtobservaciones" id="txtobservaciones" placeholder="- Ecriba aqui sus comentarios -" required maxlength="2000"></textarea>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12 text-right form-group">
+                        <a class="btn button_Asalud_descargas" style="display:none" role="button" id="btngenerarreporte" href="javascript:GenerarReporte()"><i class="glyphicon glyphicon-save"></i>&nbsp; Descargar Reporte</a>
+                        @if (Listado.Count() > 0)
+                        {
+                            if (!evaluo)
+                            {
+                                <button onclick="ValidarFormulario()" id="evaluarbtn" type="button" href="" class="btn button_Asalud_Guardar">Realizar evaluación</button>
+                                <button onclick="cancelarevaluacion()" id="cancelarbtn" type="button" href="" class="btn button_Asalud_Rechazar">Cancelar</button>
+                            }
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        var fechaInicioContrato = '@ViewBag.fechaInicioContrato';
+        var fechaFinContrato = '@ViewBag.fechaFinContrato';
+
+        debugger
+
+        //$("#seAcrualizaFechas").bind("keyup keydown change", function () {
+        //});
+
+
+        //$("#seAcrualizaFechas").click(function () {
+        //    alert("llega");
+
+
+        //});
+
+
+        $("#fechaInicioNueva").change(function () {
+            var fechaInicioNueva = $("#fechaInicioNueva").val();
+            var fechaFinNueva = $("#fechaFinNueva").val();
+            var validacion = $("#seActualiza").val();
+
+            if (validacion == 1 && (fechaInicioNueva != null && fechaInicioNueva != "" && fechaFinNueva != null && fechaFinNueva != "")) {
+                fechaInicioContrato = fechaInicioNueva;
+                fechaFinContrato = fechaFinNueva;
+            }
+            else {
+                fechaInicioContrato = '@ViewBag.fechaInicioContrato';
+                fechaFinContrato = '@ViewBag.fechaFinContrato';
+            }
+        });
+
+        $("#fechaFinNueva").change(function () {
+            var fechaInicioNueva = $("#fechaInicioNueva").val();
+            var fechaFinNueva = $("#fechaFinNueva").val();
+            var validacion = $("#seActualiza").val();
+
+            if (validacion == 1 && (fechaInicioNueva != null && fechaInicioNueva != "" && fechaFinNueva != null && fechaFinNueva != "")) {
+                fechaInicioContrato = fechaInicioNueva;
+                fechaFinContrato = fechaFinNueva;
+            }
+            else {
+                fechaInicioContrato = '@ViewBag.fechaInicioContrato';
+                fechaFinContrato = '@ViewBag.fechaFinContrato';
+            }
+        });
+
+        var numContrato = '@ViewBag.numContrato';
+        var idContrato = '@ViewBag.idContrato';
+
+        if ('@evaluo' == 'True') {
+            $("#btngenerarreporte").removeAttr("style");
+        }
+
+        if ('@ViewBag.acactive' != '') {
+            var id = "@ViewBag.acactive"
+            $("#accordion_" + id).addClass("in");
+        }
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $("#fechafinalvisita").change(function () {
+            var fechafinalPeriodo = new Date($(this).val());
+
+            var pasaContrato = $("#pasaContrato").val();
+
+            if (fechaInicioContrato != null && fechaInicioContrato !=    undefined && fechaInicioContrato != NaN && fechaFinContrato != null && fechaFinContrato != undefined && fechaFinContrato != NaN) {
+                var fechaInicial = new Date(fechaInicioContrato);
+                var fechafinal = new Date(fechaFinContrato);
+
+                if (pasaContrato == 1) {
+                    if (fechafinalPeriodo < fechaInicial || fechafinalPeriodo > fechafinal) {
+                        alert("Fecha final de la visita debe estar dentro del rango del contrato.");
+                        $("#fechafinalvisita").val("");
+                        return false;
+                    }
+                }
+            }
+        });
+
+
+        $("#fechafinaleva").change(function ()
+        {
+            var pasaContrato = $("#pasaContrato").val();
+
+            var fecha = $("#fechafinalvisita").val();
+            if (fecha == "") {
+                alert("Antes debe seleccionar la fecha final de la visita.");
+                $("#fechafinaleva").val("");
+            }
+            else
+            {
+                var fechafinalVisita = new Date(fecha);
+                var fechafinalPeriodo = new Date($(this).val());
+
+                var fechaFinalLevaCon = new Date(fechaFinContrato);
+
+                if (fechafinalPeriodo > fechafinalVisita)
+                {
+                    alert("No puede seleccionar una fecha mayor a la fecha final de la visita.");
+                    $("#fechafinaleva").val("");
+                    return false;
+                }
+
+                if (pasaContrato == 1) {
+
+                    if (fechafinalPeriodo > fechaFinalLevaCon) {
+
+                        alert("Fecha final del periodo evaluado no puede ser mayor a la fecha inicial de contrato");
+                        $("#fechafinaleva").val("");
+                        return false;
+                    }
+                }
+            }
+        });
+
+        $("#fechainicialeva").change(function () {
+
+            var pasaContrato = $("#pasaContrato").val();
+            var fechaInicialLevaCon = new Date(fechaInicioContrato);
+            var fechaInicia = new Date($(this).val());
+
+            if (pasaContrato == 1) {
+
+                if (fechaInicia < fechaInicialLevaCon) {
+
+                    alert("Fecha inicial del periodo evaluado no puede ser menor a la fecha inicial de contrato");
+                    $("#fechainicialeva").val("");
+                    return false;
+                }
+            }
+        });
+    });
+
+    function mostrarDivActualizacion(valor) {
+
+        $("#fechaInicioNueva").val(null);
+        $("#fechaFinNueva").val(null);
+        $("#nuevonroContrato").val("");
+
+        if (valor == 1) {
+            $("#seActualiza").val(1);
+            document.getElementById("divActualizacion").style.display = "block";
+        }
+        else {
+            $("#seActualiza").val(0);
+            document.getElementById("divActualizacion").style.display = "none";
+
+            var fechaInicioNueva = $("#fechaInicioNueva").val();
+            var fechaFinNueva = $("#fechaFinNueva").val();
+            var validacion = $("#seActualiza").val();
+
+            if (validacion == 1) {
+
+                if (fechaInicioNueva != null && fechaInicioNueva != "" && fechaFinNueva != null && fechaFinNueva != "") {
+                    fechaInicioContrato = fechaInicioNueva;
+                    fechaFinContrato = fechaFinNueva;
+                }
+            }
+            else {
+
+                $("#fechainicialeva").val(null).trigger("change");
+                $("#fechafinaleva").val(null).trigger("change");
+                $("#fechafinalvisita").val(null).trigger("change");
+
+                fechaInicioContrato = '@ViewBag.fechaInicioContrato';
+                fechaFinContrato = '@ViewBag.fechaFinContrato';
+            }
+
+        }
+    }
+
+
+    function cancelarevaluacion() {
+        LoadingShow();
+        $("#Modal").modal('hide');
+    }
+
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            RealizarEvaluacion();
+        }
+    }
+
+
+    function active(a, b, c, d) {
+        $("#txtindicador").val(b);
+        $("#txtcapitulo").val(c);
+        $("#txtitem").val(d);
+        $("#txt_" + a).prop('readonly', false);
+        $("#txt_" + a).focus();
+    }
+
+    function inactive(a, b) {
+        var aplica = 1
+        if ($("#txt_" + b).val() == "") {
+            $("#txt_" + b).val(0)
+        }
+        if ($("#chk_" + b).is(':checked')) {
+            aplica = 0;
+        }
+
+        if ($("#txt_" + b).val() != "") {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ActualizarValor", "ProcesosInternos")",
+                type: "post",
+                data: {
+                    value: $("#txt_" + b).val(),
+                    idindicador: $("#txtindicador").val(),
+                    idcapitulo: $("#txtcapitulo").val(),
+                    iditem: $("#txtitem").val(),
+                    aplica: aplica,
+                    sap: '@ViewBag.sap'
+                },
+                success: function (data) {
+                    if (data == 0) {
+                        alert("Items del capitulo serian mayores a 100%");
+                        $("#txt_" + b).val("");
+                    } else {
+                        var aa = "@ViewBag.idcronograma";
+                        var b = "@ViewBag.idregional";
+                        var c = "@ViewBag.idindicador";
+                        var d = "@ViewBag.sap";
+                        var url = "@Url.Action("EvaluacionIndicadores", "ProcesosInternos")?idcronograma=" + aa + "&idregional=" + b + "&TipoIndicador=" + c + "&active=" + a + "&sap=" + d;
+                        $("#body-evaluacion").empty();
+                        $("#body-evaluacion").load(url);
+                        LoadingHide();
+                    }
+                },
+            })
+        }
+
+        $("#txt_" + a).prop('readonly', true);
+    }
+
+
+    function RealizarEvaluacion() {
+        obtenervalcalificaciones();
+
+        debugger
+        var seActualiza = $("#seActualiza").val();
+        if (seActualiza == 1) {
+            var aprueba = confirm("¿Seguro de los datos gestionados para actualizar?");
+            if (aprueba == false) {
+                return false;
+            }
+        }
+        //else {
+        //    alert(1);
+        //    return false;
+        //}
+
+        LoadingShow();
+        var fecha = $("#txtfechavisita").val();
+        var formData = new FormData();
+        formData.append('fecha', $("#txtfechavisita").val());
+        formData.append('observacion', $("#txtobservaciones").val());
+        formData.append('idcronograma', "@ViewBag.idcronograma");
+        formData.append('periodo_fecha_inicial', $("#fechainicialeva").val());
+        formData.append('periodo_fecha_final', $("#fechafinaleva").val());
+        formData.append('fecha_final_visita', $("#fechafinalvisita").val());
+        formData.append('calificacion_final', $("#txtcalificacionfinal").val());
+        formData.append('idindicador', "@ViewBag.idindicador");
+        formData.append('idregional', "@ViewBag.idregional");
+        formData.append('calificaciones', $("#txtvalcalificaciones").val());
+
+        formData.append('sap', "@ViewBag.sap");
+        formData.append('idContrato', "@ViewBag.idContrato");
+        formData.append('fechaInicioNueva', $("#fechaInicioNueva").val());
+        formData.append('fechaFinNueva', $("#fechaFinNueva").val());
+        formData.append('nuevonroContrato', $("#nuevonroContrato").val());
+        formData.append('seActualiza', $("#seActualiza").val());
+
+        var prestador = '@ViewBag.idprestador';
+        var cronograma = '@ViewBag.idcronograma';
+        var regional = '@ViewBag.idregional';
+        var tipoindicador = '@ViewBag.idindicador';
+        var proximafechavisita = $("#txtfechavisita").val();
+
+
+        if (fecha != "") {
+            $.ajax({
+                url: "@Url.Action("EvaluarIndicador", "ProcesosInternos")",
+                type: "post",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (data) {
+                    $("#btngenerarreporte").removeAttr("style");
+                    $("#evaluarbtn").css('display', 'none');
+                    LoadingHide();
+                    Swal.fire({
+                        title: 'Transacción exitosa',
+                        text: "la visita ha sido evaluada correctamente!",
+                        icon: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        if (result.value) {
+                            var url = "@Url.Action("Pdf", "ProcesosInternos")?idprestador=" + prestador + "&idcronograma=" + cronograma + "&idregional=" + regional + "&tipoindicador=" + tipoindicador + "&proximafecha=" + proximafechavisita
+                            window.open(url, '', 'width =700,height =300,left =50,top =50,toolbar =yes');
+                            $("#Modal").modal('hide');
+                        }
+                    })
+                },
+                error: function (data) {
+                    alert('Evaluacion realizada exitosamente!');
+                    LoadingHide();
+                }
+            })
+        }
+    }
+
+    function GenerarReporte() {
+        var prestador = '@ViewBag.idprestador';
+        var cronograma = '@ViewBag.idcronograma';
+        var regional = '@ViewBag.idregional';
+        var tipoindicador = '@ViewBag.idindicador';
+        var proximafechavisita = $("#txtfechavisita").val();
+        var url = "@Url.Action("Pdf", "ProcesosInternos")?idprestador=" + prestador + "&idcronograma=" + cronograma + "&idregional=" + regional + "&tipoindicador=" + tipoindicador + "&proximafecha=" + proximafechavisita
+        location.href = url;
+
+    }
+
+    function NoAplica(a, b, x, y, z) {
+        $("#txtindicador").val(x);
+        $("#txtcapitulo").val(y);
+        $("#txtitem").val(z);
+        var val = b;
+        if ($("#chk_" + val).is(':checked')) {
+            global = $("#txt_" + val).val();
+            $("#txt_" + val).val(0);
+            inactive(a, b);
+        }
+        else {
+            $("#txt_" + val).attr('readonly', false);
+            $("#txt_" + val).val(global);
+        }
+    }
+
+    function obtenervalcalificaciones() {
+
+        var valores = [];
+        var count = "@numcapiulos";
+        for (var i = 1; i <= count; i++) {
+
+            valores.push($("#txtnumcap_" + i).val());
+            valores.push($("#txtcal_" + i).val());
+        }
+
+        $("#txtvalcalificaciones").val(valores);
+        return valores
+    }
+
+
+    function validarvalor(a) {
+        var value = $("#txt_" + a).val();
+        if (value > 100) {
+            alert("El valor digitado no puede ser mayor a 100");
+            $("#txt_" + a).val(100)
+        }
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+    }
+
+
+    .big-checkbox {
+        width: 10px;
+        height: 13px;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table-condensed thead > tr > th, .table-condensed tbody > tr > th, .table-condensed tfoot > tr > th, .table-condensed thead > tr > td, .table-condensed tbody > tr > td, .table-condensed tfoot > tr > td {
+        padding: 10px;
+    }
+
+
+    #divMensajePrestador {
+        background-color: #f2dede;
+        color: #b94a48;
+    }
+
+        #divMensajePrestador .labelInput {
+            background-color: #f2dede;
+            color: #b94a48;
+            border-radius: 0px;
+            border: 0px;
+        }
+
+        #divMensajePrestador label {
+            background-color: #f2dede;
+            color: #b94a48;
+        }
+</style>

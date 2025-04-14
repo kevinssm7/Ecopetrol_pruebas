@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "TABLERO REPORTE HES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">BUSCAR</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formDes">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha inicio</label>
+                        <input type="text" id="fechaIni" name="fechaIni" class="form-control datepickerr" style="width:100%;" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha fin</label>
+                        <input type="text" id="fechaFin" name="fechaFin" class="form-control datepickerr" style="width:100%;" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select id="regional" name="regional" class="form-control select2">
+                            <option value="">-Seleccione-</option>
+
+                            <option value="Coordinacion Salud Sur (CUR)">Coordinacion Salud Sur (CUR)</option>
+                            <option value="Coordinacion Salud Caribe (CUI)">Coordinacion Salud Caribe (CUI)</option>
+                            <option value="Coordinacion Salud Santanderes (CUS)">Coordinacion Salud Santanderes (CUS)</option>
+                            <option value="Coordinacion Salud Orinoquia (CUQ)">Coordinacion Salud Orinoquia (CUQ)</option>
+                            <option value="Coordinacion Salud Bogota (CUB)">Coordinacion Salud Bogota (CUB)</option>
+                            <option value="Departamento de Salud MM (PSM)">Departamento de Salud MM (PSM)</option>
+
+                            @*@foreach (ECOPETROL_COMMON.ENTIDADES.fis_rips_regional item in ViewBag.regional)
+                            {
+                                <option value="@item.nom_regional">@item.nom_regional</option>
+                            }*@
+                        </select>
+                    </div>
+
+                    <br />
+                    <div class="col-md-2">
+                        <a class="btn button_Asalud_descargas" onclick="validacionFormulario();">DESCARGAR</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+
+    $(document).ready(function () {
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    function validacionFormulario() {
+
+        var validacion = $("#formDes").validate();
+        if (validacion.form()) {
+
+            var fechaIni = $("#fechaIni").val();
+            var fechaFin = $("#fechaFin").val();
+            var regional = $("#regional").val();
+
+            var url = "@Url.Action("DescargarReporteHES", "RadicacionElectonica")?fechaIni=" + fechaIni + "&fechaFin=" + fechaFin + "&regional=" + regional;
+            popupWindow = window.open(url, '', 'height=200,width=500,left=20,top=400,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+        }
+    }
+</script>

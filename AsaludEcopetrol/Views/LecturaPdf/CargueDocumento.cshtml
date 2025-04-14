@@ -1,0 +1,252 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE PDF";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string msg = ViewBag.msg;
+    int rta = ViewBag.rta;
+}
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE ARCHIVO</strong>
+        </div>
+        <div class="panel-body">
+            @if (rta > 0)
+            {
+                <div class="form-group">
+                    @if (rta == 1)
+                    {
+                        <div class="alert alert-success">
+                            <strong>Éxito!</strong> @msg
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> @msg
+                        </div>
+                    }
+                </div>
+                <br />
+            }
+            <form id="formEventos" name="formEventos" action="CargueDocumento" method="post" enctype="multipart/form-data">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Número de factura</label>
+                        <input type="text" name="numero" id="numero" class="form-control" maxlength="50" required />
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Archivo</label>
+                        <input type="file" class="form-control" id="file" name="file" required />
+                    </div>
+                    <br />
+
+                    <div class="col-sm-4">
+                        <button class="btn btn-sm button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $("#file").change(function () {
+
+        var data = document.getElementById('file');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension3(nameext);
+
+        var listaextensiones = ["pdf", "PDF", "Pdf"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extension no es valida");
+            $("#file").val("");
+        }
+    });
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formEventos").validate();
+        if (validator.form()) {
+            $("#formEventos").submit();
+        }
+    }
+
+</script>
+
+<style>
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .glyphicon-download-alt:before {
+        color: dodgerblue;
+        margin-left: 1000%;
+        border-block: 10px;
+    }
+</style>
+
+
+

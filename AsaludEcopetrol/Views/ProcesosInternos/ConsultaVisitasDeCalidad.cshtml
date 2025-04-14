@@ -1,0 +1,591 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "CONSULTA VISITAS DE CALIDAD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CONSULTA VISITAS DE CALIDAD</strong>
+        </div>
+        <div class="panel-body">
+
+            <div class="row" style="padding-bottom:3%">
+                <div class="col-sm-6">
+                    <label class="text-secondary_asalud">Tipo de consulta</label>
+                    <select class="form-control select2" id="cbxopcion" name="cbxopcion" onchange="MostarOpciones($(this).val())">
+                        <option value="">- Seleccionar -</option>
+                        <option value="1">Resultados ingresados por indicador</option>
+                        <option value="2">Resultados por capitulo</option>
+                    </select>
+                </div>
+            </div>
+            <div id="consultapuntucaiones" style="display:none">
+                <div class="row">
+                    <div class="col-sm-12 text-center form-group">
+                        <label class="text-secondary_asalud">Porfavor seleccionar el tipo de busqueda:</label>
+                    </div>
+                    <div class="col-sm-12 text-center form-group">
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" value="2" checked> General
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" value="1">Especifica
+                        </label>
+                    </div>
+                </div>
+
+                <div id="form1" style="display:none">
+                    <form id="formulario2" method="post" action="ExportarVisitaCalidadEspecifica" enctype="multipart/form-data">
+                        <input  type="hidden" id="idprestador" name="idprestador"/>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Nit</label>
+                            <input autocomplete="off" class="form-control solo-numero" style="width: 100%" name="nit" id="nit" maxlength="11" required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Codigo SAP</label>
+                            <input autocomplete="off" class="form-control solo-numero" style="width: 100%" name="codsap" id="codsap" maxlength="10" required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <input autocomplete="off" class="form-control" style="width: 100%" name="nomprestador" id="nomprestador"  required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Tipo prestador</label>
+                            <select class="form-control" id="especifico_tipoprestador" name="especifico_tipoprestador" required>
+                                <option value="">- Seleccionar</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Fecha desde</label>
+                            <input class="datepickerr" style="width: 100%" name="fechadesde" id="fechadesde" required />
+                        </div>
+                        <div class="col-sm-12 text-right">
+                            <button type="button" onclick="validarformulario2()" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Generar reporte</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="form2">
+                    <form id="formulario" method="post" action="ExportarVisitaCalidad" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" id="regional" name="regional" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+                                    <option value="8">Todas las Regionales</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <select class="form-control select2" id="prestador" name="prestador" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.indicadores item in ViewBag.ref_tipoprestador)
+                                    {
+                                    <option value="@item.id_indicador">@item.nom_indicador</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Fecha desde</label>
+                                <input class="datepickerr" title="datepicker" style="width: 100%" name="fechainicial" id="fechainicial" />
+                            </div>
+                            <div class="col-sm-12 text-right">
+                                <button type="button" onclick="validarformulario()" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Generar reporte</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="consultacalificaciones" style="display:none">
+                <div class="row">
+                    <div class="col-sm-12 text-center form-group">
+                        <label class="text-secondary_asalud">Porfavor seleccionar el tipo de busqueda:</label>
+                    </div>
+                    <div class="col-sm-12 text-center form-group">
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio2" value="1" checked> General
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio2" value="2">Especifica
+                        </label>
+                    </div>
+                </div>
+
+                <div id="form1calificaciones">
+                    <form id="formulario3" method="post" action="ExportarVisitaCalidadCalificaciones" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" id="txtregional" name="txtregional" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+                                    <option value="8">Todas las Regionales</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <select class="form-control select2" id="txtprestador" name="txtprestador" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.indicadores item in ViewBag.ref_tipoprestador)
+                                    {
+                                    <option value="@item.id_indicador">@item.nom_indicador</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Fecha desde</label>
+                                <input class="datepickerr" title="datepicker" style="width: 100%" name="txtfechainicial" id="txtfechainicial" />
+                            </div>
+                            <div class="col-sm-12 text-right">
+                                <button type="button" onclick="validarformulariocalificaciones()" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Generar reporte</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="form2calificaciones" style="display:none">
+                    <form id="formulario4" method="post" action="ExportarVisitaCalidadEspecificaCalifi" enctype="multipart/form-data">
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Nit</label>
+                            <input autocomplete="off" class="form-control solo-numero" style="width: 100%" name="nit2" id="nit2" maxlength="11" required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Codigo SAP</label>
+                            <input autocomplete="off" class="form-control solo-numero" style="width: 100%" name="codsap2" id="codsap2" maxlength="10" required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <input autocomplete="off" class="form-control" style="width: 100%" name="nomprestador2" id="nomprestador2" required />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Tipo prestador</label>
+                            <select class="form-control" id="especifico_tipoprestador2" name="especifico_tipoprestador2" required>
+                                <option value="">- Seleccionar</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Fecha desde</label>
+                            <input class="datepickerr" style="width: 100%" name="fechadesde2" id="fechadesde2" required />
+                        </div>
+                        <div class="col-sm-12 text-right">
+                            <button type="button" onclick="validarformulario4()" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Generar reporte</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $("input[name$='optradio']").click(function () {
+            var value = $(this).val();
+            if (value == 1) {
+
+                $("#regional").val("").trigger('change');
+                $("#prestador").val("").trigger('change');
+                $("#fechainicial").val("");
+
+                $("#form1").css("display", "block");
+                $("#form2").css("display", "none");
+            } else {
+                $("#nit").val("");
+                $("#codsap").val("");
+                $("#nomprestador").val("");
+                $("#fechadesde").val("");
+
+                $("#form1").css("display", "none");
+                $("#form2").css("display", "block");
+            }
+        });
+
+        $("input[name$='optradio2']").click(function () {
+            var value = $(this).val();
+            if (value == 1) {
+
+                $("#txtregional").val("").trigger('change');
+                $("#txtprestador").val("").trigger('change');
+                $("#txtfechainicial").val("");
+
+                $("#form1calificaciones").css("display", "block");
+                $("#form2calificaciones").css("display", "none");
+            } else {
+                $("#nit2").val("");
+                $("#codsap2").val("");
+                $("#nomprestador2").val("");
+                $("#fechadesde2").val("");
+
+                $("#form1calificaciones").css("display", "none");
+                $("#form2calificaciones").css("display", "block");
+            }
+        });
+
+        $("#nit").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 2
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#idprestador").val(ui.item.id);
+                    $("#nit").val(ui.item.nit);
+                    $("#codsap").val(ui.item.codigosap);
+                    $("#nomprestador").val(ui.item.nombre);
+                    obtenertipoprestador(ui.item.id);
+                }
+            },
+
+        });
+
+        $("#codsap").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 1
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#idprestador").val(ui.item.id);
+                    $("#nit").val(ui.item.nit);
+                    $("codsap").val(ui.item.codigosap);
+                    $("#nomprestador").val(ui.item.nombre);
+                    obtenertipoprestador(ui.item.id);
+                }
+            },
+
+        });
+
+        $("#nomprestador").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 3
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui)
+            {
+                if (ui.item != null)
+                {
+                    $("#idprestador").val(ui.item.id);
+                    $("#nit").val(ui.item.nit);
+                    $("#codsap").val(ui.item.codigosap);
+                    $("#nomprestador").val(ui.item.nombre);
+                    obtenertipoprestador(ui.item.id);
+                }
+            },
+
+        });
+
+
+        
+
+        $("#nit2").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 2
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#nit2").val(ui.item.nit);
+                    $("#codsap2").val(ui.item.codigosap);
+                    $("#nomprestador2").val(ui.item.nombre);
+                    obtenertipoprestador2(ui.item.id);
+                }
+            },
+
+        });
+
+        $("#codsap2").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 1
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#nit2").val(ui.item.nit);
+                    $("codsap2").val(ui.item.codigosap);
+                    $("#nomprestador2").val(ui.item.nombre);
+                    obtenertipoprestador2(ui.item.id);
+                }
+            },
+
+        });
+
+        $("#nomprestador2").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 3
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#nit2").val(ui.item.nit);
+                    $("#codsap2").val(ui.item.codigosap);
+                    $("#nomprestador2").val(ui.item.nombre);
+                    obtenertipoprestador2(ui.item.id);
+                }
+            },
+
+        });
+
+    })
+
+    function validarformulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    function validarformulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            $("#formulario2").submit();
+        }
+    }
+
+    function validarformulariocalificaciones(){
+        var validator = $("#formulario3").validate();
+        if (validator.form()) {
+            $("#formulario3").submit();
+        }
+    }
+
+    function validarformulario4() {
+        var validator = $("#formulario4").validate();
+        if (validator.form()) {
+            $("#formulario4").submit();
+        }
+    }
+
+    function MostarOpciones(opcion) {
+        if (opcion == 1) {
+            $("#consultapuntucaiones").css('display', 'block');
+            $("#consultacalificaciones").css('display', 'none');
+        }
+        else {
+            $("#consultacalificaciones").css('display', 'block');
+            $("#consultapuntucaiones").css('display', 'none');
+        }
+    }
+
+    function obtenertipoprestador(a)
+    {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenertiposPrestador")",
+                type: "post",
+                data: { idprestador : a},
+                success: function (data)
+                {
+                    $("#especifico_tipoprestador").empty();
+                    $("#especifico_tipoprestador").html(data);
+                }
+            })
+        }
+    }
+
+    function obtenertipoprestador2(a)
+    {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenertiposPrestador")",
+                type: "post",
+            data: { idprestador : a},
+            success: function (data)
+            {
+                $("#especifico_tipoprestador2").empty();
+                $("#especifico_tipoprestador2").html(data);
+            }
+        })
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        float: left !important;
+    }
+
+    #Modal .modal-dialog {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .content-popup {
+        margin-top: 9% !important;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

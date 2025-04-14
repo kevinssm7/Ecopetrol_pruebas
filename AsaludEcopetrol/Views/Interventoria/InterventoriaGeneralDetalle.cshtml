@@ -1,0 +1,475 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.interventoria
+@{
+    ViewBag.Title = "GENERAL DETALLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+<div class="container">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">DE ORDEN ADMINISTRATIVO</a>
+                </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="gj-clear-both"></div>
+                    <div class="gj-margin-top-10">
+                        <table id="grid"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">DE ORDEN TECNICO</a>
+                </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="gj-clear-both"></div>
+                    <div class="gj-margin-top-10">
+                        <table id="grid2"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">DE ORDEN FINANCIERO - CONTABLE</a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="gj-clear-both"></div>
+                    <div class="gj-margin-top-10">
+                        <table id="grid3"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">DE ORDEN LEGAL</a>
+                </h4>
+            </div>
+            <div id="collapse4" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="gj-clear-both"></div>
+                    <div class="gj-margin-top-10">
+                        <table id="grid4"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-sm-12">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.hallazgos)</span></h4>
+            @Html.TextAreaFor(p => p.hallazgos, new { @class = "form-control" })
+            @Html.ValidationMessageFor(u => u.hallazgos, null, new { @class = "label label-danger" })
+        </div>
+
+    </div>
+
+    <br />
+
+
+    <div id="pnlGuardar" class="General">
+        <div class="text-center">
+            @*<input id="BtnActualizar" type="submit" value="SIGUIENTE" class="btn btn-success" />*@
+
+            <button type="submit" id="btnSave3" class="btn btn-primary" onclick="Save4()">GUARDAR</button>
+        </div>
+        <div class="Error">
+            @Html.ValidationSummary(true, "")
+        </div>
+
+        <div style="display:none">
+            @Html.TextBoxFor(u => u.id_md_interventoria_general)
+            @Html.TextBoxFor(u => u.nombre_auditado)
+        </div>
+
+    </div>
+
+    @*<div id="resultado" style='display:none;' class="Error">
+            <h3>Ingreso correcto...</h3>
+        </div>*@
+
+    <div class="alert alert-success" id="pnlExito" style="display:none">
+        <strong>Éxito!</strong>
+        <input style="color:blue" type="text" class="form-control" name="msgex" id="msgex" />
+
+    </div>
+
+    <div class="alert alert-danger" id="pnlError" style="display:none">
+        <strong>Error!</strong>
+        <input style="color:firebrick" type="text" class="form-control" name="msgerr" id="msgerr" required />
+    </div>
+
+    <div style="display:none">
+        @Html.TextBoxFor(u => u.id_md_interventoria_general)
+        @Html.TextBoxFor(u => u.nombre_auditado)
+
+    </div>
+
+
+    <br>
+    <br>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var textBox1 = $('input:text[id$=id_md_interventoria_general]').keyup();
+        var value2 = textBox1.val();
+
+        var valores = ['0', '1'];
+        var grid;
+        grid = $('#grid').grid({
+            locale: 'es-es',
+            dataSource: '/Interventoria/GetInteDetalle1/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_md_ref_general1',
+            inlineEditing: { mode: 'command', managementColumnConfig: { width: 240 } },
+            columns: [
+
+                { field: 'Nro', width: 50 },
+                { field: 'descripcion_general1', title: 'Descripcion', width: 400 },
+                { field: 'peso', width: 50, title: 'Peso' },
+                { field: 'valor', title: 'Valor', width: 50, type: 'dropdown', editor: { dataSource: valores } },
+                { field: 'resultado', title: 'Resultado', width: 80 },
+                { field: 'observaciones', title: 'Observaciones', editor: true, width: 200, align: 'center' },
+
+            ],
+            pager: { limit: 11 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({
+                url: '/Interventoria/SaveInterventoriaGeneralDetalle1',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+    });
+
+    $(document).ready(function () {
+        var textBox1 = $('input:text[id$=id_md_interventoria_general]').keyup();
+        var value2 = textBox1.val();
+
+        var valores = ['0', '1'];
+        var grid;
+        grid = $('#grid2').grid({
+            locale: 'es-es',
+            dataSource: '/Interventoria/GetInteDetalle2/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_md_ref_general2',
+            inlineEditing: { mode: 'command', managementColumnConfig: { width: 240 } },
+            columns: [
+
+                { field: 'Nro', width: 50 },
+                { field: 'descripcion_general2', title: 'Descripcion', width: 400 },
+                { field: 'peso', width: 50, title: 'Peso' },
+                { field: 'valor', title: 'Valor', width: 50, type: 'dropdown', editor: { dataSource: valores } },
+                { field: 'resultado', title: 'Resultado', width: 80 },
+                { field: 'observaciones', title: 'Observaciones', editor: true, width: 200, align: 'center' },
+
+            ],
+            pager: { limit: 10 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({
+                url: '/Interventoria/SaveInterventoriaGeneralDetalle2',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+
+
+
+
+
+
+    });
+
+
+    $(document).ready(function () {
+        var textBox1 = $('input:text[id$=id_md_interventoria_general]').keyup();
+        var value2 = textBox1.val();
+
+        var valores = ['0', '1'];
+        var grid;
+        grid = $('#grid3').grid({
+            locale: 'es-es',
+            dataSource: '/Interventoria/GetInteDetalle3/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_md_ref_general3',
+            inlineEditing: { mode: 'command', managementColumnConfig: { width: 240 } },
+            columns: [
+
+                { field: 'Nro', width: 50 },
+                { field: 'descripcion_general3', title: 'Descripcion', width: 400 },
+                { field: 'peso', width: 50, title: 'Peso' },
+                { field: 'valor', title: 'Valor', width: 50, type: 'dropdown', editor: { dataSource: valores } },
+                { field: 'resultado', title: 'Resultado', width: 80 },
+                { field: 'observaciones', title: 'Observaciones', editor: true, width: 200, align: 'center' },
+
+            ],
+            pager: { limit: 10 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({
+                url: '/Interventoria/SaveInterventoriaGeneralDetalle3',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+
+
+
+
+
+
+    });
+
+
+    $(document).ready(function () {
+        var textBox1 = $('input:text[id$=id_md_interventoria_general]').keyup();
+        var value2 = textBox1.val();
+
+        var valores = ['0', '1'];
+        var grid;
+        grid = $('#grid4').grid({
+            locale: 'es-es',
+            dataSource: '/Interventoria/GetInteDetalle4/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_md_ref_general4',
+            inlineEditing: { mode: 'command', managementColumnConfig: { width: 240 } },
+            columns: [
+
+                { field: 'Nro', width: 50 },
+                { field: 'descripcion_general4', title: 'Descripcion', width: 400 },
+                { field: 'peso', width: 50, title: 'Peso' },
+                { field: 'valor', title: 'Valor', width: 50, type: 'dropdown', editor: { dataSource: valores } },
+                { field: 'resultado', title: 'Resultado', width: 80 },
+                { field: 'observaciones', title: 'Observaciones', editor: true, width: 200, align: 'center' },
+
+            ],
+            pager: { limit: 10 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({
+                url: '/Interventoria/SaveInterventoriaGeneralDetalle4',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+
+
+
+
+
+
+    });
+
+    function Save4() {
+
+        var textBox1 = $('input:text[id$=id_md_interventoria_general]').keyup();
+        var value2 = textBox1.val();
+
+
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_md_interventoria_general", $("#id_md_interventoria_general").val());
+        formData.append("hallazgos", $("#hallazgos").val());
+
+        $.ajax({
+
+            url: "/Interventoria/SaveInterventoriaGeneral",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+
+                LoadingHide();
+                document.getElementById('pnlExito').style.display = 'block';
+                document.getElementById('pnlError').style.display = 'none';
+                $('input:text[id$=msgex]').val(response.message);
+                //document.getElementById('resultado').style.display = 'block';
+                @*window.open('@Url.Action("CrearPdfCartaIndicadoresMD2", "medicamentos", new { id_obligaciones_contractuales = Model.id_obligaciones_contractuales})', '', 'width =500,height =200,left =50,top =50,toolbar =yes');*@
+
+                   if (response.success)
+                {
+                     LoadingHide();
+                     document.getElementById('pnlExito').style.display = 'block';
+                     document.getElementById('pnlError').style.display = 'none';
+
+                     $('input:text[id$=msgex]').val(response.message);
+
+                    //alert(response.message);
+                    //location.reload();
+
+                }
+                else
+                {
+                     //alert(response.message);
+                     LoadingHide();
+                     document.getElementById('pnlError').style.display = 'block';
+                     document.getElementById('pnlExito').style.display = 'none';
+                     $('input:text[id$=msgerr]').val(response.message);
+                     $("#file").val("");
+
+                }
+
+            }
+
+        })
+
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                dialog2.close();
+            });
+
+    }
+
+
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 150px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 9px;
+        width: 800px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #524e4e;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>

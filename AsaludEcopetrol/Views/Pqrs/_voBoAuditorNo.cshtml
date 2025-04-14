@@ -1,0 +1,356 @@
+﻿
+@{
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+}
+
+<form name="formulario" id="formulario" enctype="multipart/form-data">
+    <div class="panel-body">
+        <table class="tableReparto table-bordered table-condensed table-striped" style="width: 98%; font-size: 10px;" id="tableVoBoNo">
+            <thead>
+                <tr>
+                    <th style='display:none;'>Id PQR</th>
+                    <th>Número caso</th>
+                    <th>Ciudad</th>
+                    <th>Asignación</th>
+                    <th>Ingreso SalesForce</th>
+                    <th>Vencimiento 10 días hábiles SalesForce </th>
+                    <th>Semáforo SalesForce </th>
+                    <th>Semáforo circular 008</th>
+                    <th>Ingreso buzón Asalud </th>
+                    <th>Vencimiento 5 días hábiles buzón Asalud </th>
+                    <th>Semáforo buzón Asalud </th>
+                    <th>Última observación</th>
+                    <th>Analista asignado</th>
+                    <th>Días hábiles inoportunidad ingreso a buzón</th>
+                    <th>Prestador</th>
+                    <th>Nombre auditor</th>
+                    <th>Archivo auditor</th>
+                    <th>Revisión de calidad</th>
+                    <th>Gestiones</th>
+                    <th>Archivo reabierto</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_tablero_controlResult order in ViewBag.respuestNo)
+                {
+                    <tr>
+                        @if (order.reabierto == 1)
+                        {
+                            <td style="text-align:left;">
+                                <div class="reabierto" style="color: black; background-color: #A29DD7">
+                                    @order.id_ecop_PQRS
+                                </div>
+                            </td>
+                        }
+                        else if (order.devuelto_en_cierre == 1)
+                        {
+                            <td style="text-align:left;">
+                                <div class="reabierto" style="color: black; background-color: #FFDBC0">
+                                    @order.id_ecop_PQRS
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style='display:none;'>
+                                <div class="reabierto">
+                                    @order.id_ecop_PQRS
+                                </div>
+                            </td>
+                        }
+
+                        @if (order.supersalud == 1)
+                        {
+                            <td class="text-center">
+                                <div class="alert" role="alert" style="color: black; background-color: #b0c2f2">
+                                    @order.numero_caso
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>@order.numero_caso</td>
+                        }
+                        <td>@order.ciudad_del_caso_descripcion</td>
+                        <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada10sales.Value.ToString("dd/MM/yyyy")</td>
+                        @if (order.estado_gestion == 4)
+                        {
+
+                            if (order.dias_restantesAmpli <= 2)
+                            {
+                                if (order.fecha_ampliacion != null)
+                                {
+                                    <td class="text-center">
+                                        <div class="alert" role="alert" style="color:black; background-color: #E88693">
+                                            Caso con ampliación fecha pronto a vencer:
+                                            @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+                            else
+                            {
+                                if (order.fecha_ampliacion != null)
+                                {
+                                    <td class="text-center">
+                                        <div class="alert" role="alert" style="color: black; background-color: #CF9CE3">
+                                            Caso con ampliación fecha:
+                                            @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (order.dias_ok_salfe > 10 || order.dias_ok_salfe_egreso > 1)
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-danger" role="alert" style="color: #ffffff; background-color: #883344">
+                                        Caso vencido
+                                    </div>
+                                </td>
+                            }
+                            else if (order.dias_ok_salfe == 10 || order.dias_ok_salfe == 9 || order.dias_ok_salfe_egreso <= 1)
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-danger" role="alert" style="font-weight: bold; color: #7B241C; ">
+                                        En alerta
+                                    </div>
+                                </td>
+                            }
+                            else if (order.dias_ok_salfe >= 3 && order.dias_ok_salfe <= 8)
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-warning" role="alert" style="font-weight:bold">
+                                        Por priorizar
+                                    </div>
+                                </td>
+                            }
+                            else if (order.dias_ok_salfe < 3)
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-success" role="alert">
+                                        En tiempos
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                        }
+
+                        @if (order.estado_gestion == 4)
+                        {
+
+                            if (order.dias_restantesAmpli <= 2)
+                            {
+                                if (order.fecha_ampliacion != null)
+                                {
+                                    <td class="text-center">
+                                        <div class="alert alert-danger" role="alert" style="color: black; background-color: #E88693">
+                                            Caso con ampliación fecha pronto a vencer:
+                                            @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+
+                            }
+                            else
+                            {
+                                if (order.fecha_ampliacion != null)
+                                {
+
+                                    <td class="text-center">
+                                        <div class="alert alert-danger" role="alert" style="color: black; background-color: #CF9CE3">
+                                            Caso con ampliación fecha:
+                                            @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </td>
+                                }
+
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            if (order.semaforo_ok_salfe == "1" || order.semaforo_ok_salfe == "0")
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-danger" role="alert" style="font-weight: bold;color: #7B241C;">
+                                        Caso vencido
+                                    </div>
+                                </td>
+                            }
+                            else if (order.semaforo_ok_salfe == "2")
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-warning" role="alert" style="font-weight:bold">
+                                        en Alerta
+                                    </div>
+                                </td>
+                            }
+
+                            else if (order.semaforo_ok_salfe == "3")
+                            {
+                                <td class="text-center">
+                                    <div class="alert alert-success" role="alert">
+                                        En tiempos
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                        }
+
+                        <td>@order.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada5Buzon.Value.ToString("dd/MM/yyyy")</td>
+                        @if (order.dias_restantes5Buzon >= 5)
+                        {
+                            <td>
+                                <div class="alert alert-success" role="alert">
+
+                                </div>
+                            </td>
+                        }
+                        else if (order.dias_restantes5Buzon == 3 || order.dias_restantes5Buzon == 4)
+                        {
+                            <td>
+                                <div class="alert alert-warning" role="alert">
+
+                                </div>
+                            </td>
+                        }
+                        else if (order.dias_restantes5Buzon <= 2)
+                        {
+                            <td>
+                                <div class="alert alert-danger" role="alert">
+
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td style="text-align:justify">@order.ultima_obs</td>
+
+                        <td>@order.usuario_asignado_descrip</td>
+                        <td>@order.diferencia_dias</td>
+                        <td>@order.prestador_nom</td>
+                        <td>@order.nombre_auditor_des</td>
+                   
+                        @if (order.existeArchivoAuditor.Equals("SI"))
+                        {
+                            <td>
+                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@order.id_ecop_PQRS, 6);" data-toggle="modal" data-target="#myModalArchivos">
+                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Archivos
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        @if (order.existeArchivoProyectada.Equals("SI"))
+                        {
+                            <td>
+                                <a href='javascript:verArAproyec(@order.id_ecop_PQRS)'>
+                                    Ver
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        @if (ViewBag.rol == "10" || ViewBag.rol == "1")
+                        {
+                            <td>
+                                <a class="btn-sm  button_Asalud_Guardar" href="@Url.Action("GestionPQRS", "Pqrs", new { idPqrs = order.id_ecop_PQRS, tipo = 1})">
+                                    GESTIONAR
+                                </a>
+                                &nbsp;
+                                &nbsp;
+                                <a title="reasignar" class="btn-sm button_Asalud_Aceptar" href="javascript:modalNuevoAnalista(@order.id_ecop_PQRS)">
+                                    <i class="glyphicon glyphicon-edit"></i>&nbsp; Reasignar
+                                </a>
+                                &nbsp;
+                                &nbsp;
+                                <a title="reasignar" class="btn-sm button_Asalud_Guardar" href="javascript:modalActualizarCategorizacion(@order.id_ecop_PQRS)">
+                                    <i class="glyphicon glyphicon-edit"></i>&nbsp; Reasignar a supersalud
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <a class="btn-sm  button_Asalud_Guardar" href="@Url.Action("GestionPQRS", "Pqrs", new { idPqrs = order.id_ecop_PQRS, tipo = 1})">
+                                    GESTIONAR
+                                </a>
+                            </td>
+                        }
+
+                        @if (order.existeReabertura == 1)
+                        {
+                            <td>
+                                <a href='javascript:verArReabierto(@order.id_ecop_PQRS)'>
+                                    Ver
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+
+                        @if (rol == "2" || rol == "1" || idusuario == 169 || rol == "10" || rol == "32")
+                        {
+                            <td>
+                                <a title="Eliminar" class="btn-sm button_Asalud_Rechazar" href="javascript:Eliminar(@order.id_ecop_PQRS)">
+                                    <i class="glyphicon glyphicon-trash"></i>&nbsp; Eliminar
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td> </td>
+
+                        }
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+
+      
+    })
+</script>

@@ -1,0 +1,435 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "AUDITORIA URGENCIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container row">
+    <form id="formauditoria" name="formauditoria" method="post" enctype="multipart/form-data" action="AuditoriaUrgencia">
+        <div class="row ">
+            <input type="hidden" name="idurgencia" value="@ViewBag.idcargueurg" />
+            <div class="col-lg-12 row">
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Fecha Ingreso:</span>
+                    <div class='input-group date Fdatepicker' id='datetimepicker2'>
+                        <input type='text' class="form-control" name="fechaingreso" style="pointer-events:none" readonly id="fechaingreso" />
+                        <span style="cursor:pointer" class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Hora Ingreso:</span>
+                    <div class="input-group input-group-sm">
+                        <select class="form-control" name="horas_horaingreso">
+
+                            @for (int i = 0; i < 24; i++)
+                            {
+                                if (i.ToString().Length <= 1)
+                                {
+                                    string ti = "0" + i.ToString();
+                                    <option value='ti'>@ti</option>
+                                }
+                                else
+                                {
+                                    <option value='@i'>@i</option>
+                                }
+
+                            }
+                        </select>
+                        <span class="input-group-addon" id="sizing-addon3">:</span>
+                        <select class="form-control" name="min_horaingreso">
+
+                            @for (int i = 0; i < 60; i++)
+                            {
+                                if (i.ToString().Length <= 1)
+                                {
+                                    string ti = "0" + i.ToString();
+                                    <option value='ti'>@ti</option>
+                                }
+                                else
+                                {
+                                    <option value='@i'>@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Triage:</span>
+                    <select class="form-control" name="triage">
+                        <option value="">Seleccione...</option>
+                        <option value="I">I</option>
+                        <option value="II">II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12 row">
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 1 de ingreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                        .Name("dx0")
+                                                                        .Placeholder("Seleccione...")
+                                                                        .DataTextField("des")
+                                                                        .Events(events => events.Select("CustomerSelect1"))
+                                                                            .HtmlAttributes(new { style = "width:100%" })
+                                                                        .Filter(FilterType.Contains)
+
+                                                                        .DataSource(source =>
+                                                                        {
+                                                                            source.Read(read =>
+                                                                            {
+                                                                                read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                            });
+
+                                                                        })
+                    )
+                    <input type="hidden" id="cie101" name="dg1ingreso" />
+                </div>
+
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 2 de ingreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                        .Name("dx1")
+                                                                        .Placeholder("Seleccione...")
+                                                                        .DataTextField("des")
+                                                                        .Events(events => events.Select("CustomerSelect2"))
+                                                                        .HtmlAttributes(new { style = "width:100%" })
+                                                                        .Filter(FilterType.Contains)
+
+                                                                        .DataSource(source =>
+                                                                        {
+                                                                            source.Read(read =>
+                                                                            {
+                                                                                read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                            });
+
+                                                                        })
+                    )
+
+                    <input type="hidden" id="cie102" name="dg2ingreso" />
+                </div>
+
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 3 de ingreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                            .Name("dx2")
+                                                                            .Placeholder("Seleccione...")
+                                                                            .HtmlAttributes(new { style = "width:300px" })
+                                                                            .DataTextField("des")
+                                                                            .Events(events => events.Select("CustomerSelect3"))
+                                                                            .HtmlAttributes(new { style = "width:100%" })
+                                                                            .Filter(FilterType.Contains)
+
+                                                                            .DataSource(source =>
+                                                                            {
+                                                                                source.Read(read =>
+                                                                                {
+                                                                                    read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                                });
+
+                                                                            })
+                    )
+
+                    <input type="hidden" id="cie103" name="dg3ingreso" />
+                </div>
+            </div>
+
+            <div class="col-lg-12 row">
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Fecha Egreso:</span>
+                    <div class='input-group date Fdatepicker' id='datetimepicker2'>
+                        <input type='text' class="form-control" name="fechaegreso" id="fechaegreso" style="pointer-events:none" readonly />
+                        <span style="cursor:pointer" class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Hora Egreso:</span>
+                    <div class="input-group input-group-sm">
+                        <select class="form-control" name="horas_horaegreso">
+                            @for (int i = 0; i < 24; i++)
+                            {
+                                if (i.ToString().Length <= 1)
+                                {
+                                    string ti = "0" + i.ToString();
+                                    <option value='ti'>@ti</option>
+                                }
+                                else
+                                {
+                                    <option value='@i'>@i</option>
+                                }
+
+                            }
+                        </select>
+                        <span class="input-group-addon" id="sizing-addon3">:</span>
+                        <select class="form-control" name="min_horaegreso">
+                            @for (int i = 0; i < 60; i++)
+                            {
+                                if (i.ToString().Length <= 1)
+                                {
+                                    string ti = "0" + i.ToString();
+                                    <option value='ti'>@ti</option>
+                                }
+                                else
+                                {
+                                    <option value='@i'>@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Estado Salida:</span>
+                    <select class="form-control" name="estadosalida">
+                        <option value="">Selecciones...</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_egreso item in ViewBag.listatipoegreso)
+                        {
+                            <option value="@item.id_ref_tipo_egreso">@item.nom_tipo_egreso</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12 row">
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 1 de egreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                .Name("dx3")
+                                                                .Placeholder("Seleccione...")
+                                                                .DataTextField("des")
+                                                                .Events(events => events.Select("CustomerSelect4"))
+                                                                    .HtmlAttributes(new { style = "width:100%" })
+                                                                .Filter(FilterType.Contains)
+
+                                                                .DataSource(source =>
+                                                                {
+                                                                    source.Read(read =>
+                                                                    {
+                                                                        read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                    });
+
+                                                                })
+                    )
+                    <input type="hidden" id="cie104" name="dg1egreso" />
+                </div>
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 2 de egreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                        .Name("dx4")
+                                                                        .Placeholder("Seleccione...")
+                                                                        .DataTextField("des")
+                                                                        .Events(events => events.Select("CustomerSelect5"))
+                                                                            .HtmlAttributes(new { style = "width:100%" })
+                                                                        .Filter(FilterType.Contains)
+
+                                                                        .DataSource(source =>
+                                                                        {
+                                                                            source.Read(read =>
+                                                                            {
+                                                                                read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                            });
+
+                                                                        })
+                    )
+                    <input type="hidden" id="cie105" name="dg2egreso" />
+                </div>
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Diagnostico 3 de egreso:</span>
+                    @(Html.Kendo().AutoComplete()
+                                                                            .Name("dx5")
+                                                                            .Placeholder("Seleccione...")
+                                                                            .DataTextField("des")
+                                                                            .Events(events => events.Select("CustomerSelect6"))
+                                                                                .HtmlAttributes(new { style = "width:100%" })
+                                                                            .Filter(FilterType.Contains)
+
+                                                                            .DataSource(source =>
+                                                                            {
+                                                                                source.Read(read =>
+                                                                                {
+                                                                                    read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                                                                });
+
+                                                                            })
+                    )
+                    <input type="hidden" id="cie106" name="dg3egreso" />
+                </div>
+            </div>
+            <div class="col-sm-12 row">
+                <div class="col-sm-4 form-group">
+                    <span class="text-secondary_asalud">Destino del paciente:</span>
+                    <select class="form-control" name="destinopaciente" id="destinopaciente">
+                        <option value="">Seleccione...</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_urg_destino_paciente item in ViewBag.listadestinopaciente)
+                        {
+                            <option value="@item.id_ref_urg_destino_paciente">@item.nom_destino_paciente</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-6 form-group" id="txtotrodestino" name="otrodestinopaciente" style="display:none">
+                    <span class="text-secondary_asalud">Describa el destino del paciente:</span>
+                    <textarea placeholder="Escriba aqui..." class="form-control"></textarea>
+                    <label for="txtotrodestino"  class="error">Recuerde que este campo es obligatorio*</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 text-right">
+            <button class="btn btn-primary" type="bu">Guardar</button>
+            <a class="btn btn-default" href="@Url.Action("TableroUrgencias","Urgencias")">Volver</a>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("form[name='formauditoria']").validate({
+            rules: {
+                fechaingreso: "required",
+                triage: { required: true },
+                dx0: { required: true },
+                fechaegreso: "required",
+                estadosalida: { required: true },
+                dx3: { required: true },
+                destinopaciente: { required: true },
+            },
+
+            submitHandler: function (form) {
+                LoadingShow();
+                $("#formauditoria").submit();
+            }
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $("#destinopaciente").change(function () {
+
+            var value = $(this).val();
+            if (value == 6) {
+                $("#txtotrodestino").removeAttr('style');
+            }
+            else {
+                $("#txtotrodestino").css('display','none');
+            }
+        })
+    })
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie101").val(DataItem.id_cie10);
+    }
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie102").val(DataItem.id_cie10);
+    }
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie103").val(DataItem.id_cie10);
+    }
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie104").val(DataItem.id_cie10);
+    }
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie105").val(DataItem.id_cie10);
+    }
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie106").val(DataItem.id_cie10);
+    }
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    label.error {
+        color: indianred;
+    }
+</style>

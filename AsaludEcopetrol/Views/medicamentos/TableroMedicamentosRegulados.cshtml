@@ -1,0 +1,312 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO MEDICAMENTOS REGULADOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = ViewBag.rta;
+    string msg = (string)ViewData["Msg"];
+}
+
+@if (rta != 0)
+{
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">@msg</div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">@msg</div>
+    }
+}
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">
+            Control medicamentos regulados
+        </strong>
+    </div>
+    <div class="panel-body">
+        <table id="tabla" class="table table-bordered datatable table-hover" style="width:98%;">
+            <thead>
+                <tr>
+                    <th>Id cargue</th>
+                    <th>Vigencia desde</th>
+                    <th>Vigencia hasta</th>
+                    <th>Fecha digita</th>
+                    <th>Conteo registros</th>
+                    <th>Usuario cargue</th>
+                    @if (ViewBag.rol == "1" || ViewBag.rol == "2" || ViewBag.rol == "14" || ViewBag.rol == "39")
+                    {
+                        <th>Opciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.conteo > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_prefacturas_listaMedicamentosReguladosResult item in ViewBag.lista)
+                    {
+                        <tr>
+                            <td>@item.id_med</td>
+                            <td>@item.vigencia_desde</td>
+                            <td>@item.vigencia_hasta</td>
+                            <td>@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@item.conteoRegistros</td>
+                            <td>@item.nombre </td>
+                            @if (ViewBag.rol == "1" || ViewBag.rol == "2" || ViewBag.rol == "14" || ViewBag.rol == "39")
+                            {
+                                <td style="text-align:center;">
+                                    <a class="btn button_Asalud_Rechazar btn-xs" href="javascript:EliminarMed(@item.id_med)"><i class="glyphicon glyphicon-trash"></i>&nbsp;Eliminar Cargue</a>
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="14" style="text-align:center; font-size:14px">SIN REGISTROS</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('#tabla').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 15,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            stateSave: false,
+            "bDestroy": true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    });
+
+    function EliminarMed(idMed) {
+
+        var confirmar = confirm("¿Está seguro de eliminar este cargue?");
+
+        if (confirmar) {
+
+            $.ajax({
+                url: "@Url.Action("EliminarCargueMedicamentosRegulados")",
+                type: "post",
+                data: { idMed: idMed },
+                success: function (data) {
+
+                    if (data.success) {
+                        location.href = "@Url.Action("TableroMedicamentosRegulados")?rta=" + data.rta;
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

@@ -1,0 +1,393 @@
+﻿@model AsaludEcopetrol.Models.ProcesosInternos.reportevisitas
+@using AsaludEcopetrol.Models.ProcesosInternos
+@{
+    ProcesosInternos procesos = new ProcesosInternos();
+    string collapse = "collapse in";
+    Layout = null;
+    List<ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle_indicador> Listado = (List<ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle_indicador>)Model.listacapitulos;
+    string signo_condicion = "";
+    double califiacionGeneral = 0;
+    List<ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle> listado = procesos.Getdetalllescronograma(Model.idcronograma);
+}
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .caja {
+            float: left;
+            margin-left: 5px;
+        }
+
+        .panel-default > .panel-heading {
+            background-image: none !important;
+            background-color: #16365c !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body style="font-family:'Century Gothic'; font-size:10px">
+    <div class="container">
+        <center><h3 style="font-weight:bold">EVALUACIÓN DE INDICADORES</h3></center>
+        <br />
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <div class="caja" font-family:'Century Gothic'">
+                    <strong>FECHA DE LA VISITA: &nbsp;&nbsp;&nbsp;&nbsp; <label style="font-weight:normal">@Model.fecha_final_visita.Value.ToString("dd/MM/yyyy")</label></strong><br />
+                    <strong>
+                        PERIODO A EVALUAR: &nbsp;&nbsp;&nbsp;&nbsp;DESDE:
+                        @if (Model.periodo_desde != null)
+                        {
+                            <label style="font-weight:normal">@Model.periodo_desde.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                        &nbsp;&nbsp; HASTA:
+                        @if (Model.periodo_hasta != null)
+                        {
+                            <label style="font-weight:normal">@Model.periodo_hasta.Value.ToString("dd/MM/yyyy")</label>
+                        }
+                    </strong>
+                    <br />
+                    <strong>NOMBRE DEL PRESTADOR: </strong>&nbsp;<label style="font-weight:normal">@Model.NomPrestador</label><br />
+                    <strong>NIT PRESTADOR: </strong>&nbsp;<label style="font-weight:normal">@Model.Nit</label><br />
+                    @*<strong>CONTRATO VIGENTE NO:</strong>&nbsp;<label style="font-weight:normal">@Model.NoContrato</label><br />*@
+                </div>
+            </div>
+            <div class="form-group col-sm-12 text-right">
+                <img style="text-align:right; width:20%" src="~/Resources/SelloFirma.png" />
+            </div>
+        </div>
+
+        <div id="pnlPrincipal" class="General">
+            <div class="col-sm-12 row form-group">
+                <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%">
+                    <tbody>
+                        @{ int i = 0;
+                            //,j = 0;
+
+                        }
+
+                        <tr>
+                            <th style="background-color:#16365c; color:white">Capitulo</th>
+                            <th style="text-align:center;background-color:#16365c; color:white">Item &nbsp;-&nbsp; Peso gnral &nbsp;-&nbsp; Peso ind&nbsp;-&nbsp; Meta &nbsp;-&nbsp; Puntuación &nbsp;-&nbsp; Puntuación max </th>
+                            <th style="background-color:#16365c; color:white">Promedio</th>
+                            <th style="background-color:#16365c; color:white">Peso General</th>
+                            <th style="background-color:#16365c; color:white">Total</th>
+                            <th style="background-color:#16365c; color:white">Evaluación Final</th>
+                        </tr>
+
+
+                        @if (Listado.Count() > 0 && listado.Count > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle_indicador o in Model.listacapitulos)
+                            {
+                                double? puntuacion = 0;
+                                decimal totalpuntuacion = 0, total = 0;
+                                int contador = 0;
+
+                                <tr id="accordion_@i" class="@collapse">
+
+                                    <td style="background-color:#c5d9f1; font-size:12px">@o.capitulos.nom_capitulo</td>
+
+                                    <td>
+                                        <table class="table table-condensed table-striped">
+                                            @{
+                                                var prlista = listado.Where(l => l.id_capitulo == o.id_capitulo).ToList();
+                                            }
+
+                                            @foreach (ECOPETROL_COMMON.ENTIDADES.cronograma_visita_detalle item in prlista)
+                                            {
+                                                if (item.aplica.Value)
+                                                {
+                                                    contador += 1;
+                                                    #region
+                                                    switch (item.cap_condicion_meta)
+                                                    {
+                                                        case "1":
+                                                            signo_condicion = "=";
+                                                            if (item.valor_digitado == item.cap_valor_meta)
+                                                            {
+                                                                puntuacion = Convert.ToDouble(item.cap_peso_individual);
+
+                                                            }
+                                                            else
+                                                            {
+                                                                if (item.cap_valor_meta > 0.5)
+                                                                {
+                                                                    puntuacion = (item.valor_digitado * Convert.ToDouble(item.cap_peso_individual)) / 100;
+                                                                }
+                                                                else
+                                                                {
+                                                                    puntuacion = 0;
+                                                                }
+
+                                                            }
+                                                            break;
+                                                        case "2":
+                                                            signo_condicion = "<=";
+                                                            if (item.valor_digitado <= item.cap_valor_meta)
+                                                            {
+                                                                puntuacion = Convert.ToDouble(item.cap_peso_individual);
+                                                            }
+                                                            else
+                                                            {
+                                                                if (item.cap_valor_meta > 0.5)
+                                                                {
+                                                                    if (item.cap_valor_meta < item.valor_digitado)
+                                                                    {
+                                                                        puntuacion = 0;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        puntuacion = (item.valor_digitado * Convert.ToDouble(item.cap_peso_individual)) / 100;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    puntuacion = 0;
+                                                                }
+
+                                                            }
+                                                            break;
+                                                        case "3":
+                                                            signo_condicion = "<";
+                                                            if (item.valor_digitado < item.cap_valor_meta)
+                                                            {
+                                                                puntuacion = Convert.ToDouble(item.cap_peso_individual);
+
+                                                            }
+                                                            else
+                                                            {
+                                                                if (item.cap_valor_meta > 0.5)
+                                                                {
+                                                                    if (item.cap_valor_meta < item.valor_digitado)
+                                                                    {
+                                                                        puntuacion = 0;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        puntuacion = (item.valor_digitado * Convert.ToDouble(item.cap_peso_individual)) / 100;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    puntuacion = 0;
+                                                                }
+
+                                                            }
+                                                            break;
+                                                        case "4":
+                                                            signo_condicion = ">=";
+                                                            if (item.valor_digitado >= item.cap_valor_meta)
+                                                            {
+                                                                puntuacion = Convert.ToDouble(item.cap_peso_individual);
+                                                            }
+                                                            else
+                                                            {
+                                                                DateTime fecha = Convert.ToDateTime("2021/05/25");
+                                                                if (Model.fechamodificacion > fecha)
+                                                                {
+                                                                    puntuacion = ((item.valor_digitado / item.cap_valor_meta) * Convert.ToDouble(item.cap_peso_individual));
+                                                                }
+                                                                else
+                                                                {
+                                                                    if (item.cap_valor_meta > 0.5)
+                                                                    {
+                                                                        puntuacion = (item.valor_digitado * Convert.ToDouble(item.cap_peso_individual)) / 100;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        puntuacion = 0;
+                                                                    }
+                                                                }
+                                                            }
+                                                            break;
+                                                        default:
+                                                            signo_condicion = ">";
+                                                            if (item.valor_digitado > item.cap_valor_meta)
+                                                            {
+                                                                puntuacion = Convert.ToDouble(item.cap_peso_individual);
+                                                            }
+                                                            else
+                                                            {
+                                                                if (item.cap_valor_meta > 0.5)
+                                                                {
+                                                                    puntuacion = (item.valor_digitado * Convert.ToDouble(item.cap_peso_individual)) / 100;
+                                                                }
+                                                                else
+                                                                {
+                                                                    puntuacion = 0;
+                                                                }
+                                                            }
+                                                            break;
+                                                    }
+
+                                                    #endregion
+                                                }
+                                                else
+                                                {
+                                                    puntuacion = Convert.ToDouble(item.cap_peso_individual);
+                                                }
+                                                <tr>
+                                                    @if (o.id_capitulo == item.id_capitulo && o.id_regional == item.item_capitulo.regional_id && o.id_indicador == item.item_capitulo.indicador_id)
+                                                    {
+                                                        i += 1;
+                                                        <th style="padding-right:2%; font-size:12px">@item.item_capitulo.nom_item</th>
+
+                                                        <td style="text-align:left; font-size:12px">@item.cap_peso_individual%</td>
+                                                        if (item.aplica.Value == true)
+                                                        {
+                                                            <td style="padding-left:2%; padding-right:2%; text-align:left; font-size:12px" title="Puntuacion">@item.valor_digitado%</td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td style="padding-left:2%; padding-right:2%; text-align:left; font-size:12px" title="Puntuacion">No aplica</td>
+                                                        }
+                                                        <th style="width: 15%; text-align:center; font-size:12px">@signo_condicion @item.cap_valor_meta%</th>
+                                                        <td style="text-align:center; font-size:12px">@Math.Round(puntuacion.Value, 1)%</td>
+                                                        double? pm = 0;
+                                                        if (item.aplica.Value)
+                                                        {
+                                                            if (puntuacion > 0)
+                                                            {
+                                                                pm = (puntuacion * 100) / Convert.ToDouble(item.cap_peso_individual);
+                                                            }
+                                                            else
+                                                            {
+                                                                pm = (puntuacion * 100);
+                                                            }
+
+
+                                                            <td style="font-size:12px">@Math.Round(pm.Value, 2)%</td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td>&nbsp;</td>
+                                                        }
+
+                                                        totalpuntuacion += Convert.ToDecimal(pm);
+                                                    }
+                                                </tr>
+
+                                            }
+                                        </table>
+                                    </td>
+                                    @{
+                                        decimal promedio = 0;
+                                        if (totalpuntuacion > 0)
+                                        {
+                                            promedio = totalpuntuacion / contador;
+                                        }
+                                        total = Convert.ToDecimal((promedio * o.peso_general_capitulo) / 100);
+                                    }
+                                    <td style="font-size:12px">@Math.Round(Convert.ToDecimal(promedio), 2)%</td>
+                                    <td style="font-size:12px">@o.peso_general_capitulo%</td>
+                                    <td style="font-size:12px">@Math.Round(Convert.ToDecimal(total), 2)%</td>
+                                    <td style="font-size:12px">@Math.Round(Convert.ToDecimal(total), 2)%</td>
+                                </tr>
+                                califiacionGeneral = califiacionGeneral + Convert.ToDouble(total);
+                            }
+
+                            <tr>
+                                <td colspan="4"></td>
+                                <th style="background-color:#16365c; color:white">Califiación General</th>
+                                <th style="background-color:#16365c; color:white">@Math.Round(califiacionGeneral, 2)%</th>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" rowspan="2" style="text-align:center"> No se encuentran capitulos configurados para este prestador en esta regional</td>
+                            </tr>
+                        }
+
+                        @if (Model.isreport)
+                        {
+                            <tr>
+                                <td colspan="4"></td>
+                                <th colspan="2" style="background-color:#16365c; color:white" class="text-center">
+                                    @{double calificaciong = califiacionGeneral; }
+
+                                    @if (calificaciong < 85)
+                                    {
+                                        <strong>2 Estrellas</strong>
+                                    }
+                                    else if (calificaciong >= 85 && calificaciong <= 91.9)
+                                    {
+                                        <strong>3 Estrellas</strong>
+                                    }
+                                    else if (calificaciong >= 92 && calificaciong <= 94.9)
+                                    {
+                                        <strong>4 Estrellas</strong>
+                                    }
+                                    else
+                                    {
+                                        <strong>5 Estrellas</strong>
+                                    }
+
+                                </th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <input type="hidden" id="txtindicador" />
+                <input type="hidden" id="txtcapitulo" />
+                <input type="hidden" id="txtitem" />
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="panel panel-default" style="border:1px solid">
+                        <div class="panel-heading">Fecha de la proxima visita</div>
+                        <div class="panel-body">
+                            @if (Model.proximafecha != null)
+                            {
+                                <label style="font-weight:normal">@Model.proximafecha.Value.ToString("dd/MM/yyyy")</label>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="panel panel-default" style="border:1px solid">
+                        <div class="panel-heading">Observaciones</div>
+                        <div class="panel-body">
+                            <label style="font-weight:normal">@Model.Observaciones</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <br />
+            <div>
+                <div style="min-width:100%; padding-bottom:15%">
+                    <div class="caja" style="min-width:50%">
+                        <strong>@Model.NomAuditor </strong><br />
+                        <strong>AUDITOR Asalud SAS-ECOPETROL</strong><br />
+                        <strong>Nro. de Documento: </strong><br />
+                    </div>
+                    <div class="caja pull-right" style="min-width:50%">
+
+                        <strong>@Model.NomAuditor </strong><br />
+                        <strong>AUDITOR Asalud SAS-ECOPETROL</strong><br />
+                        <strong>Nro. de Documento: </strong><br />
+
+                        @*<strong>@Model.NomRepresentante</strong><br />
+                    <strong>REPRESENTANTE PRESTADOR</strong><br />
+                    <strong>Nro. de Documento: </strong><br />*@
+                    </div>
+                </div>
+
+                <div style="min-width:100%;">
+                    <div class="caja" style="min-width:45%">
+                        <strong>__________________________________________</strong><br />
+                        <strong>FIRMA AUDITOR Asalud SAS-ECOPETROL</strong><br />
+                    </div>
+                    <div class="caja pull-right" style="min-width:45%">
+                        <strong>__________________________________________</strong><br />
+                        <strong>FIRMA REPRESENTANTE PRESTADOR</strong><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

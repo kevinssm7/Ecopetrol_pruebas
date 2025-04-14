@@ -1,0 +1,77 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "MODAL GESTION";
+    var id = ViewBag.idanalista;
+}
+
+<form id="formGestion" action="ModificarAnalista" method="post" enctype="multipart/form-data">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p class="text-primary_asalud">Actualizar analista</p>
+        </div>
+        <div class="panel-body">
+            <div id="divotrosi">
+                <div id="formulario" class="col-md-12  ">
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Analista</label>
+                        <select class="form-control select2" style="width:100%" name="analista" id="analista">
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_PQRS_usuarios item in ViewBag.list)
+                            {
+                                <option value="@item.id_ref_PQRS_usuarios">@item.nombre</option>
+                            }
+                        </select>
+                        <input type="hidden" id="id" value="@id" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12 form-group text-right">
+                        <button type="button" id="btnGuardar" onclick="ValidarFormulario()" class="button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(".datepickerr2").kendoDatePicker({
+        format: "MM/dd/yyyy",
+    });
+
+    function ValidarFormulario() {
+
+        var validator = $("#formGestion").validate();
+        if (validator.form()) {
+            ActualizarAnalista();
+        }
+    }
+
+
+
+    function ActualizarAnalista() {
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id", $("#id").val());
+        formData.append("analista", $("#analista").val());
+
+        $.ajax({
+            url: "@Url.Action("ActualizarAnalista", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                alert(data.message);
+                location.href = "@Url.Action("TableroControl", "Pqrs")";
+            }
+        })
+    }
+
+</script>

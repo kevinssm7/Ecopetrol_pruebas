@@ -1,0 +1,228 @@
+﻿@{
+    List<ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año> meses = (List<ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año>)ViewBag.meses;
+    List<ECOPETROL_COMMON.ENTIDADES.Management_SeguimientoEntregables_IndicadorXComponenteResult> indicadoresGestionList = (List<ECOPETROL_COMMON.ENTIDADES.Management_SeguimientoEntregables_IndicadorXComponenteResult>)ViewBag.result;
+    List<string> Componentes = (List<string>)ViewBag.componentes;
+    int? mesInicial = (int?)@ViewBag.mesInicial;
+    int? mesFinal = (int?)@ViewBag.mesFinal;
+    int? Año = (int?)@ViewBag.año;
+    int? selectComponente = (int?)@ViewBag.componenteSeleccionado;
+}
+
+<div class="row">
+    <div class="col-sm-3 form-group">
+        <label class="control-label text-secondary_asalud">Componente</label>
+        <select id="componente" name="componente" class="form-control select2" onchange="filtrarResultados()">
+            <option value="">- TODOS-</option>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_proceso_entregable item in ViewBag.procesos)
+            {
+                if (selectComponente != null)
+                {
+                    if (selectComponente == item.id_ref_proceso_entregable)
+                    {
+                        <option selected value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                    }
+                    else
+                    {
+                        <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                    }
+                }
+                else
+                {
+                    <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="control-label text-secondary_asalud">Mes inicio</label>
+        <select id="mesinicial" name="mesinicial" class="form-control select2" onchange="filtrarResultados()">
+            <option value="">- TODOS-</option>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.ref_meses)
+            {
+                if (mesInicial != null)
+                {
+                    if (mesInicial == item.id_mes)
+                    {
+                        <option selected value="@item.id_mes">@item.descripcion</option>
+                    }
+                    else
+                    {
+                        <option value="@item.id_mes">@item.descripcion</option>
+                    }
+                }
+                else
+                {
+                    <option value="@item.id_mes">@item.descripcion</option>
+                }
+
+            }
+        </select>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="control-label text-secondary_asalud">Mes final</label>
+        <select id="mesfinal" name="mesfinal" class="form-control select2" onchange="filtrarResultados()">
+            <option value="">- Seleccionar-</option>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.ref_meses)
+            {
+                if (mesFinal != null)
+                {
+                    if (mesFinal == item.id_mes)
+                    {
+                        <option selected value="@item.id_mes">@item.descripcion</option>
+                    }
+                    else
+                    {
+                        <option value="@item.id_mes">@item.descripcion</option>
+                    }
+                }
+                else
+                {
+                    <option value="@item.id_mes">@item.descripcion</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-sm-3 form-group">
+        <label class="control-label text-secondary_asalud">Año</label>
+        <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" id="año" name="año" maxlength="4" required value="@Año" onchange="filtrarResultados()" />
+    </div>
+</div>
+<div class="table-responsive">
+    <table id="tabla" class="table table-hover table-bordered datatable" style="width:100%; margin:0px">
+        <thead>
+            <tr>
+                <th>Componente</th>
+                @foreach (var mes in meses)
+                {
+                    <th>@mes.descripcion</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (string componente in Componentes)
+            {
+
+                var existe = indicadoresGestionList.FindAll(l => l.componente == componente);
+                if (existe.Count > 0)
+                {
+                    <tr>
+                        <td>@componente</td>
+                        @foreach (var mes in meses)
+                        {
+                            var result = indicadoresGestionList.Find(l => l.componente == componente && l.mes_limite_entrega == mes.id_mes);
+                            if (result != null)
+                            {
+                                decimal numerador = Convert.ToDecimal(result.num_entregables_oportunos);
+                                decimal denominador = Convert.ToDecimal(result.num_entregables_programados);
+                                decimal oportunidad = (numerador / denominador) * 100;
+                                <td class="text-right tooltipps" id="@(result.id_componente)_@(result.mes_limite_entrega)_@(result.año_limite_entrega)">@Math.Round(oportunidad, 1)%</td>
+                            }
+                            else
+                            {
+                                <td class="text-right tooltipps">0%</td>
+                            }
+                        }
+                    </tr>
+                }
+
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+    $(document).ready(function ()
+    {
+        //var table = $('#tabla').DataTable({
+        //    orderCellsTop: true,
+        //    scrollX: true,
+        //    "lengthChange": false,
+        //    "language":
+        //    {
+        //        "search": "Buscar",
+        //        "lengthMenu": "Ver _MENU_ resultados por pagina",
+        //        "zeroRecords": "Ningún resultado encontrado",
+        //        "info": "Viendo pagina_PAGE_ de _PAGES_",
+        //        "infoEmpty": "Ningún resultado disponible",
+        //        "infoFiltered": "(filtered from _MAX_ total records)"
+        //    }
+        //});
+
+        $('.tooltipps').tooltip({
+            title: DetallesGestion,
+            html: true,
+            delay: 500,
+            placement: "bottom"
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".year").datepicker({
+            format: "yyyy",
+            viewMode: "years",
+            minViewMode: "years",
+            autoclose: true,
+            startDate: new Date('2020'),
+            endDate: new Date()
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+    })
+
+    function DetallesGestion()
+    {
+        var tooltipText = "";
+        var id = this.id;
+        if (id != "")
+        {
+            var split = id.split('_');
+            var idComponente = split[0];
+            var mes = split[1];
+            var año = split[2];
+
+
+            $.ajax({
+                url: '@Url.Action("GetDetalleDatosTableroIndicadoresXComponente")',
+                type: 'POST',
+                async: false,
+                data: {
+                    idComponente: idComponente,
+                    mes: mes,
+                    año: año
+                },
+                success: function (response) {
+                    tooltipText = response;
+                }
+            });
+        } else {
+            tooltipText = "<span>Sin resultados</span>"
+        }
+
+
+        return tooltipText;
+    }
+
+      function filtrarResultados()
+    {
+        var componente = $("#componente").val();
+        var mesinicio = $("#mesinicial").val();
+        var mesfinal = $("#mesfinal").val();
+        var year = $("#año").val();
+
+        LoadingShow();
+        $("#divResultadosReporteOportunidadSegEntregables").empty();
+          $("#divResultadosReporteOportunidadSegEntregables").load("@Url.Action("_IndicadoresGestionEntregablesPorComponente","SeguimientoEntregables")?mesInicial=" + mesinicio + "&mesFinal=" + mesfinal + "&año=" + year + "&idComponente=" + componente, function ()
+        {
+            LoadingHide();
+         });
+
+    }
+</script>
+
+

@@ -1,0 +1,280 @@
+﻿@using ECOPETROL_COMMON.ENTIDADES
+@model List<Management_inventario_facturas_contabilizadas_consolidadoResult>
+
+@{
+    ViewBag.Title = "INVENTARIO FACTURAS CONTABILIZADAS  - CONSOLIDADO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CONSOLIDADO DEL INVENTARIO DE FACTURAS CONTABILIZADAS</strong>
+    </div>
+    <div class="panel-body">
+        <table id="tablaInformacion" class="table table-bordered  table-condensed dt-responsive nowrap" style="font-size:11px;">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Año</th>
+                    <th>Regional</th>
+                    <th>Nro facturas</th>
+                    <th>Nro facturas abiertas</th>
+                    <th>Nro facturas con novedad</th>
+                    <th>Nro facturas cerradas</th>
+                    <th class="text-center">Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.nombre_mes</td>
+                        <td>@item.año</td>
+                        <td>@item.nombre_regional</td>
+                        <td class="text-center">@item.total_facturas</td>
+                        <td class="text-center">@item.facturas_abiertas</td>
+                        <td class="text-center">@item.facturas_conNovedad</td>
+                        <td class="text-center">@item.facturas_cerradas</td>
+                        @if (item.facturas_abiertas == 0 && item.tuvieronNovedad == 0)
+                        {
+                            <td class="text-center alert-success">CERRADO</td>
+                            if (item.conteoCargados == 0)
+                            {
+                                <td class="text-center"><button type="button" class="btn btn-xs button_Asalud_Guardar" onclick="SubirArchivoZip(@item.mes, @item.año, @item.regional)"><i class="glyphicon glyphicon-upload"></i>&nbsp; Cargar entrega</button></td>
+                            }
+                            else
+                            {
+                                <td class="text-center"><button type="button" class="btn btn-xs button_Asalud_Aceptar" onclick="VerArchivoZip(@item.id_archivo_cargado)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver entrega</button></td>
+                            }
+                        }
+
+                        else if (item.facturas_abiertas == 0 && item.tuvieronNovedad > 0)
+                        {
+                            <td class="text-center alert-success">GESTIONADA CON NOVEDAD</td>
+                            if (item.conteoCargados == 0)
+                            {
+                                <td class="text-center"><button type="button" class="btn btn-xs button_Asalud_Guardar" onclick="SubirArchivoZip(@item.mes, @item.año, @item.regional)"><i class="glyphicon glyphicon-upload"></i>&nbsp; Primera entrega</button></td>
+                            }
+
+                            else if (item.conteoCargados == 1)
+                            {
+                                if (item.facturas_conNovedad > 0)
+                                {
+                                    <td class="text-center alert-danger">FACTURAS CON NOVEDADES</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center"><button type="button" class="btn btn-xs button_Asalud_Guardar" onclick="SubirArchivoZip(@item.mes, @item.año, @item.regional)"><i class="glyphicon glyphicon-upload"></i>&nbsp; Segunda entrega</button></td>
+                                }
+                            }
+                            else
+                            {
+                                <td class="text-center"><button type="button" class="btn btn-xs button_Asalud_Aceptar" onclick="VerArchivoZipLista(@item.mes, @item.año, @item.regional)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver entregas</button></td>
+                            }
+                        }
+                        else
+                        {
+                            <td class="text-center alert-danger">ABIERTO</td>
+                            <td></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="Modal" role="dialog" aria-hidden="true" data-backdrop="static" style="padding-right:0px !important">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="TituloModal">CARGAR ENTREGA</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <form id="formulario">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <input type="hidden" id="mes" name="mes" />
+                            <input type="hidden" id="año" name="año" />
+                            <input type="hidden" id="regional" name="regional" />
+                            <label class="control-label text-secondary_asalud">Seleccionar archivo:</label>
+                            <input type="file" class="form-control" id="file" name="file" required onchange="ValidacionArchivo()" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario()">Guardar cambios</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('#tablaInformacion').DataTable({
+            "searching": true,
+            "iDisplayLength": 20,
+            "order": [[0, "desc"]],
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+
+    function SubirArchivoZip(mes, año, regional)
+    {
+        $("#mes").val(mes);
+        $("#año").val(año);
+        $("#regional").val(regional);
+        var fileInput = document.getElementById('file');
+        fileInput.value = '';
+        $("#Modal").modal('show');
+    }
+
+    function ValidacionArchivo()
+    {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.zip|.rar)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .zip o .rar');
+            fileInput.value = '';
+            return false;
+        }
+        else
+        {
+            return true
+        }
+    }
+
+    function ValidarFormulario()
+    {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            GuardarArchivoCargado();
+        }
+    }
+
+    function GuardarArchivoCargado()
+    {
+        $("#Modal").modal('hide');
+        LoadingShow();
+
+        var formData = new FormData();
+        formData.append('mes', $("#mes").val());
+        formData.append('año', $("#año").val());
+        formData.append('regional', $("#regional").val());
+        formData.append('file', $('#file')[0].files[0]);
+
+        $.ajax({
+            url: "@Url.Action("SaveArchivoCargadoInventarioFacContabilizadasConsolidado")",
+            type: "POST",
+            contentType: false,
+            processData: false,
+            data: formData,
+            cache: false,
+            success: function (data)
+            {
+                LoadingHide();
+                if (data.success )
+                {
+                    alertify.alert("¡Proceso Exitoso!", data.message, function ()
+                    {
+                        location.reload();
+                    }).set('label', 'Aceptar');
+                }
+                else
+                {
+                    alert(alert.message);
+                }
+            },
+            error: function (err)
+            {
+                alert(err);
+            }
+        });
+    }
+
+    function VerArchivoZip(idArchivo)
+    {
+        LoadingShow();
+        var url = "@Url.Action("VerArchivoCargadoZip", "InventarioContabilizadas")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+        setTimeout(LoadingHide, 3000);
+    }
+
+    function VerArchivoZipLista(mes, año, regional) {
+        LoadingShow();
+        var url = "@Url.Action("VerArchivoCargadoZipLista", "InventarioContabilizadas")?mes=" + mes + "&año=" + año + "&regional=" + regional;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=10,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+        setTimeout(LoadingHide, 3000);
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: left;
+        border-collapse: collapse;
+        margin-left: 0px;
+        width: 100% !important;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    body {
+        padding-right: 0% !important;
+    }
+</style>

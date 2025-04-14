@@ -1,0 +1,113 @@
+﻿
+
+@{
+    ViewBag.Title = "CARGUE MASIVO TIGAS CONTRATO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">ARCHIVOS AUXILIARES</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <a class="btn button_Asalud_Aceptar" onclick="DescargarListaContratos()">LISTA CONTRATOS</a>
+                </div>
+                <div class="col-md-2">
+                    <a class="btn button_Asalud_Aceptar" onclick="DescargarListaDetallados()">LISTA TIGAS</a>
+                </div>
+
+                <div class="col-md-2">
+                    <a class="btn button_Asalud_Aceptar" onclick="DescargarArchivoPlantilla()">PLANTILLA CARGUE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE</strong>
+        </div>
+        <br />
+        <form id="formContratos">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Seleccione archivo</label>
+                        <input type="file" id="archivo" name="archivo" class="form-control" onchange="ValidacionArchivo()" required />
+                    </div>
+                    <br />
+                    <div class="col-md-2">
+                        <a class="btn button_Asalud_Guardar" onclick="ValidarDatos()">CARGAR</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('archivo');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.xls|\.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .xls o .xlsx');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function ValidarDatos() {
+        var validacion = $("#formContratos").validate();
+        if (validacion.form()) {
+            Enviardata();
+        }
+    }
+
+    function Enviardata(){
+
+        var formData = new FormData($("form")[0]);
+        var archivo = $("#archivo").get(0).files[0];
+        formData.append("archivo", archivo); // Enviar solo el primer archivo
+
+        $.ajax({
+            url: "@Url.Action("GuardarTigasContratoMasivo")",
+            type: "post",
+            data: formData,
+            method: "post",
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                alert(data.mensaje);
+                if (data.rta == 1) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function DescargarListaContratos(){
+         var URL2 = "@Url.Action("ExcelDescargarContratosExistentes", "FIS_RIPS")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function DescargarArchivoPlantilla() {
+         var url = "@Url.Action("VerPlantillaCargueTIGASContrato", "FIS_RIPS")";
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function DescargarListaDetallados(){
+         var url = "@Url.Action("ExcelDescargarTigasDetallados", "FIS_RIPS")";
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+</script>

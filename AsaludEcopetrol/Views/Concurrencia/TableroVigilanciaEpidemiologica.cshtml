@@ -1,0 +1,325 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO VIGILANCIA EPIDEMIOLÓGICA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE VIGILANCIA EPIDEMIOLÓGICA</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" action="TableroVigilanciaEpidemiologica" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Cohorte:</label>
+                    <select class="form-control select2" style="width:100%" id="cohorte" name="cohorte">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cohortes item in ViewBag.cohortes)
+                        {
+                            <option value="@item.id_ref_cohortes">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" id="regional" name="regional" onchange="ObtenerUnis($(this).val())">
+                        <option value="">- Seleccione -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Unis:</label>
+                    <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())">
+                        <option value="">- Seleccionar -</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Localidad:</label>
+                    <select class="form-control select2" id="ciudad" name="ciudad">
+                        <option value="">- Seleccionar -</option>
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">CIE10</label>
+                    <input autocomplete="off" type="text" class="form-control" id="CIE10" name="CIE10" maxlength="100" placeholder="Diagnóstico cie10" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    <button class="btn button_Asalud_Guardar" type="submit" id="BtnGuardar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (resultado != 0)
+                    {
+                        <a class="btn button_Asalud_descargas" href="@Url.Action("ReporteVETableroControl", "Concurrencia")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar tablero</a>
+                    }
+                </div>
+            </div>
+            <br />
+            @if (resultado == 0)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos.")</p>
+                    </div>
+                </div>
+            }
+        </form>
+
+        <table id="tabla" class="table table-bordered" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Documento paciente</th>
+                    <th>Nombre paciente</th>
+                    <th>Ips</th>
+                    <th>Mega</th>
+                    <th>Regional</th>
+                    <th>Unis</th>
+                    <th>Ciudad</th>
+                    <th>Diagnóstico CIE10</th>
+                    <th>Trabajador ecopetrol</th>
+                    <th>Auditor asignado</th>
+                    <th>Cohorte</th>
+                    <th>Archivo</th>
+                    <th>Archivo Soporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_vigilancia_epidemiologica_tableroResult item in ViewBag.list)
+                {
+                    i++;
+                    <tr>
+
+                        <td>@i</td>
+                        <td>@item.documento_paciente</td>
+                        <td>@item.nombre_paciente</td>
+                        <td>@item.Nombre_ips</td>
+                        <td>@item.mega</td>
+                        <td>@item.nombre_regional</td>
+                        <td>@item.nombre_unis</td>
+                        <td>@item.nombre_ciudad</td>
+                        <td>@item.id_cie10-@item.des</td>
+                        <td>@item.trabajador_ecopetrol</td>
+                        <td>@item.nombre_auditor</td>
+                        <td>@item.nombre_cohorte</td>
+                        @if (item.archivo.Equals("SI"))
+                        {
+                            <td>
+                                <a class="btn button_Asalud_Reporte" href='javascript:mostrarArchivo(@item.id_vigilancia, 1)'>Descargar</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>Sin archivo</td>
+                        }
+                        @if (item.archivoSoporte.Equals("SI"))
+                        {
+                            <td>
+                                <a class="btn button_Asalud_Reporte" href='javascript:mostrarArchivo(@item.id_vigilancia, 2)'>Descargar</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>Sin archivo</td>
+                        }
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        //$('#FechaInicialfiltro').attr('disabled', 'disabled');
+        //$('#FechaFinalfiltro').attr('disabled', 'disabled');
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 15,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#CIE10").autocomplete({
+            source: "/Concurrencia/BuscarCIE10",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.cie10);
+                }
+            }
+        })
+    })
+
+     function ObtenerUnis(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").html(data);
+                    $("#unis").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                }
+            })
+        }
+    }
+    function mostrarArchivo(idVE, tipo) {
+
+        var url = "@Url.Action("verArchivoVE", "Concurrencia")?idVE=" + idVE + "&tipo=" + tipo;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+

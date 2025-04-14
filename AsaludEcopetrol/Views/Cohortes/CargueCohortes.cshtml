@@ -1,0 +1,162 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE COHORTES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    string alerta = (string)ViewData["Alerta"];
+    int tipoalerta = (int)ViewData["tipoalerta"];
+}
+
+<br />
+
+
+
+@if (tipoalerta > 0)
+{
+    if (tipoalerta == 1)
+    {
+        <div class="alert alert-success">
+            <strong>Éxito!</strong> @alerta
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @alerta
+        </div>
+    }
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CARGUE DE COHORTES</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formRanking" name="formRanking" action="@Url.Action("CargueCohortes")" method="post" enctype="multipart/form-data">
+            <div class="row form-group">
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Fecha Cohorte</label>
+                    <div class='input-group date' id='datetimepicker2'>
+                        <input type='text' class="form-control" readonly value="" name="FechaCohorte" id="txtfechavisita2" />
+                        <span class="input-group-addon" style="cursor:pointer">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Tipo Cohorte</label>
+                    <select name="tipocohorte" id="idtipocohorte" class="form-control">
+                        <option value="">Seleccione...</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cohortes item in ViewBag.refcohortes)
+                        {
+                            <option value="@item.id_ref_cohortes">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Seleccione los archivos *</label>
+                    <input type="file" name="Archivo" id="file" class="form-control" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-12 text-center">
+                    <button class="btn button_Asalud_Guardar" type="submit"><i class="glyphicon glyphicon-upload"></i>&nbsp; Cargar Resultados</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $("form[name='formRanking']").validate({
+            lang: 'Es',
+            rules: {
+                Archivo: "required",
+                FechaCohorte: "required",
+                tipocohorte: { required: true },
+            },
+            messages: {
+                file: 'No se ha seleccionado ningun archivo'
+            },
+            submitHandler: function (form) {
+                LoadingShow();
+                form.submit();
+            }
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $('.date').datepicker({
+            autoclose: true,
+            format: 'mm/dd/yyyy',
+            orientation: "bottom",
+            todayBtn: "linked",
+            todayHighlight: false,
+        });
+    });
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+

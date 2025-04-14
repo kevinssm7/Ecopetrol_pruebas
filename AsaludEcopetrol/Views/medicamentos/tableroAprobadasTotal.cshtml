@@ -1,0 +1,274 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "tableroAprobadasTotal";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+<div id="myCarousel" class="carousel slide Tamaño">
+    <!-- Indicators -->
+    <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    </ol>
+
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner ">
+        <div class="item active">
+            <div class="fill TamañoImag" style="background-image:url('../../Resources/banner.PNG');"></div>
+            <div class="carousel-caption">
+                <h1>Tablero pre facturas aprobadas</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form id="formAprobadas" name="formAprobadas" enctype="multipart/form-data" method="post">
+            <br />
+            <div>
+                <label class="text-secondary_asalud">Total aprobadas: @ViewBag.total</label>
+            </div>
+            <br />
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="control-label text-secondary_asalud">Nro factura</label>
+                        <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="control-label text-secondary_asalud">Valor</label>
+                        <input type="text" class="form-control solo-numero" id="valor" name="valor" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="control-label text-secondary_asalud">Fecha factura</label>
+                        <input type="text" class="form-control" id="fecha" name="fecha" />
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 form-group text-right">
+                        <button class="button_Asalud_Guardar" onclick="buscarAprobadas()" id="buscarAprobadas"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                        @if (@ViewBag.total > 0)
+                        {
+                            <a onclick="excelAprobadas(3);" class="btn button_Asalud_descargas">Exportar a excel <i class="glyphicon glyphicon-download"></i></a>
+                        }
+                    </div>
+                </div>
+                <br />
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-condensed" style="font-size:10px; width:100%;" id="datos">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Numero prefactura</th>
+                                <th>Producto</th>
+                                <th>Beneficiario</th>
+                                <th>Regional</th>
+                                <th>Prestador</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (ViewBag.total != 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.Managment_ReportePrefacturas_cerrarResult item in ViewBag.lista)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>@item.num_prefactura</td>
+                                            <td>@item.descripcion_producto</td>
+                                            <td>@item.nombre_beneficiario</td>
+                                            <td>@item.nombreprestador</td>
+                                            <td></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="12" style="text-align:center; font-size:15px;">
+                                            <label>No hay datos.</label>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+
+    $("#fecha").kendoDatePicker();
+
+    $('#datos').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function excelAprobadas(opcion) {
+        location.href = "@Url.Action("ExportarExcelTotal", "medicamentos")?opcion="+opcion;
+    }
+
+    function buscarAprobadas() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("numFactura", $("#numFacturaM").val());
+        formData.append("fecha", $("#fecha").val());
+        formData.append("valor", $("#valor").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tableroAprobadasTotal")",
+            type: "post",
+            data: parametros,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+                LoadingHide();
+            },
+        })
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .container ul li .text_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #636363;
+        font-weight: bold;
+    }
+</style>
+
+
+
+
+

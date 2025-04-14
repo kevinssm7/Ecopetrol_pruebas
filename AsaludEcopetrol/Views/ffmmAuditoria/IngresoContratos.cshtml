@@ -1,0 +1,321 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.ips_prestadores
+
+@{
+    ViewBag.Title = "INGRESO CONTRATOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+@{ string alerta = (string)ViewData["alerta"];
+    int nit = (int)ViewBag.nit;
+
+}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form id="formulario" method="post" action="GuardarContratos">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">Ingreso de contratos</strong>
+            </div>
+            <div class="panel-body">
+                <input type="hidden" id="nitDefinido" name="nitDefinido" />
+
+                <div class="col-sm-3">
+                    <label class="text-secondary_asalud">Prestador:</label>
+
+                    @if (nit != 0)
+                    {
+                        <select class="form-control select2" name="ipsPre" id="ipsPre" disabled required>
+                            <option value="@nit">@ViewBag.nombre</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select class="form-control select2" name="ipsPre" id="ipsPre" required>
+                            <option value="0">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_ffmm_ips_prestadores item in ViewBag.ipspre)
+                            {
+                                <option value="@item.nit">@item.nombre</option>
+                            }
+                        </select>
+                    }
+                </div>
+                <div  class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha inicio:</label>
+                        <input id="fechaIni" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha fin:</label>
+                        <input id="fechaFin" style="width: 100%;" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Valor contrato:</label>
+                    <input type="text" autocomplete="off" class="form-control solo-numero" name="valorContrato" id="valorContrato" maxlength="100" required />
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">¿Archivo?:</label>
+                    <br />
+                    <input type="radio" id="documento" name="documento" value="1" onclick="documentoTomado($(this).val())" /> Si
+                    <input type="radio" id="documento" name="documento" value="2" onclick="documentoTomado($(this).val())" /> No
+                    <input type="hidden" class="form-control" name="tomadocumento" id="tomadocumento" />
+                </div>
+                <br />
+                <div id="divArchivo" style="display:none;">
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <input type="file" id="FileUpload1" name="FileUpload1" onchange="ValidacionArchivo()" class="form-control" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-8 form-group">
+                    <label class="text-secondary_asalud">Observaciones:</label>
+                    <textarea class="form-control" id="observaciones" maxlength="2999" rows="5"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center">
+                            <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="validar()">GUARDAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        function startChange() {
+            var startDate = start.value(),
+                endDate = end.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+        function endChange() {
+            var endDate = end.value(),
+                startDate = start.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+
+        var start = $("#fechaIni").kendoDatePicker({
+            change: startChange
+        }).data("kendoDatePicker");
+
+        var end = $("#fechaFin").kendoDatePicker({
+            change: endChange
+        }).data("kendoDatePicker");
+
+        start.max(end.value());
+        end.min(start.value());
+
+        $("#fechaIni").change(function () {
+
+            var fechaUno = $("#fechaIni").val()
+            var fechados = $("#fechaFin").val()
+
+            var date = fechaUno.split("-");
+            var f = new Date(date[2], date[0] - 1, date[1]);
+            var v = new Date(date[2], date[1], date[0] - 1);
+        });
+
+        $("#fechaFin").change(function () {
+
+            var fechaUno = $("#fechaFin").val()
+            var fechados = $("#fechaIni").val()
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    function documentoTomado(toma) {
+        if (toma == 1) {
+            document.getElementById("tomadocumento").value = "SI";
+            document.getElementById("divArchivo").style.display = "block";
+        } else {
+            document.getElementById("tomadocumento").value = "NO";
+            document.getElementById("divArchivo").style.display = "none";
+        }
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('FileUpload1');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.pdf)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos pdf');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    //function validarFecha() {
+
+    //    //var fechaIni = document.getElementById("fechaIni").value();
+    //    //var fechaFin = document.getElementById("fechAFin").value();
+
+    //    var fechaIni = $("#fechaIni").val();
+    //    var fechaIni2 = $("#fechaIni").kendoDatePicker();
+    //    var fechaIni2 = $("#fechaIni").kendoDatePicker();
+
+    //    var fecha = $("#fechaIni").datepicker();
+
+
+    //    var fecInicio = new Date(fechaIni);
+    //    var fecFin = new Date(fechaFin);
+
+    //    if (fecInicio > fecFin) {
+    //        alert("Fecha inicial no puede ser mayor a fecha final.");
+    //        return false;
+    //    }
+    //}
+
+    function validar() {
+
+        var documento = $("#tomadocumento").val();
+        if (documento == null || documento == "" || document == undefined) {
+            alert("¿Adjuntar documento?");
+            return false;
+        }
+        //validarFecha();
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarContrato();
+        }
+    }
+
+    function GuardarContrato() {
+
+
+
+        var formData = new FormData($("form")[0]);
+        formData.append("ipsPre", $("#ipsPre").val());
+        formData.append("fechaIni", $("#fechaIni").val());
+        formData.append("fechaFin", $("#fechaFin").val());
+        formData.append("valorContrato", $("#valorContrato").val());
+        formData.append("documento", $("#documento").val());
+        formData.append("file", $("input[type=file]")[0].files[0]);
+        formData.append("observaciones", $("#observaciones").val());
+
+        
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarContratos", "ffmmAuditoria")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+                if (data.success == true) {
+                    alert(data.message)
+                    window.location.href = "@Url.Action("TableroContratos")";
+                }
+                else {
+                    alert(data.message)
+                }
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>

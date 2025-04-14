@@ -1,0 +1,88 @@
+﻿
+
+@{
+    ViewBag.Title = "CARGUE MASIVO VIM";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formularioIngreso">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Seleccione archivo</label>
+                            <input type="file" id="archivo" name="archivo" class="form-control" onchange="ValidacionArchivo()" required />
+                        </div>
+                        <br />
+                        <div class="col-md-2">
+                            <a class="btn button_Asalud_Aceptar" onclick="ValidarCargue()">CARGAR</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+    })
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('archivo');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.xls|\.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .xls o .xlsx');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function ValidarCargue() {
+        var validacion = $("#formularioIngreso").validate();
+        if (validacion.form()) {
+            Enviardata();
+        }
+    }
+
+    function Enviardata() {
+
+        var formData = new FormData($("form")[0]);
+        var archivo = $("#archivo").get(0).files[0];
+        formData.append("archivo", archivo); // Enviar solo el primer archivo
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarMasivoIVM", "FIS_RIPS")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta != 0) {
+                    location.reload();
+                }
+            }
+        })
+    }
+
+</script>

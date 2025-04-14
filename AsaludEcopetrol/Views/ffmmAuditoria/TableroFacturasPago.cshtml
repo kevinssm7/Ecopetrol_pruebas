@@ -1,0 +1,304 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS CON PAGO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+@{ string alerta = (string)ViewData["alerta"];}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab3" data-toggle="tab">SIN PAGO</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">CON PAGO</a>
+        </li>
+    </ul>
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active" id="1a">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary-Asalud">Facturas sin pago</strong>
+                </div>
+                <div class="panel-body">
+                    <form id="formulario" method="post" action="TableroFacturasPago">
+                        <div class="row">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Nit prestador</label>
+                                <input type="text" autocomplete="off" class="form-control solo-numero" name="nit" id="nit" maxlength="100" />
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <input type="text" autocomplete="off" class="form-control" name="prestador" id="prestador" maxlength="100" />
+                            </div>
+                            <div class="col-sm-4 form-group text-right">
+                                <label style="width:100%;visibility:hidden" class="text-secondary_asalud">Boton buscar:</label>
+                                <button class="btn button_Asalud_Guardar" type="button" onclick="validarSin(2)"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                    <table id="tabla1" class="tabla1 table-bordered table-condensed" style="font-size:10px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Nit prestador</th>
+                                <th>Prestador</th>
+                                <th>Numero factura</th>
+                                <th>Valor factura</th>
+                                <th>Año/mes radicado</th>
+                                <th>Fecha presentación factura</th>
+                                <th>Tipo proveedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1b">
+            @Html.Action("TableroFacturasConPago", "ffmmAuditoria")
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        verTableroSin(1);
+        verTableroCon(1);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+    })
+
+    $('.tabla1').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    $('.tabla2').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    $("#prestador").autocomplete({
+        source: "/ffmmAuditoria/buscarPrestadorNombre",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.nombre);
+            }
+        }
+    });
+
+    $("#nit").autocomplete({
+        source: "/ffmmAuditoria/buscarPrestadorCod",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.Nit);
+            }
+        }
+    });
+
+    function validarSin(tipo) {
+        var nit = document.getElementById("nit").value;
+        var prestador = document.getElementById("prestador").value;
+
+        if ((nit == "" || nit == null) && (prestador == "" || prestador == null)) {
+            alert("Filtre por nombre o por nit de prestador.");
+            return false;
+        } else {
+            verTableroSin(tipo);
+        }
+    }
+
+    function verTableroSin(tipo) {
+
+        var nit = document.getElementById("nit").value;
+        var prestador = document.getElementById("prestador").value;
+
+        $.ajax({
+            url: "@Url.Action("FacturasSinPago")",
+            type: "post",
+            data: {
+                nit: nit,
+                prestador: prestador,
+                tipo: tipo
+
+            },
+            success: function (data) {
+                $("#tabla1 tbody").empty();
+                $("#tabla1 tbody").html(data);
+            }
+        })
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .tabla1 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .tabla1 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .tabla1 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tabla1 tbody {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tabla1 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+        .tabla1 tr:hover tbody {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>
+

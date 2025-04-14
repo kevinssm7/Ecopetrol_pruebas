@@ -1,0 +1,362 @@
+﻿
+@{
+    ViewBag.Title = "CONTROL PREGUNTAS CAMPAÑA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var conteoLista = ViewBag.conteo;
+}
+
+<br>
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active" id="1aDiv">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">INGRESO RESPUESTAS</a>
+        </li>
+        @if (ViewBag.acceso == 1)
+        {
+            <li id="2aDiv">
+                <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">CONTROL PREGUNTAS</a>
+            </li>
+        }
+    </ul>
+    <br />
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form>
+                        <table class="tableIngreso table-bordered table-condensed table-striped" style="width: 98%; font-size: 10px;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Id</th>
+                                    <th class="text-center">Título</th>
+                                    <th class="text-center">Descripción</th>
+                                    <th class="text-center">Preguntas</th>
+                                    <th class="text-center">Responder</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoActivo > 0)
+                                {
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_campana_tableroControlResult item in ViewBag.listadoActivo)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@item.id_campana</td>
+                                            <td class="text-center">@item.titulo</td>
+                                            <td class="text-center">@item.descripcion</td>
+                                            <td class="text-center">@item.conteoPreguntas</td>
+                                            <td class="text-center">
+                                                <a class="button_Asalud_Aceptar" onclick="ResponderPregunta(@item.id_campana);" data-toggle="modal">
+                                                    Responder
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="14" style="text-align:center; font-size:14px;">
+                                            NO HAY REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="2a">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form>
+                        <table class="tableIngreso table-bordered table-condensed table-striped" style="width: 98%; font-size: 10px;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Id</th>
+                                    <th class="text-center">Título</th>
+                                    <th class="text-center">Descripción</th>
+                                    <th class="text-center">Preguntas</th>
+                                    <th class="text-center">Editar</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Reporte</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteo > 0)
+                                {
+
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_campana_tableroControlResult item in ViewBag.listado)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@item.id_campana</td>
+                                            <td class="text-center">@item.titulo</td>
+                                            <td class="text-center">@item.descripcion</td>
+                                            <td class="text-center">@item.conteoPreguntas</td>
+                                            <td class="text-center">
+                                                <a class="button_Asalud_Aceptar" onclick="EditarCampana(@item.id_campana);">
+                                                    <i class="glyphicon glyphicon-edit"></i>&nbsp; Editar
+                                                </a>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (item.estado == 1)
+                                                {
+                                                    <a class="button_Asalud_Rechazar" onclick="DesactivarCampana(@item.id_campana);">
+                                                        <i class="glyphicon glyphicon-remove"></i> &nbsp;Desactivar
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="button_Asalud_Aceptar" onclick="ActivarCampana(@item.id_campana);">
+                                                        <i class="glyphicon glyphicon-plus"></i> &nbsp;Activar
+                                                    </a>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a onclick="ExportarReporteId(@item.id_campana);" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Reporte</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="14" style="text-align:center; font-size:14px;">
+                                            NO HAY REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        mostrarTabla();
+
+    })
+
+    function mostrarTabla() {
+        var conteo = "@conteoLista";
+        if (conteo > 0) {
+            $('.tableIngreso').DataTable().destroy();
+
+            $('.tableIngreso').DataTable({
+                "searching": true,
+                "idisplaylength": 15,
+                "lengthchange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    processing: "procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "mostrar menu registros",
+                    info: "mostrando registros del start al end de un total de total registros",
+                    infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(filtrado de un total de max registros)",
+                    infopostfix: "",
+                    loadingrecords: "cargando...",
+                    zerorecords: "no se encontraron resultados",
+                    emptytable: "ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "primero",
+                        previous: "anterior",
+                        next: "siguiente",
+                        last: "último",
+                    },
+                }
+            });
+        }
+    }
+
+    function ResponderPregunta(id) {
+        var confirmar = confirm("¿Seguro(a) de responder esta campaña?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("RespuestaCampañas", "Campañas")?idCampana=" + id;
+        }
+    }
+
+    function DesactivarCampana(idCampana) {
+
+        var confirmar = confirm("Seguro(a) de desactivar esta campaña?");
+        if (confirmar == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ActualizarEstadosCampa", "Campañas")",
+                type: "post",
+                data: {
+                    idCampana: idCampana,
+                    estado: 0
+                },
+                method: 'POST',
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+     function ActivarCampana(idCampana) {
+
+        var confirmar = confirm("Seguro(a) de activar esta campaña?");
+        if (confirmar == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ActualizarEstadosCampa", "Campañas")",
+                type: "post",
+                data: {
+                    idCampana: idCampana,
+                    estado: 1
+                },
+                method: 'POST',
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function EditarCampana(idCampana) {
+        var confirmar = confirm("¿Seguro(a) de editar esta campaña?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("EditarPreguntas", "campañas")?idCampana=" + idCampana;
+        }
+    }
+
+    function ExportarReporteId(idCampana) {
+          var URL2 = "@Url.Action("ExcelReporteCampanaId", "Campañas")?idCampana=" + idCampana;
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        width: 100% !important;
+    }
+
+    .datepickerr label.error {
+        position: absolute;
+        margin-left: -90%;
+        background-color: indianred;
+        color: white;
+        font-size: 13px !important;
+        width: 100% !important;
+    }
+
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .field-validation-error {
+        visibility: visible;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

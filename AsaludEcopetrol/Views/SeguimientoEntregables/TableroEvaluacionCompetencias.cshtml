@@ -1,0 +1,248 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_competencias>
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "INDICADOR DE OPORTUNIDAD DE ENTREGABLES";
+    double puntuacion = 0;
+    int count = 0;
+}
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">INDICADOR DE OPORTUNIDAD DE ENTREGABLES </strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroEvaluacionCompetencias">
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Buscar por mes:</label>
+                    <select class="select2 form-control" id="mes" name="mes">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.mes)
+                        {
+                            <option value="@item.id_mes">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-8 text-right">
+                    <label style="width:100%;visibility:hidden" class="text-secondary_asalud">Boton buscar</label>
+                    <button type="submit" class="btn button_Asalud_Aceptar"><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                </div>
+            </div>
+        </form>
+        <br />
+        <div class="table-responsive">
+            <table id="tabla" class="table table-hover table-bordered datatable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Responsable</th>
+                        <th>Mes</th>
+                        <th>Entregables a cargo</th>
+                        <th>Entregas realizadas</th>
+                        <th>Entregas pendientes</th>
+                        <th>Entregas oportunas</th>
+                        <th>Entregas inoportunas</th>
+                        <th>Entregas con fecha limite ampliada</th>
+                        <th>Puntuación</th>
+                        <th>Calificación oportunidad entregable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_competencias item in Model)
+                    {
+
+                        puntuacion += item.puntuacion.Value;
+                        count += 1;
+                        <tr>
+                            <td>@item.persona_responsable</td>
+                            @if (!string.IsNullOrEmpty(item.mes))
+                            {
+                                <td>@item.mes</td>
+                            }
+                            else
+                            {
+                                <td>NO REGISTRA</td>
+                            }
+                            
+                            <td class="text-right">@item.entregables_a_cargo</td>
+                            <td class="text-right">@item.entregas_realizadas</td>
+                            <td class="text-right">@item.entregas_no_realizadas</td>
+                            <td class="text-right">@item.entregas_realizadas_a_tiempo</td>
+                            <td class="text-right">@item.entregas_no_realizadas_a_tiempo</td>
+                            <td class="text-right">@item.entregas_con_ampliacion</td>
+                            <td class="text-right">@item.puntuacion</td>
+                            @if (item.puntuacion >= 95)
+                            {
+                                <td style="background-color:#DCF2D2; color:black" class="text-center">Excelente</td>
+                            }
+                            else if (item.puntuacion < 95 && item.puntuacion >= 85)
+                            {
+                                <td style="background-color:#FFFAE0; color:black" class="text-center">Bueno</td>
+                            }
+                            else if (item.puntuacion < 85 && item.puntuacion >= 75)
+                            {
+                                <td style="background-color:lightgray; color:black" class="text-center">Regular</td>
+                            }
+                            else
+                            {
+                                <td style="background-color:#FFEDED; color:black" class="text-center">Malo</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    @{ double puntufinal = puntuacion / count;}
+                    <tr>
+                        <td colspan="7" class="text-left">Total</td>
+                        <td class="text-right">@Math.Round(puntufinal,2)</td>
+                        @if (puntufinal >= 95)
+                        {
+                            <td colspan="2" style="background-color:#DCF2D2; color:black" class="text-center">Puntuación xcelente</td>
+                        }
+                        else if (puntufinal < 95 && puntufinal >= 85)
+                        {
+                            <td colspan="2" style="background-color:#FFFAE0; color:black" class="text-center">Puntuación buena</td>
+                        }
+                        else if (puntufinal < 85 && puntufinal >= 75)
+                        {
+                            <td colspan="2" style="background-color:lightgray; color:black" class="text-center">Puntuación regular</td>
+                        }
+                        else
+                        {
+                            <td colspan="2" style="background-color:#FFEDED; color:black" class="text-center">Puntuación malo</td>
+                        }
+                        
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('#tabla thead tr').clone(true).appendTo('#tabla thead');
+        $('#tabla thead tr:eq(1) th').each(function (i) {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Buscar en ' + title + '" />');
+
+            $('input', this).on('keyup change', function () {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var table = $('#tabla').DataTable({
+            orderCellsTop: true,
+            "lengthChange": false,
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+    })
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .pagination > .active > a {
+        background-color: #333333 !important;
+        border-color: white !important;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .btn-xs {
+        margin-bottom: 2%;
+    }
+</style>

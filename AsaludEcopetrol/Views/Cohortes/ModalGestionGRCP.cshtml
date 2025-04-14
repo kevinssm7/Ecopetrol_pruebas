@@ -1,0 +1,168 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.management_VigilanciaCohortes_detalleParaGestionarResult
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="panel-body table-responsive">
+            <table class="table table-bordered table-responsive" style="width:98%;">
+                <tbody>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Registro</th>
+                        <th>Documento paciente</th>
+                        <th>Nombre paciente</th>
+                        <th>IPS</th>
+                        <th>Diagnóstico</th>
+                    </tr>
+                </tbody>
+                <tr>
+                    <td>@Model.id_lote</td>
+                    <td>@Model.id_registro</td>
+                    <td>@Model.documento_paciente</td>
+                    <td>@Model.nombre_paciente</td>
+                    <td>@Model.nombre_prestador</td>
+                    <td>@Model.codigo_dx_detectado - @Model.descripcion_dx_detectado</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<br />
+
+<form id="formGestion">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="hidden" id="idLote" name="idLote" value="@ViewBag.idLote" />
+                    <input type="hidden" id="idRegistro" name="idRegistro" value="@ViewBag.idRegistro" />
+
+                    <label class="text-secondary_asalud">Gestión</label>
+                    <select id="gestion" name="gestion" class="form-control" required onchange="gestionHecha(this.value)">
+                        <option value="">-Seleccione-</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Descartado">Decartado</option>
+                    </select>
+                </div>
+            </div>
+            <br />
+
+            <div class="row" id="divConfirmado" style="display:none">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Fecha confirmación</label>
+                    <input type="text" class="form-control datepickerr" id="fecha_confirmacion" name="fecha_confirmacion" style="width:100%;" required />
+                </div>
+                <br />
+
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Justificación confirmación</label>
+                    <textarea id="observacion_confirmacion" name="observacion_confirmacion" class="form-control char-count" cols="4" rows="5" maxlength="2000" required></textarea>
+                    <p class="charCount">Te quedan 2000 caracteres.</p>
+                </div>
+            </div>
+
+            <div class="row" id="divDescartado" style="display:none">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observación descarte</label>
+                    <textarea id="observacion_descarte" name="observacion_descarte" class="form-control char-count" cols="4" rows="5" maxlength="2000"></textarea>
+                    <p class="charCount">Te quedan 2000 caracteres.</p>
+                </div>
+            </div>
+
+            <br />
+            <div class="row" style="text-align:center;">
+                <a class="button_Asalud_Guardar" onclick="GuardarGestion()">Guardar</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+
+        $('.select3').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date(),
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+    });
+
+
+    function gestionHecha(valor) {
+        if (valor == "Confirmado") {
+            document.getElementById("divConfirmado").style.display = "block";
+            document.getElementById("divDescartado").style.display = "none";
+        } else {
+            document.getElementById("divConfirmado").style.display = "none";
+            document.getElementById("divDescartado").style.display = "block";
+        }
+    }
+
+    function GuardarGestion() {
+        var valida = $("#formGestion").validate();
+        if (valida.form()) {
+            EnviarDatos();
+        }
+    }
+
+    function EnviarDatos() {
+
+        var formData = new FormData($("#formGestion")[0]);
+        formData.append("idLote", $("#idLote").val());
+        formData.append("idRegistro", $("#idRegistro").val());
+        formData.append("gestion", $("#gestion").val());
+        formData.append("fecha_confirmacion", $("#fecha_confirmacion").val());
+        formData.append("observacion_confirmacion", $("#observacion_confirmacion").val());
+        formData.append("observacion_descarte", $("#observacion_descarte").val());
+
+        LoadingShow();
+
+            $.ajax({
+                url: '@Url.Action("GuardarGestion", "Cohortes")',
+                type: "POST",
+                data: formData,
+                method: "POST",
+                processData: false,
+                contentType: false,
+
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    if (response.rta == 1) {
+                        location.reload();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+
+    }
+
+
+</script>
+<style>
+    .charCount {
+        font-size: 10px;
+    }
+</style>

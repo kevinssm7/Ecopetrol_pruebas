@@ -1,0 +1,79 @@
+﻿@using ECOPETROL_COMMON.ENTIDADES
+@model List<Management_inventario_facturas_contabilizadasResult>
+<table id="tablaInformacion" class="table table-bordered  table-condensed dt-responsive">
+    <thead>
+        <tr>
+            <th>Fecha de contabilización</th>
+            <th>Documento contable</th>
+            <th>Número de factura SAP</th>
+            <th>Código SAP</th>
+            <th>Nit</th>
+            <th>Razón social</th>
+            <th>Ciudad</th>
+            <th>Valor total factura</th>
+            <th>Regional</th>
+            <th>Fecha de recepción</th>
+            <th>Unis</th>
+            <th>Analista</th>
+            <th>Soportes</th>
+            <th>Gestión</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.fecha_contabilizacion.Value.ToString("yyyy/MM/dd")</td>
+                <td>@item.documento_contable</td>
+                <td>@item.numero_factura_sap</td>
+                <td>@item.cod_sap</td>
+                <td>@item.nit</td>
+                <td>@item.razon_social</td>
+                <td>@item.ciudad</td>
+                <td>@item.valor_total_factura</td>
+                <td>@item.nom_regional</td>
+                <td>@item.fecha_recepcion.Value.ToString("yyyy/MM/dd")</td>
+                <td>@item.unis</td>
+                <td>@item.analista</td>
+                <td>
+                    <a style="margin-bottom:2px" href="javascript:ModalVerSoportes(@item.id_cargue_dtll)" role="button" class="btn btn-xs button_Asalud_descargas"><i class="glyphicon glyphicon-eye-open"></i>&nbsp;Ver documentos</a>
+                    <a href="javascript:DescargarDocumentos(@item.id_cargue_dtll)" role="button" class="btn btn-xs button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp;Descargar documentos</a>
+                </td>
+                <td>
+                    <button onclick="GestionarFactura(@item.id_inventario_cargue_dtll)" type="button" class="btn btn-xs button_Asalud_Aceptar" on><i class="glyphicon glyphicon-comment"></i>&nbsp;Ingresar Gestión</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('#tablaInformacion').DataTable({
+            "searching": true,
+            "iDisplayLength": 20,
+            "order": [[0, "desc"]],
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+</script>

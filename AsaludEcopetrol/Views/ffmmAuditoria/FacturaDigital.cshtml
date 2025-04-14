@@ -1,0 +1,322 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div id="example">
+    <div id="grid"></div>
+</div>
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Id</th>
+                            <th>Nombre prestador</th>
+                            <th>Numero factura</th>
+                            <th>Valor factura</th>
+                            <th>Estado factura</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="ModalSoportes2" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes2" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $("#grid").kendoGrid({
+                dataSource: {
+                    pageSize: 10,
+                    transport: {
+                        read: {
+                            url: "Selection_Read",
+                             dataType: "json",
+                            type: "POST",
+                        }
+                    },
+                    schema: {
+                        model: {
+                            id: "id_cargue_base"
+                        }
+                    }
+                },
+                toolbar: ["search"],
+                pageable: true,
+                scrollable: false,
+                persistSelection: true,
+                sortable: true,
+                columns: [
+                    { selectable: true, width: "50px" },
+                    { field: "id_cargue_base", title: "Lote" },
+                    { field: "Nombre", title: "Prestador" },
+                    { field: "fecha_digita", title: "Fecha Recepción Factura", format: "{0:dd/MM/yyyy}", encoded: true },
+                    {
+                        command: [{
+                            name: "Ver facturas",
+                            click: function (e) {
+                                e.preventDefault();
+                                var tr = $(e.target).closest("tr");
+                                var data = this.dataItem(tr);
+                                Edit1(data.id_cargue_dtll, data.id_cargue_base)
+                            }
+                        }]
+                    }
+                ]
+        });
+
+
+    });
+
+    function gestionar(a)
+    {
+        var url = "@Url.Action("IngresoCuentasRecepcion", "CuentasMedicas")?id_factura=" + a;
+        popupWindow = window.open(url, '_self', '')
+    }
+
+    function documentos(a,b)
+    {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+        data: {
+            idcargue: a,
+            iddetalle:b
+            },
+
+        success: function (data)
+        {
+            LoadingHide();
+            $("#tblsoportes2 tbody").empty();
+            $("#tblsoportes2 tbody").html(data);
+            $("#ModalSoportes2").modal('show');
+        }
+        })
+    }
+    function aceptar(a)
+    {
+        var b = 2;
+        ActualizarFacAceptado(a,b)
+    }
+    function Rechazar(a)
+    {
+        var b = 3;
+        ActualizarFacAceptado(a, b)
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "ffmmAuditoria")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a)
+    {
+        alert('SIN REGISTROS..');
+    }
+    function Edit1(b,a)
+    {
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablaFacturas")",
+            type: "post",
+        data: {
+            idcargue: a
+            },
+
+        success: function (data)
+        {
+            LoadingHide();
+            $("#tblsoportes tbody").empty();
+            $("#tblsoportes tbody").html(data);
+            $("#ModalSoportes").modal('show');
+        }
+        })
+
+    }
+
+     function ActualizarFacAceptado(a,b) {
+
+        var formData = new FormData($("form")[0]);
+
+         formData.append("id_factura", a);
+         formData.append("estado", b);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("ActualizarFacturaDig", "ffmmAuditoria")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  alert(response.message);
+                  LoadingHide();
+                  location.reload();
+              }
+              else
+              {
+                  LoadingHide();
+                  alert(response.message);
+              }
+
+            }
+        })
+    }
+
+</script>
+
+
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+</style>
+
+
+
+
+

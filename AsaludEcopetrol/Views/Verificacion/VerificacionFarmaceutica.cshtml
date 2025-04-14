@@ -1,0 +1,423 @@
+﻿@using AsaludEcopetrol.Models.Verificacion
+
+@{
+    ViewBag.Title = "INSTRUMENTO VERIFICACIÓN ESTABLECIMIENTO FARMACÉUTICO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    VerificacionFarmaceutica modelo = new VerificacionFarmaceutica();
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="col-sm-12 form-group text-right">
+                    <button id="btnaddverificacion" name="btnaddverificacion" class="btn button_Asalud_Aceptar btn-sm"><i class="glyphicon glyphicon-plus"></i>&nbsp; Nuevo tipo de verificación</button>
+                </div>
+                <div class="col-m-12 form-group">
+                    <table id="tableVerificacion" class="table table-bordered table-funcion" cellspacing="0" style="width:98%">
+                        <thead>
+                            <tr>
+                                <th>Tipo verificación establecimiento</th>
+                                <th>Tipos de criterio</th>
+                                <th></th>
+                                <th></th>
+                                <th class="text-center">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (ViewBag.conteo != 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.ref_verificacion_farmaceutico item in ViewBag.reftipoverificacion)
+                                {
+                                    var tiposcriterio = modelo.getTipoCriterio(item.id_veriticacion);
+                                    tiposcriterio = tiposcriterio.Where(x => x.id_tipo_criterio_real != null).ToList();
+
+                                    <tr>
+                                        <td>
+                                            <input type="hidden" id="tipo_@item.id_veriticacion" name="tipo_@item.id_veriticacion" value="@item.descripcion" />
+                                            <a class="button_Asalud_Aceptar botonAceptar" onclick="EditarCriterio(@item.id_veriticacion)">@item.descripcion</a>
+                                        </td>
+                                        <td>
+                                            @if (tiposcriterio.Count > 0)
+                                            {
+                                                <ul style="padding-left:15px">
+                                                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_verificacionListaResult item2 in tiposcriterio)
+                                                    {
+                                                        <li style="font-size:12px;padding:0px">
+                                                            @item2.nombre_criterio
+                                                        </li>
+                                                    }
+                                                </ul>
+
+                                            }
+                                            else
+                                            {
+                                                <strong style="font-size:12px">No hay criterios configurados.</strong>
+                                            }
+
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn btn-sm button_Asalud_Aceptar" title="Editar" href="javascript:GetDatosVerificacion(@item.id_veriticacion)">
+                                                <i class="glyphicon glyphicon-pencil"></i>&nbsp; Editar
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn btn-sm button_Asalud_Rechazar" title="Eliminar" href="javascript:EliminarVerificacion(@item.id_veriticacion)">
+                                                <i class="glyphicon glyphicon-trash"></i>&nbsp; Eliminar
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="dropdown">
+                                                <a class="dropdown-toggle rowlink btn btn-sm button_Asalud_Guardar" data-toggle="dropdown" href="#" title="Opciones función #">
+                                                    <i class="glyphicon glyphicon-th-list"></i>&nbsp;Opciones
+                                                </a>
+                                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                                    <li>
+                                                        <a cla title="Configuración de Criterios" href="@Url.Action("AdminCriterios","Verificacion", new {idTipoVerificacion = item.id_veriticacion })">
+                                                            <i class="glyphicon glyphicon-cog"></i>&nbsp; Administrar Criterios
+                                                        </a>
+                                                    </li>
+                                                    @*<li>
+                                                            <a title="Configuración de Criterios" href="@Url.Action("VerificaciontipoCriterio","Verificacion", new {idTipoVer = item.id_veriticacion })">
+                                                                <i class="glyphicon glyphicon-share"></i>&nbsp; Configurar Criterios
+                                                            </a>
+                                                        </li>*@
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" style="text-align:center">No se han agregado registros.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalAdd" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="form_add_tipo_verificacion">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input type="hidden" id="txtidtipoverificacion" name="txtidtipoverificacion" value="0" />
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="text-secondary_asalud control-label">Nombre tipo verificación:</label>
+                                    <select class="form-control select2" id="txtnomtipoverificacion" name="txtnomtipoverificacion" required>
+                                        <option value="">- Seleccione -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_verificacionFarmaceutica_tipos item in ViewBag.tipoVer)
+                                        {
+                                            <option value="@item.descripcion">@item.descripcion.ToUpper() </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="text-secondary_asalud">Peso:</label><span style="color:red"></span>
+                                    <input name="txtpeso" id="txtpeso" class="form-control" maxlength="4" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="Validar_formulario()" class="btn button_Asalud_Aceptar">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="ModalEditarVerifi" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="formEditVerificacion">
+                    <div class="row" style="align-content:center;">
+                        <div class="col-sm-12 text-center" style="text-align:center;">
+                            <input type="hidden" id="idVerificacion" name="idVerificacion" />
+                            <input type="text" id="descripcionNueva" name="descripcionNueva" class="form-control" maxlength="80" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="validarEdicion()" class="btn button_Asalud_Aceptar">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function () {
+        var tab = "@ViewBag.tab";
+        if (tab != "") {
+            $("#tiposcriteriotab").click();
+        }
+
+        $("#btnaddverificacion").click(function () {
+            $("#txtidtipoverificacion").val(0)
+            $("#txtnomtipoverificacion").val("");
+            $("#txtpeso").val("");
+            $(".modal-title").text("Agregar nuevo tipo de verificacion");
+            $("#ModalAdd").modal('show');
+        });
+
+        $('#tableVerificacion').DataTable({
+            "searching": true,
+            "idisplaylength": 15,
+            "lengthchange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+
+
+    })
+
+    function Validar_formulario() {
+        var validator = $("#form_add_tipo_verificacion").validate();
+        if (validator.form()) {
+            $("#ModalAdd").modal('hide');
+            GuardarTipoverificacion()
+        }
+    }
+
+    function GuardarTipoverificacion() {
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarTipoVerificacion")",
+            type: "post",
+            data: {
+                idtipoverificacion: $("#txtidtipoverificacion").val(),
+                NomTipoverificacion: $("#txtnomtipoverificacion").val(),
+                peso: $("#txtpeso").val(),
+
+
+            },
+            success: function (data) {
+                if (data.rta == 0) {
+                    var url = "@Url.Action("VerificacionFarmaceutica", "Verificacion")";
+                    location.href = url;
+                }
+                else {
+                    alert(data.msj);
+                    var url = "@Url.Action("VerificacionFarmaceutica", "Verificacion")";
+                    location.href = url;
+                }
+            }
+        })
+    }
+
+    function GetDatosVerificacion(a) {
+
+        var idTipoVerificacion = a;
+        $.ajax({
+            url: "@Url.Action("GetdatosVerificacion")",
+            type: "post",
+            data: { idTipoVerificacion: idTipoVerificacion },
+            success: function (data) {
+                if (data != 0) {
+                    $("#txtidtipoverificacion").val(data.idverificacion)
+                    $("#txtnomtipoverificacion").val(data.nomverificacion).trigger("change");
+                    $("#txtpeso").val(data.peso);
+                    $(".modal-title").text("Editar nuevo tipo de verificación");
+                    $("#ModalAdd").modal('show');
+                } else {
+                    alert("No se ha encontrado el tipo de verificación");
+                }
+            }
+        });
+    }
+
+    function EliminarVerificacion(a) {
+        var idVerificacion = a;
+        Swal.fire({
+            title: 'Estás seguro(a)?',
+            text: "Este tipo de verificación quedará eliminada por completo, a su vez, las verificaciones y los criterios que estén asociados a esta también seran eliminados.",
+            showCancelButton: true,
+            confirmButtonColor: '#80ab97',
+            cancelButtonColor: '#883344',
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                var url = "@Url.Action("EliminarTipoverificacion")?idVerificacion=" + idVerificacion;
+                location.href = url;
+            }
+        })
+    }
+
+    function EditarCriterio(id) {
+        var descripcion = $("#tipo_" + id).val();
+        $("#idVerificacion").val(id);
+        $("#descripcionNueva").empty();
+        $("#descripcionNueva").val(descripcion);
+        $("#ModalEditarVerifi").modal("show");
+    }
+
+    function validarEdicion() {
+        var validar = $("#formEditVerificacion").validate();
+        if (validar.form()) {
+            LoadingShow();
+            var id = $("#idVerificacion").val();
+            var descripcion = $("#descripcionNueva").val();
+
+            $.ajax({
+                url: "@Url.Action("ActualizarVerificacion")",
+                type: "post",
+                data: {
+                    id: id,
+                    descripcion: descripcion
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+
+
+<style>
+    #pnlPrincipal {
+        padding-left: 1%;
+        padding-right: 2%;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    .botonAceptar {
+        text-align: left !important;
+        align-content: center !important;
+    }
+</style>

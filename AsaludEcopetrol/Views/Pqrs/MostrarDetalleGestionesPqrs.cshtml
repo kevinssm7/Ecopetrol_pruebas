@@ -1,0 +1,149 @@
+﻿
+@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+
+<div class="panel panel-default" style="font-size:12px;">
+    <div class="panel-heading">
+        <strong class="control-label text-secondary_asalud">DETALLE PQR - @ViewBag.idPqrs</strong>
+        <input type="hidden" id="idPqrs" name="idPqrs" value="@ViewBag.idPqrs" />
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.numero_caso)</label></h5>
+                <input type="text" id="numero_caso" name="numero_caso" class="form-control" value="@Model.numero_caso" readonly />
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.consecutivo_caso)</label></h5>
+                <input type="text" id="consecutivo_caso" name="consecutivo_caso" class="form-control" value="@Model.consecutivo_caso" readonly />
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_solicitud)</label></h5>
+                @Html.DropDownListFor(model => model.tipo_solicitud, new SelectList(Model.ListTipoSolicitud, "id_ref_pqrs_tipo_solicitud", "descripcion"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                @Html.ValidationMessageFor(u => u.tipo_solicitud, null, new { @class = "label label-danger" })
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso_salesforce)</label></h5>
+                <input type="text" class="form-control datepickerr" id="fecha_ingreso_salesforce" name="fecha_ingreso_salesforce" style="width:100%;" value="@Model.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")" readonly />
+            </div>
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_egreso_salesforce)</label></h5>
+                <input type="text" class="form-control datepickerr" id="fecha_egreso_salesforce" name="fecha_egreso_salesforce" style="width:100%;" value="@Model.fecha_egreso_salesforce.Value.ToString("dd/MM/yyyy")" readonly />
+            </div>
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso_buzon_asalud)</label></h5>
+                <input type="text" class="form-control datepickerr" id="fecha_ingreso_buzon_asalud" name="fecha_ingreso_buzon_asalud" style="width:100%;" value="@Model.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")" readonly />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_asignacion)</label></h5>
+                <input type="text" class="form-control datepickerr" id="fecha_asignacion" name="fecha_asignacion" style="width:100%;" value="@Model.fecha_asignacion.Value.ToString("dd/MM/yyyy")" readonly />
+            </div>
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.regional)</label></h5>
+                <input type="hidden" id="regionalVlr" name="regionalVlr" value="@Model.regional" />
+                <select id="regional" name="regional" class="form-control select2">
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                    {
+                        <option selected="@Model.regional" value="@item.id_ref_regional">@item.nombre_regional</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.ciudad_del_caso)</label></h5>
+                <select id="ciudad_del_caso" name="ciudad_del_caso" class="form-control select2">
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ciudades item in ViewBag.ciudad)
+                    {
+                        <option selected="@Model.ciudad_del_caso" value="@item.id_ref_ciudades">@item.nombre</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.usuario_asignado)</label></h5>
+                <select id="usuario_asignado" name="usuario_asignado" class="form-control select2">
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_PQRS_usuarios item in ViewBag.usuarios)
+                    {
+                        <option selected="@Model.usuario_asignado" value="@item.id_usuario">@item.nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.solicitante_numero_identi)</label></h5>
+                <input type="text" id="solicitante_numero_identi" name="solicitante_numero_identi" class="form-control" value="@Model.solicitante_numero_identi" readonly />
+            </div>
+
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.solicitante_nombre)</label></h5>
+                <input type="text" id="solicitante_nombre" name="solicitante_nombre" class="form-control" value="@Model.solicitante_nombre" readonly />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.solucionador)</label></h5>
+                <input type="text" id="solucionador" name="solucionador" class="form-control" value="@Model.solucionador" readonly />
+            </div>
+            <div class="col-sm-6 form-group">
+                <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.especificacion_solicitud)</label></h5>
+                <textarea type="text" id="especificacion_solicitud" name="especificacion_solicitud" class="form-control" cols="4" rows="4" readonly></textarea>
+                <input type="hidden" id="especificacion_solicitudDato" name="especificacion_solicitudDato" class="form-control" value="@Model.especificacion_solicitud" readonly />
+            </div>
+
+            @if (ViewBag.vieneCierre != 1)
+            {
+                <div class="col-md-2">
+                    <h5><span class="control-label text-secondary_asalud">Archivos de ingreso:</span></h5>
+                    <a class="button_Asalud_Aceptar" onclick="MostrarSubArchivos(@ViewBag.idPqrs);" data-toggle="modal" data-target="#myModalArchivos">
+                        <i class="glyphicon glyphicon-file"></i>&nbsp; Ver archivos
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        if ("@ViewBag.vieneCierre" != 1) {
+
+            $('.select2').select2({
+                width: '100%',
+                height: '100%'
+            });
+
+            $(".datepickerr").kendoDatePicker({
+                format: "MM/dd/yyyy"
+            });
+            $(".k-input").attr('readonly', true);
+        }
+
+        var especificacion = $("#especificacion_solicitudDato").val();
+        $("#especificacion_solicitud").html(especificacion);
+
+        //$('#usuario_asignado').prop('disabled', false);
+
+        document.getElementById("tipo_solicitud").disabled = true;
+        document.getElementById("regional").disabled = true;
+        document.getElementById("ciudad_del_caso").disabled = true;
+        document.getElementById("usuario_asignado").disabled = true;
+
+        var regional = $("#regionalVlr").val();
+        $("#regional").val(regional).change();
+
+        //document.getElementById("especificacion_solicitud").html = especificacion;
+
+    });
+
+
+</script>

@@ -1,0 +1,1883 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Concurrencia.ConcurrenciaEgreso
+@{
+    ViewBag.Title = "DATOS EGRESO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var idConcu = ViewBag.concu;
+}
+
+<br />
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "formulario" }))
+        {
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <h5 style="text-align: center;">
+                        PROCEDIMIENTOS QUIRURGICOS DE LAS EVOLUCIONES
+                    </h5>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-condensed table-striped datatable">
+                            <thead>
+                                <tr>
+                                    <th>Id.</th>
+                                    <th>Descripcion</th>
+                                    <th>Fecha Ingreso</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Management_evolucion_procedimientosResult item in ViewBag.Procedimietos)
+                                {
+                                    <tr>
+                                        <td>@item.id_cups_qx</td>
+                                        <td>@item.des.ToUpper()</td>
+                                        <td>@item.fecha_ingreso.Value.ToString("dd/MM/yyyy HH:mm:ss")</td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5> <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_egreso)</label> </h5>
+
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_egreso)
+                .Name("datepicker")
+                .Format("dd/MM/yyyy")
+                .Events(e =>
+                {
+                e.Change("change");
+                })
+                .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde", required = "required" })
+
+
+                )
+                    @Html.ValidationMessageFor(u => u.fecha_egreso, null, new { @class = "label label-danger" })
+                    @if (Model.GetLista.Count != 0)
+                    {
+                        foreach (var order in Model.GetLista)
+                        {
+                            if (order.fecha_egreso_censo != null)
+                            {
+                                //  <strong>ALERTA..!</strong> <h5 style="color:firebrick">  Egresado desde censo. @order.fecha_egreso_censo </h5>
+                                <div class="alert alert-danger">
+                                    <strong>ALERTA..!</strong> Tiene un Egreso desde censo el  dia: @order.fecha_egreso_censo
+
+                                </div>
+                            }
+
+                        }
+                    }
+                </div>
+
+                <div class="col-sm-4">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.procedimientoqx)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.procedimientoqx, "SI", new { @onclick = "mostrarcups()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.procedimientoqx, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.procedimientoqx, "NO", new { @onclick = "ocultarcups()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.procedimientoqx, null, new { @class = "label label-danger" })
+                </div>
+                <div class="col-sm-4">
+                    <h5> <label class="text-secondary_asalud">¿EDITAR CRITERIOS DE INGRESO?</label> </h5>
+                    @Html.RadioButtonFor(model => model.mostrarConcu, "SI", new { @onchange = "validacionSiNo('si')" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.mostrarConcu, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.mostrarConcu, "NO", new { @onchange = "validacionSiNo('no')" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.mostrarConcu, null, new { @class = "label label-danger" })
+
+                    @*<input type="radio" id="si" value="si" name="mostrarConcu" onchange="validacionSiNo(this.value);" required />Si
+                        @Html.ValidationMessageFor(u => u.mostrarConcu, null, new { @class = "label label-danger" })
+
+                        <input type="radio" id="no" value="no" name="mostrarConcu" onchange="validacionSiNo(this.value);" />No
+                        @Html.ValidationMessageFor(u => u.mostrarConcu, null, new { @class = "label label-danger" })**@
+
+                </div>
+            </div>
+
+            <div id='pnlcups' style='display:none;' class="General">
+
+                <div class="row">
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.id_cups_qx)</label>
+                        </h5>
+                        @*@Html.DropDownListFor(model => model.id_cups_qx, new SelectList(Model.LstCups, "id_cups", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+                        @(Html.Kendo().AutoComplete()
+                        .Name("cups")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect2"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCups", "Concurrencia");
+                        });
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.id_cups_qx)
+                        @Html.ValidationMessageFor(model => model.id_cups_qx, "", new { @class = "label label-danger" })
+
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.id_cups_qx2)</label>
+                        </h5>
+
+                        @(Html.Kendo().AutoComplete()
+                        .Name("cups2")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelectCUPS2"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCups", "Concurrencia");
+                        });
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.id_cups_qx2)
+
+
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.id_cups_qx3)</label>
+                        </h5>
+                        @*@Html.DropDownListFor(model => model.id_cups_qx, new SelectList(Model.LstCups, "id_cups", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+                        @(Html.Kendo().AutoComplete()
+                        .Name("cups3")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelectCUPS3"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCups", "Concurrencia");
+                        });
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.id_cups_qx3)
+
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                @if (ViewBag.usuario == "14")
+                {
+
+                }
+                else
+                {
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diagnostico_calificado)</label>
+                        </h5>
+                        @*@Html.DropDownListFor(model => model.diagnostico_calificado, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx0")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect0"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                        });
+
+                        })
+
+                        .Events(e =>
+                        {
+
+
+                        e.Select("onSelect2");
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.diagnostico_calificado)
+                        @Html.ValidationMessageFor(u => u.diagnostico_calificado, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diagnostico_calificado2)</label>
+                        </h5>
+
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx22")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect6"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCie10Egreso", "Concurrencia");
+                        });
+
+                        })
+                        .Events(e =>
+                        {
+
+
+                        e.Select("onSelect3");
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.diagnostico_calificado2)
+                        @Html.ValidationMessageFor(u => u.diagnostico_calificado2, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diagnostico_calificado3)</label>
+                        </h5>
+                        @*@Html.DropDownListFor(model => model.diagnostico_calificado, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx33")
+                        .Placeholder("Seleccione...")
+                        .HtmlAttributes(new { style = "width:300px" })
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect7"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                        {
+                        source.Read(read =>
+                        {
+                        read.Action("GetCie10Egreso", "Concurrencia");
+                        });
+
+                        })
+
+                        .Events(e =>
+                        {
+
+
+                        e.Select("onSelect4");
+
+                        })
+                        )
+                        @Html.HiddenFor(x => x.diagnostico_calificado3)
+                        @Html.ValidationMessageFor(u => u.diagnostico_calificado3, null, new { @class = "label label-danger" })
+                    </div>
+                }
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.CondicionAlta)</label></h5>
+                    @Html.RadioButtonFor(model => model.CondicionAlta, "VIVO", new { @onclick = "mostrar()" })@Html.Label("VIVO")
+                    @Html.ValidationMessageFor(u => u.CondicionAlta, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.CondicionAlta, "MUERTO", new { @onclick = "mostrar1()" })@Html.Label("MUERTO")
+                    @Html.ValidationMessageFor(u => u.CondicionAlta, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.tiene_enfermedad_huer)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.tiene_enfermedad_huer, "SI", new { @onclick = "mostrar6()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.tiene_enfermedad_huer, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.tiene_enfermedad_huer, "NO", new { @onclick = "mostrar7()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.tiene_enfermedad_huer, null, new { @class = "label label-danger" })
+                </div>
+
+                <div id='pnlhuerfanas' style='display:none;' class="General">
+
+
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.id_enfermedades_huerfanas)</label>
+                        </h5>
+                        @*@Html.DropDownListFor(model => model.id_cups_qx, new SelectList(Model.LstCups, "id_cups", "des"), "Seleccione...", new { @class = "form-control" })*@
+
+                        @(Html.Kendo().AutoComplete()
+                    .Name("enfermedadesHuerfanas")
+                    .Placeholder("Seleccione...")
+                    .HtmlAttributes(new { style = "width:300px", })
+                    .DataTextField("descripcion")
+                    .Events(events => events.Select("CustomerSelectEH"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                    source.Read(read =>
+                    {
+                    read.Action("GetEnfermedadesHuerfanas", "Concurrencia");
+                    });
+
+                    })
+                    )
+                        @Html.HiddenFor(x => x.id_cups_qx)
+                        @Html.ValidationMessageFor(model => model.id_enfermedades_huerfanas, "", new { @class = "label label-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <label class=" control-label text-secondary_asalud">@Html.LabelFor(p => p.especialidad)</label>
+                    <select class="form-control select2" id="especialidad" name="especialidad" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_servicio_tratante item in Model.LstServicioTratante)
+                        {
+                            <option value="@item.id_servicio_tratante">@item.des</option>
+                        }
+                    </select>
+                </div>
+
+
+
+                <div class="col-sm-4">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.eventos_en_salud)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.eventos_en_salud, "SI", new { onClick = "checktieneEventoA()", @id = "radiospecific" })@Html.Label("SI")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.eventos_en_salud, "NO", false)@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.eventos_en_salud, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.hospitalizacion_prevenible)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.hospitalizacion_prevenible, "SI", new { @onclick = "mostrar44()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.hospitalizacion_prevenible, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.hospitalizacion_prevenible, "NO", new { @onclick = "mostrar55()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.hospitalizacion_prevenible, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4" id='pnlPrevenible' style='display:none;'>
+                    <div class="General">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.descripcion_prevenible)</label>
+                        </h5>
+                        @Html.TextAreaFor(p => p.descripcion_prevenible, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.descripcion_prevenible, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    @foreach (var order in Model.GetLista)
+                    {
+                        if (order.id_base_beneficiarios == null)
+                        {
+                            <h5>
+                                <label class="text-secondary_asalud">@Html.LabelFor(p => p.incapacidades)</label>
+                            </h5>
+                            @Html.RadioButtonFor(model => model.incapacidades, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.incapacidades, null, new { @class = "label label-danger" })
+                            @Html.RadioButtonFor(model => model.incapacidades, "NO", new { @onclick = "mostrar3()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.incapacidades, null, new { @class = "label label-danger" })
+
+                        }
+                        else
+                        {
+                            <h5>
+                                <label class="text-secondary_asalud">@Html.LabelFor(p => p.incapacidades)</label>
+                            </h5>
+                            <h5>Debe ingresar Incapacidad</h5>
+
+                            <script>
+                                setTimeout("Habilitar()", 1000);
+                            </script>
+                        }
+
+                    }
+
+
+                </div>
+
+                @foreach (var order in Model.GetLista)
+                {
+                    if (order.genero == "M")
+                    {
+
+                    }
+                    else
+                    {
+                        <div class="col-sm-4">
+                            <h5>
+                                <label class="text-secondary_asalud">@Html.LabelFor(p => p.gestante)</label>
+                            </h5>
+
+                            @Html.RadioButtonFor(model => model.gestante, "SI", new { @onclick = "mostrar4()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.gestante, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.gestante, "NO")@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.gestante, null, new { @class = "label label-danger" })
+                        </div>
+
+
+                    }
+
+                }
+
+            </div>
+            <div class="row">
+
+                <div id='pnlNatural2' style='display:none;' class="General">
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_inicial)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_inicial)
+
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+                    //.Value(DateTime.Now)
+
+                    )
+                        @Html.ValidationMessageFor(model => model.fecha_inicial, "", new { @class = "label label-danger" })
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_final)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_final)
+
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+                    // .Value(DateTime.Now)
+
+                    )
+                        @Html.ValidationMessageFor(model => model.fecha_final, "", new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.origen_incap)</label>
+                        </h5>
+                        @Html.RadioButtonFor(model => model.origen_incap, "COMUN", new { @readonly = "readonly" })@Html.Label("COMUN")
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.origen_incap, "LABORAL", new { @readonly = "readonly" })@Html.Label("LABORAL")
+                        @Html.ValidationMessageFor(model => model.origen_incap, "", new { @class = "label label-danger" })
+
+                    </div>
+
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.lesiones_severas)</label></h5>
+
+                    @Html.RadioButtonFor(model => model.lesiones_severas, true, new { @onclick = "Habilitar2()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.lesiones_severas, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.lesiones_severas, false, new { @onclick = "Habilitar3()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.lesiones_severas, null, new { @class = "label label-danger" })
+                </div>
+
+
+                <div class="col-sm-4">
+                    <h5><label class="text-secondary_asalud">@Html.LabelFor(p => p.id_lesiones_severas)</label></h5>
+                    @Html.DropDownListFor(model => model.id_lesiones_severas, new SelectList(Model.LstAltoCosto, "id_lesion_severa", "descripcion"), "Seleccione...", new { @class = "form-control select2", @onchange = "calcula3()" })
+                    @Html.ValidationMessageFor(u => u.id_lesiones_severas, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.calidadDiagnostico_egreso)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.calidadDiagnostico_egreso, "SI", new { @onclick = "mostrar52()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.calidadDiagnostico_egreso, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.calidadDiagnostico_egreso, "NO", new { @onclick = "mostrar53()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.calidadDiagnostico_egreso, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4" id="divHistoriaClinica" style="display:none;">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.diagnosticoEgreso_historiaClnica)</label>
+                    </h5>
+                    @(Html.Kendo().AutoComplete()
+                .Name("dx50")
+                .Placeholder("Seleccione...")
+                .HtmlAttributes(new { style = "width:300px" })
+                .DataTextField("des")
+                .Events(events => events.Select("CustomerSelect50"))
+                .Filter(FilterType.Contains)
+
+                .DataSource(source =>
+                {
+                source.Read(read =>
+                {
+                read.Action("GetCie10EgresoPrincipal2", "Concurrencia");
+                });
+
+                })
+
+                .Events(e =>
+                {
+
+
+                e.Select("onSelect5");
+
+                })
+                )
+                    @Html.HiddenFor(x => x.diagnosticoEgreso_historiaClnica)
+                    @Html.ValidationMessageFor(u => u.diagnosticoEgreso_historiaClnica, null, new { @class = "label label-danger" })
+                </div>
+
+                <div id="divJustificacion" class="col-sm-4" style="display:none">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.justificacion)</label>
+                    </h5>
+                    @Html.TextAreaFor(p => p.justificacion, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.justificacion, null, new { @class = "label label-danger" })
+                </div>
+
+
+
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <h5>
+                        <label class="text-secondary_asalud">@Html.LabelFor(p => p.infeccion)</label>
+                    </h5>
+                    @Html.RadioButtonFor(model => model.infeccion, true, new { @onclick = "HabilitarInfeccion()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.infeccion, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.infeccion, false, new { @onclick = "DesabilitarInfeccion()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.infeccion, null, new { @class = "label label-danger" })
+
+
+                </div>
+                <div id='pnlInfeccion' style='display:none;' class="General">
+
+                    <div class="col-sm-8">
+                        <div class="General">
+                            <h5>
+                                <label class="text-secondary_asalud">@Html.LabelFor(p => p.microorganismo)</label>
+                            </h5>
+                            @Html.TextAreaFor(u => u.microorganismo, new { @class = "form-control", @maxlength = "1000", @id = "sessionNum3", @name = "sessionNum3" })
+                            @Html.ValidationMessageFor(u => u.microorganismo, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            // leo
+
+
+
+
+            <div id='pnlCausal' style='display:none;' class="General">
+                <div class="row">
+
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.causal_egreso)</label>
+                        </h5>
+                        @Html.DropDownListFor(model => model.causal_egreso, new SelectList(Model.LisCausaEgreso, "id_ref_causal_egreso", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.causal_egreso, null, new { @class = "label label-danger" })
+                    </div>
+
+
+                </div>
+            </div>
+            <div id='pnlNatural' style='display:none;' class="General">
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-12" align="center" width="990" style="color:#ffffff; background: #2E64FE;">
+                        <h5>DATOS MORTALIDAD</h5>
+
+                    </div>
+                </div>
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.NumeroDefuncion)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.NumeroDefuncion, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.NumeroDefuncion, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.HoraDefuncion)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.HoraDefuncion, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.HoraDefuncion, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_de_muerte)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_de_muerte)
+                    .Name("datepicker2")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change2");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_de_muerte, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.Observacion)</label>
+                        </h5>
+                        @Html.TextAreaFor(p => p.Observacion, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.Observacion, null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_exp_cedula_fallecido)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_exp_cedula_fallecido)
+                    .Name("datepicker4")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change4");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diag_causa_directa_muerte)</label>
+                        </h5>
+                        @(Html.Kendo().AutoComplete()
+                    .Name("dx2")
+                    .Placeholder("Seleccione...")
+                    .HtmlAttributes(new { style = "width:300px" })
+                    .DataTextField("des")
+                    .Events(events => events.Select("CustomerSelect3"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                    source.Read(read =>
+                    {
+                    read.Action("GetCie10Egreso", "Concurrencia");
+                    });
+
+                    })
+                    )
+                        @Html.HiddenFor(x => x.diag_causa_directa_muerte)
+
+                        @Html.ValidationMessageFor(p => p.diag_causa_directa_muerte, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diag_causa_basica_muerte)</label>
+                        </h5>
+                        @(Html.Kendo().AutoComplete()
+                    .Name("dx3")
+                    .Placeholder("Seleccione...")
+                    .HtmlAttributes(new { style = "width:300px" })
+                    .DataTextField("des")
+                    .Events(events => events.Select("CustomerSelect4"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                    source.Read(read =>
+                    {
+                    read.Action("GetCie10Egreso", "Concurrencia");
+                    });
+
+                    })
+                    )
+                        @Html.HiddenFor(x => x.diag_causa_basica_muerte)
+
+                        @Html.ValidationMessageFor(p => p.diag_causa_basica_muerte, null, new { @class = "label label-danger" })
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.diag_causa_antecedente_muerte)</label>
+                        </h5>
+                        @(Html.Kendo().AutoComplete()
+                    .Name("dx4")
+                    .Placeholder("Seleccione...")
+                    .HtmlAttributes(new { style = "width:300px" })
+                    .DataTextField("des")
+                    .Events(events => events.Select("CustomerSelect5"))
+                    .Filter(FilterType.Contains)
+
+                    .DataSource(source =>
+                    {
+                    source.Read(read =>
+                    {
+                    read.Action("GetCie10Egreso", "Concurrencia");
+                    });
+
+                    })
+                    )
+                        @Html.HiddenFor(x => x.diag_causa_antecedente_muerte)
+
+                        @Html.ValidationMessageFor(p => p.diag_causa_antecedente_muerte, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div id='pnlGestante' style='display:none;' class="General">
+                <br />
+                <div class="row">
+                    <div class="col-sm-12" align="center" width="990" style="color:#ffffff; background: #2E64FE;">
+                        <h5>DATOS NATALIDAD</h5>
+
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_nacimiento)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_nacimiento)
+                    .Name("datepicker3")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change3");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_nacimiento, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.edad_gestacional)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.edad_gestacional, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.edad_gestacional, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.peso)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.peso, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.peso, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.id_via_parto)</label>
+                        </h5>
+                        @Html.RadioButtonFor(model => model.id_via_parto, "CESAREA")@Html.Label("CESAREA")
+                        @Html.ValidationMessageFor(u => u.id_via_parto, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.id_via_parto, "VAGINAL")@Html.Label("VAGINAL")
+                        @Html.ValidationMessageFor(u => u.id_via_parto, null, new { @class = "label label-danger" })
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.talla)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.talla, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.talla, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.sexo)</label>
+                        </h5>
+                        @Html.RadioButtonFor(model => model.sexo, "MASCULINO")@Html.Label("MASCULINO")
+                        @Html.ValidationMessageFor(u => u.sexo, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.sexo, "FEMENINO")@Html.Label("FEMENINO")
+                        @Html.ValidationMessageFor(u => u.sexo, null, new { @class = "label label-danger" })
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.apgar)</label>
+                        </h5>
+                        @Html.TextBoxFor(p => p.apgar, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.apgar, null, new { @class = "label label-danger" })
+
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.control_prenatal)</label>
+                        </h5>
+                        @Html.RadioButtonFor(model => model.control_prenatal, "SI")@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.control_prenatal, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.control_prenatal, "NO")@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.control_prenatal, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_BCG)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_BCG)
+                    .Name("datepicker5")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change5");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_BCG, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_vitaminaK)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_vitaminaK)
+                    .Name("datepicker6")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change6");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_vitaminaK, null, new { @class = "label label-danger" })
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_consenjeria_lactancia)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_consenjeria_lactancia)
+                    .Name("datepicker7")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change7");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_consenjeria_lactancia, null, new { @class = "label label-danger" })
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.resultadoTCH)</label>
+                        </h5>
+                        @Html.TextAreaFor(p => p.resultadoTCH, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.resultadoTCH, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fechaTCH)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fechaTCH)
+                    .Name("datepicker8")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change8");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fechaTCH, null, new { @class = "label label-danger" })
+
+                    </div>
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_consulta_pediatria)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_consulta_pediatria)
+                    .Name("datepicker9")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change9");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_consulta_pediatria, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5>
+                            <label class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_hepatitisB)</label>
+                        </h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_hepatitisB)
+                    .Name("datepicker10")
+                    .Format("dd/MM/yyyy")
+                    .Events(e =>
+                    {
+                    e.Change("change10");
+                    })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                        @Html.ValidationMessageFor(u => u.fecha_hepatitisB, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="pnlGuardar" class="General">
+                <table align="left">
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">
+                            @if (ViewBag.usuario == "14")
+                            {
+
+                            }
+                            else
+                            {
+                                @*<input id="BtnActualizar" onclick="validar(@idConcu);" value="Guardar" class="btn btn-success" />*@
+                                <input id="BtnActualizar" type="submit" value="Guardar" class="button_Asalud_Guardar" />
+                            }
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="display:none">
+                            @Html.TextBoxFor(u => u.id_concurrencia)
+                            @Html.TextBoxFor(u => u.id_censo)
+                            @Html.TextBoxFor(u => u.fecha_egresook)
+                            @Html.TextBoxFor(u => u.fecha_de_muerteok)
+                            @Html.TextBoxFor(u => u.fecha_nacimientook)
+                            @Html.TextBoxFor(u => u.fecha_exp_cedula_fallecidook)
+                            @Html.TextBoxFor(u => u.fecha_BCGok)
+                            @Html.TextBoxFor(u => u.fecha_vitaminaKok)
+                            @Html.TextBoxFor(u => u.fecha_consenjeria_lactanciaok)
+                            @Html.TextBoxFor(u => u.fechaTCHok)
+                            @Html.TextBoxFor(u => u.fecha_consulta_pediatriaok)
+                            @Html.TextBoxFor(u => u.fecha_hepatitisBok)
+                            @Html.TextBoxFor(u => u.beneficiario)
+
+                            <input id="idConcu" value="@idConcu" type="hidden" />
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalGestion">
+    <div class="modal-dialog modal-lg" style="width:15%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('#datepicker').attr('disabled', 'disabled');
+
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#id_lesiones_severas').attr('disabled', 'disabled');
+        $('#datepicker3').attr('disabled', 'disabled');
+        $('#datepicker4').attr('disabled', 'disabled');
+        $('#datepicker5').attr('disabled', 'disabled');
+        $('#datepicker7').attr('disabled', 'disabled');
+        $('#datepicker8').attr('disabled', 'disabled');
+        $('#datepicker9').attr('disabled', 'disabled');
+        $('#datepicker10').attr('disabled', 'disabled');
+
+        $('#datepicker6').attr('disabled', 'disabled');
+
+        var textBox1 = $('input:text[id$=CondicionAlta]').keyup();
+        var textBox2 = $('input:text[id$=gestante]').keyup();
+
+
+        var value1 = textBox1.val();
+        var value2 = textBox2.val();
+
+        if (value1 == "VIVO") {
+
+            mostrar()
+
+        } else if (value1 == "MUERTO") {
+
+            mostrar1()
+        }
+        if (value2 == "SI") {
+
+            mostrar4()
+
+        } else if ("NO") {
+            mostrar5()
+        }
+
+
+        var edad = "@ViewBag.edad";
+        if (edad != null) {
+            if (parseInt(edad) > 17) {
+                $("#especialidad option[value='19']").remove();
+            }
+        }
+    });
+
+
+    function checktieneEventoA() {
+
+        window.open('@Url.Action("CreateAnalisisEventosenSalud", "AnalisisCaso" , new { id_concurrencia=Model.id_concurrencia})', '', 'width =700,height =600,left =50,top =50,toolbar =yes');
+
+        @*var url = '@Url.Action("CreateAnalisisEventosenSalud", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia })';
+        $('#Modaleventosensalud').find('.modal-body').html("<p>Cargando...</p>");
+        $('#Modaleventosensalud').modal('show').find('.modal-body').load(url);*@
+
+    }
+
+    function Habilitar() {
+        var value = "SI";
+        $('input:text[id$=beneficiario]').val(value);
+
+        document.getElementById('pnlNatural2').style.display = 'block';
+
+    }
+
+    function Habilitar2() {
+        $('#id_lesiones_severas').removeAttr('disabled');
+    };
+
+    function Habilitar3() {
+        $('#id_lesiones_severas').attr('disabled', 'disabled');
+    };
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_egresook]').val(DataItem);
+
+    }
+
+    
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_de_muerteok]').val(DataItem);
+
+    }
+
+    function change3() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_nacimientook]').val(DataItem);
+
+    }
+
+    function change4() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_exp_cedula_fallecidook]').val(DataItem);
+
+    }
+
+    function change5() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_BCGok]').val(DataItem);
+
+    }
+
+    function change6() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_vitaminaKok]').val(DataItem);
+
+    }
+
+    function change7() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_consenjeria_lactanciaok]').val(DataItem);
+
+    }
+
+    function change8() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fechaTCHok]').val(DataItem);
+
+    }
+
+    function change9() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_consulta_pediatriaok]').val(DataItem);
+
+    }
+
+    function change10() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_hepatitisBok]').val(DataItem);
+
+    }
+
+    function CustomerSelect0(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diagnostico_calificado").val(DataItem.id_cie10);
+    }
+
+    function CustomerSelect50(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diagnosticoEgreso_historiaClnica").val(DataItem.id_cie10);
+    }
+
+    function CustomerSelectEH(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_enfermedades_huerfanas").val(DataItem.id_enfermedades_huerfanas);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx").val(DataItem.id_cups);
+    }
+
+
+
+    function CustomerSelectCUPS2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx2").val(DataItem.id_cups);
+    }
+
+
+    function CustomerSelectCUPS3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups_qx3").val(DataItem.id_cups);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diag_causa_directa_muerte").val(DataItem.id_cie10);
+    }
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diag_causa_basica_muerte").val(DataItem.id_cie10);
+    }
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diag_causa_antecedente_muerte").val(DataItem.id_cie10);
+    }
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diagnostico_calificado2").val(DataItem.id_cie10);
+    }
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diagnostico_calificado3").val(DataItem.id_cie10);
+    }
+
+    function checkInfeIntraSi() {
+        $('input:radio').click(function () {
+            if ($(this).attr('id') == 'radiospecific') {
+                $('#numero_dias_incapacidad').removeAttr('disabled');
+            }
+            else {
+
+                $('#numero_dias_incapacidad').attr('disabled', 'disabled');
+            }
+        });
+    }
+
+    function checkCiruguiaSi() {
+        $('input:radio').click(function () {
+            if ($(this).attr('id') == 'radiospecific') {
+                $('#cirugia_descripcion').removeAttr('disabled');
+            }
+            else {
+
+                $('#cirugia_descripcion').attr('disabled', 'disabled');
+            }
+        });
+    }
+
+    function checkCiruguiaNo() {
+        $('input:radio').click(function () {
+            if ($(this).attr('id') == 'radiospecific') {
+                $('#cirugia_descripcion').attr('disabled', 'disabled');
+            }
+        });
+    }
+
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#diagnostico_calificado").val(DataItem.id_cie);
+    }
+
+    function mostrar() {
+
+        document.getElementById('pnlNatural').style.display = 'none';
+        document.getElementById('pnlCausal').style.display = 'block';
+    };
+    function mostrar1() {
+
+        document.getElementById('pnlCausal').style.display = 'none';
+        document.getElementById('pnlNatural').style.display = 'block';
+
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlNatural2').style.display = 'block';
+
+
+    };
+    function mostrar3() {
+
+        document.getElementById('pnlNatural2').style.display = 'none';
+
+    };
+
+    function mostrar4() {
+
+        var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+        var value2 = textBox1.val();
+
+        window.open('@Url.Action("Gestantes", "Concurrencia" , new { ID = Model.id_concurrencia})', '', 'width =900,height =600,left =50,top =50,toolbar =yes');
+        //document.getElementById('pnlGestante').style.display = 'block';
+    };
+    function mostrar5() {
+
+        document.getElementById('pnlGestante').style.display = 'none';
+
+    };
+
+
+    function mostrar6() {
+
+        document.getElementById('pnlhuerfanas').style.display = 'block';
+
+    };
+    function mostrar7() {
+
+        document.getElementById('pnlhuerfanas').style.display = 'none';
+
+    };
+
+    function mostrar44() {
+
+        document.getElementById('pnlPrevenible').style.display = 'block';
+
+    };
+    function mostrar55() {
+        document.getElementById('pnlPrevenible').style.display = 'none';
+    };
+
+
+    function mostrar52() {
+        document.getElementById('divHistoriaClinica').style.display = 'block';
+        document.getElementById('divJustificacion').style.display = 'block';
+    };
+
+    function mostrar53() {
+        document.getElementById('divHistoriaClinica').style.display = 'none';
+        document.getElementById('divJustificacion').style.display = 'block';
+    };
+
+
+    function onSelect5(e) {
+
+        if (e.item) {
+            debugger
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#diagnosticoEgreso_historiaClnica").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        // alert(data.message);
+                        var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                        if (opcion == true) {
+                            //alert("OK2");
+
+                            $.ajax({
+                                url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                cache: false,
+                                data: {},
+                                success: function (data) {
+
+                                    if (data.success) {
+                                        alert(data.message);
+                                        if (data.evento != 0) {
+                                            alert(data.msgEvento);
+                                            if (data.evento == 1) {
+                                                window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            } else {
+                                                window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+
+                        } else {
+                            alert("NO SE INGRESA  ALERTA....");
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+    }
+
+    function onSelect2(e) {
+
+        if (e.item) {
+            debugger
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#diagnostico_calificado").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        // alert(data.message);
+                        var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                        if (opcion == true) {
+                            //alert("OK2");
+
+                            $.ajax({
+                                url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                cache: false,
+                                data: {},
+                                success: function (data) {
+
+                                    if (data.success) {
+                                        alert(data.message);
+                                        if (data.evento != 0) {
+                                            alert(data.msgEvento);
+                                            if (data.evento == 1) {
+                                                window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            } else {
+                                                window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+
+                        } else {
+                            alert("NO SE INGRESA  ALERTA....");
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+    function onSelect3(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#diagnostico_calificado2").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        // alert(data.message);
+                        var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                        if (opcion == true) {
+                            //alert("OK2");
+
+                            $.ajax({
+                                url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                cache: false,
+                                data: {},
+                                success: function (data) {
+
+                                    if (data.success) {
+                                        alert(data.message);
+                                        if (data.evento != 0) {
+                                            alert(data.msgEvento);
+                                            if (data.evento == 1) {
+                                                window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            } else {
+                                                window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+
+                        } else {
+                            alert("NO SE INGRESA  ALERTA....");
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+    function onSelect4(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#diagnostico_calificado3").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        // alert(data.message);
+                        var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                        if (opcion == true) {
+                            //alert("OK2");
+
+                            $.ajax({
+                                url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                cache: false,
+                                data: {},
+                                success: function (data) {
+
+                                    if (data.success) {
+                                        alert(data.message);
+                                        if (data.evento != 0) {
+                                            alert(data.msgEvento);
+                                            if (data.evento == 1) {
+                                                window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            } else {
+                                                window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+
+                        } else {
+                            alert("NO SE INGRESA  ALERTA....");
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+    }
+
+    function GuardarDatos2tab() {
+        var tipo_patologia = $("#tipopatologia").val();
+        var tipo_hospitalizacion = $("#tipohospitalizacion").val();
+        var condicion_prolongada = $("#condicioneprolongada1").val();
+        var pertinencia_prolongada = $("#pertinenciaeprolongada").val();
+        var tipo = $("#tipomedicoadmin").val();
+        var responsable_pertinencia = $("#responsable_pertinencia").val();
+        var dias = $("#dias").val();
+        var valor = $("#valor").val();
+        var causal = $("#causal").val();
+        var observaciones = $("#observaciones").val();
+
+        $.ajax({
+            url: "@Url.Action("AgregarCategorizacion")",
+            type: "post",
+            data: {
+                tipo_patologia: tipo_patologia,
+                tipo_hospitalizacion: tipo_hospitalizacion,
+                condicion_prolongada: condicion_prolongada,
+                pertinencia_prolongada: pertinencia_prolongada,
+                tipo: tipo,
+                responsable_pertinencia: responsable_pertinencia,
+                dias: dias,
+                valor: valor,
+                causal: causal,
+                observaciones: observaciones
+            },
+            success: function (data) {
+                $("#formulario").submit();
+            }
+        })
+
+    }
+
+
+    function HabilitarInfeccion() {
+        document.getElementById('pnlInfeccion').style.display = 'block';
+    };
+    function DesabilitarInfeccion() {
+
+        $("#microorganismo").val("");
+        document.getElementById('pnlInfeccion').style.display = 'none';
+
+    };
+    function mostrarcups() {
+        document.getElementById('pnlcups').style.display = 'block';
+    };
+    function ocultarcups() {
+
+        $("#microorganismo").val("");
+        document.getElementById('pnlcups').style.display = 'none';
+
+    };
+
+    function validacionSiNo(value) {
+
+        var idConcurrencia = @Model.id_concurrencia;
+        if (value == "si") {
+
+            var bool = confirm("¿Seguro de editar ésta concurrencia?");
+
+            if (bool) {
+
+                window.open('@Url.Action("_CriterioIngreso", "Concurrencia" , new { idConcu = Model.id_concurrencia })', '', 'width=1000,height=800,left=50,top=50,toolbar=yes');
+            }
+        }
+    }
+
+    function cerrarVentana() {
+        //window.close();
+        window.open('@Url.Action("_CriterioIngreso", "Concurrencia" , new { idConcu = Model.id_concurrencia })');
+    }
+
+    function GestionCerrar() {
+        $("#modalGestion").modal("hide");
+    }
+
+</script>
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 97%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>

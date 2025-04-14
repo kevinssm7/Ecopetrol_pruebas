@@ -1,0 +1,2083 @@
+﻿@using System.Web;
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "AUDITORÍA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso auditoría</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha auditoría</label>
+                        <input type="date" class="datepickerr" value="" title="Este campo  es obligatorio*" style="width:100%" name="fechaAuditoria" id="fechaAuditoria" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Unidad</label>
+                        <select class="form-control select2" required id="cbxunidad" name="cbxunidad">
+                            <option value="">-Seleccione una opción-</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unidad_satelite item in ViewBag.UnidadSatelite)
+                            {
+                                <option value="@item.id_ref_ffmm_unidad_satelite">@item.descripciion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Forma</label>
+                        <select class="form-control select" required id="cbxforma" name="cbxforma">
+                            <option value="">- Seleccionar -</option>
+                            <option value=1>PRESENCIAL</option>
+                            <option value=2>VIRTUAL</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Tipo visita</label>
+                        <select class="form-control select" required id="cbxTvisita" name="cbxTvisita">
+                            <option value="">- Seleccionar -</option>
+                            <option value=1>PRIMERA VEZ</option>
+                            <option value=2>SEGUIMIENTO</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Número visita</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="cbxnumvisita" id="cbxnumvisita" maxlength="16" />
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Depatamento</label>
+                        <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="regional">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ffmm_departamento item in ViewBag.regionales)
+                            {
+                                <option value="@item.cod_departamento">@item.departamento</option>
+                            }
+
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Municipio</label>
+                        <select class="form-control select2" required id="cbxmuni" name="cbxmuni" onchange="CargarIps($(this).val())">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">IPS</label>
+                        <select class="form-control select2" required id="cbxips" name="cbxips">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha solicitud autorización</label>
+                        <input type="date" class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaSautoriza" id="cbxfechaSautoriza" required />
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha generación autorización</label>
+                        <input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaGautoriza" id="cbxfechaGautoriza" required />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha ingreso IPS</label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaIngresoIPS" id="fechaIngresoIPS" required />*@
+                        <input id="fechaIngresoIPS" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha egreso IPS</label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaEgresoIPS" id="fechaEgresoIPS" required />*@
+                        <input id="fechaEgresoIPS" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Días estancia IPS</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="diasEstanciaIPS" id="diasEstanciaIPS" readonly />
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Nombre y apellidos usuario </label>
+                        <input rows="4" cols="100" type="text" class="form-control" name="cbxnomUsuario" id="cbxnomUsuario" required autocomplete="off" maxlength="200" />
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Tipo id</label>
+                        <select class="form-control select2" required id="cbxtipoId" name="cbxtipoId">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDoc)
+                            {
+                                <option value="@item.id_ref_tipo_documental">@item.descripcion</option>
+                            }
+
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Numero id</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="NumeroIdU" id="NumeroIdU" maxlength="18" required />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha nacimiento</label>
+                        <input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaNacimiento" id="cbxfechaNacimiento" required />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Edad N</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="edadN" id="edadN" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Edad T</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="edadT" id="edadT" required />
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Grupo etario</label>
+                        @*<input type="text" class="form-control" name="cbxetario" id="cbxetario" disabled />*@
+                    <select class="form-control select" required id="cbxetario" name="cbxetario">
+                        <option value="">- Seleccionar -</option>
+                        <option value="1">PRIMERA INFANCIA</option>
+                        <option value="2">INFANCIA</option>
+                        <option value="3">ADOLESCENCIA</option>
+                        <option value="4">JUVENTUD</option>
+                        <option value="5">ADULTEZ</option>
+                        <option value="6">VEJEZ</option>
+
+                    </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Sexo</label>
+                        <select class="form-control select" required id="cbxsexo" name="cbxsexo">
+                            <option value="">- Seleccionar -</option>
+                            <option value="M">Maculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Estado afiliación</label>
+                        <select class="form-control select" required id="cbxEstado" name="cbxEstado">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Activo</option>
+                            <option value="2">Inactivo</option>
+                            <option value="3">Provisional</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Sitio adscripción</label>
+                        <select class="form-control select2" required id="cbxsitio" name="cbxsitio">
+                            <option value="">-Seleccione una opción-</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unidad_cp item in ViewBag.SitioAdscripcion)
+                            {
+                                <option value="@item.id_ref_ffmm_unidad_cp">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Tipo afiliación</label>
+                        <select class="form-control select2" required id="cbxtipoAfiliacion" name="cbxtipoAfiliacion">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_tipo_afiliacion item in ViewBag.tipoAfi)
+                            {
+                                <option value="@item.id_ref_ffmm_tipo_afiliacion">@item.descripcion</option>
+                            }
+
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Dirección</label>
+                        <input autocomplete="off" type="text" class="form-control" name="cbxdireccion" id="cbxdireccion" maxlength="50" required />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Teléfono</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero" name="cbxTelefono" id="cbxTelefono" maxlength="20" required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Grado</label>
+                        <input autocomplete="off" type="text" class="form-control" name="cbxGrado" id="cbxGrado" maxlength="50" required />
+
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fuerza</label>
+                        <select class="form-control select" required id="cbxFuerza" name="cbxFuerza">
+                            <option value="">- Seleccionar -</option>
+                            <option value="EJERCITO">EJERCITO</option>
+                            <option value="ARMADA">ARMADA</option>
+                            <option value="FUERZA AEREA">FUERZA AEREA</option>
+                        </select>
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Nivel de atención </label>
+                        <select class="form-control select" required id="cbxNivelA" name="cbxNivelA">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">NIVEL 1</option>
+                            <option value="2">NIVEL 2</option>
+                            <option value="3">NIVEL 3</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Nivel complejidad</label>
+                        <select class="form-control select" required id="cbxComplejidad" name="cbxComplejidad">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">BAJA</option>
+                            <option value="2">MEDIANA</option>
+                            <option value="3">ALTA</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Vía de ingreso</label>
+                        <select class="form-control select2" required id="cbxviaIngreso" name="cbxviaIngreso">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Consulta Externa</option>
+                            <option value="2">Programado cirugía</option>
+                            <option value="3">Urgencia primera vez</option>
+                            <option value="4">Urgencias reingreso</option>
+                            <option value="5">Otro</option>
+                        </select>
+                        <div id="pnlCual1" style='display:none;'>
+                            <label class="text-secondary_asalud">Cual?:</label>
+                            <input type="text" class="form-control" name="cbxotroVia" id="cbxotroVia" maxlength="100" required />
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Cie10 principal</label>
+                        @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_1")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "CuentasMedicas");
+                                      });
+
+                                  })
+                               )
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Cie10 secundario</label>
+
+                        @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_2")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "Evolucion");
+                                      });
+
+                                  })
+                               )
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Código cups</label>
+                        @(Html.Kendo().AutoComplete()
+                                 .Name("id_cups")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCups", "Concurrencia");
+                                      });
+
+                                  })
+                               )
+                    </div>
+
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Origen del servicio</label>
+                        <select class="form-control select2" required id="cbxorigenS" name="cbxorigenS">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_origen_servicio item in ViewBag.origen_servicio)
+                            {
+                                <option value="@item.id_ref_ffmm_origen_servicio">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Servicio</label>
+                        <select class="form-control select2" required id="cbxServicio" name="cbxServicio">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Hospitalización medica</option>
+                            <option value="2">Hospitalización quirúrgica</option>
+                            <option value="3">Intermedios Neonatal</option>
+                            <option value="4">Intermedios Pediátrico</option>
+                            <option value="5">Intermedios Adultos</option>
+                            <option value="6">Observación</option>
+                            <option value="7">Urgencias</option>
+                            <option value="8">UCI Neonatal</option>
+                            <option value="9">UCI Pediátrico</option>
+                            <option value="10">UCI Adultos</option>
+                            <option value="11">UCI Quemados</option>
+                            <option value="12">Sala de Partos</option>
+                            <option value="13">Sala de Recuperación</option>
+                            <option value="14">Unidad Mental</option>
+                            <option value="15">Otro</option>
+                        </select>
+                        <div id="pnlCual2" style='display:none;'>
+                            <label class="text-secondary_asalud">Cual?:</label>
+                            <input type="text" class="form-control" name="cbxOtroServicio" id="cbxOtroServicio" maxlength="100" required />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha ingreso hospitalización</label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaIngresoH" id="cbxfechaIngresoH" required />*@
+                        <input id="cbxfechaIngresoH" style="width: 100%;" />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha egreso hospitalización </label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaEgresoH" id="cbxfechaEgresoH" required />*@
+                        <input id="cbxfechaEgresoH" style="width: 100%;" />
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Días estancia hospitalización </label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero" name="cbxInstanciaH" id="cbxInstanciaH" maxlength="50" readonly />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha ingreso UCI</label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaIngresoUCI" id="fechaIngresoUCI" required />*@
+                        <input id="fechaIngresoUCI" style="width: 100%;" />
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha egreso UCI </label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaEgresoUCI" id="fechaEgresoUCI" required />*@
+                        <input id="fechaEgresoUCI" style="width: 100%;" />
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Días estancia UCI</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero" name="cbxInstanciaUCI" id="cbxInstanciaUCI" maxlength="50" readonly />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Fecha ingreso intermedios</label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaIngresoInt" id="fechaIngresoInt" required />*@
+                        <input id="fechaIngresoInt" style="width: 100%;" />
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha Egreso intermedios </label>
+                        @*<input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="fechaEgresoInt" id="fechaEgresoInt" required />*@
+                        <input id="fechaEgresoInt" style="width: 100%;" />
+
+
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Días estancia intermedios</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero" name="cbxInstanciaInt" id="cbxInstanciaInt" maxlength="50" readonly />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Estancia prolongada</label>
+                        <select class="form-control select" required id="cbxEstanciaP" name="cbxEstanciaP">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+
+                    <div id="pnlestanciaP" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Causa estancia prolongada </label>
+                            <select class="form-control select2" required id="cbxcausaEP" name="cbxcausaEP">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Demora en la realización de procedimientos quirúrgicos</option>
+                                <option value="2">Demora en la realización de procedimientos diagnósticos</option>
+                                <option value="3">Demora en la realización de procedimientos terapéuticos</option>
+                                <option value="4">Necesidad de atención en otro nivel de complejidad</option>
+                                <option value="5">Abandono</option>
+                                <option value="6">Situación socio-familiar precaria</option>
+                                <option value="7">Demora en la realización de interconsultas medicas</option>
+                                <option value="8">Demora en la entrega de medicamentos (inclusive oxigeno domiciliario)</option>
+                                <option value="9">Demora en la entrega de insumos médicos</option>
+                                <option value="10">Otro</option>
+                            </select>
+                            <div id="pnlotrocausaEP" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxcausaEPOtro" id="cbxcausaEPOtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Evento materno</label>
+                        <select class="form-control select" required id="cbxEventoM" name="cbxEventoM">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlCausaEventoM" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+
+                            <label for="depart" class="text-secondary_asalud">Causa evento materno</label>
+                            <select class="form-control select2" required id="cbxCausaEventoM" name="cbxCausaEventoM">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Parto eutócico</option>
+                                <option value="2">Parto distócico</option>
+                                <option value="3">Embarazo de alto riesgo</option>
+                                <option value="4">Embarazo confirmado</option>
+                                <option value="5">Emergencia obstétrica</option>
+                                <option value="6">Aborto</option>
+                                <option value="7">Cesárea</option>
+                                <option value="8">Otro</option>
+                            </select>
+                            <div id="pnlCausaEventoMOtro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxCausaEventoMOtro" id="cbxCausaEventoMOtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Edad gestacional </label>
+                        <input autocomplete="off" type="text" class="form-control" name="cbxedadG" id="cbxedadG" maxlength="50" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Número controles prenatales</label>
+                        <input autocomplete="off" type="text" class="form-control" name="cbxcontrolesP" id="cbxcontrolesP" maxlength="50" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Complicación parto</label>
+                        <select class="form-control select" required id="cbxcomplicacionP" name="cbxcomplicacionP">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+
+                    <div id="pnlcomplicaciones" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Causal complicación parto </label>
+                            <select class="form-control select2" required id="cbxCausacomplicacionP" name="cbxCausacomplicacionP">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Ambigüedad Sexual</option>
+                                <option value="2">Aspiración Líquido Amniótico</option>
+                                <option value="3">Distocia</option>
+                                <option value="4">Enfermedad Membranas Hialinas</option>
+                                <option value="5">Expulsivo Prolongado</option>
+                                <option value="6">Hemorragia</option>
+                                <option value="7">Preeclamsia</option>
+                                <option value="8">Hipoglicemia Neonatal</option>
+                                <option value="9">Hipotiroidismo Neonatal</option>
+                                <option value="10">Hipoxia Neonatal</option>
+                                <option value="11">Infección Sitio Operatorio</option>
+                                <option value="12">Malformación Congénita</option>
+                                <option value="13">Mastitis</option>
+                                <option value="14">Sepsis Puerperal</option>
+                                <option value="15">Sufrimiento Fetal Agudo</option>
+                                <option value="16">VIH-Sida Materno</option>
+                                <option value="17">Obito fetal</option>
+                                <option value="18">Muerte Materna</option>
+                                <option value="19">Neonato Enfermo</option>
+                                <option value="20">Otro</option>
+                            </select>
+                            <div id="panelCausacomplicacionPotro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxCausacomplicacionPOtro" id="cbxCausacomplicacionPOtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Recién nacido</label>
+                        <select class="form-control select" required id="cbxrecienN" name="cbxrecienN">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlConrecienNacido" style='display:none;'>
+                        <div class="col-sm-4 from form-group">
+                            <label for="depart" class="text-secondary_asalud">Condiciones del recién nacido</label>
+                            <select class="form-control select2" required id="cbxcondrecienN" name="cbxcondrecienN">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Pretérmino</option>
+                                <option value="2">Inmaduro</option>
+                                <option value="3">Prematuro</option>
+                                <option value="4">A termino</option>
+                                <option value="5">Postérmino</option>
+                                <option value="6">Bajo peso al nacer</option>
+                                <option value="7">Mortinato</option>
+                                <option value="8">Otro</option>
+                            </select>
+                            <div id="panelcbxcondrecienNotro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxcondrecienNOtro" id="cbxcondrecienNOtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Patología alto costo </label>
+                        <select class="form-control select" required id="cbxpatologiaAC" name="cbxpatologiaAC">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlcie10AC" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label for="depart" class="text-secondary_asalud">Cie10 alto costo</label>
+                            
+                            @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_3")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "CuentasMedicas");
+                                      });
+
+                                  })
+                               )
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Alto riesgo </label>
+                        <select class="form-control select" required id="cbxAltoR" name="cbxAltoR">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+
+                    </div>
+
+                    <div id="pnlcbxgrupoAltoR" style='display:none;'>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Grupo alto riesgo</label>
+                            <select class="form-control select2" required id="cbxgrupoAltoR" name="cbxgrupoAltoR">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Asma</option>
+                                <option value="2">Enfermedad autoinmune</option>
+                                <option value="3">Cáncer</option>
+                                <option value="4">Diabetes</option>
+                                <option value="5">ECV</option>
+                                <option value="6">ERC</option>
+                                <option value="7">EDA en menor de 5 años</option>
+                                <option value="8">IRA en menor de 5 años</option>
+                                <option value="9">Gran Quemado</option>
+                                <option value="10">Hemofilia</option>
+                                <option value="11">Preclamsia</option>
+                                <option value="12">Embarazo de alto riesgo</option>
+                                <option value="13">Herido en Combate</option>
+                                <option value="14">Maltrato Infantil</option>
+                                <option value="15">Violencia Sexual</option>
+                                <option value="16">Patología del SNC</option>
+                                <option value="17">Sepsis</option>
+                                <option value="18">Sífilis gestacional</option>
+                                <option value="19">HIV</option>
+                                <option value="20">Enfermedad huérfana</option>
+                                <option value="21">Otro</option>
+                            </select>
+                            <div id="pnlcbxgrupoAltoRotro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxgrupoAltoROtro" id="cbxgrupoAltoROtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Condición trazadora</label>
+                        <select class="form-control select" required id="cbxcondicionTr" name="cbxcondicionTr">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlcbxcondicionTr" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label for="depart" class="text-secondary_asalud">Tipo condición trazadora</label>
+                            <select class="form-control select2" required id="cbxTipoTR" name="cbxTipoTR">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Trasplante</option>
+                                <option value="2">Diálisis peritoneal y hemodiálisis</option>
+                                <option value="3">Manejo quirúrgico para enfermedades del corazón</option>
+                                <option value="4">Neurocirugía</option>
+                                <option value="5">Reemplazos articulares</option>
+                                <option value="6">Manejo médico - quirúrgico del gran quemado</option>
+                                <option value="7">Manejo médico - quirúrgico del trauma mayor</option>
+                                <option value="8">Manejo médico - quirúrgico del usuario infectado por HIV</option>
+                                <option value="9">Quimioterapia y/o radioterapia</option>
+                                <option value="10">Manejo en UCI</option>
+                                <option value="11">Manejo médico - quirúrgico de enfermedades congénitas</option>
+                                <option value="12">Manejo médico - quirúrgico de enfermedades huérfanas</option>
+                                <option value="13">Otro</option>
+                            </select>
+                            <div id="pnlcbxTipoTRotro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxTipoTRotroOtro" id="cbxTipoTRotroOtro" maxlength="100" required />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Evento adverso </label>
+                        <select class="form-control select" required id="cbxEventoADV" name="cbxEventoADV">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+
+                    <div id="pnlEventoADV" style='display:none;'>
+
+                        <div class="col-sm-4 form-group">
+                            <label for="depart" class="text-secondary_asalud">Tipo evento adverso</label>
+                            <select class="form-control select" required id="cbxTipoEventoADV" name="cbxTipoEventoADV">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">EPS</option>
+                                <option value="2">IPS</option>
+                            </select>
+                        </div>
+
+                        <div id="pnlEventoADVEPSTipo" style='display:none;'>
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Causal evento adverso EPS </label>
+                                <select class="form-control select2" required id="cbxCausalEventoADEps" name="cbxCausalEventoADEps">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="1">Usuarios detectados por suplantación</option>
+                                    <option value="2">Quejas por no prestación de servicios incluidos en el plan de beneficios del Subsistema de Salud de las FFMM</option>
+                                    <option value="3">Usuarios a los cuales se les reconoce servicio inicialmente rechazado</option>
+                                    <option value="4">Servicio negado por inadecuado proceso de afiliación</option>
+                                    <option value="5">Usuarios insatisfechos por lo que consideran injustificadas barreras de acceso a la atención</option>
+                                    <option value="6">Tutelas por no prestación de servicios POS</option>
+                                    <option value="7">Usuarios que fallecen encontrándose en lista de espera para la autorización o realización de procedimientos en salud</option>
+                                    <option value="8">Complicaciones atribuibles a fallas en la continuidad de los tratamientos médicos</option>
+                                    <option value="9">Tiempos de espera prolongados</option>
+                                    <option value="10">Demora en suministro de insumos o medicamentos por trámites administrativos</option>
+                                    <option value="11">Usuarios que son remitidos repetidas veces a IPS equívocas o erróneas, antes de ser referidos al punto definitivo de atención</option>
+                                    <option value="12">Usuarios en lista de espera por más de tres meses</option>
+                                    <option value="13">Demoras en la referencia a otros niveles de complejidad</option>
+                                    <option value="14">Complicaciones asociadas al parto en gestantes sin controles prenatales</option>
+                                    <option value="15">Otro</option>
+                                </select>
+                                <div id="pnlEventoADVEPSTipoOtro" style='display:none;'>
+                                    <label class="text-secondary_asalud">Cual?:</label>
+                                    <input type="text" class="form-control" name="cbxEventoADVEPSTipoOtro" id="cbxEventoADVEPSTipoOtro" maxlength="100" required />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="pnlEventoADVIPSTipo" style='display:none;'>
+                            <div class="col-sm-4 form-group">
+                                <label for="depart" class="text-secondary_asalud">Causal evento adverso IPS</label>
+                                <select class="form-control select2" required id="cbxCausalEventoADIPS" name="cbxCausalEventoADIPS">
+                                    <option value="">- Seleccionar -</option>
+                                    <option value="1">Cirugías o procedimientos cancelados por factores atribuibles al desempeño de la IPS o de los profesionales</option>
+                                    <option value="2">Usuarios con trombosis venosa profunda a quienes no se les realiza control de pruebas de coagulación</option>
+                                    <option value="3">Ingreso no programado a UCI luego de procedimiento que implica la administración de anestesia</option>
+                                    <option value="4">Neonatos o usuarios pediátricos con neumonías broncoaspirativas durante la hospitalización</option>
+                                    <option value="5">Usuarios con úlceras de posición</option>
+                                    <option value="6">Distocia inadvertida</option>
+                                    <option value="7">Shock hipovolémico post – parto</option>
+                                    <option value="8">Maternas con convulsión intrahospitalaria</option>
+                                    <option value="9">Cirugía en parte equivocada</option>
+                                    <option value="10">Cirugía en usuario equivocado</option>
+                                    <option value="11">Usuarios con hipotensión severa POP</option>
+                                    <option value="12">Infarto en las siguientes 72 horas POP</option>
+                                    <option value="13">Reingreso al servicio de urgencias por misma causa antes de 72 horas</option>
+                                    <option value="14">Reingreso a hospitalización por la misma causa antes de 15 días</option>
+                                    <option value="15">Entrega equivocada de un neonato</option>
+                                    <option value="16">Robo intra – institucional de niños</option>
+                                    <option value="17">Fuga de usuarios psiquiátricos hospitalizados</option>
+                                    <option value="18">Suicidio de usuarios internados</option>
+                                    <option value="19">Consumo intra - institucional de psicoactivos</option>
+                                    <option value="20">Caídas desde su propia altura intra-institucional</option>
+                                    <option value="21">Retención de cuerpos extraños en usuarios internados</option>
+                                    <option value="22">Quemaduras por lámparas de fototerapia y electrocauterio</option>
+                                    <option value="23">Estancia prolongada por no disponibilidad de insumos o medicamentos</option>
+                                    <option value="24">Flebitis en sitios de venopunción</option>
+                                    <option value="25">Ruptura prematura de membranas sin conducta definida</option>
+                                    <option value="26">Entrega equivocada de reportes de laboratorio</option>
+                                    <option value="27">Revisión de reemplazos articulares por inicio tardío de la rehabilitación</option>
+                                    <option value="28">Luxación post - quirúrgica en reemplazo de cadera</option>
+                                    <option value="29">Accidentes postransfusionales</option>
+                                    <option value="30">Asalto sexual en la institución</option>
+                                    <option value="31">Neumotórax por ventilación mecánica</option>
+                                    <option value="32">Asfixia perinatal</option>
+                                    <option value="33">Deterioro neurológico según escala GLASGOW, sin tratamiento definido</option>
+                                    <option value="34">Secuelas post – reanimación</option>
+                                    <option value="35">Pérdida de pertenencias de usuarios</option>
+                                    <option value="36">Usuarios con diagnóstico de apendicitis que no han sido atendidos a las 12 horas de realizado el diagnóstico</option>
+                                    <option value="37">Infección asociada al cuidado de la salud</option>
+                                    <option value="38">Mortalidad por IRA/Eda en menor 5 años</option>
+                                    <option value="39">Reacción adversa a medicamentos</option>
+                                    <option value="40">Expulsivo prolongado sin conducta definida en la primera hora</option>
+                                    <option value="41">Usuarios con transmisión vertical de HIV</option>
+                                    <option value="42">Complicaciones relacionadas con oxigenoterapia atribuibles a monitorización, seguimiento o suministro</option>
+                                    <option value="43">Usuarios que fallecen por complicación de diabetes mellitus, posterior a las 72 horas de atención inicial</option>
+                                    <option value="44">Otro</option>
+
+                                </select>
+                                <div id="pnlEventoADVIPSTipoOtro" style='display:none;'>
+                                    <label class="text-secondary_asalud">Cual?:</label>
+                                    <input type="text" class="form-control" name="cbxEventoADVIPSTipoOtro" id="cbxEventoADVIPSTipoOtro" maxlength="100" required />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 form-group">
+                                <label for="depart" class="text-secondary_asalud">Presentación evento adverso</label>
+                                <input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaPresentacionEV" id="cbxfechaPresentacionEV" required />
+
+                            </div>
+
+                            <div class="col-sm-4 form-group">
+                                <label for="depart" class="text-secondary_asalud">Fecha seguimiento al evento adverso</label>
+                                <input class="datepickerr" title="Este campo  es obligatorio*" style="width: 100%" name="cbxfechaSeguimientoEV" id="cbxfechaSeguimientoEV" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Evento centinela </label>
+                        <select class="form-control select" required id="cbxEventoCen" name="cbxEventoCen">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlcbxEventoCen" style='display:none;'>
+                        <div class="col-sm-4">
+                            <label for="depart" class="text-secondary_asalud">Causa evento centinela</label>
+                            <select class="form-control select2" required id="cbxEventoCenCausa" name="cbxEventoCenCausa">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Bajo peso al nacer</option>
+                                <option value="2">Hospitalización de niños de 3-5 años por EDA</option>
+                                <option value="3">Hospitalización de niños de 3-5 años por IRA</option>
+                                <option value="4">Maltrato infantil</option>
+                                <option value="5">Mortinato</option>
+                                <option value="6">Muerte materna</option>
+                                <option value="7">Muerte por dengue</option>
+                                <option value="8">Muerte por malaria</option>
+                                <option value="9">Quemadura en menor de 5 años</option>
+                                <option value="10">Trasmisión vertical (VIH-Sífilis)</option>
+                                <option value="11">Otro</option>
+                            </select>
+                            <div id="pnlcbxEventoCenCausaOtro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxEventoCenCausaOtro" id="cbxEventoCenCausaOtro" maxlength="100" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Evento salud pública</label>
+                        <select class="form-control select" required id="cbxEventoSP" name="cbxEventoSP">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+
+                    <div id="pnlcbxEventoSP" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label for="depart" class="text-secondary_asalud">Causa evento salud publica</label>
+                            <select class="form-control select2" required id="cbxEventoSPCausa" name="cbxEventoSPCausa">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">Encefalitis del Nilo Occidental en humanos</option>
+                                <option value="2">Encefalitis equina del oeste en humanos</option>
+                                <option value="3">Encefalitis equina venezolana en humanos</option>
+                                <option value="4">Fiebre amarilla</option>
+                                <option value="5">Intoxicación por alimentos (Brote)</option>
+                                <option value="6">Intoxicación por solventes</option>
+                                <option value="7">Intoxicación por otras sustancias químicas</option>
+                                <option value="8">Leishmaniasis Cutánea</option>
+                                <option value="9">Leishmaniasis Mucosa</option>
+                                <option value="10">Leishmaniasis Visceral</option>
+                                <option value="11">Lesiones por Pólvora</option>
+                                <option value="12">Lepra</option>
+                                <option value="13">Leptospirosis</option>
+                                <option value="14">Cólera</option>
+                                <option value="15">Malaria Complicada</option>
+                                <option value="16">Malaria Asociada (Formas Mixtas)</option>
+                                <option value="17">Malaria Falciparum</option>
+                                <option value="18">Malaria Malarie</option>
+                                <option value="19">Malaria Vivax</option>
+                                <option value="20">Meningitis Complicada</option>
+                                <option value="21">Meningitis Meningococcica</option>
+                                <option value="22">Meningitis por Haemophilis Influenzae</option>
+                                <option value="23">Meningitis por Neumococo</option>
+                                <option value="24">Meningitis Tuberculosa</option>
+                                <option value="25">Mortalidad Malaria</option>
+                                <option value="26">Mortalidad Materna</option>
+                                <option value="27">Mortalidad Perinatal</option>
+                                <option value="28">Mortalidad Por Cólera</option>
+                                <option value="29">Mortalidad por Dengue</option>
+                                <option value="30">Mortalidad Por EDA de 0 A 4 Años</option>
+                                <option value="31">Mortalidad Por IRA de 0 A 4 Años</option>
+                                <option value="32">Parálisis Flácida Aguda (Menores de 15 años)</option>
+                                <option value="33">Parotiditis</option>
+                                <option value="34">Peste (Bubónica / Neumónica)</option>
+                                <option value="35">Rabia Humana</option>
+                                <option value="36">Rubeola Humana</option>
+                                <option value="37">Rubeola Congénita</option>
+                                <option value="38">Sarampión</option>
+                                <option value="39">Sífilis Congénita</option>
+                                <option value="40">Sífilis Gestacional</option>
+                                <option value="41">Tétanos Accidental</option>
+                                <option value="42">Tétanos Neonatal</option>
+                                <option value="43">Tifus Epidémico trasmitido por piojos</option>
+                                <option value="44">Tifus Epidémico trasmitido por Pulgas</option>
+                                <option value="45">Tosferina</option>
+                                <option value="46">Tuberculosos Extra pulmonar</option>
+                                <option value="47">Varicela</option>
+                                <option value="48">VIH SIDA</option>
+                                <option value="49">Otro</option>
+                            </select>
+                            <div id="pnlcbxEventoSPCausaOtro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxEventoSPCausaOtro" id="cbxEventoSPCausaOtro" maxlength="100" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Complicaciones patología/TTO</label>
+                        <select class="form-control select" required id="cbxComplicacionesTTO" name="cbxComplicacionesTTO">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlcbxComplicacionesTTO" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Causal Complicaciones patologia/TTO</label>
+                            <select class="form-control select2" required id="cbxComplicacionesTTOCausal" name="cbxComplicacionesTTOCausal">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">DM complicada</option>
+                                <option value="2">DM descompensada</option>
+                                <option value="3">ECV</option>
+                                <option value="4">EPOC descompensado</option>
+                                <option value="5">FRA</option>
+                                <option value="6">Hemorragia postparto</option>
+                                <option value="7">HTA asociada al embarazo</option>
+                                <option value="8">HTA no controlada</option>
+                                <option value="9">IAM</option>
+                                <option value="10">Infección asociada al cuidado de la salud</option>
+                                <option value="11">ISO</option>
+                                <option value="12">Reacción adversa a medicamento</option>
+                                <option value="13">Sepsis puerperal</option>
+                                <option value="14">Sífilis materna/congénita</option>
+                                <option value="15">Trasmisión vertical HIV</option>
+                                <option value="16">Urgencia o emergencia hipertensiva</option>
+                                <option value="17">Otro</option>
+                            </select>
+                            <div id="pnlcbxEventoSPCausaOtro" style='display:none;'>
+                                <label class="text-secondary_asalud">Cual?:</label>
+                                <input type="text" class="form-control" name="cbxEventoSPCausaOtro" id="cbxEventoSPCausaOtro" maxlength="100" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Uso antibiótico</label>
+                        <select class="form-control select" required id="cbxAntibiotico" name="cbxAntibiotico">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div id="pnlcbxAntibiotico" style='display:none;'>
+                        <div class="col-sm-4 form-group">
+                            <label for="depart" class="text-secondary_asalud">Cual(Es) antibiótico</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero" name="cbxAntibioticoCual" id="cbxAntibioticoCual" maxlength="50" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Requiere inclusión a</label>
+                        <select class="form-control select2" required id="cbxRequiereInc" name="cbxRequiereInc">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Atención domiciliaria</option>
+                            <option value="2">Cuidados Paliativos</option>
+                            <option value="3">Clínica del dolor</option>
+                            <option value="4">Clínica de heridas</option>
+                            <option value="5">Plan canguro</option>
+                            <option value="6">Unidad Mental</option>
+                            <option value="7">Otro</option>
+                            <option value="8">Ninguno de los anteriores</option>
+                        </select>
+                        <div id="pnlcbxRequiereIncOtro" style='display:none;'>
+                            <label class="text-secondary_asalud">Cual?:</label>
+                            <input type="text" class="form-control" name="cbxRequiereIncOtro" id="cbxRequiereIncOtro" maxlength="100" required />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Inclusión efectiva</label>
+                        <select class="form-control select" required id="cbxInclusionEfe" name="cbxInclusionEfe">
+                            <option value="">- Seleccionar -</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Cie10 principal de egreso </label>
+                        @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_4")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "CuentasMedicas");
+                                      });
+
+                                  })
+                               )
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Cie10 secundario de egreso</label>
+                        
+                        @(Html.Kendo().AutoComplete()
+                                 .Name("id_cie10_5")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:350px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCie10Principal", "CuentasMedicas");
+                                      });
+
+                                  })
+                               )
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Destino egreso</label>
+                        <select class="form-control select2" required id="cbxDestinoEgreso" name="cbxDestinoEgreso">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Alta médica</option>
+                            <option value="2">Remisión a otra IPS</option>
+                            <option value="3">Programa Atención Domiciliaria</option>
+                            <option value="4">Programa Cuidados Paliativos</option>
+                            <option value="5">Muerte</option>
+                            <option value="6">Otro</option>
+                        </select>
+                        <div id="pnlcbxDestinoEgresoOtro" style='display:none;'>
+                            <label class="text-secondary_asalud">Cual?:</label>
+                            <input type="text" class="form-control" name="cbxDestinoEgresoOtro" id="cbxDestinoEgresoOtro" maxlength="100" required />
+                        </div>
+                    </div>
+                    @*<div class="col-sm-4 form-group">
+                        <label for="depart" class="text-secondary_asalud">Auditor médico concurrente</label>
+                        <input autocomplete="off" type="text" class="form-control" name="cbxAuditor" id="cbxAuditor" maxlength="50" />
+                    </div>*@
+                    <div class="col-sm-12 form-group">
+                        <label for="depart" class="text-secondary_asalud">Observaciones</label>
+                        <textarea class="form-control" id="cbxobservacion" name="cbxobservacion" rows="4" placeholder="Escriba el texto" maxlength="2000" required></textarea>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-sm-12" align="center">
+                            <button class="button_Asalud_Guardar" type="button" onclick="finalizar()">Guardar</button>
+                        </div>
+
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_cargue_dtll" id="id_cargue_dtll" value="@ViewBag.id_cargue_dtll" />
+                        <input class="form-control" type="text" name="cie10_1" id="cie10_1" />
+                        <input class="form-control" type="text" name="cie10_2" id="cie10_2" />
+                        <input class="form-control" type="text" name="cups_1" id="cups_1" />
+                        <input class="form-control" type="text" name="cie10_3" id="cie10_3" />
+                        <input class="form-control" type="text" name="cie10_4" id="cie10_4" />
+                        <input class="form-control" type="text" name="cie10_5" id="cie10_5" />
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+    });
+
+    $('.select2').select2({
+        width: '100%'
+    });
+
+    $(".k-input").attr('readonly', true);
+
+    $(document).ready(function ()
+    {
+        function startChange() {
+            var startDate = start.value(),
+                endDate = end.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+        function endChange() {
+            var endDate = end.value(),
+                startDate = start.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+
+        function startChange2() {
+            var startDate = start2.value(),
+                endDate = end2.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end2.min(startDate);
+            } else if (endDate) {
+                start2.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start2.max(endDate);
+                end2.min(endDate);
+            }
+        }
+        function endChange2() {
+            var endDate = end2.value(),
+                startDate = start2.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start2.max(endDate);
+            } else if (startDate) {
+                end2.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start2.max(endDate);
+                end2.min(endDate);
+            }
+        }
+
+        function startChange3() {
+            var startDate = start3.value(),
+                endDate = end3.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end3.min(startDate);
+            } else if (endDate) {
+                start3.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start3.max(endDate);
+                end3.min(endDate);
+            }
+        }
+        function endChange3() {
+            var endDate = end3.value(),
+                startDate = start3.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start3.max(endDate);
+            } else if (startDate) {
+                end3.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start3.max(endDate);
+                end3.min(endDate);
+            }
+        }
+
+        function startChange4() {
+            var startDate = start4.value(),
+                endDate = end4.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end4.min(startDate);
+            } else if (endDate) {
+                start4.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start4.max(endDate);
+                end4.min(endDate);
+            }
+        }
+        function endChange4() {
+            var endDate = end4.value(),
+                startDate = start4.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start4.max(endDate);
+            } else if (startDate) {
+                end4.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start4.max(endDate);
+                end4.min(endDate);
+            }
+        }
+
+        var start = $("#fechaIngresoIPS").kendoDatePicker({
+            change: startChange
+        }).data("kendoDatePicker");
+
+        var end = $("#fechaEgresoIPS").kendoDatePicker({
+            change: endChange
+        }).data("kendoDatePicker");
+
+        start.max(end.value());
+        end.min(start.value());
+
+        var start2 = $("#cbxfechaIngresoH").kendoDatePicker({
+            change: startChange2
+        }).data("kendoDatePicker");
+
+        var end2 = $("#cbxfechaEgresoH").kendoDatePicker({
+            change: endChange2
+        }).data("kendoDatePicker");
+
+        start2.max(end2.value());
+        end2.min(start2.value());
+
+        var start3 = $("#fechaIngresoUCI").kendoDatePicker({
+            change: startChange3
+        }).data("kendoDatePicker");
+
+        var end3 = $("#fechaEgresoUCI").kendoDatePicker({
+            change: endChange3
+        }).data("kendoDatePicker");
+
+        start3.max(end3.value());
+        end3.min(start3.value());
+
+        var start4 = $("#fechaIngresoInt").kendoDatePicker({
+            change: startChange4
+        }).data("kendoDatePicker");
+
+        var end4 = $("#fechaEgresoInt").kendoDatePicker({
+            change: endChange4
+        }).data("kendoDatePicker");
+
+        start4.max(end4.value());
+        end4.min(start4.value());
+
+
+        $("#id_cie10_1").change(function () {
+            var au = $("#id_cie10_1").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10_1").val(selected[0].id_cie10);
+            } else {
+                $("#cie10_1").val("");
+            }
+        });
+
+        $("#id_cie10_2").change(function () {
+            var au = $("#id_cie10_2").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10_2").val(selected[0].id_cie10);
+            } else {
+                $("#cie10_2").val("");
+            }
+        });
+
+        $("#id_cups").change(function () {
+            var au = $("#id_cups").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cups_1").val(selected[0].id_cups);
+            } else {
+                $("#cups_1").val("");
+            }
+        });
+        
+
+        $("#id_cie10_3").change(function () {
+            var au = $("#id_cie10_3").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10_3").val(selected[0].id_cie10);
+            } else {
+                $("#cie10_3").val("");
+            }
+        });
+
+        $("#id_cie10_4").change(function () {
+            var au = $("#id_cie10_4").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10_4").val(selected[0].id_cie10);
+            } else {
+                $("#cie10_4").val("");
+            }
+        });
+        $("#id_cie10_5").change(function () {
+            var au = $("#id_cie10_5").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#cie10_5").val(selected[0].id_cie10);
+            } else {
+                $("#cie10_5").val("");
+            }
+        });
+
+        $("#fechaIngresoIPS").change(function () {
+
+            var fechaUno = $("#fechaIngresoIPS").val()
+            var fechados = $("#fechaEgresoIPS").val()
+
+            var date = fechaUno.split("-");
+            var f = new Date(date[2], date[0] - 1, date[1]);
+            var v = new Date(date[2], date[1], date[0] - 1);
+
+            var dias = restaFechas(fechaUno,fechados)
+            $("#diasEstanciaIPS").val(dias);
+
+            //if (fechados != "") {
+            //    compare_dates(fechaUno, fechados);
+
+            //    if (compare_dates(fechaUno, fechados)) {
+            //        alert("ERROR... fecha inicial es mayor a fecha final");
+            //        $("#fechaIngresoIPS").val("");
+            //        $("#diasEstanciaIPS").val("");
+
+            //    }
+            //    else {
+                   
+            //        $("#diasEstanciaIPS").val(dias);
+            //    }
+            //}
+
+        });
+
+        $("#fechaEgresoIPS").change(function () {
+
+            var fechaUno = $("#fechaEgresoIPS").val()
+            var fechados = $("#fechaIngresoIPS").val()
+            var dias = restaFechas(fechados, fechaUno)
+            $("#diasEstanciaIPS").val(dias)
+          
+        });
+
+
+        $("#cbxfechaNacimiento").change(function () {
+
+            var fecha = $("#cbxfechaNacimiento").val();
+            var age = calcularEdad(fecha);
+            $("#edadN").val(age);
+            $("#edadT").val(age);
+            var etareo = calcularGrupoEtareo(age);
+            $("#cbxetario").val(etareo).trigger('change');
+
+        })
+
+        $("#cbxviaIngreso").change(function () {
+            var value2 = document.getElementById("cbxviaIngreso").value;
+
+            if (value2 == 5) {
+                document.getElementById('pnlCual1').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlCual1').style.display = 'none';
+                $("#cbxotroVia").val("");
+            }
+
+        })
+
+        $("#cbxServicio").change(function () {
+            var value2 = document.getElementById("cbxServicio").value;
+
+            if (value2 == 15) {
+                document.getElementById('pnlCual2').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlCual2').style.display = 'none';
+                $("#cbxOtroServicio").val("");
+            }
+        })
+
+        $("#cbxfechaIngresoH").change(function () {
+
+            var fechaUno = $("#cbxfechaIngresoH").val()
+            var fechados = $("#cbxfechaEgresoH").val()
+            var dias = restaFechas(fechaUno, fechados)
+            $("#cbxInstanciaH").val(dias);
+           
+        });
+
+        $("#cbxfechaEgresoH").change(function () {
+
+            var fechaUno = $("#cbxfechaEgresoH").val()
+            var fechados = $("#cbxfechaIngresoH").val()
+            var dias = restaFechas(fechados, fechaUno)
+            $("#cbxInstanciaH").val(dias)
+        });
+
+        $("#fechaIngresoUCI").change(function () {
+
+            var fechaUno = $("#fechaIngresoUCI").val()
+            var fechados = $("#fechaEgresoUCI").val()
+            var dias = restaFechas(fechaUno, fechados)
+            $("#cbxInstanciaUCI").val(dias);
+           
+        });
+
+        $("#fechaEgresoUCI").change(function () {
+
+            var fechaUno = $("#fechaEgresoUCI").val()
+            var fechados = $("#fechaIngresoUCI").val()
+            var dias = restaFechas(fechados, fechaUno)
+            $("#cbxInstanciaUCI").val(dias)
+            
+        });
+
+        $("#fechaIngresoInt").change(function () {
+
+            var fechaUno = $("#fechaIngresoInt").val()
+            var fechados = $("#fechaEgresoInt").val()
+            var dias = restaFechas(fechaUno, fechados)
+            $("#cbxInstanciaInt").val(dias);
+            
+        });
+
+        $("#fechaEgresoInt").change(function () {
+
+            var fechaUno = $("#fechaEgresoInt").val()
+            var fechados = $("#fechaIngresoInt").val()
+            var dias = restaFechas(fechados, fechaUno)
+            $("#cbxInstanciaInt").val(dias)
+            
+        });
+
+        $("#cbxEstanciaP").change(function () {
+            var value2 = document.getElementById("cbxEstanciaP").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlestanciaP').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlestanciaP').style.display = 'none';
+            }
+        })
+
+        $("#cbxcausaEP").change(function () {
+            var value2 = document.getElementById("cbxcausaEP").value;
+
+            if (value2 == 10) {
+                document.getElementById('pnlotrocausaEP').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlotrocausaEP').style.display = 'none';
+            }
+        })
+
+
+
+        $("#cbxEventoM").change(function () {
+            var value2 = document.getElementById("cbxEventoM").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlCausaEventoM').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlCausaEventoM').style.display = 'none';
+            }
+        })
+
+        $("#cbxCausaEventoM").change(function () {
+            var value2 = document.getElementById("cbxCausaEventoM").value;
+
+            if (value2 == 8) {
+                document.getElementById('pnlCausaEventoMOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlCausaEventoMOtro').style.display = 'none';
+            }
+        })
+
+
+        $("#cbxcomplicacionP").change(function () {
+            var value2 = document.getElementById("cbxcomplicacionP").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcomplicaciones').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcomplicaciones').style.display = 'none';
+            }
+        })
+
+        $("#cbxCausacomplicacionP").change(function () {
+            var value2 = document.getElementById("cbxCausacomplicacionP").value;
+
+            if (value2 == 20) {
+                document.getElementById('panelCausacomplicacionPotro').style.display = 'block';
+            }
+            else {
+                document.getElementById('panelCausacomplicacionPotro').style.display = 'none';
+            }
+        })
+
+        $("#cbxrecienN").change(function () {
+            var value2 = document.getElementById("cbxrecienN").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlConrecienNacido').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlConrecienNacido').style.display = 'none';
+            }
+        })
+
+        $("#cbxcondrecienN").change(function () {
+            var value2 = document.getElementById("cbxcondrecienN").value;
+
+            if (value2 == 8) {
+                document.getElementById('panelcbxcondrecienNotro').style.display = 'block';
+            }
+            else {
+                document.getElementById('panelcbxcondrecienNotro').style.display = 'none';
+            }
+        })
+
+
+        $("#cbxpatologiaAC").change(function () {
+            var value2 = document.getElementById("cbxpatologiaAC").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcie10AC').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcie10AC').style.display = 'none';
+            }
+        })
+
+        $("#cbxAltoR").change(function () {
+            var value2 = document.getElementById("cbxAltoR").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxgrupoAltoR').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxgrupoAltoR').style.display = 'none';
+            }
+        })
+
+        $("#cbxgrupoAltoR").change(function () {
+            var value2 = document.getElementById("cbxgrupoAltoR").value;
+
+            if (value2 == 21) {
+                document.getElementById('pnlcbxgrupoAltoRotro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxgrupoAltoRotro').style.display = 'none';
+            }
+        })
+
+        $("#cbxcondicionTr").change(function () {
+            var value2 = document.getElementById("cbxcondicionTr").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxcondicionTr').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxcondicionTr').style.display = 'none';
+            }
+        })
+
+        $("#cbxTipoTR").change(function () {
+            var value2 = document.getElementById("cbxTipoTR").value;
+
+            if (value2 == 13) {
+                document.getElementById('pnlcbxTipoTRotro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxTipoTRotro').style.display = 'none';
+            }
+        })
+
+        $("#cbxEventoADV").change(function () {
+            var value2 = document.getElementById("cbxEventoADV").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlEventoADV').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlEventoADV').style.display = 'none';
+            }
+        })
+        $("#cbxTipoEventoADV").change(function () {
+            var value2 = document.getElementById("cbxTipoTR").value;
+
+            if (value2 == 1) {
+                document.getElementById('pnlEventoADVIPSTipo').style.display = 'none';
+                document.getElementById('pnlEventoADVEPSTipo').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlEventoADVIPSTipo').style.display = 'block';
+                document.getElementById('pnlEventoADVEPSTipo').style.display = 'none';
+            }
+        })
+
+        $("#cbxCausalEventoADIPS").change(function () {
+            var value2 = document.getElementById("cbxCausalEventoADIPS").value;
+
+            if (value2 == 42) {
+                document.getElementById('pnlEventoADVIPSTipoOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlEventoADVIPSTipoOtro').style.display = 'none';
+            }
+        })
+
+        $("#cbxCausalEventoADEps").change(function () {
+            var value2 = document.getElementById("cbxCausalEventoADEps").value;
+
+            if (value2 == 15) {
+                document.getElementById('pnlEventoADVEPSTipoOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlEventoADVEPSTipoOtro').style.display = 'none';
+            }
+
+        })
+
+        $("#cbxEventoCen").change(function () {
+            var value2 = document.getElementById("cbxEventoCen").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxEventoCen').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxEventoCen').style.display = 'none';
+            }
+        })
+
+        $("#cbxEventoCenCausa").change(function () {
+            var value2 = document.getElementById("cbxEventoCenCausa").value;
+
+            if (value2 == 11) {
+                document.getElementById('pnlcbxEventoCenCausaOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxEventoCenCausaOtro').style.display = 'none';
+            }
+
+        })
+
+        $("#cbxEventoSP").change(function () {
+            var value2 = document.getElementById("cbxEventoSP").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxEventoSP').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxEventoSP').style.display = 'none';
+            }
+        })
+
+        $("#cbxEventoSPCausa").change(function () {
+            var value2 = document.getElementById("cbxEventoSPCausa").value;
+
+            if (value2 == 49) {
+                document.getElementById('pnlcbxEventoSPCausaOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxEventoSPCausaOtro').style.display = 'none';
+            }
+
+        })
+
+        $("#cbxComplicacionesTTO").change(function () {
+            var value2 = document.getElementById("cbxComplicacionesTTO").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxComplicacionesTTO').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxComplicacionesTTO').style.display = 'none';
+            }
+        })
+
+        $("#cbxComplicacionesTTOCausal").change(function () {
+            var value2 = document.getElementById("cbxComplicacionesTTOCausal").value;
+
+            if (value2 == 17) {
+                document.getElementById('pnlcbxEventoSPCausaOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxEventoSPCausaOtro').style.display = 'none';
+            }
+        })
+
+        $("#cbxAntibiotico").change(function () {
+            var value2 = document.getElementById("cbxAntibiotico").value;
+
+            if (value2 == "SI") {
+                document.getElementById('pnlcbxAntibiotico').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxAntibiotico').style.display = 'none';
+            }
+        })
+
+        $("#cbxRequiereInc").change(function () {
+            var value2 = document.getElementById("cbxRequiereInc").value;
+
+            if (value2 == 7) {
+                document.getElementById('pnlcbxRequiereIncOtro').style.display = 'block';
+            }
+            else {
+                document.getElementById('pnlcbxRequiereIncOtro').style.display = 'none';
+            }
+        })
+
+
+
+
+    });
+
+    function CargarUnis(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeMunicipioFFMM", "CuentasMedicas")",
+                type: "post",
+                data: { depart: regional },
+                success: function (data) {
+                    $("#cbxmuni").empty();
+                    $("#cbxmuni").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxmuni").append("<option value='" + b.cod_municipio + "'>" + b.muninombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+    function CargarIps(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeIPSFFMM", "CuentasMedicas")",
+                type: "post",
+                data: { munic: regional },
+                success: function (data) {
+                    $("#cbxips").empty();
+                    $("#cbxips").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxips").append("<option value='" + b.id_ref_ffmm_prestadores + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+
+    function compare_dates(fecha, fecha2) {
+        var xMonth = fecha.substring(3, 5);
+        var xDay = fecha.substring(0, 2);
+        var xYear = fecha.substring(6, 10);
+        var yMonth = fecha2.substring(3, 5);
+        var yDay = fecha2.substring(0, 2);
+        var yYear = fecha2.substring(6, 10);
+        if (xYear > yYear) {
+            return (true)
+        }
+        else {
+            if (xYear == yYear) {
+                if (xMonth > yMonth) {
+                    return (true)
+                }
+                else {
+                    if (xMonth == yMonth) {
+                        if (xDay > yDay)
+                            return (true);
+                        else
+                            return (false);
+                    }
+                    else
+                        return (false);
+                }
+            }
+            else
+                return (false);
+        }
+    }
+
+    restaFechas = function (f1, f2) {
+        var aFecha1 = f1.split('/');
+        var aFecha2 = f2.split('/');
+        var fFecha1 = Date.UTC(aFecha1[2], aFecha1[0], aFecha1[1] - 1);
+        var fFecha2 = Date.UTC(aFecha2[2], aFecha2[0], aFecha2[1] - 1);
+        var dif = fFecha2 - fFecha1;
+        var dias = Math.floor(dif / (1000 * 60 * 60 * 24));
+        return dias;
+    }
+    
+    function formatDate(date) {
+        return [
+            padTo2Digits(date.getMonth() + 1),
+            padTo2Digits(date.getDate()),
+            date.getFullYear(),
+        ].join('/');
+    }
+
+    function calcularGrupoEtareo(age) {
+
+        var gEtareoCalculado = 0;
+
+        if (age >= 60) {
+            gEtareoCalculado = 6;
+        } else if (age >= 29) {
+            gEtareoCalculado = 5;
+        } else if (age >= 18) {
+            gEtareoCalculado = 4;
+        } else if (age >= 12) {
+            gEtareoCalculado = 3;
+        } else if (age >= 6) {
+            gEtareoCalculado = 2;
+        } else {
+            gEtareoCalculado = 1;
+        }
+        return gEtareoCalculado;
+    }
+    function GestionCerrar()
+    {
+      location.reload();
+    }
+
+    function finalizar() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+    
+    function FinalizarDatos() {
+
+        var cie_1 = $("#cie10_1").val();
+        var cie_2 = $("#cie10_2").val();
+        var cie_3 = $("#cie10_3").val();
+        var cie_4 = $("#cie10_4").val();
+        var cie_5 = $("#cie10_5").val();
+
+        var value = $("#cie10F").val();
+        var etario = $("#cbxetario").val();
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("fecha_auditoria", $("#fechaAuditoria").val());
+        formData.append("unidad", $("#cbxunidad").val());
+        formData.append("id_ref_forma_auditoria", $("#cbxforma").val());
+        formData.append("id_ref_tipo_visita", $("#cbxTvisita").val());
+        formData.append("id_departamento", $("#cbxregional").val());
+        formData.append("id_municipio", $("#cbxmuni").val());
+        formData.append("id_ref_ips", $("#cbxips").val());
+        formData.append("fecha_solicitud_autorizacion", $("#cbxfechaSautoriza").val());
+        formData.append("fecha_generacion_autorizacion", $("#cbxfechaGautoriza").val());
+        formData.append("fecha_ingreso_ips", $("#fechaIngresoIPS").val());
+        formData.append("fecha_egreso_ips", $("#fechaEgresoIPS").val());
+        formData.append("dias_instancia_ips", $("#diasEstanciaIPS").val());
+        formData.append("nombre_apellidos_usuario", $("#cbxnomUsuario").val());
+        formData.append("tipoId", $("#cbxtipoId").val());
+        formData.append("numeroId", $("#NumeroIdU").val());
+        formData.append("fecha_nacimiento", $("#cbxfechaNacimiento").val());
+        formData.append("edadN", $("#edadN").val());
+        formData.append("id_ref_grupo_etario", etario);
+        formData.append("sexo", $("#cbxsexo").val());
+        formData.append("estado_afiliacion", $("#cbxEstado").val());
+        formData.append("sitio_adscripcion", $("#cbxsitio").val());
+        formData.append("id_ref_tipo_afiliacion", $("#cbxtipoAfiliacion").val());
+        formData.append("direccion", $("#cbxdireccion").val());
+        formData.append("telefono", $("#cbxTelefono").val());
+        formData.append("grado", $("#cbxGrado").val());
+        formData.append("fuerza", $("#cbxFuerza").val());
+        formData.append("nivel_atencion", $("#cbxNivelA").val());
+        formData.append("id_ref_nivel_complejidad", $("#cbxComplejidad").val());
+        formData.append("id_ref_via_ingreso", $("#cbxviaIngreso").val());
+        formData.append("otro_via_ingreso", $("#cbxotroVia").val());
+        formData.append("cie10_1", cie_1);
+        formData.append("cie10_2", cie_2);
+        formData.append("is_cups", $("#cups_1").val());
+        formData.append("origen_servicio", $("#cbxorigenS").val());
+        formData.append("id_ref_servicio", $("#cbxServicio").val());
+        formData.append("otro_servicio", $("#cbxOtroServicio").val());
+        formData.append("fecha_ingreso_hospitalizacion", $("#cbxfechaIngresoH").val());
+        formData.append("fecha_egreso_hospitalizacion", $("#cbxfechaEgresoH").val());
+        formData.append("dias_estancia_hospitalizacion", $("#cbxInstanciaH").val());
+        formData.append("fecha_ingreso_uci", $("#fechaIngresoUCI").val());
+        formData.append("fecha_egreso_uci", $("#fechaEgresoUCI").val());
+        formData.append("dias_estancia_uci", $("#cbxInstanciaUCI").val());
+        formData.append("fecha_ingreso_intermedios", $("#fechaIngresoInt").val());
+        formData.append("fecha_egraso_intermedios", $("#fechaEgresoInt").val());
+        formData.append("dias_estancia_intermedios", $("#cbxInstanciaInt").val());
+        formData.append("estancia_prolongada", $("#cbxEstanciaP ").val());
+        formData.append("id_ref_estancia_prolongada", $("#cbxcausaEP").val());
+        formData.append("otro_estancia_prolongada", $("#cbxcausaEPOtro").val());
+        formData.append("evento_materno", $("#cbxEventoM").val());
+        formData.append("id_ref_evento_materno", $("#cbxCausaEventoM").val());
+        formData.append("otro_evnto_materno", $("#cbxCausaEventoMOtro ").val());
+        formData.append("edad_gestacional", $("#cbxedadG").val());
+        formData.append("num_controles_prenatales", $("#cbxcontrolesP").val());
+        formData.append("complicacion_parto_puerperio", $("#cbxcomplicacionP").val());
+        formData.append("id_ref_complicacion_parto", $("#cbxCausacomplicacionP").val());
+        formData.append("otro_complicaciones_parto", $("#cbxCausacomplicacionPOtro").val());
+        formData.append("recien_nacido", $("#cbxrecienN").val());
+        formData.append("id_ref_condiciones_recien_nacido", $("#cbxcondrecienN").val());
+        formData.append("otro_condicion_recien_nacido", $("#cbxcondrecienNOtro").val());
+        formData.append("patologia_alto_costo", $("#cbxpatologiaAC ").val());
+        formData.append("cie10_3", cie10_3);
+        formData.append("alto_riesgo", $("#cbxAltoR").val());
+        formData.append("id_ref_alto_riesgo", $("#cbxgrupoAltoR").val());
+        formData.append("otro_alto_riesgo", $("#cbxgrupoAltoROtro").val());
+        formData.append("condicion_trazadora", $("#cbxcondicionTr").val());
+        formData.append("id_ref_tipo_condicion_trazadora", $("#cbxTipoTR").val());
+        formData.append("otro_tipo_condicion_trazadora", $("#cbxTipoTRotroOtro").val());
+        formData.append("evento_adverso", $("#cbxEventoADV").val());
+        formData.append("tipo_eveno_adverso", $("#cbxTipoEventoADV").val());
+        formData.append("id_ref_causal_evento_adverso_ips", $("#cbxCausalEventoADIPS").val());
+        formData.append("otro_causal_evento_adverso_ips", $("#cbxEventoADVIPSTipoOtro").val());
+        formData.append("id_ref_causal_evento_adverso_eps", $("#cbxCausalEventoADEps").val());
+        formData.append("otro_causal_evento_adverso_eps", $("#cbxEventoADVEPSTipoOtro").val());
+        formData.append("fecha_presentacion_evento_adverso", $("#cbxfechaPresentacionEV").val());
+        formData.append("fecha_seguimiento_evento_adverso", $("#cbxfechaSeguimientoEV").val());
+        formData.append("evento_centinela", $("#cbxEventoCen").val());
+        formData.append("id_ref_causal_evento_centinela", $("#cbxEventoCenCausa").val());
+        formData.append("otro_causal_evento_centinela", $("#cbxEventoCenCausaOtro").val());
+        formData.append("evento_salud_publica", $("#cbxEventoSP").val());
+        formData.append("id_ref_causal_evento_salud_publica", $("#cbxEventoSPCausa").val());
+        formData.append("causal_evento_salud_publica", $("#cbxEventoSPCausaOtro").val());
+        formData.append("complicacion_patologica", $("#cbxComplicacionesTTO").val());
+        formData.append("id_ref_causal_complicacion_patologica", $("#cbxComplicacionesTTOCausal").val());
+        formData.append("otro_causal_complicacion_patologica", $("#cbxEventoSPCausaOtro").val());
+        formData.append("uso_antibiotico", $("#cbxAntibiotico").val());
+        formData.append("cuales_antibioticos", $("#cbxAntibioticoCual").val());
+        formData.append("id_ref_requiere_inclusion", $("#cbxRequiereInc").val());
+        formData.append("otro_requiere_inclusion", $("#cbxRequiereIncOtro").val());
+        formData.append("efectividad_inclusion", $("#cbxInclusionEfe").val());
+        formData.append("cie10_4", cie10_4);
+        formData.append("cie10_5", cie10_5);
+        formData.append("id_ref_destino_egreso", $("#cbxDestinoEgreso").val());
+        formData.append("otro_destino_egreso", $("#cbxDestinoEgresoOtro").val());
+        formData.append("observaciones", $("#cbxobservacion").val());
+        formData.append("cbxAuditor", $("#cbxAuditor").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavegestionAuditoria", "ffmmAuditoria")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  alert(response.message);
+                  LoadingHide();
+                  location.reload();
+              }
+              else
+              {
+                     alert(response.message);
+                     LoadingHide();
+              }
+
+            }
+        })
+    }
+
+    function calculateAge(birthday) {
+        var birthday_arr = birthday.split("/");
+        var birthday_date = new Date(birthday_arr[2], birthday_arr[1] - 1, birthday_arr[0]);
+        var ageDifMs = Date.now() - birthday_date.getTime();
+        var ageDate = new Date(ageDifMs);
+
+        return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+    function calcularAños(dia, mes, año) {
+        var today = new Date();
+        años = today.getFullYear() - año;
+        if (mes > (today.getMonth() + 1) || dia > today.getDay())
+            años--;
+        return años;
+    }
+
+
+    function calcularEdad(fecha) {
+        var hoy = new Date();
+        var cumpleanos = new Date(fecha);
+        var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+        var m = hoy.getMonth() - cumpleanos.getMonth();
+
+        if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+            edad--;
+        }
+
+        return edad;
+    }
+
+
+</script>
+
+
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+
+
+
+

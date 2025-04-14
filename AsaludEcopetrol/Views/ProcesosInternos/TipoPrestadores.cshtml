@@ -1,0 +1,177 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "CONFIGURACIÓN Y ADMINISTRACIÓN DE CAPITULOS";
+}
+
+@{
+    List<ECOPETROL_COMMON.ENTIDADES.capitulo_indicador> capitulos = (List<ECOPETROL_COMMON.ENTIDADES.capitulo_indicador>)ViewBag.capituloindicadores;
+    List<ECOPETROL_COMMON.ENTIDADES.indicador_regional> lista = (List<ECOPETROL_COMMON.ENTIDADES.indicador_regional>)ViewData["listaregprestadores"];
+}
+
+<br />
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <div class="col-sm-12 form-group row">
+            <strong>Nombre de la regional: </strong> @ViewBag.nomregional
+        </div>
+        <div class="col-sm-12 row">
+            <table class="table table-hover table-striped table-condensed ">
+                <thead style="background-color:#333333; color:white">
+                    <tr>
+                        <th>Nombre indicador</th>
+                        <th>Capitulos</th>
+                        <th style="width:1%; text-align:center" colspan="2">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.indicadores item in ViewBag.listIndicadores)
+                    {
+                        var result = lista.Where(l => l.id_indicador == item.id_indicador && l.id_regional == ViewBag.idregional).FirstOrDefault();
+                        if (result != null)
+                        {
+                            var cap = capitulos.Where(l => l.indicador_id == item.id_indicador).ToList();
+                            <tr>
+                                <td>@item.nom_indicador</td>
+                                <td>
+                                    <table>
+                                        @if (cap.Count() > 0)
+                                        {
+                                            foreach (ECOPETROL_COMMON.ENTIDADES.capitulo_indicador item2 in cap)
+                                            {
+                                                <tr>
+                                                    <td>@item2.capitulos.nom_capitulo</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </table>
+                                </td>
+
+                                <td><a role="button" href="@Url.Action("ConfiguracionCaptulos","ProcesosInternos",new {idregional = ViewBag.idregional, idindicador = item.id_indicador})" class="btn btn-sm button_Asalud_Guardar">Configurar Capitulos</a></td>
+                                <td>
+                                    
+                                    @if (cap.Count() > 0)
+                                    {
+                                        <a role="button" href="@Url.Action("Capitulos","ProcesosInternos",new {idregional = ViewBag.idregional, idindicador = item.id_indicador})" class="btn btn-sm button_Asalud_Aceptar">Administrar Capitulos</a>
+                                    }
+                                    else
+                                    {
+                                        <label class="text-secondary_asalud">No hay capitulos configurados</label>
+                                    }
+                                    
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-12 form-group text-center">
+            <a class="btn button_Asalud_Rechazar" role="button" href="@Url.Action("Regionalprestadores","ProcesosInternos")">Volver</a>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+    })
+</script>
+
+<style>
+
+     table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .sorting_asc:after {
+        color: white !important;
+    }
+
+    .pagination > .active > a {
+        background-color: #333333;
+        border-color: white;
+    }
+
+    .pagination > .active > a:hover {
+        background-color: white;
+        color: #333333;
+        border-color: #333333;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

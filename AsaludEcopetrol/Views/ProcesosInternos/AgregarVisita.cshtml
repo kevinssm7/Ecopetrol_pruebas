@@ -1,0 +1,238 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "AGREGAR VISITA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int msj = (int)ViewData["msj"];
+    string alerta = (string)ViewData["Alerta"];
+}
+
+<br />
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Complete el formulario para ingresar una nueva visita</strong>
+    </div>
+    <div class="panel-body">
+        <div class="col-sm-12 row">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+        <form id="formvisitas" method="post" enctype="multipart/form-data" action="AgregarVisita">
+            <div class="row">
+                <div class="col-sm-6 form-group">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Buscar prestador</span>
+                    <div class="input-group">
+                        <input type="text" id="txtfiltro" name="txtfiltro" class="form-control" disabled="disabled" aria-label="...">
+                        <div class="input-group-btn">
+                            <button id="btnfiltro" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filtrar por &nbsp;<span class="caret"></span></button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="javascript:filtro(1)">Codigo SAP</a></li>
+                                <li><a href="javascript:filtro(2)">NIT</a></li>
+                                <li><a href="javascript:filtro(3)">Nombre</a></li>
+                            </ul>
+                        </div>
+                        <input type="hidden" id="tipofiltro" name="tipofiltro" value="0" />
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+
+            <input type="hidden" id="txtidprestador" name="idprestador" />
+            <div class="row form-group">
+                <div class="form-group col-sm-4">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Codigo sap</span>
+                    <input type="text" class="form-control" required="required" id="txtcodigosap" name="codigosap" readonly />
+                </div>
+                <div class="form-group col-sm-4">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Nit</span>
+                    <input type="text" class="form-control" required="required" id="txtnit" name="nit" readonly/>
+                </div>
+                <div class="form-group col-sm-4">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Nombre</span>
+                    <input type="text" class="form-control" required="required" id="txtnombre" name="nombre" readonly />
+                </div>
+                <div class="col-sm-4 form-group ">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Fecha de visita</span>
+                    <input type="text" class="datepicker" value="" style="width: 100%" name="fechavisita" required="required"/>
+                </div>
+                <div class="col-sm-4 form-group ">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Auditor asignado</span>
+                    <select class="form-control select2"style="width:100%" name="responsable" required="required">
+                        <option value="">Seleccione...</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.ref_responsables)
+                        {
+                            <option value="@item.usuario">@item.nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-sm-4 form-group ">
+                    <span class="text-secondary_asalud" style="font-weight:bold">Localidad</span>
+                    <input type="text" class="form-control" name="localidad" required="required" maxlength="70"/>
+                </div>
+            </div>
+            <div class="col-sm-12 text-right">
+                <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+        });
+
+        $("#txtfiltro").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProcesosInternos/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: $("#tipofiltro").val()
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#txtcodigosap").val(ui.item.codigosap);
+                    $("#txtnit").val(ui.item.nit);
+                    $("#txtnombre").val(ui.item.nombre);
+                    $("#txtidprestador").val(ui.item.id)
+                }
+            },
+
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligarorio *",
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $("#autoretenedor1").change(function () {
+            if ($(this).is(':checked')) {
+                $("#autoretenedor").val("SI");
+            } else {
+                $("#autoretenedor").val("NO");
+            }
+        })
+
+        $("#autoretenedor2").change(function () {
+            if ($(this).is(':checked')) {
+                $("#autoretenedor").val("NO");
+            } else {
+                $("#autoretenedor").val("SI");
+            }
+        })
+
+    })
+
+
+    function filtro(a) {
+        $("#tipofiltro").val(a);
+        $("#txtfiltro").prop('disabled', false);
+        var boton = document.getElementById('btnfiltro');
+        switch (a) {
+            case 1:
+                boton.innerHTML = 'Codigo SAP &nbsp;<span class="caret"></span>';
+                break;
+            case 2:
+                boton.innerHTML = 'NIT &nbsp;<span class="caret"></span>';
+                break;
+            case 3:
+                boton.innerHTML = 'Nombre &nbsp;<span class="caret"></span>';
+                break;
+            default:
+                boton.innerHTML = 'Filtrar Por &nbsp;<span class="caret"></span>';
+                break;
+        }
+    }
+
+    function ValidarFormulario() {
+        hasChangue = false;
+        var validator = $("#formvisitas").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formvisitas").submit();
+        }
+    }
+</script>
+<style>
+     label.error {
+        background-color: indianred;
+        color:white;
+        font-size: 13px;
+        font-weight:bold;
+        float: left;
+        width:100%
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

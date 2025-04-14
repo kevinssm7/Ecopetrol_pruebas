@@ -1,0 +1,371 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS PENDIENTES AUDITAR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de facturas Auditor</strong>
+    </div>
+    <div class="panel-body">
+
+        <div class="table-responsive">
+           
+            <table class="table table-bordered table-condensed table-striped datatable">
+                <thead>
+                    <tr>
+                       
+                        <th>Id lote</th>
+                        <th>Id factura</th>
+                        <th>Días Trascurridos</th>
+                        <th>No. factura</th>
+                        <th>Fecha recepción factura</th>
+                        <th>Valor factura</th>
+                        <th>Nombre prestador</th>
+                        <th>Auditor</th>
+                        <th>Factura digital</th>
+                        <th>Soportes clinicos</th>
+                        <th>Archivos comprimidos</th>
+                        <th>Auditar</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                   
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresFacturasAuditorResult item in Model)
+                    {
+                       
+                        <tr>
+                            @if (item.dias_trascurridos > 2 && item.dias_trascurridos <= 4)
+                            {
+                               
+                                <td class="text-center" style="background-color:#D5F5E4">@item.id_cargue_base</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.id_cargue_dtll</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.dias_trascurridos Días</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.num_factura</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.fecha_ultima_gestion.Value.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.valor_neto.Value</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.nombre_prestador.ToUpper()</td>
+                                <td class="text-center" style="background-color:#D5F5E4">@item.nom_auditor</td>
+                                <td class="text-center" style="background-color:#D5F5E4"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("DocumentoDigital","RadicacionElectonica",new {tipo = 1, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a></td>
+                                <td class="text-center" style="background-color:#D5F5E4"><a style="text-decoration-color:#5168a8" class="alink" href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.count_soportes Documento Cargados</a></td>
+                                if (item.count_soportes_zip > 0)
+                                {
+                                    <td class="text-center" style="background-color:#D5F5E4"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital_zip","RadicacionElectonica",new {idcarguedtll = item.id_cargue_dtll })', '', 'width=500,height =100,left =50,top =50,toolbar =yes');">Ver Archivo Comprimido</a></td>
+                                }
+                                else
+                                {
+                                    <td class="text-center" style="background-color:#D5F5E4"></td>
+                                }
+                            }
+                            else if (item.dias_trascurridos > 4 && item.dias_trascurridos <= 5)
+                            {
+                               
+                                <td class="text-center" style="background-color:#F6D0B5">@item.id_cargue_base</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.id_cargue_dtll</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.dias_trascurridos Días</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.num_factura</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.fecha_ultima_gestion.Value.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.valor_neto.Value</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.nombre_prestador.ToUpper()</td>
+                                <td class="text-center" style="background-color:#F6D0B5">@item.nom_auditor</td>
+                                <td class="text-center" style="background-color:#F6D0B5"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("DocumentoDigital","RadicacionElectonica",new {tipo = 1, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a></td>
+                                <td class="text-center" style="background-color:#F6D0B5"><a style="text-decoration-color:#5168a8" class="alink" href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.count_soportes Documento Cargados</a></td>
+                                if (item.count_soportes_zip > 0)
+                                {
+                                    <td class="text-center" style="background-color:#F6D0B5"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital_zip","RadicacionElectonica",new {idcarguedtll = item.id_cargue_dtll })', '', 'width=500,height =100,left =50,top =50,toolbar =yes');">Ver Archivo Comprimido</a></td>
+                                }
+                                else
+                                {
+                                    <td class="text-center" style="background-color:#F6D0B5"></td>
+                                }
+                            }
+                            else if (item.dias_trascurridos > 5)
+                            {
+                               
+                                <td class="text-center" style="background-color:#FFEDED">@item.id_cargue_base</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.id_cargue_dtll</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.dias_trascurridos Días</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.num_factura</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.fecha_ultima_gestion.Value.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.valor_neto.Value</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.nombre_prestador.ToUpper()</td>
+                                <td class="text-center" style="background-color:#FFEDED">@item.nom_auditor</td>
+                                <td class="text-center" style="background-color:#FFEDED"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("DocumentoDigital","RadicacionElectonica",new {tipo = 1, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a></td>
+                                <td class="text-center" style="background-color:#FFEDED"><a style="text-decoration-color:#5168a8" class="alink" href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.count_soportes Documento Cargados</a></td>
+                                if (item.count_soportes_zip > 0)
+                                {
+                                    <td class="text-center" style="background-color:#FFEDED"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital_zip","RadicacionElectonica",new {idcarguedtll = item.id_cargue_dtll })', '', 'width=500,height =100,left =50,top =50,toolbar =yes');">Ver Archivo Comprimido</a></td>
+                                }
+                                else
+                                {
+                                    <td class="text-center" style="background-color:#FFEDED"></td>
+                                }
+                            }
+                            else
+                            {
+                               
+                                <td class="text-center">@item.id_cargue_base</td>
+                                <td class="text-center">@item.id_cargue_dtll</td>
+                                <td class="text-center">@item.dias_trascurridos Días</td>
+                                <td class="text-center">@item.num_factura</td>
+                                <td class="text-center">@item.fecha_ultima_gestion.Value.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">@item.valor_neto.Value</td>
+                                <td class="text-center">@item.nombre_prestador.ToUpper()</td>
+                                <td class="text-center">@item.nom_auditor</td>
+                                <td class="text-center"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("DocumentoDigital","RadicacionElectonica",new {tipo = 1, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a></td>
+                                <td class="text-center"><a style="text-decoration-color:#5168a8" class="alink" href="javascript:versoportes(@item.id_cargue_base , @item.id_cargue_dtll)">@item.count_soportes Documento Cargados</a></td>
+                                if (item.count_soportes_zip > 0)
+                                {
+                                    <td class="text-center"><a style="text-decoration-color:#5168a8" class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital_zip","RadicacionElectonica",new {idcarguedtll = item.id_cargue_dtll })', '', 'width=500,height =100,left =50,top =50,toolbar =yes');">Ver Archivo Comprimido</a></td>
+                                }
+                                else
+                                {
+                                    <td class="text-center"></td>
+                                }
+
+                            }
+                            <td class="text-center">
+                                <button class="button_Asalud_Aceptar" onclick="llamarVistaParcial(@item.id_cargue_dtll);" data-toggle="modal" data-target="#myModal">
+                                    Gestionar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Soportes Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.table').DataTable({
+            "order": [[2, "desc"]]
+        });
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+
+    function llamarVistaParcial(AI)
+    {
+          var laURLDeLaVista = '@Url.Action("GestionarFactura")?ID=' + AI
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultado').html('');
+                    $('#resultado').html(response);
+                }
+            });
+    }
+
+    
+      function versoportes(a, b)
+    {
+        $.ajax({
+            url: "@Url.Action("tablasoportesclinicos")",
+            type: "post",
+        data: {
+            idcargue: a,
+            iddetalle:b
+        },
+        success: function (data)
+        {
+            $("#tblsoportes tbody").empty();
+            $("#tblsoportes tbody").html(data);
+            $("#ModalSoportes").modal('show');
+        }
+        })
+
+    }
+
+    function AbrirSoporteClinico(a)
+    {
+        var url = "@Url.Action("SoportesClinicos", "RadicacionElectonica")?idsoporteclinico=" + a;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+
+   
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

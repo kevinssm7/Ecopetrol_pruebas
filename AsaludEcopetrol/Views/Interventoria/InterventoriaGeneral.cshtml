@@ -1,0 +1,295 @@
+﻿@model  AsaludEcopetrol.Models.Medicamentos.interventoria
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "INGRESO GENERAL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    string idadmin = (string)ViewBag.idadmin;
+}
+
+@using (Html.BeginForm())
+{
+    <br />
+    <br />
+
+    <fieldset>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">INGRESO</strong>
+            </div>
+            <div class="container">
+                <div class="panel-body">
+                    <form id="frm-alumno">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_auditoria)</span></h5>
+                                @(Html.Kendo().DateTimePickerFor(p => p.fecha_auditoria)
+                                     .Name("datepicker1")
+                                     .Format("MM/dd/yyyy")
+                                     .Events(e =>
+                                      {
+                                         e.Change("change1");
+                                        })
+                                       .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+                        )
+                                @Html.ValidationMessageFor(u => u.fecha_auditoria, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.nombre_auditor)</span></h5>
+                                <input type="hidden" id="idadmin" value="@ViewBag.idadmin" />
+                                <div class="col-sm-12 row">
+                                    <select class="form-control select2" id="idsolicitante" name="solicitante">
+                                        <option value="">- Seleccione -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.solicitantes)
+                                        {
+                                            if (idadmin ==   item.usuario)
+                                            {
+                                                <option selected="selected" value="@item.usuario">@item.nombre.ToUpper()</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.usuario">@item.nombre.ToUpper()</option>
+                                            }
+                                        }
+                                    </select>
+                                    <br />
+                                    <label class="checkbox-inline" style="font-weight:bold">
+                                        <input type="checkbox" id="chkOtroUsuario">&nbsp; Otro Auditor
+                                    </label>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="col-sm-3">
+
+
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.ciudad)</span></h5>
+                                @(Html.Kendo().DropDownListFor(m => m.ciudad)
+                                 .Name("ciudad")
+                                 .HtmlAttributes(new { style = "width:100%" })
+                                 .DataTextField("nombre")
+                                 .DataValueField("id_ref_ciudades")
+                                 .Filter(FilterType.Contains)
+                                 .Events(events => events.Select("CustomerSelect2"))
+                                 .DataSource(source =>
+                                  {
+                                    source.Read(read =>
+                                  {
+                                   read.Action("GetCascadeCiudades", "medicamentos");
+                                   });
+                                  })
+                        )
+                                @Html.ValidationMessageFor(u => u.ciudad)
+
+                            </div>
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.nombre_auditado)</span></h5>
+                                @(Html.Kendo().DropDownListFor(m => m.nombre_auditado)
+                               .Name("nombre_auditado")
+                               .HtmlAttributes(new { style = "width:100%" })
+                               .DataTextField("nombre")
+                               .DataValueField("id_ref_proveedor")
+                               .Filter(FilterType.Contains)
+                               .Events(events => events.Select("CustomerSelect3"))
+                               .DataSource(source =>
+                                {
+                                 source.Read(read =>
+                                {
+                                  read.Action("GetCascadeProveedores", "GestorDocumental");
+                                });
+                               })
+                        )
+                                @Html.ValidationMessageFor(u => u.nombre_auditado, null, new { @class = "label label-danger" })
+                            </div>
+
+                        </div>
+                        <br />
+                        <br />
+
+                        <div class="row">
+                            <div id="pnlGuardar" class="General text-center">
+                                <div>
+                                    <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn button_Asalud_Aceptar" />
+                                </div>
+
+                                <div class="Error">
+                                    @Html.ValidationSummary(true, "")
+                                </div>
+
+                                <div style="display:none">
+                                    @Html.TextBoxFor(u => u.fecha_auditoriaOK)
+                                    <
+                                </div>
+                            </div>
+
+                        </div>
+                        <br />
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+        $('.select2').select2({
+            width: '100%'
+        });
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_auditoriaOK]').val(DataItem);
+
+    }
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ciudad").val(DataItem.id_ref_ciudades);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#nombre_auditado").val(DataItem.id_ref_proveedor);
+    }
+
+    $(document).ready(function ()
+    {
+        $("#chkOtroUsuario").change(function ()
+        {
+            if ($(this).is(':checked'))
+            {
+
+                $("#idsolicitante").val("").trigger('change');
+            } else
+            {
+                var admin = '@idadmin';
+                admin = admin.replace("&#241;", "ñ");
+                $("#idsolicitante").val(admin).trigger('change');
+
+            }
+        })
+
+        $("#idsolicitante").change(function ()
+        {
+            var admin = $(this).val();
+            if (admin != null)
+            {
+                if ($(this).val() != "")
+                {
+                    if (!$("#chkOtroUsuario").is(':checked'))
+                    {
+                        var admin2 = '@idadmin';
+                        admin2 = admin2.replace("&#241;", "ñ");
+                        alert("Para cambiar el solicitante, debe seleccionar la opcion 'Otro Usuario'");
+                        $("#idsolicitante").val(admin2);
+                    }
+                }
+            }
+        })
+    })
+
+
+
+    function CargarusuariosTipoSoporte()
+    {
+        var idsolicitante = $("#idsolicitante").val();
+
+        $.ajax({
+
+            url: "@Url.Action("CargarusuariosTipoSoporte")",
+            type: "post",
+            data:
+            {
+                idsolicitante: idsolicitante,
+            },
+            success: function (data)
+            {
+                $("#idsolicitante").empty();
+                $("#idsolicitante").html(data);
+            },
+            error: function (data)
+            {
+                alert("No se han podido cargar los usuarios. Porfavor, intente de nuevo")
+            }
+        })
+    }
+
+
+  //$(document).ready(function() {
+  //    $("#datepicker1").datepicker({
+  //        dateFormat: 'dd/MM/yyyy',
+  //  }).datepicker("setDate", new Date());
+  // });
+
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+ /*   .select2 {
+        width: 260px;
+    }*/
+</style>

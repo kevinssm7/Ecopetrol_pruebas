@@ -1,0 +1,527 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "GESTIÓN HOSPITALIZACIÓN PREVENIBLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+    int conteo = ViewBag.conteo;
+    int conteoCohorte = ViewBag.conteoCohorte;
+}
+<br />
+
+<br>
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESO CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="GestionHospitalizacionPrevenible" enctype="multipart/form-data" method="post" action="@Url.Action("GestionHospitalizacionPrevenible","Concurrencia")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-secondary_asalud">DETALLE GESTIÓN HOSPITALIZACIÓN PREVENIBLE</strong>
+                </div>
+                <div class="panel-body">
+
+                    @if (conteo > 0)
+                    {
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th class="text-center">Id</th>
+                                    <th class="text-center">Nombre paciente</th>
+                                    <th class="text-center">Identificación</th>
+                                    <th class="text-center">Concepto auditor</th>
+                                    <th class="text-center">Análisis caso</th>
+                                    <th class="text-center">Caso</th>
+                                    @*<th class="text-center">CIE10</th>*@
+                                    <th class="text-center">Regional</th>
+                                    <th class="text-center">Archivo</th>
+                                </tr>
+
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_hospitalizacionPrevenible_detalle_gestionResult item in ViewBag.lista)
+                                {
+
+                                    <tr>
+                                        <td>@item.int_HE_Dtll </td>
+                                        <td>@item.nombre_paciente </td>
+                                        <td>@item.num_identificacion </td>
+                                        <td>@item.concepto_ambulatorio </td>
+                                        <td>@item.descripcion_analisis</td>
+
+                                        @if (item.analisis == 1)
+                                        {
+
+                                            <td>@item.descripcion_analisis_si</td>
+                                        }
+                                        else if (item.analisis == 2)
+                                        {
+                                            <td>@item.descripcion_analisis_no</td>
+
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+
+                                        @*<td>@item.diagnostico_cie10-@item.descripcion_cie10</td>*@
+                                        <td>@item.regional</td>
+
+                                        @if (!item.archivo.Equals("NO"))
+                                        {
+                                            <td>
+                                                <a class="btn button_Asalud_Reporte" href='javascript:mostrarArchivo(@item.int_HE_Dtll)'>Descargar</a>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <label class="btn button_Asalud_Reporte"> Sin archivo</label>
+                                            </td>
+                                        }
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            SIN GESTIÓN HOSPITALIZACIÓN PREVENIBLE
+                        </div>
+                    }
+                </div>
+
+                <div class="panel-heading">
+                    <strong class="text-secondary_asalud">COHORTES</strong>
+                </div>
+                <div class="panel-body">
+                    @if (conteoCohorte > 0)
+                    {
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    @*<th class="text-center">Id</th>*@
+                                    <th class="text-center">Regional</th>
+                                    <th class="text-center">Año</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Descripción</th>
+                                </tr>
+
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_cohortesBeneficiarioResult item in ViewBag.listaCohortes)
+                                {
+
+                                    <tr>
+                                        @*<td>@item.id_cohorte </td>*@
+                                        <td>@item.regional </td>
+                                        <td>@item.año_cohorte </td>
+                                        <td>@item.Fecha </td>
+                                        <td>@item.descripcion </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            SIN COHORTES
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <br />
+        </div>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-secondary_asalud">DETALLE CONCURRENCIA</strong>
+                <input type="hidden" id="idHE" name="idHE" value="@ViewBag.idHE" />
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Id concurrencia</label>
+                        <input type="text" id="idConcuD" name="idConcuD" class="form-control" value="@ViewBag.idConcu" disabled />
+                        <input type="hidden" id="idConcu" name="idConcu" class="form-control" value="@ViewBag.idConcu" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Identificación</label>
+                        <input type="text" id="identificacionD" name="identificacionD" class="form-control" value="@ViewBag.identificacion" disabled />
+                        <input type="hidden" id="identificacion" name="identificacion" class="form-control" value="@ViewBag.identificacion" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Nombre paciente</label>
+                        <input type="text" id="nombreD" name="nombreD" class="form-control" value="@ViewBag.nombre" disabled />
+                        <input type="hidden" id="nombre" name="nombre" class="form-control" value="@ViewBag.nombre" />
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Edad</label>
+                        <input type="text" id="edad" name="edadD" class="form-control" value="@ViewBag.edad" disabled />
+                        <input type="hidden" id="edad" name="edad" class="form-control" value="@ViewBag.edad" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Dirección</label>
+                        <input type="text" id="direccionD" name="direccionD" class="form-control" value="@ViewBag.direccion" disabled />
+                        <input type="hidden" id="direccion" name="direccion" class="form-control" value="@ViewBag.direccion" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Teléfono</label>
+                        <input type="text" id="telefonoD" name="telefonoD" class="form-control" value="@ViewBag.telefono" disabled />
+                        <input type="hidden" id="telefono" name="telefono" class="form-control" value="@ViewBag.telefono" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">IPS</label>
+                        <input type="text" id="ips" name="ipsD" class="form-control" value="@ViewBag.ips" disabled />
+                        <input type="hidden" id="ips" name="ips" class="form-control" value="@ViewBag.ips" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Mega</label>
+                        <input type="text" id="megaD" name="megaD" class="form-control" value="@ViewBag.mega" disabled />
+                        <input type="hidden" id="mega" name="mega" class="form-control" value="@ViewBag.mega" disabled />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Auditor</label>
+                        <input type="text" id="auditorD" name="auditorD" class="form-control" value="@ViewBag.auditor" disabled />
+                        <input type="hidden" id="auditor" name="auditor" class="form-control" value="@ViewBag.auditor" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Fecha ingreso</label>
+                        <input type="text" id="fechaIngresod" name="fechaIngresod" class="form-control" value="@ViewBag.fechaIngreso" disabled />
+                        <input type="hidden" id="fechaIngreso" name="fechaIngreso" class="form-control" value="@ViewBag.fechaIngreso" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Fecha egreso</label>
+                        <input type="text" id="fechaEgresoD" name="fechaEgresoD" class="form-control" value="@ViewBag.fechaEgreso" disabled />
+                        <input type="hidden" id="fechaEgreso" name="fechaEgreso" class="form-control" value="@ViewBag.fechaEgreso" />
+                    </div>
+
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Días hospitalización</label>
+                        <input type="text" id="dias_hospitalizacionD" name="dias_hospitalizacionD" class="form-control" value="@ViewBag.dias_hospitalizacion" disabled />
+                        <input type="hidden" id="dias_hospitalizacion" name="dias_hospitalizacion" class="form-control" value="@ViewBag.dias_hospitalizacion" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Regional</label>
+                        <input type="text" id="regionalD" name="regionalD" class="form-control" value="@ViewBag.regional" disabled />
+                        <input type="hidden" id="regional" name="regional" class="form-control" value="@ViewBag.regional" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Ciudad</label>
+                        <input type="text" id="ciudadD" name="ciudadD" class="form-control" value="@ViewBag.ciudad" disabled />
+                        <input type="hidden" id="ciudad" name="ciudad" class="form-control" value="@ViewBag.ciudad" />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="control-label  text-secondary_asalud">Trabajador</label>
+                        <input type="text" id="trabajadorD" name="trabajadorD" class="form-control" value="@ViewBag.trabajador" disabled />
+                        <input type="hidden" id="trabajador" name="trabajador" class="form-control" value="@ViewBag.trabajador" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 form-group">
+                        <label class="control-label  text-secondary_asalud">Diagnóstico CIE10</label>
+                        <input type="text" id="dx1D" name="dx1D" class="form-control" value="@ViewBag.dx1" disabled />
+                        <input type="hidden" id="dx1" name="dx1" class="form-control" value="@ViewBag.dx1" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading text-center">
+                <strong class="text-secondary_asalud">GESTIÓN HOSPITALIZACIÓN PREVENIBLE</strong>
+            </div>
+            <div class="panel-body">
+
+                <div class="row">
+
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Concepto de auditor ambulatorio</label>
+                        <textarea type="text" id="ambulatorio" name="ambulatorio" class="form-control" cols="4" rows="3" maxlength="4999" oninvalid="this.setCustomValidity('Campo requerido');" required></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Analisis de caso:</label>
+                        <select class="form-control select2" style="width:100%" name="analisis" id="analisis" onchange="analisisSelect(this.value)" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_he_analisisCaso item in ViewBag.analisis)
+                            {
+                                <option value="@item.id_analisis">@item.descripcion</option>
+                            }
+
+                        </select>
+                    </div>
+                    <div class="col-sm-4 form-group" id="divAnalisis_Si" style="display:none;">
+                        <label class="text-secondary_asalud">Casos:</label>
+                        <select class="form-control select2" style="width:100%" name="analisisSi" id="analisisSi" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_he_analisisCaso_si item in ViewBag.analisisSi)
+                            {
+                                <option value="@item.id_analisis_si">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-sm-4 form-group" id="divAnalisis_No" style="display:none;">
+                        <label class="text-secondary_asalud">Casos:</label>
+                        <select class="form-control select2" style="width:100%" name="analisisNo" id="analisisNo" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_he_analisisCaso_no item in ViewBag.analisisNo)
+                            {
+                                <option value="@item.id_analisis_dt">@item.descripcion</option>
+                            }
+
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row" id="divArchivo" style="display:none;">
+
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Subida archivo:</label>
+                        <input type="file" name="file" id="file" class="form-control" required />
+                    </div>
+
+                    <div class="col-sm-8 form-group">
+                        <label class="text-secondary_asalud">Descripción archivo</label>
+                        <textarea type="text" id="descripcionArchivo" name="descripcionArchivo" class="form-control" cols="4" rows="3" maxlength="4999" required></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input id="BtnGuardar" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $("#BtnGuardar").click(function (data) {
+
+            var validator = $("#GestionHospitalizacionPrevenible").validate();
+            if (validator.form()) {
+                $("#GestionHospitalizacionPrevenible").submit();
+            }
+        })
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+    });
+
+    function analisisSelect(id) {
+
+        var tipoCaso = id;
+
+        if (tipoCaso == 1) {
+
+            document.getElementById("divAnalisis_Si").style.display = "block";
+            document.getElementById("divAnalisis_No").style.display = "none";
+            document.getElementById("divArchivo").style.display = "block";
+            $("#analisisNo").val("0");
+
+        } else if (tipoCaso == 2) {
+            document.getElementById("divAnalisis_Si").style.display = "none";
+            document.getElementById("divAnalisis_No").style.display = "block";
+            document.getElementById("divArchivo").style.display = "none";
+            $("#file").val("");
+            $("#analisisSi").val("0");
+            $("#descripcionArchivo").val("");
+        }
+
+        else {
+            document.getElementById("divAnalisis_Si").style.display = "none";
+            document.getElementById("divAnalisis_No").style.display = "none";
+            document.getElementById("divArchivo").style.display = "none";
+            $("#file").val("");
+            $("#analisisSi").val("0");
+            $("#analisisNo").val("0");
+            $("#descripcionArchivo").val("");
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    $("#file").change(function () {
+
+        var data = document.getElementById('file');
+        var nameext = data.files[0].name;
+
+        var peso = data.files[0].size;
+
+        if (peso > 80000000) {
+            alert('El archivo no puede superar los 80Mb.');
+            $("#file").val("");
+            return false;
+        }
+
+        var extension = getFileExtension3(nameext);
+
+        var listaextensiones = ["png", "pdf", "jpg", "xlsx", "xls", "jpeg", "rar", "zip", "docx", "pptx", "Zip", "Rar", "rar"];
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida");
+            $("#file").val("");
+        }
+
+    });
+
+      function mostrarArchivo(idDtll) {
+
+          var url = "@Url.Action("verArchivoHE", "Concurrencia")?idDtll=" + idDtll;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 250px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

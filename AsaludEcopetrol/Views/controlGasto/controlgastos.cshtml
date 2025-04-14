@@ -1,0 +1,588 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.ControldeGastos
+@{
+    ViewBag.Title = "CONTROL DEL GASTO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+
+<br>
+
+<div class="container">
+
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <p class="title">
+                    <h4>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">CONTROL DEL GASTO</a>
+                    </h4>
+                </p>
+
+            </div>
+            <div id="collapse1" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <form id="frm-gasto">
+
+                        <div class="row" id="fieldlist">
+                            <div class="col-sm-4">
+                                <label for="total">PRESUPUESTO TOTAL DEL CONTRATO:</label>
+                                @(Html.Kendo().NumericTextBoxFor<decimal>(P => P.proTotal)
+                                      .Name("total")
+                                      .Format("c")
+
+                                              .Min(0)
+                                      .HtmlAttributes(new { style = "width: 100%", title = " Presupuesto Total " })
+                                )
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="row" id="fieldlist">
+                            <div class="col-sm-4">
+                                <label for="mes">PRESUPUESTO PROMEDIO DESTINADO MES:</label>
+                                @(Html.Kendo().NumericTextBoxFor<Int64>(P => P.propromedioMes)
+                                      .Name("mes")
+                                      .Format("c")
+                                      .Min(0)
+                                      .HtmlAttributes(new { style = "width: 100%", title = "" })
+                                )
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label for="promedio">PRESUPUESTO EJECUTADO:</label>
+                                @(Html.Kendo().NumericTextBoxFor<decimal>(P => P.proEjecutado)
+                                      .Name("promedio")
+                                      .Format("c")
+                                      .Min(0)
+                                      .HtmlAttributes(new { style = "width: 100%", title = "" })
+                                )
+                            </div>
+                            <div class="col-sm-4">
+
+                                <label for="glosa">VALOR RETENIDO POR GLOSA:</label>
+                                @(Html.Kendo().NumericTextBoxFor<decimal>(P => P.ValorRetenidoGlosa)
+                                      .Name("glosa")
+                                      .Format("c")
+                                      .Min(0)
+                                      .HtmlAttributes(new { style = "width: 100%", title = "" })
+                                )
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="row" id="fieldlist">
+
+                            <div class="col-sm-4">
+
+                                <label for="anticipos">VALOR TOTAL ANTICIPOS GENERADOS:</label>
+                                @(Html.Kendo().NumericTextBoxFor<decimal>(P => P.ValorTotalAnticipos)
+                                      .Name("anticipos")
+                                      .Format("c")
+                                      .Min(0)
+                                      .HtmlAttributes(new { style = "width: 100%", title = "" })
+
+                                )
+
+                            </div>
+                            <div class="col-sm-4">
+
+                                <label for="porcentaje">PRESUPUESTO EJECUTADO:</label>
+                                @*@(Html.Kendo().TextBoxFor<String>(P => P.PorcentajeEjecutado)
+                                    .Name("porcentaje")
+
+                                    .HtmlAttributes(new { style = "width: 100%", title = "" })
+
+                                )*@
+                                @Html.TextBoxFor(p => p.PorcentajeEjecutado, new { @class = "form-control", @onchange = "buscar()", @readonly = "readonly"})
+
+                            </div>
+
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <p class="title">
+                    <h4>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">INGRESAR PRESUPUESTO</a>
+                    </h4>
+                </p>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <form id="frm-gasto2">
+                        <div class="row" id="fieldlist">
+                            <div class="col-sm-6">
+                                <label for="porcentage">MES:</label>
+                                @Html.DropDownListFor(model => model.mesIngresado, new SelectList(Model.meses, "id_mes", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.mesIngresado, null, new { @class = "label label-danger" })
+
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="ano">AÑO:</label>
+                                @Html.TextBoxFor(p => p.ano, new { @class = "form-control", @onchange = "buscar()" })
+                                @Html.ValidationMessageFor(u => u.ano, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                        </div>
+                        <div id="resultado" style='display:none;'>
+                            <div class="row" id="fieldlist">
+                                <div class="col-sm-6">
+                                    <label for="avalado">PRESUPUESTO EJECUTADO (VALOR FACTURADO CON AVAL DE PAGO):</label>
+                                    @*@(Html.Kendo().NumericTextBoxFor<decimal>(P => P.valor_facturado_con_aval)
+                                         .Name("avalado")
+                                         .Format("c")
+                                         .Min(0)
+                                         .HtmlAttributes(new { style = "width: 100%", title = "" })
+                                        )*@
+                                    @Html.TextBoxFor(p => p.valor_facturado_con_aval, new { @class = "form-control", @onclick = "format(this)", @onchange = "format(this)", @onFocus = "format(this)" })
+                                    @Html.ValidationMessageFor(u => u.valor_facturado_con_aval, null, new { @class = "label label-danger" })
+
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="avalado">VALOR RETENIDO POR GLOSA:</label>
+
+                                    @Html.TextBoxFor(p => p.valor_retenido_por_glosa, new { @class = "form-control", @onclick = "format(this)", @onchange = "format(this)" })
+                                    @Html.ValidationMessageFor(u => u.valor_retenido_por_glosa, null, new { @class = "label label-danger" })
+
+                                </div>
+
+                            </div>
+
+                            <div class="row" id="fieldlist">
+
+                                <div class="col-sm-6">
+                                    <label for="avalado">VALOR DE ANTICIPO GENERADO:</label>
+
+                                    @Html.TextBoxFor(p => p.valor_anticipo_generado, new { @class = "form-control", @onclick = "format(this)", @onchange = "format(this)" })
+                                    @Html.ValidationMessageFor(u => u.valor_anticipo_generado, null, new { @class = "label label-danger" })
+
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row" id="fieldlist">
+                                <div class="col-sm-6">
+                                    <button type="submit" id="btnSave" class="btn btn-success">GUARDAR</button>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="pnlGuardar" style='display:none;'>
+                            @Html.TextBoxFor(u => u.id_presupuesto_ejecutado)
+
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">VER ACOMULADO PRESUPUESTO</a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <label for="ano">AÑO:</label>
+                            @Html.TextBoxFor(p => p.ano2, new { @class = "form-control", @onchange = "buscar()" })
+                            @Html.ValidationMessageFor(u => u.ano2, null, new { @class = "label label-danger" })
+
+
+                        </div>
+
+                    </div>
+                    <br />
+                    <div>
+                        <label for="ano"></label>
+                        <button type="button" id="btnSave" class="btn btn-success" onclick="buscar2()">BUSCAR</button>
+
+                    </div>
+                    <br />
+
+                    <div id="resultado2" style='display:none;'>
+                        <div class="gj-clear-both"></div>
+                        <div class="gj-margin-top-10">
+                            <table id="grid"></table>
+                        </div>
+
+                        <br />
+
+
+                        @*<div class="gj-clear-both"></div>
+                            <div class="gj-margin-top-10">
+                                <table id="grid2"></table>
+                            </div>*@
+
+                        <div>
+                            <table id="demoTable">
+                                <thead>
+                                    <tr>
+                                        <td>año</td>
+                                        <td>titulo</td>
+
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <script>
+
+
+        $(document).ready(function () {
+
+           $("#valor_facturado_con_aval input:text").each(function () {
+            var valActual = $(this).val();
+            var nuevoValor = conComas(format);
+           $(this).val(nuevoValor);
+    });
+
+    });
+
+    $("#ano").datepicker({
+    format: "yyyy",
+    viewMode: "years",
+    minViewMode: "years",
+    autoclose: true,
+    startDate: new Date('2019'),
+
+    });
+
+    $("#ano2").datepicker({
+    format: "yyyy",
+    viewMode: "years",
+    minViewMode: "years",
+    autoclose: true,
+    startDate: new Date('2019'),
+
+    });
+
+
+    kendo.culture("es-CO");
+
+    $('#btnSave').on('click', Save2);
+
+    function buscar(e) {
+
+        var textBox2 = $('input:text[id$=ano]').keyup();
+        var mivalor = $("#mesIngresado").val()
+        var mitexto = $("#mesIngresado option:selected").text()
+        var value2 = textBox2.val();
+
+        $.ajax({
+              url: '@Url.Action("ConsultaGastos")/' + mivalor + "?id2=" + value2,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            data: {},
+            success: function (data) {
+                if (data.success) {
+                    
+                    document.getElementById('resultado').style.display = 'block';
+
+                    var valActual = data.OBJ.valor_facturado_con_aval;
+                    var nuevoValor = conpuntos(valActual);
+                    $('input:text[id$=valor_facturado_con_aval]').val(nuevoValor);
+
+                    var valActual2 = data.OBJ.valor_retenido_por_glosa;
+                    var nuevoValor2 = conpuntos(valActual2);
+                    $('input:text[id$=valor_retenido_por_glosa]').val(nuevoValor2);
+
+                      var valActual3 = data.OBJ.valor_anticipo_generado;
+                    var nuevoValor3 = conpuntos(valActual3);
+                    $('input:text[id$=valor_anticipo_generado]').val(nuevoValor3);
+
+                     $('input:text[id$=id_presupuesto_ejecutado]').val(data.OBJ.id_presupuesto_ejecutado);
+
+                }
+            },
+            error: function (xhr) {
+                alert('error');
+            }
+        });
+    }
+
+     function buscar2(e) {
+
+        var textBox2 = $('input:text[id$=ano2]').keyup();
+        var value2 = textBox2.val();
+        document.getElementById('resultado2').style.display = 'block';
+
+        var grid;
+        grid = $('#grid').grid({
+
+            locale: 'es-es',
+            dataSource:  '/controlGasto/Get2/' + 1 +"?id2=" + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'año',
+
+             columns: [
+                            { field: 'titulo', width: 100, title: 'DESCRIPCION' },
+                            { field: 'ENERO', width: 50, title: 'ENERO' },
+                            { field: 'FEBRERO', width: 50, title: 'FEBRERO' },
+                            { field: 'MARZO', width: 50, title: 'MARZO' },
+                            { field: 'ABRIL', width: 50, title: 'ABRIL' },
+                            { field: 'MAYO', width: 50, title: 'MAYO' },
+                            { field: 'JUNIO', width: 50, title: 'JUNIO' },
+                            { field: 'JULIO', width: 50, title: 'JULIO' },
+                            { field: 'AGOSTO', width: 50, title: 'AGOSTO' },
+                            { field: 'SEPTIEMBRE', width: 50, title: 'SEPTIEMBRE' },
+                            { field: 'OCTUBRE', width: 50, title: 'OCTUBRE' },
+                            { field: 'NOVIEMBRE', width: 50, title: 'NOVIEMBRE' },
+                            { field: 'DICIEMBRE', width: 50, title: 'DICIEMBRE' },
+
+                        ],
+            pager: { limit: 10 }
+
+        });
+
+        //    var grid;
+        //grid = $('#grid2').grid({
+
+        //    locale: 'es-es',
+        //    dataSource:  '/controlGasto/Get3/' + 1 +"?id2=" + value2,
+        //    uiLibrary: 'bootstrap4',
+        //    primaryKey: 'año',
+
+        //     columns: [
+        //                    { field: 'titulo', width: 100, title: 'DESCRIPCION' },
+        //                    { field: 'ENERO', width: 50, title: 'ENERO' },
+        //                    { field: 'FEBRERO', width: 50, title: 'FEBRERO' },
+        //                    { field: 'MARZO', width: 50, title: 'MARZO' },
+        //                    { field: 'ABRIL', width: 50, title: 'ABRIL' },
+        //                    { field: 'MAYO', width: 50, title: 'MAYO' },
+        //                    { field: 'JUNIO', width: 50, title: 'JUNIO' },
+        //                    { field: 'JULIO', width: 50, title: 'JULIO' },
+        //                    { field: 'AGOSTO', width: 50, title: 'AGOSTO' },
+        //                    { field: 'SEPTIEMBRE', width: 50, title: 'SEPTIEMBRE' },
+        //                    { field: 'OCTUBRE', width: 50, title: 'OCTUBRE' },
+        //                    { field: 'NOVIEMBRE', width: 50, title: 'NOVIEMBRE' },
+        //                    { field: 'DICIEMBRE', width: 50, title: 'DICIEMBRE' },
+
+
+        //                ],
+        //    pager: { limit: 10 }
+
+        //});
+
+          $.ajax({
+              url: '@Url.Action("Get3")/' + 1 +"?id2=" + value2,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            data: {},
+              success: function (data) {
+                
+            },
+            error: function (xhr) {
+                alert('error');
+            }
+        });
+
+
+    }
+
+
+
+    function format(input)
+    {
+        var num = input.value.replace(/\./g,'');
+        if(!isNaN(num)){
+        num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g,'$1.');
+        num = num.split('').reverse().join('').replace(/^[\.]/,'');
+        input.value = num;
+        }
+
+        else{ alert('Solo se permiten numeros');
+        input.value = input.value.replace(/[^\d\.]*/g,'');
+        }
+    }
+
+    function conpuntos(valor) {
+    var nums = new Array();
+    var simb = ".";
+    valor = valor.toString();
+    valor = valor.replace(/\D/g, "");
+    nums = valor.split("");
+    var long = nums.length - 1;
+    var patron = 3;
+    var prox = 2;
+    var res = "";
+
+    while (long > prox) {
+        nums.splice((long - prox),0,simb);
+        prox += patron;
+    }
+
+    for (var i = 0; i <= nums.length-1; i++) {
+        res += nums[i];
+    }
+
+    return res;
+}
+
+
+    function Save2() {
+
+        var formData = new FormData($("form")[0]);
+
+
+        formData.append("mesIngresado", $("#mesIngresado").val());
+        formData.append("ano", $("#ano").val());
+        formData.append("valor_facturado_con_aval", $("#valor_facturado_con_aval").val());
+        formData.append("valor_retenido_por_glosa", $("#valor_retenido_por_glosa").val());
+        formData.append("valor_anticipo_generado", $("#valor_anticipo_generado").val());
+        formData.append("id_presupuesto_ejecutado", $("#id_presupuesto_ejecutado").val());
+
+        $.ajax({
+
+           // url: "/medicamentos/Save2",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+        })
+
+    }
+    </script>
+
+
+    <style>
+        .Info {
+            color: #800000;
+            text-align: justify;
+            font-weight: bold;
+        }
+
+        .Error {
+            color: #800000;
+            font-size: small;
+            font-weight: bold;
+        }
+
+        .Tamaño {
+            height: 200px;
+        }
+
+        .TamañoImag {
+            height: 200px;
+            position: center;
+        }
+
+        .TamañoDiv {
+            position: page;
+            /*width:1100px;*/
+        }
+
+        .btn-glyphicon {
+            padding: 8px;
+            background: #ffffff;
+            margin-right: 4px;
+        }
+
+        .icon-btn {
+            padding: 1px 15px 3px 2px;
+            border-radius: 50px;
+        }
+
+        .mywidth {
+            width: 35em;
+            font-family: Verdana;
+            font-size: 1em;
+        }
+
+        .demo-section {
+            padding: 0;
+        }
+
+        #add-product .title {
+            font-size: 16px;
+            color: #fff;
+            background-color: #1e88e5;
+            padding: 20px 30px;
+            margin: 0;
+        }
+
+        #fieldlist {
+            margin: 0 0 -1.5em;
+            padding: 30px;
+        }
+
+            #fieldlist li {
+                list-style: none;
+                padding-bottom: 1.5em;
+            }
+
+            #fieldlist label {
+                display: block;
+                padding-bottom: .6em;
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 12px;
+            }
+
+        table {
+            font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+            font-size: 10px;
+            margin: 9px;
+            width: 800px;
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+        th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #212020;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #1a23a3;
+            border-top: 1px solid transparent;
+        }
+
+        tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+        .gj-dialog-md-close span {
+            display: none;
+        }
+    </style>
+
+

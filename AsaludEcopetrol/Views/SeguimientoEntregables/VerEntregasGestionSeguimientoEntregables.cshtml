@@ -1,0 +1,790 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables>
+@{
+    Layout = null;
+    var conteo = ViewBag.conteo;
+}
+
+<div class="table-responsive">
+    <table id="tableroGestion" class="table table-bordered" width="100%" style="margin:0px !important">
+        <thead>
+            <tr>
+                <th>Id entregable</th>
+                <th>Nombre del entregable</th>
+                <th>Componente</th>
+                <th>Tipo entregable</th>
+                <th>Periodicidad</th>
+                <th>Fecha contractualmente pactada</th>
+                <th>Fecha real entrega</th>
+                <th>Fecha ampliación plazo</th>
+                <th>Días para vencer</th>
+                <th>Estado</th>
+                <th>Alerta</th>
+                <th>Documentos</th>
+                <th>Gestionar</th>
+                <th>Evaluación calidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables item in Model)
+            {
+                <tr>
+                    <td>@item.id_seg_entregables</td>
+                    <td>@item.Nom_entregable</td>
+                    <td>@item.Proceso</td>
+                    <td>@item.nom_tipo_entregable</td>
+                    <td>@item.nom_periodicidad_entregable</td>
+                    @if (item.fecha_limite != null)
+                    {
+                        <td>@item.fecha_limite.Value.ToString("dd/MM/yyyy")</td>
+                    }
+                    else
+                    {
+                        <td>@item.fecha_control.Value.ToString("dd/MM/yyyy")</td>
+                    }
+
+                    @if (item.fecha_entrega != null)
+                    {
+                        <td>@item.fecha_entrega.Value.ToString("dd/MM/yyyy")</td>
+                    }
+                    else
+                    {
+                        <td>Sin presentar</td>
+                    }
+
+                    @if (item.fecha_limite_ampliacion != null)
+                    {
+                        <td>@item.fecha_limite_ampliacion.Value.ToString("dd/MM/yyyy")</td>
+                    }
+                    else
+                    {
+                        <td>No tiene ampliación</td>
+                    }
+
+                    @if (item.id_estado_entregable == 3)
+                    {
+                        <td></td>
+                    }
+                    else
+                    {
+                        <td>@item.diferencia_dias</td>
+                    }
+
+                    <td>@item.nom_estado_entregable</td>
+
+
+                    @if (item.id_estado_entregable == null || item.id_estado_entregable == 1 || item.id_estado_entregable == 4 || item.id_estado_entregable == 7 || item.id_estado_entregable == 8)
+                    {
+                        <td class="alert-warning"><label style="font-weight:bold">Pendiente por presentar</label></td>
+                    }
+                    else if (item.id_estado_entregable == 2 || item.id_estado_entregable == 6)
+                    {
+                        <td class="alert-gestionar"><label style="font-weight:bold">Pendiente por gestionar</label></td>
+                    }
+                    else if (item.id_estado_entregable == 3 && (item.tiene_ampliacion == null || item.tiene_ampliacion == false) && item.diferencia_dias >= 0)
+                    {
+                        <td class="alert-success">Entrega oportuna</td>
+                    }
+                    else if (item.id_estado_entregable == 3 && (item.tiene_ampliacion == null || item.tiene_ampliacion == false) && item.diferencia_dias < 0)
+                    {
+                        <td class="alert-danger">Entrega inoportuna</td>
+                    }
+                    else if (item.id_estado_entregable == 3 && (item.tiene_ampliacion != null && item.tiene_ampliacion == true))
+                    {
+                        <td class="alert-info">Inoportuno con justificación</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+
+                    <td>
+                        @if (item.id_ult_seguimiento_dtll_entrega != null && item.id_estado_entregable != 1 && item.id_estado_entregable != 6 && item.id_estado_entregable != 7)
+                        {
+                            <a role="button" class="btn button_Asalud_Guardar btn-xs" href="javascript:abrirducumento(@item.id_ult_seguimiento_dtll_entrega, 1)">Ver documentos</a>
+                        }
+                        else
+                        {
+                            <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label>
+                        }
+                    </td>
+                    <td class="text-center">
+
+                        @if (item.id_estado_entregable != null)
+                        {
+
+                            switch (item.id_estado_entregable)
+                            {
+                                case 1:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label>
+                                    break;
+                                case 2:
+                                    <a style="margin:1%" role="button" class="btn btn-xs button_Asalud_Aceptar btn-xs" href="javascript:AceptarDocumento(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Aceptar entrega</a>
+                                    <a style="margin:1%" role="button" class="btn btn-xs button_Asalud_Rechazar btn-xs" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega, 1)">Devolver entrega</a>
+                                    break;
+                                case 3:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Documento aceptado - <a class="btn button_Asalud_Rechazar btn-xs" role="button" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega, 2)">Reabrir</a> </label>
+                                    break;
+                                case 4:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label>
+                                    break;
+                                case 5:
+                                    <a role="button" class="btn btn-xs button_Asalud_Aceptar btn-xs" href="javascript:AceptarDocumento(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega)">Aceptar entrega</a>
+                                    <a role="button" class="btn btn-xs button_Asalud_Rechazar btn-xs" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega, 1)">Devolver entrega</a>
+                                    break;
+                                case 6:
+                                    <a role="button" class="btn btn-xs button_Asalud_Guardar btn-xs" href="javascript:VerSolicitudAmpliacion(@item.id_ult_seguimiento_dtll_entrega)">Ver propuesta de ampliación</a>
+                                    break;
+                                case 7:
+                                    @*<label class="text-secondary_asalud" style="font-weight:bold">Documento aceptado.</label>*@
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Documento aceptado - <a class="btn button_Asalud_Rechazar btn-xs" role="button" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega, 2)">Reabrir</a> </label>
+                                    break;
+
+                                case 8:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label>
+                                    break;
+
+                                default:
+                                    <label class="text-secondary_asalud" style="font-weight:bold">Documento aceptado.</label>
+                                    @*<label class="text-secondary_asalud" style="font-weight:bold">Documento aceptado - <a class="btn button_Asalud_Rechazar btn-xs" role="button" href="javascript:ObservacionesDoc(@item.id_seg_entregable_periodo, @item.id_ult_seguimiento_dtll_entrega, 2)">Reabrir</a> </label>*@
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label>
+                        }
+
+                    </td>
+
+                    @if (!string.IsNullOrEmpty(item.cumple) && item.id_estado_entregable != 8)
+                    {
+                        <td class="text-center">
+                            <a class="btn button_Asalud_Guardar btn-xs" style="margin:1%" role="button" href="javascript:verDetallesEvaluacionCalidadSegEntregables(@item.id_seg_entregable_periodo)">Ver detalles evaluación</a>
+                            @if ((item.cumple == "NO") || (item.id_estado_entregable == 3 && (item.tiene_ampliacion == null || item.tiene_ampliacion == false) && item.diferencia_dias < 0) || (item.id_estado_entregable == 3 && (item.tiene_ampliacion != null && item.tiene_ampliacion == true)))
+                            {
+                                if (item.id_plan_mejoramiento == null)
+                                {
+                                    <a class="btn button_Asalud_Aceptar btn-xs" role="button" href="javascript:IngresoPlanDeMejora(1)">Ingresar plan de mejoramiento</a>
+                                }
+                                else
+                                {
+                                    <a class="btn button_Asalud_Aceptar btn-xs" role="button" href="javascript:IngresoPlanDeMejora(2)">Ver plan de mejoramiento</a>
+                                }
+                            }
+                            else
+                            {
+                                if (item.id_felicitaciones == null)
+                                {
+                                    <a class="btn button_Asalud_Aceptar btn-xs" role="button" href="javascript:IngresoFelicitaciones(@item.id_seg_entregable_periodo)">Ingresar Felicitaciones</a>
+                                }
+                                else
+                                {
+                                    <a class="btn button_Asalud_Aceptar btn-xs" role="button" href="javascript:VerFelicitaciones(@item.id_seg_entregable_periodo)">Ver Felicitaciones</a>
+                                }
+                            }
+                        </td>
+                    }
+                    else
+                    {
+                        if (item.id_estado_entregable == 3)
+                        {
+                            <td class="text-center"><a class="btn button_Asalud_Aceptar btn-xs" role="button" href="javascript:EvaluarCalidadEntrega(@item.id_seg_entregable_periodo)">Evaluar calidad</a></td>
+                        }
+                        else
+                        {
+                            <td><label class="text-secondary_asalud" style="font-weight:bold">Pendiente por presentar</label></td>
+                        }
+                    }
+
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" data-backdrop="static" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud">DOCUMENTOS CARGADOS</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalObservaciones" data-backdrop="static" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario" name="formulario" method="post" action="ObservacionesEntregable" enctype="multipart/form-data">
+                <input type="hidden" id="id_entregable_periodo" name="id_entregable_periodo" />
+                <input type="hidden" id="id_ultimo_entregable" name="id_ultimo_entregable" />
+                <input type="hidden" id="tipo" name="tipo" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-primary_asalud" id="titlemodal">OBSERVACIONES ENTREGABLE</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="tblobservaciones2" class="table table-bordered table-condensed" style="margin-left:0px">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Fecha observación</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Digite aquí las observaciones:</label>
+                            <textarea id="observaciones" name="observaciones" class="form-control" rows="4" maxlength="250" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormulario()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalverAmpliacion" data-backdrop="static" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">SOLICITUD DE AMPLIACIÓN DE PLAZO</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txt_id_entregable_dtll" name="txt_id_entregable_dtll" />
+                <table id="tblampliaciones" class="table table-bordered table-condensed" style="margin-left:0px">
+                    <thead>
+                        <tr>
+                            <th>Fecha contractualmente pactada</th>
+                            <th>Fecha propuesta de ampliación</th>
+                            <th>Observaciones</th>
+                            <th>Solicitada por</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><p id="txt_fecha_entrega"></p></td>
+                            <td><p id="txt_fecha_propuesta"></p></td>
+                            <td><p id="txt_observaciones_entrega"></p></td>
+                            <td><p id="txt_solicitdado_por"></p></td>
+                            <td><button class="btn button_Asalud_Aceptar btn-xs" type="button" onclick="AbrirEvidenciaSolicitud()">Ver Evidencia</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <form id="formampliacion">
+                    <div class="row form-group">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea rows="4" class="form-control" id="obs" name="obs" required maxlength="2000"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Guardar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="AceptarSolicitudAmpliacion()">Aceptar</button>
+                <button class="btn button_Asalud_Rechazar" type="button" onclick="RechazarSolicitudAmpliacion()">Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEvaluarCalidadEntregable" data-backdrop="static" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">EVALUAR CALIDAD DEL ENTREGABLE</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formularioCalidad">
+                    <input type="hidden" id="txtIdPeriodoSegEntregable" name="txtIdPeriodoSegEntregable" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">¿La presentación cumple con los estándares de calidad?</label>
+                            <div class="row">
+                                <label class="col-sm-2"><input type="radio" name="rdCumpleCalida" id="rdCumpleCalidaUno" onclick="seleccionCalidad('SI')" checked />&nbsp;SI</label>
+                                <label class="col-sm-2"><input type="radio" name="rdCumpleCalida" id="rdCumpleCalidaDos" onclick="seleccionCalidad('NO')" />&nbsp;NO</label>
+                                <input type="hidden" id="txtCumpleCalidad" name="txtCumpleCalidad " value="SI" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea class="form-control" id="txtObservacionesEva" name="txtObservacionesEva" rows="4" maxlength="245" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarFormularioEvalCalidad()">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFelicitaciones" data-backdrop="static" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">INGRESAR FELICITACIONES POR LA ENTREGA</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formularioFelicitaciones">
+                    <input type="hidden" id="txtIdPeriodoSegEntregableII" name="txtIdPeriodoSegEntregableII" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Ingresar las observaciones o felicitaciones:</label>
+                            <textarea class="form-control" id="txtObservacionesFelicitaciones" name="txtObservacionesFelicitaciones" rows="4" maxlength="245" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn button_Asalud_Guardar" onclick="validarFormularioFelicitaciones()">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        //var table = $('#tableroGestion').DataTable({
+        //    orderCellsTop: true,
+        //    "lengthChange": false,
+        //    scrollX: true,
+        //    "language": {
+        //        "search": "Buscar",
+        //        "lengthMenu": "Ver _MENU_ resultados por pagina",
+        //        "zeroRecords": "Ningún resultado encontrado",
+        //        "info": "Viendo pagina_PAGE_ de _PAGES_",
+        //        "infoEmpty": "Ningún resultado disponible",
+        //        "infoFiltered": "(filtered from _MAX_ total records)"
+        //    }
+        //});
+
+        mostrarTabla();
+    });
+
+    /*Mostrar tabla responsive*/
+
+    function mostrarTabla() {
+
+        var conteo = @conteo;
+        if (conteo > 0) {
+
+            $('#tableroGestion').DataTable().destroy();
+            $('#tableroGestion').DataTable({
+                "searching": true,
+                //"aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                //"iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+
+    /**
+     *Metodo utilizado para visualizar el documento cargado
+     */
+    function abrirducumento(id, tipo)
+    {
+        $.ajax({
+            url: "@Url.Action("Verdocumentocargado2", "SeguimientoEntregables")",
+            type: "post",
+            data: {
+                id_seg_dtll: id
+            },
+            success: function (data)
+            {
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function AbrirSoporte(a)
+    {
+        var url = "@Url.Action("versoporteclinico2", "SeguimientoEntregables")?id_documento_seg_entregable=" + a ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AceptarDocumento(id_ent_pe, id_ult_det)
+    {
+        var txt = confirm("¿Está seguro/a que desea aceptar este entregable?")
+        if (txt)
+        {
+            LoadingShow();
+            var url = "@Url.Action("AceptarEntregable", "SeguimientoEntregables")?id_entregable_periodo=" + id_ent_pe + "&id_ult_dtll=" + id_ult_det;
+            location.href = url;
+        }
+    }
+
+
+    function ObservacionesDoc(idsegentregablesperiodo, idultimodtll, tipo)
+    {
+        $.ajax({
+            url: "@Url.Action("ObtenerHistoricoObservaciones")",
+            type: "post",
+            data: {
+                id_seg_periodo: idsegentregablesperiodo,
+                tipo: tipo,
+            },
+            success: function (data)
+            {
+                $("#tblobservaciones2 tbody").empty();
+                $("#tblobservaciones2 tbody").html(data);
+                $("#id_entregable_periodo").val(idsegentregablesperiodo);
+                $("#id_ultimo_entregable").val(idultimodtll);
+                $("#tipo").val(tipo);
+                $("#observaciones").val("");
+                $("#ModalObservaciones").modal('show');
+            }
+        })
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    function VerSolicitudAmpliacion(id) {
+        $.ajax({
+            url: "@Url.Action("ObtenerDatosEntregaDetalle")",
+            type: "post",
+            data: {
+                id: id,
+                tipo: 2
+            },
+            success: function (data) {
+                $("#txt_id_entregable_dtll").val(id)
+                $("#txt_fecha_entrega").text(data.fecha_contractualmente_pactada)
+                $("#txt_fecha_propuesta").text(data.fecha_limite_ampliacion)
+                $("#txt_observaciones_entrega").text(data.observaciones);
+                $("#txt_solicitdado_por").text(data.solicitadoPor);
+                $("#ModalverAmpliacion").modal("show");
+            }
+        })
+    }
+
+    function AbrirEvidenciaSolicitud()
+    {
+        var id = $("#txt_id_entregable_dtll").val();
+        var url = "@Url.Action("AbrirEvidenciaSolicitud", "SeguimientoEntregables")?id_seg_dtll=" + id
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+    }
+
+        function AceptarSolicitudAmpliacion() {
+        var validator = $("#formampliacion").validate();
+        if (validator.form()) {
+            var id = $("#txt_id_entregable_dtll").val();
+            var obs = $("#obs").val()
+            var txt = confirm("¿Está seguro/a de aceptar la solicitud de ampliación de este entregable?")
+            if (txt) {
+                var url = "@Url.Action("AceptarSolicitudAmpliacion", "SeguimientoEntregables")?id_seg_dtll=" + id + "&observaciones=" + obs;
+                location.href = url;
+            }
+        }
+
+    }
+
+    function RechazarSolicitudAmpliacion()
+    {
+        var validator = $("#formampliacion").validate();
+        if (validator.form())
+        {
+            var id = $("#txt_id_entregable_dtll").val();
+            var obs = $("#obs").val()
+            var txt = confirm("¿Está seguro/a de rechazar la solicitud de ampliación de este entregable?")
+            if (txt) {
+                var url = "@Url.Action("RechazarSolicitudAmpliacion", "SeguimientoEntregables")?id_seg_dtll=" + id + "&observaciones=" + obs;
+                location.href = url;
+            }
+        }
+    }
+
+    /*
+     * Metodo para evaluar si la entrega si cumple o no los estandares de calidad
+     */
+    function seleccionCalidad(opc)
+    {
+        switch (opc)
+        {
+            case "SI":
+                $("#rdCumpleCalidaUno").prop('checked', true);
+                $("#rdCumpleCalidaDos").prop('checked', false);
+                break;
+            case "NO":
+                $("#rdCumpleCalidaUno").prop('checked', false);
+                $("#rdCumpleCalidaDos").prop('checked', true);
+                break;
+        }
+        $("#txtCumpleCalidad").val(opc);
+    }
+
+    /*
+     *Metodo para abir el modal para realizar encuesta de calidad
+     */
+    function EvaluarCalidadEntrega(id)
+    {
+        $("#txtIdPeriodoSegEntregable").val(id);
+        seleccionCalidad('SI');
+        $("#txtObservacionesEva").val("");
+        $("#modalEvaluarCalidadEntregable").modal('show');
+    }
+
+    function ValidarFormularioEvalCalidad()
+    {
+        var validator = $("#formularioCalidad").validate();
+        if (validator.form())
+        {
+            guardarDatosEvalCalidadEntregable();
+        }
+    }
+
+    function guardarDatosEvalCalidadEntregable()
+    {
+        $("#modalEvaluarCalidadEntregable").modal('hide');
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarDatosEvalCalidadSegEntregable")",
+            type: "POST",
+            data: {
+                idSegEntregablePeriodo: $("#txtIdPeriodoSegEntregable").val(),
+                cumple: $("#txtCumpleCalidad").val(),
+                observaciones: $("#txtObservacionesEva").val()
+            },
+            success: function (data)
+            {
+                LoadingHide();
+                if (data.success)
+                {
+                    alertify.alert("¡Proceso exitoso!", "<p style='text-align:justify'>" + data.message + "</p>", function () {
+                        location.reload();
+                    });
+                }
+                else
+                {
+                    alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + data.message + "</p>")
+                }
+            }
+        })
+    }
+
+
+    function IngresoPlanDeMejora(id)
+    {
+        var texto = "";
+        if (id = 1)
+        {
+            texto = "Para ingresar el plan de mejora a este entregable, debe ingresar en el aplicativo SAMI administrativo y una vez allí, buscar el entregable en el tablero de gestión seguimiento entregables.";
+        }
+        else
+        {
+            texto = "Para ver el plan de mejora de este entregable, debe ingresar en el aplicativo SAMI administrativo y una vez allí, buscar el entregable en el tablero de gestión seguimiento entregables.";
+        }
+
+        alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + texto + "</p>", function () {
+            var bdActiva = "@ViewBag.bdactiva";
+            var url = "";
+            if (bdActiva == "1")
+            {
+                url = "https://administrativo.aplicativoasalud.com/";
+            }
+            else
+            {
+                url = "https://adminpruebas.aplicativoasalud.com/";
+            }
+
+            var win = window.open(url, '_blank');
+            win.focus();
+        })
+    }
+
+    function verDetallesEvaluacionCalidadSegEntregables(idPeriodoSegEntregable)
+    {
+        $.ajax({
+            url: "@Url.Action("verDetallesEvaluacionCalidadSegEntregables","SeguimientoEntregables")?idPeriodoSegEntregable=" + idPeriodoSegEntregable,
+            type: "GET",
+            success: function (data)
+            {
+                if (data.success)
+                {
+                    alertify.alert("DETALLES DE LA EVALUACIÓN", data.datos, function () {
+                        return false;
+                    });
+                }
+                else
+                {
+                    alert(data.message);
+                }
+            }
+        })
+    }
+
+    function IngresoFelicitaciones(id)
+    {
+        $("#txtObservacionesFelicitaciones").val("");
+        $("#txtIdPeriodoSegEntregableII").val(id);
+        $("#modalFelicitaciones").modal('show');
+    }
+
+
+    function validarFormularioFelicitaciones()
+    {
+        var validator = $("#formularioFelicitaciones").validate();
+        if (validator.form())
+        {
+            GuardarDatosFelicitaciones();
+        }
+    }
+
+    function GuardarDatosFelicitaciones()
+    {
+        $("#modalFelicitaciones").modal('hide');
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarDatosFelicitaciones")",
+            type: "POST",
+            data: {
+                idSegEntregablePeriodo: $("#txtIdPeriodoSegEntregableII").val(),
+                felicitaciones: $("#txtObservacionesFelicitaciones").val()
+            },
+            success: function (data)
+            {
+                LoadingHide();
+                if (data.success)
+                {
+                    alertify.alert("¡Proceso éxitoso", data.message, function () {
+                        location.reload();
+                    });
+                }
+                else
+                {
+                    alert(data.message);
+                }
+            }
+        })
+    }
+
+    function VerFelicitaciones(id)
+    {
+         $.ajax({
+            url: "@Url.Action("verDetallesFelicitaciones","SeguimientoEntregables")?idPeriodoSegEntregable=" + id,
+            type: "GET",
+            success: function (data)
+            {
+                    alertify.alert("FELICITACIONES", data);
+            }
+        })
+    }
+</script>
+
+
+
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .pagination > .active > a {
+        background-color: #333333 !important;
+        border-color: white !important;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

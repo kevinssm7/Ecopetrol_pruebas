@@ -1,0 +1,372 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE MASIVO DISPENSACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string alerta = (string)ViewData["alerta"];
+
+}
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="row">
+            <div class="col-sm-12">
+                @if (!String.IsNullOrEmpty(alerta))
+                {
+                    @Html.Raw(alerta);
+                }
+            </div>
+        </div>
+
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE DATOS</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario" method="post" action="CargueBaseDispensacion">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Archivo</label>
+                        <input type="file" name="file" id="file" class="form-control" required multiple />
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Mes:</label>
+                        <select class="form-control select2" id="mes" name="mes" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                            {
+                                <option value="@item.id_mes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Año:</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" id="año" name="año" maxlength="4" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label style="visibility:hidden;width:100%" class="text-secondary_asalud">boton</label>
+                        <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar registros</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    var lecturaArchivo = [];
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    })
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarDatos();
+            //var archivo = $("input[type=file]")[0].files[0];
+            //LoadingShow();
+            //subirFichero(archivo);
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    debugger
+     function subirFichero(file) {
+        var xhr = new XMLHttpRequest();
+        var formData = new FormData();
+        formData.append("file", file);
+        xhr.open("POST", "@Url.Action("SaveMedicamentoDispensacion")", true);
+        xhr.send(formData);
+         xhr.addEventListener("error", function (e) {
+             alert("Error en la subida de archivo.");
+        }, false);
+
+        xhr.addEventListener("load", function (e) {
+            MostrarResultado(1, e);
+        });
+    }
+
+    function MostrarResultado(tipo, e) {
+        var respuesta = e.currentTarget.response;
+        lecturaArchivo = respuesta.split(",");
+
+        var mensajeRespuesta = lecturaArchivo[1];
+        var mensaje = "";
+
+        if (!mensajeRespuesta.includes("ERROR") && !mensajeRespuesta.includes("Error")) {
+
+            var respuestaM = mensajeRespuesta.split(":");
+            mensaje = respuestaM[1];
+        } else {
+            var respuestaM = mensajeRespuesta.split(/['"]+/g);
+            mensaje = respuestaM[3];
+        }
+
+        mensaje = mensaje.replace(",", "");
+        mensaje = mensaje.replace("}", "");
+        mensaje = mensaje.replace("{", "");
+        mensaje = mensaje.replace(/['"]+/g, "");
+
+        alert(mensaje);
+
+        if (mensaje.includes("CORRECTAMENTE")) {
+            var idRespuesta = lecturaArchivo[2];
+            var respuesta = idRespuesta.split(":");
+            var id = respuesta[1];
+            id = id.replace(",", "");
+            id = id.replace("}", "");
+            id = id.replace("{", "");
+            pdfMostrar(id);
+        }
+        location.reload();
+    }
+
+    function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+        formData.append("file", $("input[type=file]")[0].files[0]);
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveMedicamentoDispensacion", "MedicamentosCalidad")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success)
+                {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                    pdfMostrar(response.idLote);
+                }
+                else
+                {
+                    LoadingHide();
+                    alert(response.message);
+                    $("#file").val(null);
+                }
+
+            }
+        })
+    }
+
+    function pdfMostrar(idLote) {
+        var URL2 = "@Url.Action("pdfMedicamentos", "MedicamentosCalidad")?idLote=" + idLote;
+         window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    $("#file").change(function () {
+        var data = document.getElementById('file');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        if (distintosArchivos.length < 30) {
+
+            for (contador; contador < distintosArchivos.length; contador++) {
+
+                var nameext = data.files[contador].name;
+                var extension = getFileExtension3(nameext);
+
+                var listaextensiones = ["xlsx", "xlsm", "xlsb", "xltx", "xltm", "xls"];
+
+                var valida = false;
+
+                jQuery.each(listaextensiones, function (i, val) {
+                    if (extension == val) {
+                        valida = true;
+                    }
+                });
+
+                if (valida == false) {
+                    alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos PDF.");
+                    $("#file").val("");
+                }
+            }
+        }
+        else {
+            alert("Solo se pueden subir 30 archivos.");
+            $("#file").val("");
+            return false;
+        }
+    });
+
+
+     function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+</script>
+
+<style>
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+

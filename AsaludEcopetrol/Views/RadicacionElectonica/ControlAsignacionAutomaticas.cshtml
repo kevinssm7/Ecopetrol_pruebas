@@ -1,0 +1,265 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL ASIGNACIONES AUTOMÁTICAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string alerta = (string)ViewData["alerta"];
+}
+
+<br />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">CONSULTAR</strong>
+    </div>
+    <div class="panel-body">
+        <form name="formulario" id="formulario" method="post" enctype="multipart/form-data" accept-charset="@Url.Action("ControlAsignacionAutomaticas")">
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Nit</label>
+                    <input type="text" class="form-control" name="nit" id="nit" autocomplete="off" maxlength="40" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-secondary_asalud">Prestador</label>
+                    <input type="text" class="form-control" name="prestador" id="prestador" autocomplete="off" maxlength="60" />
+                </div>
+                <br />
+                <div class="col-sm-4" style="text-align:center;">
+                    <button type="button" id="btnbuscar" onclick="ValidarFormulario();" class="btn button_Asalud_Aceptar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                </div>
+            </div>
+            <br />
+        </form>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Nit</th>
+                    <th>SAP</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips_cuentas order in ViewBag.Lista)
+                {
+                    <tr>
+                        <td>@order.id_ref_ips_cuentas</td>
+                        <td>@order.Nombre</td>
+                        <td>@order.Nit</td>
+                        <td>@order.cod_sap_prestador</td>
+                        <td>
+                            <button class="button_Asalud_Guardar btn-sm" onclick="llamadaAnalistas(@order.id_ref_ips_cuentas);" data-toggle="modal" data-target="#myModal">
+                                Configurar analistas
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.table').DataTable({
+            "searching": true,
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#prestador").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nombre",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nit").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nit",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+    });
+    function ValidarFormulario() {
+
+        var nit = $("#nit").val();
+        var nombre = $("#prestador").val();
+
+        if ((nit == "" || nit == null) && (nombre == "" || nombre == null)) {
+            alert("Llene campo nit o prestador para consultar.");
+            return false;
+        }
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+    function llamadaAnalistas(id)
+    {
+         var laURLDeLaVista = '@Url.Action("_GestionarAnalistas")?idPrestador=' + id;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

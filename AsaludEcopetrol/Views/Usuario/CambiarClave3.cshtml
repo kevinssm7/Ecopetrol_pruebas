@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ECOPETROL_COMMON.ENTIDADES.sis_configuracion logo = (ECOPETROL_COMMON.ENTIDADES.sis_configuracion)ViewBag.logo;
+}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<body>
+    <form id="formularioCambioClave" name="formularioCambioClave" method="post" action="@Url.Action("CambiarClave3")">
+
+        <table class="stylelogin style2" align="center" style="margin-top:7%">
+            <tr>
+                <td>
+                    <div id="divAlerta" class="alert text-center" style="margin-left:2%; margin-right:2%; color: #883344">
+                        <span id="spanAlerta">@ViewBag.message</span>
+                    </div>
+
+                    <table align="center">
+                        <tr>
+                            <td class="editor-label">
+                                <h4><label class="label text-secondary_asalud">Contraseña actual:</label></h4>
+                            </td>
+                            <td class="editor-field">
+                                <input autocomplete="off" type="password" class="form-control" id="claveAnterior" name="claveAnterior" required maxlength="100"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="editor-label">
+                                <h4><label class="label text-secondary_asalud">Nueva contraseña:</label></h4>
+                            </td>
+                            <td class="editor-field">
+                                <input autocomplete="off" type="password" class="form-control" id="nuevaClave" name="nuevaClave" required maxlength="100"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="editor-label">
+                                <h4><span class="label text-secondary_asalud">Repetir contraseña:</span></h4>
+                            </td>
+                            <td editor-field>
+                                <input autocomplete="off" type="password" class="form-control" id="repetirClave" name="repetirClave" required maxlength="100" />
+                            </td>
+                        </tr>
+                    </table>
+                    <br />
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input type="button" value="Actualizar contraseña" class="btn btn-xs button_Asalud_Guardar" onclick="ValidarFormulario()" />
+                            <a role="button" value="Volver" class="btn btn-xs button_Asalud_Rechazar" href="@Url.Action("Login","Usuario")">Cancelar</a>
+                        </div> 
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+</body>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function ()
+    {
+                $.extend($.validator.messages, {
+                    required: "Este campo es obligatorio*"
+        });
+    })
+
+    function ValidarFormulario() {
+        var formulariovalido = true;
+        var noValido = / /;
+
+        var validator = $("#formularioCambioClave").validate({
+            lang: 'es'
+        });
+        if (validator.form())
+        {
+            var ClaveAnterior = $("#claveAnterior").val();
+            var nuevaClave = $("#nuevaClave").val();
+            var repetirClave = $("#repetirClave").val();
+
+            if (nuevaClave != repetirClave)
+            {
+                $("#spanAlerta").text("Las contraseñas no coinciden.");
+                formulariovalido = false;
+            }
+            else
+            {
+                if (ClaveAnterior == nuevaClave)
+                {
+                    $("#spanAlerta").text("La nueva contraseña no puede ser igual a la contraseña actual");
+                    formulariovalido = false;
+                }
+                else if (nuevaClave.length <= 8)
+                {
+                    $("#spanAlerta").text("La nueva contraseña debe contener al menos 8 caracteres.");
+                    formulariovalido = false;
+                }
+
+                else if (nuevaClave.length >= 14) {
+                    $("#spanAlerta").text("La nueva contraseña debe contener máximo 14 caracteres.");
+                    formulariovalido = false;
+                }
+
+                else if (!nuevaClave.match(/[A-z]/)) {
+                    $("#spanAlerta").text("La nueva contraseña debe contener al menos una letra.");
+                    formulariovalido = false;
+                }
+                else if (!nuevaClave.match(/[a-z]/)) {
+                    $("#spanAlerta").text("La nueva contraseña debe contener al menos una letra minúscula.");
+                    formulariovalido = false;
+                }
+                else if (!nuevaClave.match(/[A-Z]/)) {
+                    $("#spanAlerta").text("La nueva contraseña debe contener al menos una letra mayúscula.");
+                    formulariovalido = false;
+                }
+                else if (!nuevaClave.match(/\d/)) {
+                    $("#spanAlerta").text("La nueva contraseña debe contener al menos un número");
+                    formulariovalido = false;
+                }
+                else if (noValido.test(nuevaClave || repetirClave)) {
+                    $("#spanAlerta").text("La nueva contraseña no debe contener espacios");
+                    formulariovalido = false;
+                }
+
+            }
+
+            if (formulariovalido) {
+                LoadingShow();
+                $("#formularioCambioClave").submit();
+            }
+        }
+    }
+</script>
+
+
+<style>
+    body {
+        background: rgba(61,60,61,1);
+        background: -moz-linear-gradient(left, rgba(61,60,61,1) 0%, rgba(61,60,61,1) 1%, rgba(122,121,122,1) 16%, rgba(219,219,219,1) 40%, rgba(168,165,168,1) 57%, rgba(115,115,115,1) 73%, rgba(156,156,156,1) 91%, rgba(196,196,196,1) 100%);
+        background: -webkit-gradient(left top, right top, color-stop(0%, rgba(61,60,61,1)), color-stop(1%, rgba(61,60,61,1)), color-stop(16%, rgba(122,121,122,1)), color-stop(40%, rgba(219,219,219,1)), color-stop(57%, rgba(168,165,168,1)), color-stop(73%, rgba(115,115,115,1)), color-stop(91%, rgba(156,156,156,1)), color-stop(100%, rgba(196,196,196,1)));
+        background: -webkit-linear-gradient(left, rgba(61,60,61,1) 0%, rgba(61,60,61,1) 1%, rgba(122,121,122,1) 16%, rgba(219,219,219,1) 40%, rgba(168,165,168,1) 57%, rgba(115,115,115,1) 73%, rgba(156,156,156,1) 91%, rgba(196,196,196,1) 100%);
+        background: -o-linear-gradient(left, rgba(61,60,61,1) 0%, rgba(61,60,61,1) 1%, rgba(122,121,122,1) 16%, rgba(219,219,219,1) 40%, rgba(168,165,168,1) 57%, rgba(115,115,115,1) 73%, rgba(156,156,156,1) 91%, rgba(196,196,196,1) 100%);
+        background: linear-gradient(to right, rgba(61,60,61,1) 0%, rgba(61,60,61,1) 1%, rgba(122,121,122,1) 16%, rgba(219,219,219,1) 40%, rgba(168,165,168,1) 57%, rgba(115,115,115,1) 73%, rgba(156,156,156,1) 91%, rgba(196,196,196,1) 100%);
+    }
+
+
+    .style2 {
+        width: 30%;
+        height: 40rem;
+    }
+
+    .stylelogin {
+        -moz-box-shadow: -12px 14px 47px 7px rgba(0,0,0,0.48);
+        box-shadow: -12px 14px 47px 7px rgba(0,0,0,0.48);
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 7px;
+        text-align: left;
+        background: rgba(255,255,255,1);
+        background: -moz-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,255,255,1)), color-stop(99%, rgba(255,255,255,1)), color-stop(100%, rgba(237,237,237,1)));
+        background: -webkit-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: -o-linear-gradient(left, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+        background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 99%, rgba(237,237,237,1) 100%);
+    }
+
+    .Error {
+        color: #800000;
+        font-size: x-small;
+        font-weight: bold;
+    }
+
+    .text-primary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #636363;
+    }
+
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+
+
+    .button_Asalud_Guardar:hover {
+        opacity: 0.6;
+        text-decoration: none;
+    }
+
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+</style>

@@ -1,0 +1,228 @@
+﻿@model  AsaludEcopetrol.Models.Cambio.cambio
+
+@{ string alerta = (string)ViewData["alerta"];
+    string idadmin = (string)ViewBag.idadmin;
+
+}
+
+<link href="~/Scripts/css/StyleAsaludEcopetrol.css" rel="stylesheet" />
+
+<form class="animated fadeInDown" id="formulariomodi">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <p class="text-primary_asalud"> MODIFICACION PACIENTE  </p>
+        </div>
+        <div class="panel-body">
+
+            <div class="row">
+
+                <div class="col-md-10">
+                    <label class="text-secondary_asalud">Tipo modificacion paciente:</label><span style="color:red"></span>
+                    <select class="form-control select2" style="width:100%" required id="tipocambio" name="tipocambio" onchange="checkFiltro()">
+                        <option value="">- Seleccionar -</option>
+                        <option value="1">- NOMBRES Y APELLIDOS -</option>
+                        <option value="2">- NUMERO DOCUMENTO DE IDENTIDAD -</option>
+                        <option value="3">- FECHA DE INGRESO PACIENTE -</option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <br />
+
+            <div id="pnlNombres" style="display:none">
+                <div class="row">
+
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud">Primer nombre</label>
+                        <input type="text" maxlength="100" class="form-control" name="nombreP" id="nombreP" required />
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud">Segundo nombre</label>
+                        <input type="text" maxlength="100" class="form-control" name="nombreS" id="nombreS" />
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud">Primer apellido</label>
+                        <input type="text" maxlength="100" class="form-control" name="ApellidoP" id="ApellidoP" required />
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud">Segundo apellido</label>
+                        <input type="text" maxlength="100" class="form-control" name="ApellidoS" id="ApellidoS" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="pnlDocumento" style="display:none">
+                <div class="row">
+
+                    <div class="col-md-6 form-group">
+                        <label class="text-secondary_asalud">Tipo Documento:</label><span style="color:red"></span>
+                        <select class="form-control select2" style="width:100%" required id="tipodocumento" name="tipodocumento">
+                            <option value="">- Seleccionar -</option>
+                            <option value="TI">- Tarjeta de Identidad -</option>
+                            <option value="RC">- Registro Civil -</option>
+                            <option value="PA">- Pasaporte -</option>
+                            <option value="CE">- Cedula de Extranjeria -</option>
+                            <option value="CC">- Cedula de Ciudadania -</option>
+
+
+                        </select>
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud">Numero Documento</label>
+                        <input type="text" maxlength="100" class="form-control solo-numero" required name="numerodocumento" id="numerodocumento" />
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div id="pnlfechaingreso" style="display:none">
+                <div class="row">
+
+                    <div class="col-sm-6 form-group">
+                        <label class="text-secondary_asalud" style="font-weight:bold">Fecha ingresa:</label>
+                        <input class="datepickerr" required value="" title="Este campo es obligatorio*" style="width:100%" name="fechaingreso" id="fechaingreso" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4 form-group"></div>
+                <div class="col-sm-4 form-group">
+                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                </div>
+                <div class="col-sm-4 form-group"></div>
+            </div>
+            <div style="display:none">
+
+                @Html.TextBoxFor(u => u.id_censo)
+                @Html.TextBoxFor(u => u.id_concurrencia)
+
+
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+</form>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulariomodi").validate();
+        if (validator.form()) {
+            GuardarDatosPaciente();
+        }
+    }
+
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+
+
+    function checkFiltro() {
+
+        var mivalor = $("#tipocambio").val()
+
+        if (mivalor == "1") {
+
+            document.getElementById('pnlNombres').style.display = 'block';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlfechaingreso').style.display = 'none';
+
+
+        }
+        else if (mivalor == "2") {
+            document.getElementById('pnlDocumento').style.display = 'block';
+            document.getElementById('pnlNombres').style.display = 'none';
+            document.getElementById('pnlfechaingreso').style.display = 'none';
+
+        }
+        else if (mivalor == "3") {
+            document.getElementById('pnlfechaingreso').style.display = 'block';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlNombres').style.display = 'none';
+
+        }
+        else {
+            document.getElementById('pnlNombres').style.display = 'none';
+            document.getElementById('pnlDocumento').style.display = 'none';
+            document.getElementById('pnlfechaingreso').style.display = 'none';
+
+        }
+
+
+    }
+
+    function GuardarDatosPaciente() {
+
+        debugger
+        var tipocambio =  $("#tipocambio").val();
+        var nombreP =  $("#nombreP").val();
+        var nombreS =  $("#nombreS").val();
+        var ApellidoP =  $("#ApellidoP").val();
+        var ApellidoS =  $("#ApellidoS").val();
+        var tipodocumento =  $("#tipodocumento").val();
+        var numerodocumento =  $("#numerodocumento").val();
+        var fechaingreso =  $("#fechaingreso").val();
+        var id_concurrencia = @Model.id_concurrencia;
+        var id_censo = @Model.id_censo;
+
+        $.ajax({
+            url: "@Url.Action("ModificarDatosPaciente", "Cambios")",
+            type: "post",
+            data:
+            {
+                tipocambio: tipocambio,
+                nombreP: nombreP,
+                nombreS: nombreS,
+                ApellidoP: ApellidoP,
+                ApellidoS: ApellidoS,
+                tipodocumento: tipodocumento,
+                numerodocumento: numerodocumento,
+                fechaingreso: fechaingreso,
+                id_concurrencia: id_concurrencia,
+                id_censo: id_censo
+
+            },
+            success: function (response) {
+
+                if (response.success) {
+
+                    alert(response.message);
+                    window.location = "@Url.Action("GestionAuditor", "Cambios")?variable=" + 4;
+                }
+                else {
+                    alert(response.message);
+                }
+
+            }
+        })
+    };
+
+
+</script>

@@ -1,0 +1,170 @@
+﻿@using Kendo.Mvc.UI;
+@using AsaludEcopetrol.Models.Reportes;
+
+@{
+    ViewBag.Title = "CARTA RECHAZOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+@model AsaludEcopetrol.Models.CuentasMedicas.FacturasRechazadas
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form name="formulario" id="formulariobuscar">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Buscar factura</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br />
+
+    <div class="panel-body">
+        <div id="DivBusquedaFactura" class="col-md-12">
+            <div class="col-md-2">
+                <label class="text-secondary_asalud">Número factura</label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="numFac" id="numFac" autocomplete="off" />
+            </div>
+            <div class="col-md-3">
+                <button type="button" id="btnbuscar" onclick="BuscarFacturas();" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+            </div>
+        </div>
+
+        <div id="DivInformacionFactura" style="display:none;" class="General">
+            <div class="col-sm-12">
+                <table class="table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                    <thead>
+                        <tr>
+                            <th>ID factura</th>
+                            <th>Número de factura</th>
+                            <th>Nit prestador</th>
+                            <th>Prestador</th>
+                            <th>Valor factura</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="DivLlenadoFacturas">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function BuscarFacturas() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("factura", $("#numFac").val());
+        var factura = document.getElementById("numFac").value;
+
+        if (factura != "") {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("LlenadoCartaRechazos", "RadicacionElectonica")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (data) {
+
+                    if (data.success != false) {
+                        document.getElementById('DivInformacionFactura').style.display = 'block';
+                        LoadingHide();
+                        $("#DivLlenadoFacturas").empty();
+                        $("#DivLlenadoFacturas").html(data.tabla);
+                    }
+                    else {
+                        $("#DivLlenadoFacturas").empty();
+                        document.getElementById('DivInformacionFactura').style.display = 'none';
+                        LoadingHide();
+                        alert(data.message);
+                    }
+                    LoadingHide();
+                }
+            })
+        } else {
+            document.getElementById('DivInformacionFactura').style.display = 'none';
+            LoadingHide();
+            alert("LLENAR CAMPO FACTURA");
+        }
+    }
+
+    function ReporteFacturaRechazada(a)
+    {
+        var url = "@Url.Action("CrearPdfFacturasDigRechazadas", "RadicacionElectonica")?ID=" + a;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+</script>
+
+
+<style>
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #636363;
+            border-top: 2px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>

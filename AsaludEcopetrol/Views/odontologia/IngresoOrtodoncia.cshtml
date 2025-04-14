@@ -1,0 +1,815 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Odontologia.ortodoncia
+@{
+    ViewBag.Title = "TRATAMIENTO ORTODONCIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso tratamiento</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control select2" required id="cbxmes" name="mes" autocomplete="off">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Año</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="4" required name="año" id="año">
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidades($(this).val())" required id="cbxunis" name="unis">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="cbxlocalidad" name="localidad">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Documento identidad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " onchange="format($(this).val())" maxlength="18" required name="documento" id="documento" />
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Nombre  del beneficiario</label>
+                            <input type="text" maxlength="100" class="form-control" name="nombre" id="nombre" required />
+                        </div>
+
+                        <div class="col-sm-1 form-group">
+                            <label class="text-secondary_asalud">Edad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="edad" maxlength="2" id="edad" required />
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Tiempo de duracion tratamiento en meses </label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="TratamientoMeses" maxlength="2" id="TratamientoMeses" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Hubo colaboración paciente</label>
+                            <select class="form-control select" required id="optradio" name="optradio">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Ortodoncista tratante</label>
+                            <select class="form-control select2" id="cbxprofesional" required name="profesional">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Odontologo PPE que realiza remision</label>
+                            <select class="form-control select2" id="cbxprofesionalOdon" required name="profesionalOdon">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Paciente satisfecho  con tratamiento </label>
+                            <select class="form-control select" required id="optsatisfecho" name="optsatisfecho">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Se coloca Tratamiento por primera vez </label>
+                            <select class="form-control select" required id="optprimeraVez" name="optprimeraVez">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Se verifica calidad del TTO historia clinica </label>
+                            <select class="form-control select" required id="optHistoriaClinica" name="optHistoriaClinica">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Caso trasferencia</label>
+                            <select class="form-control select" required id="optTrasferencia" name="optTrasferencia">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                        </div>
+                    </div>
+
+                    <div class="panel-heading">
+                        <p class="title">
+                            <h4>
+                                <a data-toggle="collapse" data-parent="#accordion">LISTA DE CHEQUEO - EVALUACION FINALIZACION DE TRATAMIENTO DE ORTODONCIA</a>
+                            </h4>
+                        </p>
+                    </div>
+                    <div id="collapse2" class="panel-collapse collapse in">
+                        <div class="row" id="fieldlist">
+                            <table id="table2">
+                                <thead>
+                                    <tr>
+                                        <th>PARAMETROS EVALUACION</th>
+                                        <th>PORCENTAJE</th>
+                                        <th>TERMINOLOGIA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>MUY BUENO</td>
+                                        <td>100%</td>
+                                        <td>TRATAMIENTO TERMINADO DE OPTIMA CALIDAD</td>
+                                    </tr>
+                                    <tr>
+                                        <td>BUENO</td>
+                                        <td>80%</td>
+                                        <td>TRATAMIENTO TERMINADO  DE BUENA CALIDAD</td>
+                                    </tr>
+                                    <tr>
+                                        <td>REGULAR</td>
+                                        <td>60%</td>
+                                        <td>ASPECTOS A MEJORAR, NO  SE  AUTORIZA  TRATAMIENTO TERMINADO</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>DEFICIENTE</td>
+                                        <td>40%</td>
+                                        <td>DEBE REEVALUAR TRATAMIENTO</td>
+                                    </tr>
+                                    <tr>
+                                        <td>MALO</td>
+                                        <td>20%</td>
+                                        <td>DEBE REEVALUAR TRATAMIENTO</td>
+                                    </tr>
+                                    <tr>
+                                        <td>NO CALIFICABLE</td>
+                                        <td>0%</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="row" id="table2">
+                                <thead>
+                                    <tr>
+                                        <th>PARAMETRO EVALUADO</th>
+                                        <th>SELECCIONE % DE CUMPLIMIENTO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>AUSENCIA DE ESPACIOS INTERDENTALES</td>
+                                        <td>
+                                            <select required id="tbl2_id1" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>AUSENCIA DE APIÑAMIENTOS Y ROTACIONES</td>
+                                        <td>
+                                            <select required id="tbl2_id2" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>MINIMA SOBREMORDIDA VERTICAL</td>
+                                        <td>
+                                            <select required id="tbl2_id3" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>MINIMA SOBREMORDIDA HORIZONTAL</td>
+                                        <td>
+                                            <select required id="tbl2_id4" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>ADECUADA SIMETRIA DE LOS ARCOS</td>
+                                        <td>
+                                            <select required id="tbl2_id5" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>ADECUADA INCLINACION DE LOS EJES DENTALES</td>
+                                        <td>
+                                            <select required id="tbl2_id6" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td>MAXIMA INTERCUSPIDACIÓN EN OCLUSION HABITUAL</td>
+                                        <td>
+                                            <select required id="tbl2_id7" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td>DESOCLUSION DE DIENTES POSTERIORES EN MOVIMIENTOS EXCENTRICOS</td>
+                                        <td>
+                                            <select required id="tbl2_id8" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td>ADECUADA ALINEACION Ó ALTURA DE REBORDES MARGINALES</td>
+                                        <td>
+                                            <select required id="tbl2_id9" style="text-align-last:center; min-width:100%">
+                                                <option value="">- Seleccionar -</option>
+                                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_check_porcentajes item in ViewBag.Porcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <input class="form-control" type="text" name="Observaciones" maxlength="500" id="Observaciones" required />
+                        </div>
+                        <div class="col-sm-2 form-group">
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-12 form-group text-right">
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+     function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_unis").val(DataItem.id_ref_unis);
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_ref_ciudades").val(DataItem.id_ref_ciudades);
+    }
+
+        function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ortodoncista_tratante").val(DataItem.id_ref_odont_prestadores);
+    }
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ppe_quien_realiza").val(DataItem.id_ref_odont_prestadores);
+    }
+
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#colaboracion_paciente").val(DataItem.id_ref_ffmm_sino);
+
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            validarSelects();
+        }
+    }
+
+    function validarSelects() {
+        var selects = document.querySelectorAll("select[required]");
+
+        for (var i = 0; i < selects.length; i++) {
+            var select = selects[i];
+            if (select.value == "" || select.value == null) {
+                alert("Los campos de parametros a evaluar son obligatorios.");
+                event.preventDefault(); // Evita que el formulario se envíe si falta una selección
+                return false;
+            }
+        }
+        GuardarDatos();
+    }
+
+    function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("mesIngresado", $("#cbxmes").val());
+        formData.append("ano", $("#año").val());
+        formData.append("id_regional", $("#cbxregional").val());
+        formData.append("id_unis", $("#cbxunis").val());
+        formData.append("id_localidad", $("#cbxlocalidad").val());
+        formData.append("documento_identidad", $("#documento").val());
+        formData.append("nombre", $("#nombre").val());
+        formData.append("edad", $("#edad").val());
+        formData.append("tiempo_tratamiento", $("#TratamientoMeses").val());
+        formData.append("ortodoncista_tratante", $("#cbxprofesional").val());
+        formData.append("colaboracion_paciente", $("#optradio").val());
+        formData.append("ppe_quien_realiza", $("#cbxprofesionalOdon").val());
+        formData.append("paciente_satisfecho", $("#optsatisfecho").val());
+        formData.append("ortodoncia_primera_vez", $("#optprimeraVez").val());
+        formData.append("verifica_calidad_tto_hc", $("#optHistoriaClinica").val());
+        formData.append("caso_trasferencia", $("#optTrasferencia").val());
+        formData.append("donde_trasferencia", $("#fonoaudiologia").val());
+        formData.append("observaciones", $("#Observaciones").val());
+        formData.append("check1", $("#tbl2_id1").val());
+        formData.append("check2", $("#tbl2_id2").val());
+        formData.append("check3", $("#tbl2_id3").val());
+        formData.append("check4", $("#tbl2_id4").val());
+        formData.append("check5", $("#tbl2_id5").val());
+        formData.append("check6", $("#tbl2_id6").val());
+        formData.append("check7", $("#tbl2_id7").val());
+        formData.append("check8", $("#tbl2_id8").val());
+        formData.append("check9", $("#tbl2_id9").val());
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveOrtodoncia", "odontologia")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+
+                     LoadingHide();
+                     alert(response.message);
+                     location.reload();
+                    var URL2 = "@Url.Action("CrearPdfOrtodoncia2", "odontologia")?id=" + response.ID;
+                    window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+                }
+                else
+                 {
+                     LoadingHide();
+                   alert(response.message);
+
+                }
+
+            }
+        })
+    }
+
+    function LimpiarFormulario() {
+
+    }
+
+    function CargarUnis(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis", "odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis2").empty();
+                    $("#cbxunis").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxunis2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxunis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                        $("#cbxunis2").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                    CargarOrtodoncista(regional);
+                    CargarOdontologos(regional);
+                }
+            })
+        }
+
+    }
+
+    function CargarLocalidades(a)
+    {
+        var unis = a;
+        if (unis != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeLocalidades", "odontologia")",
+                type: "post",
+                data: { unis: unis },
+                success: function (data) {
+                    $("#cbxlocalidad").empty();
+                    $("#cbxlocalidad2").empty();
+                    $("#cbxlocalidad").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxlocalidad2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxlocalidad").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                        $("#cbxlocalidad2").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                    })
+                }
+            })
+        }
+
+    }
+
+     function CargarOrtodoncista(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeOrtodoncista","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesional").empty();
+                    $("#cbxprofesional").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesional").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+
+    function CargarOdontologos(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasTotal","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesionalOdon").empty();
+                    $("#cbxprofesionalOdon").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesionalOdon").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+     function format(a) {
+
+         var mivalor = a;
+
+              $.ajax({
+                url: '@Url.Action("ListaBeneficiario")/' + mivalor,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    $('input:text[id$=nombre]').val(data.OBJ.Nombre);
+                    $('input:text[id$=edad]').val(data.OBJ.edad);
+                },
+                  error: function (xhr) {
+                     $('input:text[id$=nombre]').val("");
+                     $('input:text[id$=edad]').val(0);
+
+                    alert('error');
+                }
+            });
+    }
+</script>
+
+<style>
+
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    .my-custom-scrollbar {
+        position: relative;
+        height: 250px;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+</style>

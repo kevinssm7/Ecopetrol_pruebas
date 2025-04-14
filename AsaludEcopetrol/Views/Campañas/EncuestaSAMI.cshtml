@@ -1,0 +1,259 @@
+﻿
+
+@{
+    ViewBag.Title = "ENCUESTAS SAMI";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <form id="formularioDatos">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">ENCUESTA SAMI</strong>
+            </div>
+            <div class="panel-body">
+
+                @if (ViewBag.existeEncuesta == 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_encuesta_tipoPreguntaResult item in ViewBag.tipoPreguntas)
+                    {
+                        i++;
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="select-container">
+                                    <div class="col-md-8" style="text-align:left">
+                                        <input type="hidden" id="id_@i" name="id_@i" value="@item.id_tipo" />
+                                        <input type="hidden" id="tipo_@i" name="tipo_@i" value="@item.tipo" />
+                                        <label class="text-secondary_asalud">@item.descripcion</label>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        @if (item.tipo == 1)
+                                        {
+                                            <div class="slider-container">
+                                                <input type="range" min="1" max="10" value="1" class="slider" id="ratingSlider_@i" oninput="actualizarRango(this.value, @i)" required>
+                                                <span id="ratingValue_@i" class="rangeSpan">1</span>
+                                            </div>
+                                            <div>
+                                                <span id="textoRango_@i" class="textoRango text-secondary_asalud">insatisfecho</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-left">
+                                                <textarea id="rtaTA_@i" name="rtaTA_@i" class="form-control" cols="5" rows="5" maxlength="499" required></textarea>
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <br />
+                    }
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="btn button_Asalud_Guardar" onclick="validarIngresos();">GUARDAR</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <strong>¡Atención!</strong> Usted ya ha realizado una encuesta en el presente mes.
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var arrayBidimensionalRespuestas = [];
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        var conteo = "@i";
+
+        if (conteo > 0) {
+            for (var j = 1; j <= conteo; j++) {
+
+                var tipo = $("#tipo_" + j).val();
+                if (tipo == 1) {
+                    actualizarRango(1, j);
+                }
+            }
+        }
+    });
+
+    function actualizarRango(value, i) {
+        document.getElementById("ratingValue_" + i).textContent = value;
+        var percentage = (value - 1) * 20; // Convertir el valor de 1 a 5 a un porcentaje de 0% a 100%
+        var gradientColor = "linear-gradient(to right, #556da2  " + 0 + "%, #dddddd " + percentage + "%)";
+        document.getElementById("ratingSlider_" + i).style.background = gradientColor;
+
+        if (i == 1 || i == 4) {
+
+            if (value == 1 || value == 2) {
+                $("#textoRango_" + i).text("Muy insatisfecho");
+            }
+
+            else if (value == 3 || value == 4) {
+                $("#textoRango_" + i).text("Insatisfecho");
+            }
+
+            else if (value == 5 || value == 6) {
+                $("#textoRango_" + i).text("Neutral");
+            }
+
+            else if (value == 7 || value == 8) {
+                $("#textoRango_" + i).text("Satisfecho");
+            }
+
+            else if (value == 9 || value == 10) {
+                $("#textoRango_" + i).text("Muy satisfecho");
+            }
+
+        }
+
+        else if (i == 2 || i == 3) {
+            if (value == 1 || value == 2) {
+                $("#textoRango_" + i).text("Muy difícil");
+            }
+
+            else if (value == 3 || value == 4) {
+                $("#textoRango_" + i).text("Difícil");
+            }
+
+            else if (value == 5 || value == 6) {
+                $("#textoRango_" + i).text("Neutral");
+            }
+
+            else if (value == 7 || value == 8) {
+                $("#textoRango_" + i).text("Facil");
+            }
+
+            else if (value == 9 || value == 10) {
+                $("#textoRango_" + i).text("Muy facil");
+            }
+        }
+    }
+
+    function validarIngresos() {
+
+        var validator = $("#formularioDatos").validate();
+        if (validator.form()) {
+            EnviarDatos();
+        }
+    }
+
+    function EnviarDatos() {
+
+        var conteo = "@i";
+        if (conteo > 0) {
+
+            arrayBidimensionalPreguntas = [];
+
+            for (var i = 1; i <= conteo; i++) {
+
+                var idTipo = $("#id_" + i).val();
+                var tipoDato = $("#tipo_" + i).val();
+                var respuesta = "";
+
+                if (tipoDato == 1) {
+                    //respuesta = $('input[name="rtaSl_' + i + '"]:checked').val();
+                    respuesta = $("#ratingSlider_" + i).val();
+                }
+                else {
+                    respuesta = $("#rtaTA_" + i).val();
+                }
+
+                arrayBidimensionalPreguntas[i] = [];
+                arrayBidimensionalPreguntas[i][0] = idTipo;
+                arrayBidimensionalPreguntas[i][1] = tipoDato;
+                arrayBidimensionalPreguntas[i][2] = respuesta;
+            }
+
+            if (arrayBidimensionalPreguntas.length > 0) {
+                LoadingShow();
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("RespuestaEncuestaSAMI", "Campañas")",
+                    data: JSON.stringify(arrayBidimensionalPreguntas),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        LoadingHide();
+
+                        var rta = data.rta;
+
+                        if (rta == 1) {
+                            alertify.alert("¡Proceso Exitoso!", "<p style='text-align:justify'>" + data.mensaje + "</p>", function () {
+                                location.reload();
+                                console.log(rta)
+                            }).set('label', 'Aceptar');
+
+
+                        } else {
+                            alertify.alert("¡Aviso!", "<p>" + data.mensaje + "</p>", function () {
+                                //location.reload();
+                            }).set('label', 'Aceptar');
+                        }
+                    },
+                    error: function (data) {
+                        alert("Se ha acabado la sesión. Por favor recargue la página");
+                    }
+                });
+            }
+        }
+    }
+
+</script>
+
+<style>
+
+    .slider-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .rangeSpan {
+        margin-left: 10px;
+        color: #556da2;
+    }
+
+    input[type="range"] {
+        -webkit-appearance: none;
+        --appearance: none;
+        width: 100%;
+        height: 10px;
+        outline: none;
+        border-radius: 5px;
+    }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            --appearance: none;
+            width: 15px;
+            height: 15px;
+            background-color: #f2f2f2;
+            cursor: auto;
+            border-radius: 50%;
+            border: none;
+            margin-top: -2px;
+            border: 2px solid #636363;
+        }
+</style>
+

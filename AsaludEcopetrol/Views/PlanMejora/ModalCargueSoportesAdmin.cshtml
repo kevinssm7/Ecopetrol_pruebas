@@ -1,0 +1,90 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">PLAN MEJORA: @ViewBag.idPlan </a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <form id="formANotiAdmin">
+            @*<div class="row">
+            <div class="col-md-6">
+                <label class="text-secondary_asalud">Adjuntar:</label>
+                <input id="idPlanA" name="idPlanA" value="@ViewBag.idPlan" type="hidden" />
+                <input type="file" name="archivos" id="archivos" class="form-control"  required multiple/>
+            </div>
+        </div>
+        <br />*@
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input id="idPlanA" name="idPlanA" value="@ViewBag.idPlan" type="hidden" />
+                    <label class="text-secondary_asalud">Correos a notificar (separar por ;)</label>
+                    <input type="text" id="correos" name="correos" class="form-control" maxlength="500" required />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observación auditor</label>
+                    <textarea id="observacion" name="observacion" class="form-control" maxlength="5000" cols="4" rows="4" required />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioArchivos()">GUARDAR</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarformularioArchivos() {
+        var validator = $("#formANotiAdmin").validate();
+        if (validator.form()) {
+            GuardarNotificacion();
+        }
+    }
+
+    function GuardarNotificacion() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idPlan", $("#idPlanA").val());
+        formData.append("correos", $("#correos").val());
+        formData.append("observacion", $("#observacion").val());
+        
+
+        //var archivos = $("#archivos").get(0).files;
+        //for (i = 0; i < archivos.length; i++) {
+        //    formData.append("files", archivos[i]);
+        //}
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarNotificacionAdmin", "PlanMejora")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                location.reload();
+            }
+        })
+
+    }
+
+
+</script>

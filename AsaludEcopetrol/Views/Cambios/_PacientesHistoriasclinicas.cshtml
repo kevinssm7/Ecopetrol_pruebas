@@ -1,0 +1,206 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.odont_historia_clinica_paciente>
+@{
+    ViewBag.Title = "HISTORIAS CLINICAS PACIENTES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewData["rta"];
+}
+
+<br />
+
+<div class="container">
+    @if (rta != null)
+    {
+        if (rta == 1)
+        {
+            <div class="alert alert-success" role="alert">Historia clínica del paciente eliminada correctamente</div>
+        }
+        else
+        {
+            <div class="alert alert-danger" role="alert">Ah ocurrido un error eliminando la historia clínica del paciente</div>
+        }
+    }
+    
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">LISTADO DE HISTORIAS CLINICAS PACIENTE</strong>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Número hc</th>
+                        <th>Nom paciente</th>
+                        <th>Fecha de atención</th>
+                        <th>Observaciones</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.odont_historia_clinica_paciente item in Model)
+                        {
+                            <tr>
+                                <td>@item.id_odont_historia_clinica_paciente</td>
+                                <td>@item.numero_hc</td>
+                                <td>@item.paciente</td>
+                                <td>@item.fecha_atencion.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@item.observaciones </td>
+                                <td class="text-center"><a href="javascript:EliminarHc(@item.id_odont_historia_clinica, @item.id_odont_historia_clinica_paciente)" class="btn button_Asalud_Rechazar btn-sm">Eliminar historia clínica</a></td>
+                            </tr>
+                        }
+                    }else
+                    {
+                        <tr>
+                            <td class="text-center" colspan="6">No se encuentra ningún paciente con historia clinica</td>
+                        </tr>
+                    }
+
+
+                </tbody>
+            </table>
+            <br />
+            <div class="text-center form-group">
+                @if (ViewBag.modo == 1)
+                {
+                    <a role="button" href="@Url.Action("_idhistoriaclinica","Cambios",new { id_historia = ViewBag.id_historia})" class="btn button_Asalud_Rechazar btn-sm">Volver</a>
+                }
+                else
+                {
+                    <a role="button" href="@Url.Action("_OdontologoPrestador","Cambios",new { id_prestador = ViewBag.nomprestador})" class="btn button_Asalud_Rechazar btn-sm">Volver</a>
+                }
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function EliminarHc(idhc, idhcpaciente)
+    {
+        var eliminar = confirm("¿Esta seguro/a que desea eliminar esta historia clíinica? no se podra recuperar.");
+        if (eliminar)
+        {
+            var modo = "@ViewBag.modo";
+            var url = "@Url.Action("Eliminarhcpaciente","Cambios")?id_historia=" + idhc +"&modo="+modo+"&id_hcpaciente=" + idhcpaciente;
+            location.href = url;
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }
+</style>
+

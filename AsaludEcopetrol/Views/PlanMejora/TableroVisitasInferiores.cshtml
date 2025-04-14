@@ -1,0 +1,395 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO VISITAS A PLAN MEJORA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+    //int resultadoUsuario = ViewBag.conteo;
+    int i = 0;
+}
+
+<div class="panel panel-default" style="width: auto;">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO VISITAS</strong>
+    </div>
+
+
+    <form id="formularioPMV" action="TableroVisitasInferiores" method="post">
+        @*<div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select id="idRegional" name="idRegional" class="form-control select2">
+                        <option value="">--Seleccionar</option>
+
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                        {
+                            <option value="@item.id_ref_regional">@item.indice - @item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input type="text" id="fechaInicio" name="fechaFin" class="form-control" style="width:100%;" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha fin</label>
+                    <input type="text" id="fechaFin" name="fechaFin" class="form-control" style="width:100%;" />
+                </div>
+                <br />
+                <div class="col-md-3">
+                    <button id="btnbuscar" class="btn button_Asalud_Aceptar" onclick="Buscar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                </div>
+            </div>*@
+
+    </form>
+
+    <div class="row">
+        <div class="col-sm-12 form-group text-right">
+            @if (resultado != 0)
+            {
+                <a class="button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+            }
+            @*else
+            {
+                if (resultadoUsuario != 0)
+                {
+                    <a class="button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+                }
+
+            }*@
+        </div>
+
+        @if (resultado == 0)
+        {
+            <div class="row">
+                <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                    <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos.")</p>
+                </div>
+            </div>
+        }
+        @*else
+        {
+            if (resultadoUsuario == 0 && resultado == 0)
+            {
+
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos por los roles indicados")</p>
+                    </div>
+                </div>
+            }
+        }*@
+
+    </div>
+
+    <br />
+    <div class="panel panel-default" style="width: auto;">
+        <table id="tablaDatos" class="table table-bordered" style="height: auto;">
+            <thead>
+                <tr>
+                    <th>Id visita</th>
+                    <th>Regional</th>
+                    <th>NIT</th>
+                    <th>Razón social</th>
+                    <th>Especialidad</th>
+                    <th>Fecha programada visita</th>
+                    <th>Fecha final visita</th>
+                    <th>Tipo</th>
+                    <th>Nro contrato</th>
+                    <th>Auditor responsable</th>
+                    <th>Calificación</th>
+                    <th>A plan mejora</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.conteo > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroVisitasResult item in ViewBag.listado)
+                    {
+                        i++;
+                        <tr>
+                            <td>@item.id_cronograma_visitas</td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.no_id_prestador</td>
+                            <td>@item.razon_social</td>
+                            <td>@item.descripcion</td>
+                            <td>@item.fecha_visita.Value.ToString("dd/MM/yyyy")</td>
+                            @if (item.fecha_final_visita != null)
+                            {
+                                <td>@item.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@item.nom_tipo_prestador</td>
+                            <td>@item.num_contrato</td>
+                            <td>@item.nombre</td>
+                            <td>@item.calificacion_final_visita</td>
+                            <td>
+                                <a class="button_Asalud_Aceptar" onclick="EnviarAPlanMejora(@item.id_cronograma_visitas)">Enviar</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+
+
+                    if (ViewBag.conteoUsuario > 0)
+                    {
+
+                        foreach (ECOPETROL_COMMON.ENTIDADES.vw_planMejora_tableroVisitas item in ViewBag.listado)
+                        {
+                            i++;
+                            <tr>
+                                <td>@item.id_cronograma_visitas</td>
+                                <td>@item.nombre_regional</td>
+                                <td>@item.no_id_prestador</td>
+                                <td>@item.razon_social</td>
+                                <td>@item.descripcion</td>
+                                <td>@item.fecha_visita.Value.ToString("dd/MM/yyyy")</td>
+                                @if (item.fecha_final_visita != null)
+                                {
+                                    <td>@item.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                                <td>@item.nom_tipo_prestador</td>
+                                <td>@item.num_contrato</td>
+                                <td>@item.nombre</td>
+                                <td>@item.calificacion_final_visita</td>
+                                <td>
+                                    <a class="button_Asalud_Aceptar" onclick="EnviarAPlanMejora(@item.id_cronograma_visitas)">Enviar</a>
+                                </td>
+                            </tr>
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                        </tr>
+
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<div class="modal fade" id="ModalArchivos" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud">Archivo</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formArchivosPM">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Archivo-Plan nro <label id="lblidPlan"></label></label>
+                            <input type="file" name="file" id="file" class="form-control" accept=".pdf" onchange="ValidaArchivos()" required />
+                            <input type="hidden" id="idPlan" name="idPlan" />
+                            <input type="hidden" id="tipo" name="tipo" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:EnviarRegistros()" class="button_Asalud_Guardar">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#fechaInicio").kendoDatePicker();
+        $("#fechaFin").kendoDatePicker();
+
+        $("#fechaInicio").prop('readonly', true);
+        $("#fechaFin").prop('readonly', true);
+
+        MostrarTabla();
+    })
+
+    function MostrarTabla()
+    {
+            $('#tablaDatos').DataTable().destroy();
+            $('#tablaDatos').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+    }
+
+    function CargarArchivo(idPlan, tipo) {
+
+        $("#file").val('');
+        $("#idPlan").val(idPlan);
+        $("#tipo").val(tipo);
+        $("#lblidPlan").text(idPlan);
+        $("#ModalArchivos").modal("show");
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReportePMVisitas", "PlanMejora")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+    function MostrarArchivo(idPlan, tipo) {
+        var url = "@Url.Action("VerArchivoPM", "PlanMejora")?idPlan=" + idPlan + "&tipo=" + tipo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+    function ValidaArchivos() {
+        var fileInput = $("#file");
+        var selectedFile = fileInput[0].files[0];
+
+        if (!selectedFile) {
+            alert("Selecciona un archivo.");
+            return;
+        }
+
+        var allowedExtensions = ["pdf"];
+        var fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+        if (allowedExtensions.indexOf(fileExtension) === -1) {
+            alert("El archivo debe ser un PDF.");
+            $("#file").val('');
+            return;
+        }
+    }
+
+    function EnviarAPlanMejora(idCronograma) {
+
+        var confirmar = confirm("¿Está seguro(a) de enviar a plan mejora?");
+
+        if (confirmar == true) {
+            location.href = "@Url.Action("IngresoCaracterización","PlanMejora")?idCronograma=" + idCronograma;
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 400px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: auto;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+

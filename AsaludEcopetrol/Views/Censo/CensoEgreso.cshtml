@@ -1,0 +1,149 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Censo.censo
+@{
+    ViewBag.Title = "EGRESO CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="container">
+        <form id="frm-alumno">
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_egreso_censo)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_egreso_censo)
+
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    .Name("datepicker1")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change1");
+                     })
+
+                    )
+
+                    @Html.ValidationMessageFor(u => u.fecha_egreso_censo, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.condicion_alta)</span></h4>
+                    @Html.DropDownListFor(model => model.condicion_alta, new SelectList(Model.ListCondicionAlta, "id_cond_alta_censo", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.condicion_alta, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+
+            <div id="pnlGuardar" class="General">
+                <table align="left">
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @if (ViewBag.usuario == "14")
+                            {
+
+                            }
+                            else
+                            {
+                                <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                            }
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="display:none">
+                            @Html.TextBoxFor(u => u.id_censo)
+                            @Html.TextBoxFor(u => u.tipo_identifi_afiliado)
+                            @Html.TextBoxFor(u => u.fecha_egreso_censook)
+                            @Html.TextBoxFor(u => u.ips_primaria2)
+
+                        </td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+        </form>
+    </div>
+
+}
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_egreso_censook]').val(DataItem);
+    }
+
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+

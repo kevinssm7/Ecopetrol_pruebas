@@ -1,0 +1,315 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PDFCierreContable</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div style="margin-top:5%">
+            <table border="2px" style="width:100%">
+                <tr>
+                    <td rowspan="3">
+
+                        <img src="~/Resources/Ecopetrol-logo.jpg" />
+                    </td>
+                    <td colspan="3" class="Titulos">FORMATO CONFIRMACIÓN CIERRE CONTABLE FACTURACIÓN</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="Titulos">
+                        GESTIÓN DE SALUD INTEGRAL DIRECCIÓN DE HSE
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="Titulos">GSI-F-032</td>
+                    <td class="Titulos">
+                        Elaborado
+                        14/08/2014
+                    </td>
+                    <td class="Titulos">Versión: 1</td>
+                </tr>
+                <tr>
+                    <td class="subtitulos" colspan="4">Para información adicional sobre este formato tener en cuenta el documento GSI-G-007: Guía para el trámite de cuentas por pagar de servicios de salud.</td>
+                </tr>
+            </table>
+            <br /><br />
+
+            <table border="1" style="width:100%">
+                <tr>
+                    <td style="font-weight:bold" colspan="2">Regional de salud: </td>
+                    <td style="font-weight:bold" colspan="2">@ViewBag.regional</td>
+                </tr>
+                <tr>
+                    <td colspan="4">Periodo</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:bold">Desde</td>
+                    <td>@ViewBag.periododesde</td>
+                    <td>Hasta</td>
+                    <td style="font-weight:bold">@ViewBag.periodohasta</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Cierre Contable: </td>
+                    <td colspan="2"></td>
+                </tr>
+            </table>
+            <br /><br />
+
+            <table border="2px" style="width:100%">
+                <tbody>
+                    <tr class="background">
+                        <th class="text-center">DESCRIPCIÓN</th>
+                        <th class="text-center">CANTIDAD</th>
+                        <th class="text-center">VALOR</th>
+                        <th class="text-center">% Cantidad</th>
+                    </tr>
+                    @{double totalporcentaje = 0;}
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_totales_cierre_contable item in ViewBag.listatotales)
+                    {
+                        if (item.Tipo_factura.Contains("MES_ANTERIOR") || item.Tipo_factura.Contains("RADICADAS"))
+                        {
+                            double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidad1) * 100);
+                            double a = (porcentaje % 1);
+                            totalporcentaje += porcentaje;
+                            if (a < 0.5)
+                            {
+                                porcentaje = Math.Round(porcentaje);
+                            }
+                            else
+                            {
+                                porcentaje = Math.Ceiling(porcentaje);
+                            }
+                            
+                            <tr>
+                                <td>Facturas @item.Tipo_factura.ToLower()</td>
+                                <td class="text-center">@item.cantidad</td>
+                                <td class="text-right">@item.valor_total.Value.ToString("C")</td>
+                                <td class="text-center">@porcentaje%</td>
+                            </tr>
+                        }
+
+                    }
+                    <tr class="background">
+                        <th>SubTotal de Facturas</th>
+                        <th class="text-center">@ViewBag.cantidad1</th>
+                        <th class="text-right">@ViewBag.totalfacturas1</th>
+                        <th class="text-center">@totalporcentaje%</th>
+                    </tr>
+
+                    @{ totalporcentaje = 0;}
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_totales_cierre_contable item in ViewBag.listatotales)
+                    {
+                        if (!item.Tipo_factura.Contains("MES_ANTERIOR") && !item.Tipo_factura.Contains("RADICADAS"))
+                        {
+                            double porcentaje = (((double)item.valor_total.Value / (double)ViewBag.totalfacturas2) * 100);
+                            double a = (porcentaje % 1);
+                            totalporcentaje += porcentaje;
+                            if (a < 0.5)
+                            {
+                                porcentaje = Math.Round(porcentaje);
+                            }
+                            else
+                            {
+                                porcentaje = Math.Ceiling(porcentaje);
+                            }
+                            
+                            <tr>
+                                <td>Facturas @item.Tipo_factura.ToLower()</td>
+                                <td class="text-center">@item.cantidad</td>
+                                <td class="text-right">@item.valor_total.Value.ToString("C")</td>
+                                <td class="text-center">@porcentaje%</td>
+                            </tr>
+                        }
+
+                    }
+                    <tr class="background">
+                        <th>SubTotal de Facturas</th>
+                        <th class="text-center">@ViewBag.cantidad2</th>
+                        @{ double totalfactura2 = (double)ViewBag.totalfacturas2; }
+                        <th class="text-right">@totalfactura2.ToString("C")</th>
+                        <th class="text-center">
+                            @if ((int)ViewBag.cantidad1 == (int)ViewBag.cantidad2)
+                            {
+                                <p>Cumple cifra de control</p>
+                            }
+                            else
+                            {
+                                <p>No cumple cifra de control</p>
+                            }
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+            <br /><br />
+            <table border="2px" style="width:100%">
+                <tr class="background">
+                    <td colspan="4" class="Titulos">Causas Facturas Rechazadas y Pendientes</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="subtitulos">Rechazadas</td>
+                </tr>
+                <tr class="background">
+                    <th class="text-center">CAUSA</th>
+                    <th class="text-center">CANTIDAD</th>
+                    <th class="text-center">VALOR</th>
+                    <th class="text-center">% Cantidad</th>
+                </tr>
+                @{ totalporcentaje = 0;}
+                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_causas_facturas item in ViewBag.listaCausasRechazadas)
+                {
+                    double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidadrechazadas) * 100);
+                    double a = (porcentaje % 1);
+                    totalporcentaje += porcentaje;
+                    if (a < 0.5)
+                    {
+                        porcentaje = Math.Round(porcentaje);
+                    }
+                    else
+                    {
+                        porcentaje = Math.Ceiling(porcentaje);
+                    }
+
+
+                    <tr>
+                        <td>@item.motivo_rechazo.ToUpperInvariant()</td>
+                        <td class="text-center">@item.cantidad</td>
+                        <td class="text-right">@item.valor.Value.ToString("C")</td>
+                        <td class="text-center">@porcentaje%</td>
+                    </tr>
+                }
+                <tr class="background">
+                    <th>Total</th>
+                    <th class="text-center">@ViewBag.cantidadrechazadas</th>
+                    <th class="text-right">@ViewBag.totallistarechazadas</th>
+                    <th class="text-center">@totalporcentaje%</th>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Titulos">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="subtitulos">Pendientes</td>
+                </tr>
+                <tr class="background">
+                    <th class="text-center">CAUSA</th>
+                    <th class="text-center">CANTIDAD</th>
+                    <th class="text-center">VALOR</th>
+                    <th class="text-center">% Cantidad</th>
+                </tr>
+                @{ totalporcentaje = 0;}
+                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_causas_facturas item in ViewBag.listaCausasPendientes)
+                {
+                    double porcentaje = ((item.cantidad.Value / (double)ViewBag.cantidadpendientes) * 100);
+                    double a = (porcentaje % 1);
+                    totalporcentaje += porcentaje;
+                    if (a < 0.5)
+                    {
+                        porcentaje = Math.Round(porcentaje);
+                    }
+                    else
+                    {
+                        porcentaje = Math.Ceiling(porcentaje);
+                    }
+                    
+                    <tr>
+                        <td>@item.motivo_rechazo.ToUpperInvariant()</td>
+                        <td class="text-center">@item.cantidad</td>
+                        <td class="text-right">@item.valor.Value.ToString("C")</td>
+                        <td class="text-center">@porcentaje%</td>
+                    </tr>
+                }
+                <tr class="background">
+                    <th>Total</th>
+                    <th class="text-center">@ViewBag.cantidadpendientes</th>
+                    <th class="text-right">@ViewBag.totallistapendientes</th>
+                    <th class="text-center">@totalporcentaje%</th>
+                </tr>
+            </table>
+            <br /><br />
+            <div style="min-width:100%; padding-bottom:15%">
+                <div class="caja" style="min-width:45%">
+                    <input style="margin-bottom:10px" type="text" class="firma" /><br />
+                    <label class="text-secondary_asalud">NORALBA MANCILLA GARRIDO</label><br />
+                    <label class="text-secondary_asalud" style="font-weight:normal">E0917144</label>
+                </div>
+                <div class="caja pull-right" style="min-width:45%">
+                    <input style="margin-bottom:10px" type="text" class="firma" />
+                    <label class="text-secondary_asalud">MARTHA VELEZ GARCIA</label><br />
+                    <label class="text-secondary_asalud" style="font-weight:normal">E0948492</label>
+                </div>
+            </div>
+
+            <div style="width:100%">
+                <h4 style="font-weight:bold">Nota:</h4>
+                <ul>
+                    <li>Facturas Radicadas: Son el número de facturas recibidas en el mes vigente</li>
+                    <li>Facturas Causadas: Son el número de facturas exitosamente causadas de las que se recibieron en el mes vigente</li>
+                    <li>Facturas Devueltas: Son el número de facturas devueltas a los proveedores de las que se recibieron en el mes vigente</li>
+                    <li>Facturas Rechazadas: Son el número de facturas con rechazo (interfaz SUIS-SAP) de las recibidas en el mes vigente</li>
+                    <li>Facturas Pendientes: Son el número de facturas en físico que quedaron pendientes por causar en el mes vigente</li>
+                    <li>Cifra de Control: Facturas Radicadas= Facturas Causadas + Facturas Devueltas + Facturas Rechazadas + Facturas Pendientes.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <footer style="text-align:justify">
+        <p>Todos los derechos reservados para Ecopetrol S.A. Ninguna reproducción externa copia o transmisión digital de esta publicación puede ser hecha sin permiso escrito. Ningún párrafo de esta publicación puede ser reproducido, copiado o transmitido digitalmente sin un consentimiento escrito o de acuerdo con las leyes que regulan los derechos de autor y con base en la regulación vigente.</p>
+    </footer>
+</body>
+
+</html>
+
+
+<style>
+    .Titulos {
+        align-content: center !important;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .subtitulos {
+        font-weight: normal;
+        text-align: center;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+
+    .text-right {
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    .container {
+        width: 970px;
+        padding-bottom: 5%;
+    }
+
+    .background {
+        background-color: #789EE3;
+        border-color: black;
+    }
+
+    .firma {
+        width: 100%;
+        height: 30px;
+        border-bottom: 1px solid black;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+
+    .caja {
+        float: left;
+        margin-left: 5px;
+    }
+
+    .panel-default > .panel-heading {
+        background-image: none !important;
+        background-color: #16365c !important;
+        color: white !important;
+    }
+</style>

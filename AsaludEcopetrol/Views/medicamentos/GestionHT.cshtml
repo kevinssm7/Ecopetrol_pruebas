@@ -1,0 +1,216 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Medicamentos.GestionTablero
+@{
+    ViewBag.Title = "GESTION HT";
+}
+<br />
+<br />
+
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4><span class="text-secondary_asalud">ITEMS QUE INCUMPLEN</span></h4>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8">
+
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+
+                                <th class="text-center th" style='display:none;'>ID CENSO</th>
+                                <th class="text-center th">ITEMS</th>
+                                <th class="text-center th">OBSERVACION</th>
+
+                            </tr>
+
+                            @foreach (var order in Model.ListaHerramientasSinCumplir)
+                            {
+
+                                <tr>
+
+                                    <td style='display:none;'>@order.id_herramienta_tec_med</td>
+                                    <td>@order.DESCRIPCION</td>
+                                    <td>@order.observaciones</td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+
+
+
+            <form id="frm-alumno">
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_hallazgo)</span></h4>
+                        @Html.DropDownListFor(model => model.tipo_hallazgo, new SelectList(Model.GETTipoHallazgo, "id_tipo_hallazgo", "tipo"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.tipo_hallazgo, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.soporte)</span></h4>
+                        @Html.TextAreaFor(p => p.soporte, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.soporte, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-4">
+
+                        <div class="demo-section k-content">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_limite_respuesta)</span></h4>
+                            @Html.EditorFor(model => model.fecha_limite_respuesta, new { htmlAttributes = new { @class = "form-control datepicker", @type = "date" } })
+                            @Html.ValidationMessageFor(u => u.fecha_limite_respuesta, null, new { @class = "label label-danger" })
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.plan_mejora)</span></h4>
+                        @Html.TextAreaFor(p => p.plan_mejora, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.plan_mejora, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+                <div style="display:none">
+                    @Html.TextBoxFor(u => u.id_herramienta_tec_med)
+                    @Html.TextBoxFor(u => u.tabla)
+                </div>
+
+
+
+                <br />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                    </div>
+                    <div class="col-sm-4">
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </fieldset>
+
+
+}
+
+
+<script>
+
+
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+
+    });
+
+
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_limite_respuestaok]').val(DataItem);
+
+    }
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 50px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>
+

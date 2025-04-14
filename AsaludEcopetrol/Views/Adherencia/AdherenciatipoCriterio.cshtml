@@ -1,0 +1,198 @@
+﻿@{
+    ViewBag.Title = "CONFIGURACIÓN TIPOS DE CRITERIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    List<ECOPETROL_COMMON.ENTIDADES.adh_criterio> lst = (List<ECOPETROL_COMMON.ENTIDADES.adh_criterio>)ViewBag.criterios;
+}
+
+<br />
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">Criterios adherencia @ViewBag.nomcohorte</strong>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tipo Criterio</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.adh_tipocriterio item in ViewBag.adh_tipoadherencia)
+                            {
+                                <tr>
+                                    <td>@item.ref_adh_tipo_criterio.nom_tipo_criterion</td>
+                                    <td class="text-center"><a role="button" class="btn button_Asalud_Aceptar btn-sm" href="@Url.Action("CriteriosCohorte","Adherencia",new {idtipocohorte = item.id_tipo_cohorte, tipocriterio = item.id_tipo_criterio })">Configurar Criterios</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center">
+                    <a href="@Url.Action("ConfiguracionAdherencia","Adherencia")" role="button" class="btn button_Asalud_Rechazar">Volver</a>
+                </div>
+                <br />
+            </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function ()
+    {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9,.]/g, '');
+        });
+    })
+
+    function activarcampo(i)
+    {
+        var html = "<a href='javascript:GuardarCampo(" + i + ")' style='color:black'><i class='glyphicon glyphicon-floppy-disk'></i></a>";
+        var valor = $("#txtpeso_" + 1).val();
+        if (valor == "")
+        {
+            $("#txtpeso_" + 1).val(0);
+        }
+        $("#txtpeso_" + i).prop('readonly', false);
+        $("#btneditar_" + i).empty();
+        $("#btneditar_" + i).html(html);
+    }
+
+    function GuardarCampo(i)
+    {
+        var html = "<a href='javascript:activarcampo(" + i + ")' style='color:black'><i class='glyphicon glyphicon-pencil'></i> </a>";
+        var peso = $("#txtpeso_" + i).val();
+        var idtipocohorte = $("#idtipocohorte_" + i).val();
+        var idtipocriterio = $("#idtipocriterio_" + i).val();
+
+        if (peso != "")
+        {
+            if (peso >= 0)
+            {
+                $.ajax({
+                    url: "@Url.Action("GuardarCofiguracioncriterio")",
+                    type: "post",
+                    data: {
+                        idtipocohorte: idtipocohorte,
+                        idtipocriterio: idtipocriterio,
+                        peso: peso
+                    },
+                    success: function (data)
+                    {
+                        if (data.rta == 1)
+                        {
+                            $("#txtpuntajetotal").text(data.puntajetotal + "%");
+                            $("#txtpeso_" + i).prop('readonly', true);
+                            $("#btneditar_" + i).empty();
+                            $("#btneditar_" + i).html(html);
+                        }
+                        else
+                        {
+                            Swal.fire(
+                                'Algo ha salido mal.',
+                                'El puntaje total no puede ser mayor al 100%',
+                                'error'
+                            )
+                        }
+
+                    }
+                })
+            }
+            else {
+                alert("El peso general de este capitulo no puede ser menor al 0%");
+
+            }
+        } else {
+            alert("Es necesario digitar el peso del tipo de criterio");
+        }
+
+    }
+
+</script>
+
+<style>
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+</style>

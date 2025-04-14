@@ -1,0 +1,123 @@
+﻿<div class="table-responsive">
+    <table class="tableVer table-bordered table-striped" style="font-size:10px; width:97%;" >
+        <thead>
+            <tr>
+                <th>Tipo patología catastrófica </th>
+                <th>Tipo hospitalización</th>
+                <th>Condición estancia prolongada</th>
+                <th>Pertinencia estancia prolongada</th>
+                <th>Tipo médico admin</th>
+                <th>Responsable no pertinencia</th>
+                <th>Causal no pertinencia</th>
+                <th>Observaciones</th>
+                <th>Num días no pertinentes</th>
+                <th>Vlr aproximado pertinencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.conteo > 0)
+            {
+                foreach (ECOPETROL_COMMON.ENTIDADES.management_egresos_verCategorizacionResult item in ViewBag.dato)
+                {
+                    <tr>
+                        <td>@item.descripcionpatologiaCatastrofica</td>
+                        <td>@item.descripcion_tipoHospitalizacion</td>
+                        <td>@item.descripcionCondicion_ep</td>
+                        <td>@item.id_pertinencia_estancia_prolongada</td>
+                        <td>@item.tipo_medico_admin</td>
+                        <td>@item.responsable_no_pertinencia</td>
+                        <td>@item.causal_no_pertinencia</td>
+                        <td>@item.observaciones</td>
+                        <td>@item.num_dias_no_pertinentes</td>
+                        <td>@item.valor_aprox_pertinencia</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="14" style="text-align:center; font-size:14px"> SIN REGISTROS </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        mostrarTablaS();
+
+    });
+
+    debugger
+    function mostrarTablaS() {
+
+        $('.tableVer').DataTable().destroy();
+
+        $('.tableVer').DataTable({
+            "searching": true,
+            "idisplaylength": 10,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+    
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

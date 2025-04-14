@@ -1,0 +1,535 @@
+﻿@{
+    ViewBag.Title = "TABLERO EVENTOS EN SALUD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    //int conteoResultados = ViewBag.conteo;
+    string msg = ViewBag.msg;
+    int? rta = ViewBag.rta;
+}
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        @if (rta > 0)
+        {
+            <div class="form-group">
+                @if (rta == 1)
+                {
+                    <div class="alert alert-success">
+                        <strong>Éxito!</strong> @msg
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        <strong>Error!</strong> @msg
+                    </div>
+                }
+            </div>
+            <br />
+        }
+
+        <strong class="text-primary-Asalud">FILTROS</strong>
+    </div>
+
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroEventos">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Año:</label>
+                    <select id="año" name="año" class="form-control">
+                        <option value="">-Seleccione--</option>
+                        @foreach (var item in ViewBag.años)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Mes:</label>
+                    <select class="form-control select2" id="mes" name="mes">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                        {
+                            <option value="@item.id_mes">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+                <br />
+
+                <div class="col-md-4">
+                    <button class="btn button_Asalud_Aceptar" type="submit">BUSCAR</button>
+                </div>
+            </div>
+            <br />
+        </form>
+
+        @if (ViewBag.conteo > 0)
+        {
+            <div class="col-md-12 text-right">
+                <button role="button" onclick="ExportarDatosEventos();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar datos</button>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">DATOS</strong>
+    </div>
+    <div class="panel-body">
+        <div>
+
+            <table id="tabla" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ítem</th>
+                        <th class="text-center">Dependencia de salud</th>
+                        <th class="text-center">Año</th>
+                        <th class="text-center">Mes</th>
+                        <th class="text-center">Consecutivo</th>
+                        <th class="text-center">Fecha de reporte</th>
+                        <th class="text-center">Fecha de ocurrencia del evento</th>
+                        <th class="text-center">Localidad de servicios de salud</th>
+                        <th class="text-center">Fuente del reporte</th>
+                        <th class="text-center">Reportante (nombre de quien realiza el reporte)</th>
+                        <th class="text-center">Nombre de municipio  donde ocurrio el evento</th>
+                        <th class="text-center">Código municipal donde ocurrio el evento</th>
+                        <th class="text-center">Reportante (identificación de  quien realiza el reporte</th>
+                        <th class="text-center">Ámbito de ocurrencia del evento </th>
+                        <th class="text-center">Nombre del prestador en donde ocurrió el evento adverso</th>
+                        <th class="text-center">Nit del nombre del prestador en donde ocurrió el evento adverso</th>
+                        <th class="text-center">Número de identificación del prestador (código SAP)</th>
+                        <th class="text-center">Tipo de identificación del beneficiario afectado</th>
+                        <th class="text-center">Número de identificación del beneficiario</th>
+                        <th class="text-center">Nombre del beneficiario</th>
+                        <th class="text-center">Edad del beneficiario </th>
+                        <th class="text-center">Descripción del evento</th>
+                        <th class="text-center">Clasificación del evento de la atención en salud</th>
+                        <th class="text-center">Categoría del evento</th>
+                        <th class="text-center">Subcategoría del evento</th>
+                        <th class="text-center">Resultado negativo de la medicación</th>
+                        <th class="text-center">Confirmación evento (prevenible /no prevenible)</th>
+                        <th class="text-center">Severidad del desenlace</th>
+                        <th class="text-center">Probabilidad de repetición</th>
+                        <th class="text-center">Concepto auditoría</th>
+                        <th class="text-center">Gestión de la gestoría integral de la calidad</th>
+                        <th class="text-center">Plan de mejora al prestador (si o no)</th>
+                        <th class="text-center">Fecha radicación del plan de mejora. </th>
+                        <th class="text-center">Fecha programada para revisión de plan de mejora. </th>
+                        <th class="text-center">Costo de no calidad</th>
+                        <th class="text-center">Descripción de costo de no calidad</th>
+                        <th class="text-center">Seguimiento</th>
+                        <th class="text-center">Novedad</th>
+                        <th class="text-center">Regional</th>
+                        <th class="text-center">Nacional</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.conteo > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_eventosSalud_tableroResult item in ViewBag.listadoEventos)
+                        {
+                            <tr>
+                                <td class="text-center">@item.id_evento</td>
+                                <td class="text-center">@item.dependencia_de_salud</td>
+                                <td class="text-center">@item.anio</td>
+                                <td class="text-center">@item.mes</td>
+                                <td class="text-center">@item.consecutivo</td>
+                                @if (item.fecha_de_reporte != null)
+                                {
+                                    <td class="text-center">@item.fecha_de_reporte.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_de_reporte</td>
+                                }
+
+
+                                @if (item.fecha_de_ocurrencia_del_evento != null)
+                                {
+                                    <td class="text-center">@item.fecha_de_ocurrencia_del_evento.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_de_ocurrencia_del_evento</td>
+                                }
+
+
+                                <td class="text-center">@item.localidad_de_servicios_de_salud</td>
+                                <td class="text-center">@item.fuente_del_reporte</td>
+                                <td class="text-center">@item.reportante_nombre_de_quien_realiza_el_reporte</td>
+                                <td class="text-center">@item.nombre_de_municipio_donde_ocurrio_el_evento</td>
+                                <td class="text-center">@item.codigo_municipal_donde_ocurrio_el_evento</td>
+                                <td class="text-center">@item.reportante_identificacion_de_quien_realiza_el_reporte</td>
+                                <td class="text-center">@item.ambito_de_ocurrencia_del_evento</td>
+                                <td class="text-center">@item.nombre_del_prestador_en_donde_ocurrio_el_evento_adverso</td>
+                                <td class="text-center">@item.nit_del_prestador_en_donde_ocurrio_el_evento_adverso</td>
+                                <td class="text-center">@item.numero_de_identificacion_del_prestador_codigo_sap</td>
+                                <td class="text-center">@item.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento</td>
+                                <td class="text-center">@item.numero_de_identificacion_del_beneficiario</td>
+                                <td class="text-center">@item.nombre_del_beneficiario</td>
+                                <td class="text-center">@item.edad_del_beneficiario</td>
+                                <td class="text-center">@item.descripcion_del_evento</td>
+                                <td class="text-center">@item.clasificacion_del_evento_de_la_atencion_en_salud</td>
+                                <td class="text-center">@item.categoria_del_evento</td>
+                                <td class="text-center">@item.subcategoria_del_evento</td>
+                                <td class="text-center">@item.resultado_negativo_de_la_medicacion</td>
+                                <td class="text-center">@item.confirmacion_evento_prevenible_no_prevenible</td>
+                                <td class="text-center">@item.severidad_del_desenlace</td>
+                                <td class="text-center">@item.probabilidad_de_repeticion</td>
+                                <td class="text-center">@item.concepto_auditoria</td>
+                                <td class="text-center">@item.gestion_de_la_gestoria_integral_de_la_calidad</td>
+                                <td class="text-center">@item.plan_de_mejora_al_prestador_si_o_no</td>
+
+                                @if (item.fecha_radicacion_del_plan_de_mejora != null)
+                                {
+                                    <td class="text-center">@item.fecha_radicacion_del_plan_de_mejora.Value.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_radicacion_del_plan_de_mejora</td>
+                                }
+
+                                @if (item.fecha_programada_para_revision_de_plan_de_mejora != null)
+                                {
+                                    <td class="text-center">@item.fecha_programada_para_revision_de_plan_de_mejora.Value.ToString("dd/MM/yyyy")</td>
+
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.fecha_programada_para_revision_de_plan_de_mejora</td>
+
+                                }
+                                <td class="text-center">@item.costo_de_no_calidad</td>
+                                <td class="text-center">@item.descripcion_de_costo_de_no_calidad</td>
+                                <td class="text-center">@item.seguimiento</td>
+                                <td class="text-center">@item.novedades</td>
+
+                                <td style="text-align:center;">
+
+                                    @if (ViewBag.rol == "1")
+                                    {
+                                        <a title="Editar" class="btn-sm button_Asalud_Aceptar" onclick="EditarRegistro(@item.id_evento, 1)">
+                                            Editar
+                                        </a>
+                                    }
+                                </td>
+                                <td style="text-align:center;">
+                                    @if (ViewBag.rol == "1")
+                                    {
+                                        if (item.edicion_regional != null && item.edicion_regional != 0)
+                                        {
+                                            <a title="Editar" class="btn-sm button_Asalud_Aceptar" onclick="EditarRegistro(@item.id_evento, 2)">
+                                                Editar
+                                            </a>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function ExportarDatosEventos() {
+        var URL2 = "@Url.Action("ExportarDatosEventos", "EventosSalud")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function EditarRegistro(idEvento, tipoActualizacion) {
+        var confirmar = confirm("¿Seguro(a) de editar este registro?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("CargueEventos", "EventosSalud")?idEvento=" + idEvento + "&tipoActualizacion=" + tipoActualizacion;
+        }
+    }
+
+
+    function CargarUnis(a) {
+        debugger
+
+        if (a != "") {
+            $("#unis").empty();
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").html(data);
+                    $("#unis").val("").trigger("change");
+                }
+            })
+        }
+    }
+</script>
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

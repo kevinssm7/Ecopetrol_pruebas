@@ -1,0 +1,225 @@
+﻿@model AsaludEcopetrol.Models.ConsultaAfiliado.ConsultaAfiliado
+@{
+    ViewBag.Title = "BUSCAR USUARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm())
+{
+
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">CONSULTAR</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <div id="pnlPrincipal" class="General">
+                    <div class="row" style="margin-left:30%;">
+                        @if (Model.LstConcurrencia.Count == 0)
+                        {
+                            <div class="col-md-5">
+                                @Html.RadioButtonFor(model => model.Items, "1", new { @onclick = "mostrar()" })
+                                @Html.Label("DOCUMENTO")
+                            </div>
+                            <div class="col-md-5">
+                                @Html.RadioButtonFor(model => model.Items, "2", new { @onclick = "mostrar1()" })
+                                @Html.Label("ID  CRITERIO INGRESO")
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div id='pnlBusquedaDocumento' style='display:none; text-align:center;' class="text-center">
+
+
+                    <div class="row" style="text-align:center; position:center; margin-left:10%;">
+                        <div class="col-md-4">
+                            <h4><span class="text-secondary_asalud">@Html.Label("TIPO IDENTIFICACIÓN")</span></h4>
+                            @Html.DropDownListFor(model => model.IdSeleccionado, new SelectList(Model.ListTipoDoc, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(u => u.IdSeleccionado, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-md-4">
+                            <h4><span class="text-secondary_asalud">@Html.Label("NUMERO IDENTIFICACIÓN")</span></h4>
+                            @Html.TextBoxFor(p => p.numeroIdentificacion, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.numeroIdentificacion)
+                        </div>
+                        <br />
+                        <br />
+
+                        <div class="col-md-2">
+                            <input id="BtnBuscarDocumento" type="submit" value="BUSCAR" class="btn button_Asalud_Aceptar" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id='BusquedaID' style='display:none; text-align:center; margin-left:20%;' class="General text-center">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><span class="text-secondary_asalud">@Html.Label("ID CRITERIO DE INGRESO")</span></h4>
+                            @Html.TextBoxFor(p => p.id_concurrencia, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.id_concurrencia)
+                        </div>
+                        <br />
+                        <br />
+                        <br />
+
+                        <div class="col-md-2">
+                            <input id="BtnBuscarId" type="submit" value="BUSCAR" class="btn button_Asalud_Aceptar" />
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.LstConcurrencia != null && Model != null && Model.LstConcurrencia.Count != 0)
+                {
+                    <div id='resultado' class="General">
+                        <table class="tableDatos2 table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center th">ID</th>
+                                    <th class="text-center th">NOMBRE</th>
+                                    <th class="text-center th">FECHA INGRESO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.LstConcurrencia)
+                                {
+                                    <tr>
+                                        <td class="text-center td">
+                                            @item.id_concurrencia
+                                        </td>
+                                        <td class="text-center td">
+                                            @item.afi_nom
+                                        </td>
+                                        <td class="text-center td">
+                                            @item.fecha_ingreso
+                                        </td>
+                                        <td class="text-center td">
+                                            @Html.ActionLink("Ver", "Evolucion", "Evolucion", new { idConcu = item.id_concurrencia }, null)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    });
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

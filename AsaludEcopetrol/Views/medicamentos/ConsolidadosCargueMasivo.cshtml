@@ -1,0 +1,202 @@
+﻿
+@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.ConsultaMed
+@{
+    ViewBag.Title = "CONSULTAS CARGUE MASIVO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+<div id="divEmployee">
+    <br />
+    <a  class="btn btn-success" href="@Url.Action("Download", "medicamentos", new { fechainicial = @ViewBag.fecha_inicial, fechafinal = @ViewBag.fecha_final})">
+        Reporte Excel
+        <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+    </a>
+      
+    <a class="btn btn-primary" href="@Url.Action("Downloadtxt", "medicamentos", new { fechainicial = @ViewBag.fecha_inicial, fechafinal = @ViewBag.fecha_final})">
+        Reporte Archivo Plano
+        <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+    </a>
+
+    <br /><br />
+   
+    <div class="gj-clear-both"></div>
+    <div class="gj-margin-top-10">
+        <table id="grid"></table>
+    </div>
+  
+    <form id="formconsolidadosttos1" method="post" enctype="multipart/form-data" action="@Url.Action("CrearConsolidadottosExcel", "medicamentos")">
+    </form>
+
+    <div style="display:none">
+        <input class="form-control" type="text" name="numero_formula" id="numero_formula" value="@ViewBag.numero_formula" />
+        <input class="datepickerr" title="datepicker" value="@ViewBag.fecha_inicial" style="width: 100%" name="fechainicial" id="fechainicial" />
+        <input class="datepickerr" title="datepicker" value="@ViewBag.fecha_final" style="width: 100%" name="fecha_final" id="fecha_final" />
+
+    </div>
+    <div style="display:none">
+        @Html.TextBoxFor(u => u.fecha_inicialM)
+        @Html.TextBoxFor(u => u.fecha_finalM)
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+ 
+    $(document).ready(function () {
+
+        //var textBox1 = $("#fecha_inicial").val()
+        //var value1 = textBox1.val();
+
+        //var textBox2 = $("#fecha_final").val()
+        //var value2 = textBox2.val();
+
+
+
+        var textBox1 = $('input:text[id$=fecha_inicialM]').keyup();
+        var value1 = 1;
+
+        var textBox2 = $('input:text[id$=fecha_finalM]').keyup();
+        var value2 = 2;
+
+        var grid;
+        var data =
+
+            grid = $('#grid').grid({
+
+                locale: 'es-es',
+                dataSource: '/medicamentos/GetConsolidado/' + value1 + "?id2=" + value2,
+                uiLibrary: 'bootstrap4',
+                primaryKey: 'numero_formula',
+
+                columns: [
+
+                    { field: 'numero_formula', title: 'Numero Formula', width: 50 },
+                    { field: 'numero_factura', title: 'Numero Factura', width: 50 },
+                    { field: 'regional', title: 'Regional', width: 50 },
+                    { field: 'ciudad', title: 'Ciudad', width: 50 },
+                    { field: 'tipo_documento', title: 'Tipo Documento', width: 50 },
+                    { field: 'doc_beneficiario', title: 'Documento', width: 50 },
+                    { field: 'nombre_beneficiario', title: 'Nombre', width: 50 },
+                    { field: 'presentacion', title: 'Presentacion', width: 50 },
+                    { field: 'cat_entregada', title: 'Cat entregada', width: 50 },
+                    { field: 'cod_comercial', title: 'Codigo Comercial', width: 50 },
+                    { field: 'nombre_comercial', title: 'Nombre Comercial', width: 50 },
+                    { field: 'nombre_laboratorio', title: 'Nombre Laboratorio', width: 50 },
+
+
+                ],
+                pager: { limit: 5 }
+
+            });
+              
+    })
+
+</script>
+
+
+<style>
+    #DataTables_Table_0_filter input[type="search"] {
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #A8A7A7;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #1B1B1B;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+

@@ -1,0 +1,133 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO OPORTUNIDAD SEGUIMIENTO ENTREGABLES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">TABLERO DE OPORTUNIDAD</strong>
+    </div>
+    <div class="panel-body">
+        
+        <div id="divTableroOportunidadSeguimientoEntregables">
+
+            <div class="row">
+                <div class="col-sm-6 form-group">
+                    <label class="control-label text-secondary_asalud">Seleccionar tipo de informe:</label>
+                    <select id="selecInforme" name="selecInforme" class="form-control" onchange="MotrarInforme()">
+                        <option value="">- Seleccionar -</option>
+                        <option value="1">Medición de oportunidad y calidad.</option>
+                        <option value="2">Indicadores de gestión</option>
+                        <option value="3">Promedio tiempo de entrega</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="panel-group" id="divContenidoInformesEntregables">
+                <center><h4 class="text-secondary_asalud">Debe seleccionar un tipo de informe para porder ver resultados.</h4></center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+    })
+
+    function BuscarResultados()
+    {
+        var usuario = $("#personaResponsable").val();
+        var periodicidad = $("#periodicidad").val();
+        var tipoEntregable = $("#tipoEntregable").val();
+        var año = $("#año").val();
+        LoadingShow();
+        $("#divContenidoInformesEntregables").empty();
+        $("#divContenidoInformesEntregables").load("@Url.Action("GetResultTableroOportunidadEntregables", "SeguimientoEntregables")?personaResponsable=" + usuario + "&tipoEntregable=" + tipoEntregable + "&periodicidad=" + periodicidad + "&año=" + año, function () {
+            LoadingHide();
+        });
+    }
+
+
+    function MotrarInforme()
+    {
+        $("#divContenidoInformesEntregables").empty();
+        var seleccionInforme = $("#selecInforme").val();
+        if (seleccionInforme != "") {
+            switch (seleccionInforme) {
+                case "1":
+                    LoadingShow();
+                    $("#divContenidoInformesEntregables").load("@Url.Action("GetResultTableroOportunidadEntregables", "SeguimientoEntregables")", function () {
+                        LoadingHide();
+                    })
+                    break;
+                case "2":
+                     LoadingShow();
+                    $("#divContenidoInformesEntregables").load("@Url.Action("GetResultTableroIndicadoresGestionEntregables", "SeguimientoEntregables")", function () {
+                        LoadingHide();
+                    })
+                    break;
+                case "3":
+                    LoadingShow();
+                    $("#divContenidoInformesEntregables").load("@Url.Action("_IndicadoresTiemposEntregaSegEntregables", "SeguimientoEntregables")", function () {
+                        LoadingHide();
+                    })
+                    break;
+            }
+        } else {
+            var html = "<center><h4 class='text-secondary_asalud'>Debe seleccionar un tipo de informe para porder ver resultados.</h4></center>";
+            $("#divContenidoInformesEntregables").html(html);
+        }
+    }
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+</style>
+

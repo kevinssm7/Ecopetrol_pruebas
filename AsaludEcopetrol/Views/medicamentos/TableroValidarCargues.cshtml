@@ -1,0 +1,659 @@
+﻿
+@using Kendo.Mvc.UI;
+
+@model List<ECOPETROL_COMMON.ENTIDADES.md_prefacturas_cargue_base>
+@{
+    ViewBag.Title = "TABLERO DE VALIDACIÓN CARGUES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string alerta = (string)ViewData["alerta"];
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab3" data-toggle="tab">FASE 1</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">FASE 2</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1c" id="tab3" data-toggle="tab">FASE 3</a>
+        </li>
+    </ul>
+    <br />
+
+    <div class="tab-content">
+        @*<div class="row">
+                <div class="col-lg-12 text-right form-group">
+                    <a class="button_Asalud_descargas" onclick="exportarExcelTotal();" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>&nbsp; EXPORTAR DATOS</a>
+                </div>
+            </div>*@
+        <div class="tab-pane active" id="1a">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">VALIDACIÓN DE CARGUES PREFACTURAS</strong>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-condensed" style="width: 100%;" id="tblotroResponsable1">
+                        <thead>
+                            <tr style="background-color:#636363;color:white; font-weight:bold">
+                                <th>#Cargue</th>
+                                <th>Conteo</th>
+                                <th>Prestador</th>
+                                <th>Regional</th>
+                                <th>Fecha cargue</th>
+                                <th>Fecha inicio validación 1</th>
+                                <th>Usuario cargue</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteo1 != 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_validadorCarguePrefacturasResult item in ViewBag.lista1)
+                                {
+                                    <tr>
+                                        <td>@item.id_cargue_base</td>
+                                        <td>@item.conteoDatos</td>
+                                        <td>@item.Nombre</td>
+                                        <td>@item.nombre_regional</td>
+                                        <td>@item.fecha_digita</td>
+                                        <td>@item.fecha_inicio_validacion1</td>
+                                        <td>@item.nombreCreador</td>
+                                        <td class="text-center">
+
+                                            @if (item.envalidacion == 0 || item.envalidacion == null)
+                                            {
+                                                <a role="button" href="javascript:validarfacturas(@item.id_cargue_base, @item.idUsuario, @item.conteoDatos, 1)" class="btn btn-xs button_Asalud_Aceptar">
+                                                    Validar &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a role="button" class="btn btn-xs button_Asalud_Rechazar">
+                                                    Cargue en validación &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            &nbsp;
+                                            <a role="button" onclick="verLog(@item.id_cargue_base, @item.fase_validacion)" class="btn btn-xs button_Asalud_Guardar" data-toggle="modal" data-target="#myModalLog">
+                                                Log &nbsp; <i class="glyphicon glyphicon-eye-open"></i>
+                                            </a>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <a role="button" href="javascript:eliminarCargue(@item.id_cargue_base)" class="btn btn-xs button_Asalud_Rechazar">Eliminar &nbsp;<i class="glyphicon glyphicon-remove"></i> </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="12" style="text-align:center; font-size:13px;">
+                                        <label class="text-footer_asalud">NO HAY CARGUES POR VALIDAR.</label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1b">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">VALIDACIÓN DE CARGUES PREFACTURAS</strong>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-condensed" style="width: 100%;" id="tblotroResponsable2">
+                        <thead>
+                            <tr style="background-color:#636363;color:white; font-weight:bold">
+                                <th>#Cargue</th>
+                                <th>Conteo</th>
+                                <th>Prestador</th>
+                                <th>Regional</th>
+                                <th>Fecha validación 1</th>
+                                <th>Fecha inicio validación 2</th>
+                                <th>Usuario cargue</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteo2 != 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_validadorCarguePrefacturasResult item in ViewBag.lista2)
+                                {
+                                    <tr>
+                                        <td>@item.id_cargue_base</td>
+                                        <td>@item.conteoDatos</td>
+                                        <td>@item.Nombre</td>
+                                        <td>@item.nombre_regional</td>
+                                        <td>@item.fecha_inicio_validacion1</td>
+                                        <td>@item.fecha_inicio_validacion2</td>
+                                        <td>@item.nombreCreador</td>
+                                        <td class="text-center">
+
+                                            @if (item.envalidacion == 0 || item.envalidacion == null)
+                                            {
+                                                <a role="button" href="javascript:validarfacturas(@item.id_cargue_base, @item.idUsuario, @item.conteoDatos, 2)" class="btn btn-xs button_Asalud_Aceptar">
+                                                    Validar &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a role="button" class="btn btn-xs button_Asalud_Rechazar">
+                                                    Cargue en validación &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            &nbsp;
+                                            <a role="button" onclick="verLog(@item.id_cargue_base, @item.fase_validacion)" class="btn btn-xs button_Asalud_Guardar" data-toggle="modal" data-target="#myModalLog">
+                                                Log &nbsp; <i class="glyphicon glyphicon-eye-open"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="12" style="text-align:center; font-size:13px;">
+                                        <label class="text-footer_asalud">NO HAY CARGUES POR VALIDAR.</label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1c">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">VALIDACIÓN DE CARGUES PREFACTURAS</strong>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-condensed" style="width: 100%;" id="tblotroResponsable3">
+                        <thead>
+                            <tr style="background-color:#636363;color:white; font-weight:bold">
+                                <th>#Cargue</th>
+                                <th>Conteo</th>
+                                <th>Prestador</th>
+                                <th>Regional</th>
+                                <th>Fecha validación 2</th>
+                                <th>Fecha inicio validación 3</th>
+                                <th>Usuario cargue</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteo3 != 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_validadorCarguePrefacturasResult item in ViewBag.lista3)
+                                {
+                                    <tr>
+                                        <td>@item.id_cargue_base</td>
+                                        <td>@item.conteoDatos</td>
+                                        <td>@item.Nombre</td>
+                                        <td>@item.nombre_regional</td>
+                                        <td>@item.fecha_inicio_validacion2</td>
+                                        <td>@item.fecha_inicio_validacion3</td>
+                                        <td>@item.nombreCreador</td>
+                                        <td class="text-center">
+
+                                            @if (item.envalidacion == 0 || item.envalidacion == null)
+                                            {
+                                                <a role="button" href="javascript:validarfacturas(@item.id_cargue_base, @item.idUsuario, @item.conteoDatos, 3)" class="btn btn-xs button_Asalud_Aceptar">
+                                                    Validar &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a role="button" class="btn btn-xs button_Asalud_Rechazar">
+                                                    Cargue en validación &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                                </a>
+                                            }
+                                            &nbsp;
+                                            <a role="button" onclick="verLog(@item.id_cargue_base, @item.fase_validacion)" class="btn btn-xs button_Asalud_Guardar" data-toggle="modal" data-target="#myModalLog">
+                                                Log &nbsp; <i class="glyphicon glyphicon-eye-open"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="12" style="text-align:center; font-size:13px;">
+                                        <label class="text-footer_asalud">NO HAY CARGUES POR VALIDAR.</label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModalLog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoLog"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+
+
+    $(document).keydown(function (event) {
+        if (event.keyCode == 116) { // Código de tecla F5
+            event.preventDefault(); // Cancelar la acción predeterminada
+        }
+
+        if (event.keyCode === 13) {
+            event.preventDefault(); // Cancelar la acción predeterminada
+        }
+    });
+
+    $(document).ready(function () {
+
+        LoadingHide();
+
+        MostrarTabla1();
+        MostrarTabla2();
+        MostrarTabla3();
+
+    });
+
+    function MostrarTabla1() {
+        var conteo = "@ViewBag.conteo1";
+        if (conteo > 0) {
+            $('#tblotroResponsable1').DataTable().destroy();
+            $('#tblotroResponsable1').DataTable({
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTabla2() {
+        var conteo = "@ViewBag.conteo2";
+        if (conteo > 0) {
+            $('#tblotroResponsable2').DataTable().destroy();
+            $('#tblotroResponsable2').DataTable({
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTabla3() {
+        var conteo = "@ViewBag.conteo3";
+        if (conteo > 0) {
+            $('#tblotroResponsable3').DataTable().destroy();
+            $('#tblotroResponsable3').DataTable({
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+
+    function validarfacturas(idCargue, idUsuario, conteoDatos, fase) {
+
+        debugger
+        var confirma = confirm("¿Seguro(a) de validar los datos de este cargue?");
+        if (confirma == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ValidarCarguesId", "medicamentos")?idCargue=" + idCargue + "&idUsuario=" + idUsuario + "&conteoDatos=" + conteoDatos + "&fase=" + fase,
+                type: "post",
+                data: {},
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    if (response.rta == 1) {
+                        CargueExitoso(idCargue);
+                    }
+
+                    location.reload();
+                }
+            })
+        }
+    }
+
+
+    function CargueExitoso(idCargue) {
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("CargueValidadoCorrectamente", "medicamentos")?idCargue=" + idCargue,
+            type: "post",
+            data: {},
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                alert(response.mensaje);
+                LoadingHide();
+                location.reload();
+            }
+        })
+    }
+
+    function DevolverAEstadoAnterior(idCargue) {
+
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("DevolverEstadoAnterior", "medicamentos")?idCargue=" + idCargue,
+            type: "post",
+            data: {},
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                alert(response.mensaje);
+                LoadingHide();
+                location.reload();
+            }
+        })
+    }
+
+
+    function eliminarCargue(idCargue) {
+        var opcion = confirm("¿Está seguro de eliminar estos registros?");
+        if (opcion == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarCarguePrefacturas", "medicamentos")?idCargue=" + idCargue,
+                type: "post",
+                data: {},
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    console.log(response);
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+
+
+    function verLog(idCargue, fase) {
+        var laURLDeLaVista = '@Url.Action("LogValidaciones", "medicamentos")?idCargue=' + idCargue + '&fase=' + fase;
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoLog').html('');
+                $('#resultadoLog').html(response);
+            }
+        });
+    }
+
+</script>
+
+
+<style>
+    .error {
+        color: indianred;
+        font-weight: bold;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    .thEn {
+        width: 30%;
+    }
+
+    .thCa {
+        width: 70%;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>
+

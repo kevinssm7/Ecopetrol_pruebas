@@ -1,0 +1,294 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.calidad_evento_adverso>
+@{
+    ViewBag.Title = "TABLERO DE CONTROL EVENTOS ADVERSOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int conteoResultados = ViewBag.countresultados;
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE CONTROL EVENTOS ADVERSOS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroControlEventos">
+            <div class="row">
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                    <input class="datepickerr" style="width: 100%" name="FechaInicialfiltro" id="FechaInicialfiltro" />
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha final</label>
+                    <input class="datepickerr" style="width: 100%" name="FechaFinalfiltro" id="FechaFinalfiltro" />
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" style="width:100%" name="regional" id="regional">
+                        <option value="">- Seleccione -</option>
+                        @{ string reg = (string)ViewBag.reg;}
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+
+                            if (!string.IsNullOrEmpty(reg))
+                            {
+                                if (reg == item.indice)
+                                {
+                                    <option selected value="@item.indice">@item.indice</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.indice">@item.indice</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.indice">@item.indice</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Nit prestador</label>
+                    <input autocomplete="off" type="text" class="form-control solo-numero" id="nitprestador" name="nitprestador" maxlength="25" value="@ViewBag.nit" />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Nombre prestador</label>
+                    <input autocomplete="off" type="text" class="form-control" id="nomprestador" name="nomprestador" maxlength="100" value="@ViewBag.prestador" />
+                </div>
+            </div>
+
+            @if (conteoResultados == 2)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos en el periodo filtrado")</p>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Cantidad de eventos adversos por periodo: @ViewBag.registros</label>
+                </div>
+
+
+                <div class="col-sm-8 form-group text-right">
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (Model.Count > 0)
+                    {
+                        <a class="btn button_Asalud_descargas" href="@Url.Action("DescargarResultados","Insumos")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte completo</a>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Año</th>
+                    <th>Mes</th>
+                    <th>Periodo</th>
+                    <th>Localidad servicios en salud</th>
+                    <th>Reportante</th>
+                    <th>Nit prestador</th>
+                    <th>Prestador</th>
+                    <th>Regional evento</th>
+                    <th>Seguimiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.calidad_evento_adverso item in Model)
+                {
+                    <tr>
+                        <td>@item.año</td>
+                        <td>@item.mes</td>
+                        <td>@item.periodo</td>
+                        <td>@item.localidad_servicios_salud</td>
+                        <td>@item.nom_reportante</td>
+                        <td>@item.nit_prestador_ocurrencia_evento</td>
+                        <td>@item.nom_prestador_ocurrencia_evento</td>
+                        <td>@item.regional_evento</td>
+                        <td>@item.seguimiento</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#FechaInicialfiltro").change(function () {
+            var values = $(this).val();
+            if (values != "") {
+                $("#FechaFinalfiltro").prop('required', true);
+            }
+            else {
+                $("#FechaFinalfiltro").prop('required', false);
+            }
+        })
+
+        $("#FechaFinalfiltro").change(function () {
+            var values = $(this).val();
+            if (values != "") {
+                $("#FechaInicialfiltro").prop('required', true);
+            }
+            else {
+                $("#FechaInicialfiltro").prop('required', false);
+            }
+        })
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#nomprestador").autocomplete({
+            source: "/Insumos/Buscar_prestador_eventos_adversos",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nitprestador").autocomplete({
+            source: "/Insumos/Buscar_docprestador_eventos_adversos",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.documento);
+                }
+            }
+        })
+    })
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+</script>
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

@@ -1,0 +1,320 @@
+﻿
+
+
+@{
+    var numeroCaso = ViewBag.numCaso;
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">GESTIÓN REEMBOLSO</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idReembolso</label>
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="tableGestionDocumental" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Observación</th>
+                            <th class="text-center">Clase documento</th>
+                            <th class="text-center">Documento contable</th>
+                            <th class="text-center">Fecha contabilización</th>
+                            <th class="text-center">Usuario gestión</th>
+                            <th class="text-center">Fecha gestión</th>
+
+                            @if (ViewBag.rol == "1")
+                            {
+                                <th class="text-center">Eliminar</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoGestion > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_reembolsos_gestionResult item in ViewBag.listaGestion)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+
+
+                                    <td class="text-center">@item.descripcionEstado</td>
+                                    <td class="text-center">@item.observacion</td>
+                                    <td class="text-center">@item.clase_documento</td>
+                                    <td class="text-center">@item.documento_contable</td>
+                                    @if (item.fecha_contabilizacion != null)
+                                    {
+                                        <td class="text-center">@item.fecha_contabilizacion.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_contabilizacion</td>
+                                    }
+
+                                    <td class="text-center">@item.nombreGestiona</td>
+                                    <td class="text-center">@item.fecha_digita</td>
+
+                                    @if (ViewBag.rol == "1")
+                                    {
+                                        <td class="text-center">
+                                            <a class="button_Asalud_Rechazar" onclick="EliminarGestion(@item.id_detalle);">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin gestión.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="divFormulario">
+            <form id="formularioDetalle">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Estado:</label><span style="color:red"></span>
+                        <select id="estado" name="estado" class="form-control select2" onchange="MostrarDatos(this.value)" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_estado_reembolso item in ViewBag.estado)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                        <input type="hidden" id="id_reembolso" name="id_reembolso" value="@ViewBag.idReembolso" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row" id="DivOcultado" style="display:none;">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Clase documento:</label><span style="color:red"></span>
+                        <input type="text" id="clase_documento" name="clase_documento" class="form-control" onkeypress="soloLetras(event)" maxlength="49" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Documento contable:</label><span style="color:red"></span>
+                        <input type="text" id="documento_contable" name="documento_contable" class="form-control solo-numero" maxlength="19" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha contabilización:</label><span style="color:red"></span>
+                        <input class="datepickerr form-control" title="Este campo es obligatorio" style="width:100%" name="fecha_contabilizacion" id="fecha_contabilizacion" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Valor final:</label><span style="color:red"></span>
+                        <input type="text" id="valor_final" name="valor_final" class="form-control solo-numero" maxlength="9" required />
+                    </div>
+                </div>
+
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Observación:</label>
+                        <textarea id="observacion" name="observacion" class="form-control" maxlength="2999" cols="5" rows="5" required></textarea>
+                    </div>
+                </div>
+
+                <br />
+                <div class="row">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioGestion()">GUARDAR</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+
+    $(document).ready(function () {
+        $('#tableGestionDocumental').DataTable({
+            "searching": true,
+            "iDisplayLength": 10,
+            "lengthChange": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+
+    function soloLetras(evt) {
+        debugger
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if ((charCode < 65 || charCode > 90) && (charCode < 97 || charCode > 122) && charCode != 32) {
+            evt.preventDefault();
+        }
+    }
+
+
+    function MostrarDatos(dato) {
+        if (dato == 1) {
+            document.getElementById("DivOcultado").style.display = "block";
+        } else {
+            document.getElementById("DivOcultado").style.display = "none";
+        }
+    }
+
+    function ValidarformularioGestion() {
+
+        var estado = document.getElementById("estado").value;
+
+        if (estado == 1) {
+            $('#observacion').removeAttr("required");
+        } else {
+            $('#observacion').prop("required", true);
+            var observa = $("#observacion").val();
+            if (observa == "" || observa == null) {
+                alert("La observación es obligatoria.");
+                return false;
+            }
+
+        }
+
+
+
+        var validator = $("#formularioDetalle").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("id_reembolso", $("#id_reembolso").val());
+        formData.append("estado", $("#estado").val());
+        formData.append("observacion", $("#observacion").val());
+        formData.append("clase_documento", $("#clase_documento").val());
+        formData.append("documento_contable", $("#documento_contable").val());
+        formData.append("fecha_contabilizacion", $("#fecha_contabilizacion").val());
+        formData.append("unis", $("#unis").val());
+        formData.append("tipo_reembolso", $("#tipo_reembolso").val());
+        formData.append("valor_final", $("#valor_final").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarGestionReembolso", "RadicacionElectonica")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                if (data.estado == 1 || data.estado == 5) {
+                    location.reload();
+                } else {
+                    VistaGestion(data.idReembolso);
+                }
+            }
+        })
+    }
+
+
+</script>
+
+<style>
+
+    .select2-results__option {
+        font-size: 11px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>

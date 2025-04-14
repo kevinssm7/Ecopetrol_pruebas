@@ -1,0 +1,190 @@
+﻿@{
+    int[] DientesUno = new int[0];
+    if (ViewBag.listaDientesUno != null)
+    {
+        if (ViewBag.listaDientesUnoConteo > 0)
+        {
+            DientesUno = ViewBag.listaDientesUno.ToArray();
+        }
+    }
+
+    int[] DientesDos = new int[0];
+    if (ViewBag.listaDientesDos != null)
+    {
+        if (ViewBag.listaDientesDosConteo > 0)
+        {
+
+            DientesDos = ViewBag.listaDientesDos.ToArray();
+        }
+    }
+}
+
+<div class="panel-heading">
+    <strong class="text-primary_asalud">Auditoría</strong>
+</div>
+<div class="table-responsive">
+    <table class="row table table-bordered table-condensed table-striped" id="table2">
+        <thead>
+            <tr>
+                <th>ELIJA EN EL NÚMERO DE DIENTE EL TIPO DE TRATAMIENTO A AUDITAR</th>
+
+                @for (int i = 0; i < DientesUno.Length; i++)
+                {
+                    <th>@DientesUno[i]</th>
+                }
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PARAMETROS AUDITADOS</td>
+                @for (int i = 0; i < DientesUno.Length; i++)
+                {
+                    <td>
+                        <input type="hidden" value="@DientesUno[i]" id="tbl2_id_diente_@i" />
+                        <select id="tbl2_PA_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%" required>
+                            <option value="">- Ninguno -</option>
+                            @foreach (var item in Model.LIstParametrosAuditados)
+                            {
+                                <option value="@item.id_param_auditado">@item.descripcion</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>TERMINADO ( ESTETICA ADAPTACION MARGINAL )</td>
+                @for (int i = 0; i < DientesUno.Length; i++)
+                {
+                    <td>
+                        <select id="tbl2_ter_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>FUNCION ( OCLUSION, FONETICA)</td>
+                @for (int i = 0; i < DientesUno.Length; i++)
+                {
+                    <td>
+                        <select id="tbl2_fun_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+
+            <tr>
+                <td>PERTINENCIA DEL TTO REALIZADO</td>
+                @for (int i = 0; i < DientesUno.Length; i++)
+                {
+                    <td>
+                        <select id="tbl2_pert_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<hr />
+<div class="table-responsive">
+    <table class="row table table-bordered table-condensed table-striped" id="table2">
+        <thead>
+            <tr>
+                <th>ELIJA EN EL NUMERO DE DIENTE EL TIPO DE TRATAMIENTO A AUDITAR</th>
+                @for (int i = 0; i < DientesDos.Length; i++)
+                {
+                    <th>@DientesDos[i]</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PARAMETROS AUDITADOS</td>
+                @for (int i = 0; i < DientesDos.Length; i++)
+                {
+                    <td>
+                        <input type="hidden" value="@DientesDos[i]" id="tbl3_id_diente_@i" />
+                        <select id="tbl3_PA_@i" onchange="obtenervaloresDientesDos()" style="text-align-last:center; min-width:100%" required>
+                            <option value="">- Ninguno -</option>
+                            @foreach (var item in Model.LIstParametrosAuditados)
+                            {
+                                <option value="@item.id_param_auditado">@item.descripcion</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>TERMINADO ( ESTETICA ADAPTACION MARGINAL )</td>
+                @for (int i = 0; i < DientesDos.Length; i++)
+                {
+                    <td>
+                        <select onchange="obtenervaloresDientesDos()" id="tbl3_ter_@i" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>FUNCION ( OCLUSION, FONETICA)</td>
+                @for (int i = 0; i < DientesDos.Length; i++)
+                {
+                    <td>
+                        <select onchange="obtenervaloresDientesDos()" id="tbl3_fun_@i" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+
+            <tr>
+                <td>PERTINENCIA DEL TTO REALIZADO</td>
+                @for (int i = 0; i < DientesDos.Length; i++)
+                {
+                    <td>
+                        <select onchange="obtenervaloresDientesDos()" id="tbl3_pert_@i" style="text-align-last:center; min-width:100%">
+                            @foreach (var item in Model.LIstPorcentajes)
+                            {
+                                <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                            }
+                        </select>
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+    <div style="display:none">
+        <input class="form-control" type="text" name="detalle_dientes_uno" id="detalle_dientes_uno" required />
+        <input class="form-control" type="text" name="detalle_dientes_dos" id="detalle_dientes_dos" required />
+        <input class="form-control" type="text" name="alerta" id="alerta" required />
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        debugger
+        obtenervaloresDientesUno();
+        obtenervaloresDientesDos();
+    });
+</script>

@@ -1,0 +1,505 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "TABLERO CONTROL PQRS PROYECTADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+    var rta = ViewBag.rta;
+    int i = 0;
+}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@ViewBag.msj
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong>@ViewBag.msj
+            </div>
+        </div>
+    }
+
+    <div class="panel-heading">
+        <form name="formulario" id="formulariobuscar" method="post" enctype="multipart/form-data" accept-charset="@Url.Action("TableroControlProyectadas")">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número de caso</label>
+                        <input type="text" class="form-control" name="numcaso" id="numcaso" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número OPC</label>
+                        <input type="text" class="form-control" name="numopc" id="numopc" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número documento</label>
+                        <input type="text" class="form-control" name="numdocumento" id="numdocumento" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha de cierre proyectada</label>
+                        <div class="input-group">
+                            <input class="datepickerr" title="datepicker" style="width:100%" name="fechainicial" id="fechainicial" />
+                            <span class="input-group-addon" id="sizing-addon2">A</span>
+                            <input class="datepickerr" title="datepicker" style="width:100%" aria-describedby="sizing-addon2" name="fechafinal" id="fechafinal" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Id PQR</label>
+                        <input type="text" class="form-control" name="idPqr" id="idPqr" />
+                    </div>
+                </div>
+                <br />
+                <div class="col-sm-9 text-right">
+                    <button type="button" id="btnbuscar" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (ViewBag.acto > 0)
+                    {
+                        <a role="button" onclick="exportarExcel();" class="button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                    }
+                </div>
+                <br />
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed table-striped datatable1" style="width:98%; font-size:10px;">
+            <thead>
+                <tr>
+                    <th>Número caso</th>
+                    <th>Número OPC</th>
+                    <th>Ciudad</th>
+                    <th>Id solicitante</th>
+                    <th>Asignación</th>
+                    <th>Ingreso SalesForce</th>
+                    <th>Vencimiento 10 días hábiles SalesForce </th>
+                    <th>Ingreso buzón Asalud </th>
+                    <th>Vencimiento 5 días hábiles buzón Asalud </th>
+                    <th>Analista asignado</th>
+                    <th>Fecha cierre proyectada</th>
+                    <th>Repositorio</th>
+                    <th></th>
+                    <th>Reabrir</th>
+                    <th>Gestiones</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_tablero_control_proyectadasResult order in ViewBag.listaEstado)
+                {
+                    i++;
+
+                    <tr>
+                        <td>
+                            @order.numero_caso
+                            <input type="hidden" id="numeroCaso_@i" value="@order.numero_caso" />
+                        </td>
+                        <td>@order.consecutivo_caso</td>
+                        <td>@order.ciudad_del_caso_descripcion</td>
+                        <td>@order.solicitante_numero_identi</td>
+                        <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada10sales.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.fecha_respuesta_programada5Buzon.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@order.usuario_asignado_descrip</td>
+                        <td>
+                            @if (order.fecha_gestion != null)
+                            {
+                                <span>@order.fecha_gestion.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </td>
+
+                        @if (order.existeArchivosCierre == 1)
+                        {
+                            <td>
+                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@order.id_ecop_PQRS);" data-toggle="modal" data-target="#myModalArchivos">
+                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="text-center">
+                                Sin archivo
+                            </td>
+                        }
+
+                        @if (order.existeGestionAuditor != null && order.existeGestionAuditor != "")
+                        {
+                            if (order.existeGestionAuditor == "SI")
+                            {
+                                <td class="text-center">
+                                    <a href='javascript:pdfPqr(@order.id_ecop_PQRS);'>Descargar</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center">
+                                    Sin gestión auditor
+                                </td>
+                            }
+                        }
+                        else
+                        {
+                            <td class="text-center">
+                                Sin gestión auditor
+                            </td>
+                        }
+
+                        @if (ViewBag.rol == "1" || ViewBag.rol == "10")
+                        {
+                            <td>
+                                <a href='javascript:reabrir(@order.id_ecop_PQRS, @i)'>
+                                    Reabrir
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+
+                        <td>
+                            <a class="button_Asalud_Aceptar" onclick="MostrarGestiones(@order.id_ecop_PQRS);" data-toggle="modal" data-target="#myModalGestiones">
+                                <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                            </a>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:35%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:35%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalGestiones">
+    <div class="modal-dialog modal-lg" style="width:85%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoGestiones"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(window).load(function () {
+        $("#loader").fadeOut("slow");
+    });
+
+    $(document).ready(function () {
+
+        $("#btnbuscar").click(function () {
+            LoadingShow();
+            $("#formulariobuscar").submit();
+        })
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+
+     function llamarVistaParcial(A) {
+
+        var laURLDeLaVista = '@Url.Action("EnviarCaso")?ID=' + A ;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function verProyeccion(idecopPqrs) {
+
+        var URL2 = "@Url.Action("GestorUrlProyeccion", "Pqrs")?idecopPqrs=" + idecopPqrs;
+        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    function pdfPqr(idPqr)
+    {
+        var url = "@Url.Action("pdfPqr", "Pqrs")?idPqr=" + idPqr;
+          popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function verArAproyec(idPqrs) {
+
+        var URL2 = "@Url.Action("GestorUrlArchivoRespuestaProyectada", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    function reabrir(idPqrs, i) {
+
+        var numeroCaso = $("#numeroCaso_" + i).val();
+
+        var UrlVista = '@Url.Action("_reaperturaPQR", "Pqrs")';
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: UrlVista,
+            data: {
+                idPqrs: idPqrs,
+                numeroCaso: numeroCaso,
+                tipo : 1,
+            },
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+                $("#myModal2").modal('show');
+            }
+        });
+    }
+
+    function exportarExcel() {
+        var URL2 = "@Url.Action("ExportarLstpqrsProyectadas", "Pqrs")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function MostrarArchivos(idPqrs) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivosCerrado")?idPqrs=' + idPqrs + "&tipo=1";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+
+            }
+        });
+    }
+
+    function MostrarGestiones(idPqr) {
+
+         var laURLDeLaVista = '@Url.Action("MostrarGestionesPqr")?idPqr=' + idPqr;;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoGestiones').html('');
+                $('#resultadoGestiones').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>

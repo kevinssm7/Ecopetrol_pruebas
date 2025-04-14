@@ -1,0 +1,279 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasestadoResult>
+@{
+    ViewBag.Title = "TABLERO FACTURAS NO APROBADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewData["rta"];
+    string msj = (string)ViewData["msj"];
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de facturas no aprobadas</strong>
+    </div>
+    <div class="panel-body">
+        @if (rta != 0)
+        {
+            <div>
+                @if (rta == 1)
+                {
+                    <div class="alert alert-success" role="alert">@msj</div>
+                }
+                else
+                {
+                    <div class="alert alert-danger" role="alert">@msj</div>
+                }
+            </div>
+        }
+        <div class="table-responsive">
+            <table class="table table-bordered table-condensed table-striped ">
+                <thead>
+                    <tr>
+                        <th>No. factura</th>
+                        <th>Fecha factura</th>
+                        <th>Valor neto a pagar</th>
+                        <th>Codigo SAP</th>
+                        <th>Nombre prestador</th>
+                        <th>Regional</th>
+                        <th>Ciudad</th>
+                        <th>Motivo</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadoresfacturasestadoResult item in Model)
+                    {
+                        <tr>
+                            <td>@item.num_factura</td>
+                            <td>@item.fecha_exp_factura.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@item.valor_neto.Value.ToString("C")</td>
+                            <td></td>
+                            <td>@item.nombre_prestador.ToUpper()</td>
+                            <td>@item.regional</td>
+                            <td>@item.ciudad</td>
+                            <td>@item.observaciones</td>
+                            <td>
+                                @if (item.cargo_facturas == 1)
+                                {
+                                    <a class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital","RadicacionElectonica",new {tipo = 1, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a>
+                                }
+                                else
+                                {
+                                    <label>Documento sin cargar</label>
+                                }
+                            </td>
+                            <td>
+                                @if (item.cargo_soportes == 1)
+                                {
+                                    <a class="alink" href="javascript: window.open('@Url.Action("Verdocumentodigital","RadicacionElectonica",new {tipo = 2, idcarguebase = item.id_cargue_base, idcarguedtll = item.id_cargue_dtll })', '', 'width=700,height =500,left =50,top =50,toolbar =yes');">Ver Documento</a>
+                                }
+                                else
+                                {
+                                    <label>Documento sin cargar</label>
+                                }
+                            </td>
+                            <td><button type="button" onclick="subirdocumentos(@item.id_cargue_base, @item.id_cargue_dtll ,'@item.num_factura', @item.cargo_facturas, @item.cargo_soportes)" class="btn btn-success btn-sm">Cambiar Documentos</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalDocumentos" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Subir documentos</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario_documentos" method="post" action="TableroFacturasRechazadas" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <input type="hidden" id="idcargue" name="idcargue" />
+                            <input type="hidden" id="idfactura" name="idfactura" />
+                            <input type="hidden" id="numfactura" name="numfactura" />
+                            <div id="alertfacdigital" class="col-sm-12">
+                                <div class="alert alert-success" role="alert">Factura digital cargada. para reemplazarla haga click <strong><a href="javascript:activarcampos(1)">aqui!</a></strong></div>
+                            </div>
+                            <div id="inputfacdigital" class="form-group col-sm-12">
+                                <label class="control-label text-primary">Subir factura digital</label>
+                                <input type="file" class="form-control" name="file_factura_digital" id="file_factura_digital" required />
+                            </div>
+                            <div id="alertsoportesclinicos" class="col-sm-12">
+                                <div class="alert alert-success" role="alert">Soportes clinicos cargados. para reemplazarlos haga click <strong><a href="javascript:activarcampos(2)">aqui!</a></strong></div>
+                            </div>
+                            <div id="inputsoportesclinicos" class="form-group col-sm-12">
+                                <label class="control-label text-primary">Soportes clinicos</label>
+                                <input type="file" class="form-control" name="file_soportes_clinicos" id="file_soportes_clinicos" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" onclick="ValidarFormulario()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function ()
+    {
+        $('.datatable').DataTable();
+
+        $("#file_factura_digital").change(function () {
+            var fileInput = document.getElementById('file_factura_digital');
+            var filePath = fileInput.value;
+            var allowedExtensions = /(.pdf)$/i;
+            if (!allowedExtensions.exec(filePath)) {
+                alert('Por favor, solo subir archivos que contengan la extension .pdf');
+                fileInput.value = '';
+                return false;
+            } else {
+                var fileSize = $('#file_factura_digital')[0].files[0].size;
+                var siezekiloByte = parseInt(fileSize / 1024);
+                if (siezekiloByte > 10000) {
+                    alert("El peso del documento no puede ser mayor a 10mb");
+                    fileInput.value = '';
+                    return false;
+                }
+                else {
+                    return true
+                }
+            }
+        });
+
+
+        $("#file_soportes_clinicos").change(function () {
+            var fileInput = document.getElementById('file_soportes_clinicos');
+            var filePath = fileInput.value;
+            var allowedExtensions = /(.pdf)$/i;
+            if (!allowedExtensions.exec(filePath)) {
+                alert('Por favor, solo subir archivos que contengan la extension .pdf');
+                fileInput.value = '';
+                return false;
+            } else {
+                var fileSize = $('#file_soportes_clinicos')[0].files[0].size;
+                var siezekiloByte = parseInt(fileSize / 1024);
+                if (siezekiloByte > 10000) {
+                    alert("El peso del documento no puede ser mayor a 10mb");
+                    fileInput.value = '';
+                    return false;
+                }
+                else {
+                    return true
+                }
+            }
+        });
+    })
+    
+    function subirdocumentos(a, b, c, d, e) {
+        if (d == 1) {
+            $("#alertfacdigital").css('display', 'block');
+            $("#inputfacdigital").css('display', 'none');
+        }
+        else {
+            $("#alertfacdigital").css('display', 'none');
+            $("#inputfacdigital").css('display', 'block');
+        }
+
+        if (e == 1) {
+            $("#alertsoportesclinicos").css('display', 'block');
+            $("#inputsoportesclinicos").css('display', 'none');
+        }
+        else {
+            $("#alertsoportesclinicos").css('display', 'none');
+            $("#inputsoportesclinicos").css('display', 'block');
+        }
+
+
+        $("#idcargue").val(a);
+        $("#idfactura").val(b);
+        $("#numfactura").val(c);
+        $("#ModalDocumentos").modal('show');
+    }
+
+    function ValidarFormulario(){
+
+        var validator = $("#formulario_documentos").validate();
+        if(validator.form())
+        {
+            $("#formulario_documentos").submit();
+        }
+    }
+
+
+    function activarcampos(a)
+    {
+        if (a == 1)
+        {
+            $("#alertfacdigital").css('display', 'none');
+            $("#inputfacdigital").css('display', 'block');
+        }
+        else
+        {
+            $("#alertsoportesclinicos").css('display', 'none');
+            $("#inputsoportesclinicos").css('display', 'block');
+        }
+    }
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
