@@ -2239,6 +2239,10 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                             case ".zip":
                                 contentType = "application/zip";
                                 break;
+
+                            case ".7z":
+                                contentType = "application/zip";
+                                break;
                         }
 
                         if (!string.IsNullOrEmpty(contentType))
@@ -2387,7 +2391,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         result += "<td>" + i + "</td>";
                         result += "<td>" + item.tipo + "</td>";
                         result += "<td>" + item.nombre + "</td>";
-                        if (item.tipo != "ZIP")
+                        if (item.tipo != "ZIP"  && (item.tipo != "SUBSANACIÓN" && item.tipo != "7z" ))
                         {
                             result += "<td><a href='javascript:AbrirSoporteClinico2(" + item.Id_gestion_documental + "," + item.id_cargue_dtll + ")'>Ver documento</a></td>";
                         }
