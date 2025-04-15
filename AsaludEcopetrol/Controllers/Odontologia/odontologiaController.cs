@@ -19,7 +19,6 @@ namespace AsaludEcopetrol.Controllers.Odontologia
     [SessionExpireFilter]
     public class odontologiaController : Controller
     {
-
         #region  PROPIEDADES
 
         private SessionState _SesionVar;
