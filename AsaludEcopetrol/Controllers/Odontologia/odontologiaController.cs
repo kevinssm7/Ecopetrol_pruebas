@@ -1437,6 +1437,9 @@ namespace AsaludEcopetrol.Controllers.Odontologia
 
 
 
+
+
+
                 OBJ.fecha_retratamiento = Model.fecha_retratamiento;
 
                 if (Model.urgencia == "1")
