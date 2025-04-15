@@ -1450,6 +1450,10 @@ namespace AsaludEcopetrol.Controllers.Odontologia
                 {
                     OBJ.urgencia = "NO";
                 }
+
+
+
+
                 OBJ.fecha_atencion = Model.fecha_atencion;
                 OBJ.fecha_urgencia = Model.fecha_urgencia;
                 OBJ.observaciones = Model.observaciones;
