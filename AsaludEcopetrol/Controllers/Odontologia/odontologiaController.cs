@@ -19,7 +19,6 @@ namespace AsaludEcopetrol.Controllers.Odontologia
     [SessionExpireFilter]
     public class odontologiaController : Controller
     {
-
         #region  PROPIEDADES
 
         private SessionState _SesionVar;
@@ -1426,7 +1425,32 @@ namespace AsaludEcopetrol.Controllers.Odontologia
                     OBJ.retratamiento_antes_12_meses = "NO";
                 }
 
+
+                if (Model.retratamiento == "1")
+                {
+                    OBJ.retratamiento = "SI";
+                }
+                else
+                {
+                    OBJ.retratamiento = "NO";
+                }
+
+                OBJ.fecha_retratamiento = Model.fecha_retratamiento;
+
+                if (Model.urgencia == "1")
+                {
+                    OBJ.urgencia = "SI";
+                }
+                else
+                {
+                    OBJ.urgencia = "NO";
+                }
+
+                OBJ.fecha_atencion = Model.fecha_atencion;
+                OBJ.fecha_urgencia = Model.fecha_urgencia;
                 OBJ.observaciones = Model.observaciones;
+              
+             
                 OBJ.fecha_digita = Convert.ToDateTime(DateTime.Now);
                 OBJ.usuario_digita = Convert.ToString(SesionVar.UserName);
 
