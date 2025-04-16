@@ -2391,7 +2391,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         result += "<td>" + i + "</td>";
                         result += "<td>" + item.tipo + "</td>";
                         result += "<td>" + item.nombre + "</td>";
-                        if (item.tipo != "ZIP"  && (item.tipo != "SUBSANACIÓN" && item.tipo != "7z" ))
+                        if (item.tipo != "ZIP" && (item.tipo != "SUBSANACIÓN" && item.tipo != "7z"))
                         {
                             result += "<td><a href='javascript:AbrirSoporteClinico2(" + item.Id_gestion_documental + "," + item.id_cargue_dtll + ")'>Ver documento</a></td>";
                         }
@@ -17496,8 +17496,8 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             try
             {
                 var elimina = BusClass.EliminarNovedadFactura(id);
-            
-                if(elimina != 0)
+
+                if (elimina != 0)
                 {
                     mensaje = "NOVEDAD ELIMINADA CORRECTAMENTE";
                     rta = 1;
@@ -17600,6 +17600,46 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 Response.Write(rta);
                 Response.End();
             }
+        }
+
+        public ActionResult ActualizarContable()
+        {
+            return View();
+        }
+
+        public JsonResult EditarDocPedidoFactura(int? idFactura, string documentoConta, DateTime? fechaConta, string numPedido, DateTime? fechaPedido)
+        {
+            var rta = 0;
+            var mensaje = "";
+            try
+            {
+                ManagementPrestadoresFacturasByIdDtllResult existeFac = BusClass.GetInfoFacturaById((int)idFactura);
+
+                if (existeFac == null)
+                {
+                    throw new Exception("No existe factura con este id");
+                }
+                else
+                {
+                    var actualiza = BusClass.ActualizarContabilizadoPedidoFactura(idFactura, documentoConta, fechaConta, numPedido, fechaPedido);
+                    if (actualiza != 0)
+                    {
+                        mensaje = "DATOS ACTUALIZADOS CORRECTAMENTE";
+                        rta = 1;
+                    }
+                    else
+                    {
+                        throw new Exception("ERROR AL ACTUALIZAR DATOS");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
         }
 
     }

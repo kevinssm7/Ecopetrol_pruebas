@@ -1,0 +1,104 @@
+﻿
+
+@{
+    ViewBag.Title = "ACTUALIZAR DATOS CONTABLES - PEDIDOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="container">
+    <form id="formActConPe">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">ACTUALIZAR</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Id factura</label>
+                        <input type="text" class="form-control solo-numero" id="idFactura" name="idFactura" maxlength="12" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Documento contable</label>
+                        <input type="text" class="form-control solo-numero" id="documentoConta" name="documentoConta" maxlength="15" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha contabilización</label>
+                        <input type="text" class="form-control datepickerr" id="fechaConta" name="fechaConta" style="width:100%;" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Número pedido</label>
+                        <input type="text" class="form-control solo-numero" id="numPedido" name="numPedido" maxlength="12" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Fecha pedido</label>
+                        <input type="text" class="form-control datepickerr" id="fechaPedido" name="fechaPedido" style="width:100%;" />
+                    </div>
+                    <br />
+
+                    <div class="col-md-2">
+                        <a class="btn button_Asalud_Aceptar" onclick="EditarDatos();"><i class="glyphicon glyphicon-edit"></i>Editar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+    });
+
+    function EditarDatos() {
+        var confirmar = confirm("¿Seguro(a) de actualizar estos datos?");
+        if (confirmar == true) {
+
+            var validar = $("#formActConPe").validate();
+            if (validar.form()) {
+
+                LoadingShow();
+
+                var formData = new FormData($("#formActConPe")[0]);
+                formData.append("idFactura", $("#idFactura").val());
+                formData.append("documentoConta", $("#documentoConta").val());
+                formData.append("fechaConta", $("#fechaConta").val());
+                formData.append("idFanumPedidoctura", $("#numPedido").val());
+                formData.append("fechaPedido", $("#fechaPedido").val());
+
+                $.ajax({
+                    url: "@Url.Action("EditarDocPedidoFactura", "RadicacionElectonica")",
+                    data: formData,
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        alert(data.mensaje);
+                        LoadingHide();
+                        if (data.rta == 1) {
+                            location.reload();
+                        }
+                    },
+                });
+            }
+        }
+    }
+
+</script>

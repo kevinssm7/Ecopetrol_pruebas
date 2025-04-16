@@ -6124,6 +6124,21 @@ namespace DATA_ACCESS
             }
         }
 
+        public int ActualizarContabilizadoPedidoFactura(int? idFactura, string documentoConta, DateTime? fechaConta, string numPedido, DateTime? fechaPedido)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.management_actualizarContabilizados_nroPedidoIdFactura(idFactura, documentoConta, fechaConta, numPedido, fechaPedido);
+                    return 1;
+                }
+            }catch(Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
 
         #endregion FIS PRESTADORES
 

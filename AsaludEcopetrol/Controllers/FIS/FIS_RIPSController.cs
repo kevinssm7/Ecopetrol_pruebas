@@ -2589,8 +2589,9 @@ namespace AsaludEcopetrol.Controllers.FIS
                 mensaje = Model.mensajeResultado;
                 if (string.IsNullOrEmpty(mensaje))
                 {
-                    transa.id_lote = lote.id_cargue;
+                    transa.id_lote = lote.id_cargue; 
                     transa.id_factura = lote.id_factura;
+
 
                     idTrasanccion = BusClass.FisRipsInsercionTransaccion(transa);
                     if (idTrasanccion != 0)

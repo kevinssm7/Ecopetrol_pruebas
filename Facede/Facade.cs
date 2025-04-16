@@ -10405,6 +10405,11 @@ namespace Facede
             return DACActualiza.ActualizarEstadoContrato(idContrato, estado);
         }
 
+        public int ActualizarContabilizadoPedidoFactura(int? idFactura, string documentoConta, DateTime? fechaConta, string numPedido, DateTime? fechaPedido)
+        {
+            return DACActualiza.ActualizarContabilizadoPedidoFactura(idFactura, documentoConta, fechaConta, numPedido, fechaPedido);
+        }
+
         #endregion FIS PRESTADORES
 
         #region CHATBOT
