@@ -768,8 +768,6 @@ namespace AsaludEcopetrol.Controllers.Odontologia
                 Conteo = Conteo + 1;
             }
 
-
-
             if (Conteo == 0)
             {
                 variable = "OK";
