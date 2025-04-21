@@ -213,13 +213,13 @@ namespace AsaludEcopetrol.Models.Odontologia
 
         public String retratamiento { get; set; }
         
-        public DateTime fecha_retratamiento { get; set; }
+        public DateTime? fecha_retratamiento { get; set; }
         
         public String urgencia { get; set; }
 
-        public DateTime fecha_urgencia { get; set; }
+        public DateTime? fecha_urgencia { get; set; }
 
-        public DateTime fecha_atencion { get; set; }
+        public DateTime? fecha_atencion { get; set; }
 
         public Decimal check1 { get; set; }
         public Decimal check2 { get; set; }
