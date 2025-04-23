@@ -1785,6 +1785,8 @@ namespace AsaludEcopetrol.Controllers.Odontologia
 
         public JsonResult BuscarReporteTratamientos(Int32? id, Int32 tipo, Models.Odontologia.ortodoncia Model)
         {
+
+           
             string result = "";
 
             List<vw_reportesTratamientosUnificados> List1 = new List<vw_reportesTratamientosUnificados>();
@@ -2095,6 +2097,11 @@ namespace AsaludEcopetrol.Controllers.Odontologia
 
             //ASIGNAICON  DATASET A REPORT
             Microsoft.Reporting.WebForms.ReportDataSource rds = new Microsoft.Reporting.WebForms.ReportDataSource("DataSetOdontEndodoncia", lst);
+
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("es-ES");
+
+
 
             // SE CREA REPORTE Y SE ASIGNAN PARAMETROS        
             Microsoft.Reporting.WebForms.ReportViewer viewer = new Microsoft.Reporting.WebForms.ReportViewer();
