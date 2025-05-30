@@ -1,0 +1,423 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud"></strong>
+        </div>
+        <div class="panel-body" id="panel_formulario">
+
+            <div class="table-responsive">
+                <table class="table table-bordered datatable1">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>N° documento</th>
+                            <th>Fecha Reporte</th>
+                            <th>Ips</th>
+                            <th>Tipo</th>
+                            <th>Auditor</th>
+                            <th>Evento / Nombre alerta</th>
+                            <th>Fecha limite entrega</th>
+                            <th>Estado</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.vw_tablero_analisis_casos item in ViewBag.listaCasos)
+                        {
+                            <tr>
+                                <td>@item.afi_nom</td>
+                                <td>@item.id_afi</td>
+                                <td>@item.fecha_analisis.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@item.ips</td>
+                                <td>@item.tipo_analisis</td>
+                                <td>@item.usuario_digita</td>
+                                <td>@item.alerta</td>
+                                <td>@item.fecha_limite.Value.ToString("dd/MM/yyyy")</td>
+                                @if (item.estado_caso == null)
+                                {
+                                    <td>PENDIENTE</td>
+                                }
+                                else if (item.estado_caso == 3)
+                                {
+                                    <td><a href="javascript:abrirmodalrechazo('@item.justificacion_rechazo')">RECHAZADO</a></td>
+                                }
+                                else
+                                {
+                                    <td>CERRADO</td>
+                                }
+
+                                <td>
+                                    @if (item.valor_tipo_analisis == 1)
+                                    {
+                                        if (item.estado_caso == null || item.estado_caso == 3)
+                                        {
+                                            <a role="button" class="btn btn-success btn-sm" href="@Url.Action("CreateAnalisisCaso","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 2, idanalisis = item.id_analisis_caso })">Gestionar</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn btn-primary btn-sm" href="@Url.Action("CreateAnalisisCaso","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 3, idanalisis = item.id_analisis_caso })">Ver y Gestionar</a>
+                                        }
+
+                                    }
+                                    else if (item.valor_tipo_analisis == 2)
+                                    {
+                                        if (item.estado_caso == null || item.estado_caso == 3)
+                                        {
+                                            <a role="button" class="btn btn-success btn-sm" href="@Url.Action("CreateAnalisisCasoSaludP","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 2, idanalisis = item.id_analisis_caso })">Gestionar</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn btn-primary btn-sm" href="@Url.Action("CreateAnalisisCasoSaludP","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 3, idanalisis = item.id_analisis_caso })">Ver y Gestionar</a>
+                                        }
+
+                                    }
+                                    else if (item.valor_tipo_analisis == 3)
+                                    {
+                                        if (item.estado_caso == null || item.estado_caso == 3)
+                                        {
+                                            <a role="button" class="btn btn-success btn-sm" href="@Url.Action("CreateAnalisisEventosenSalud","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 2, idanalisis = item.id_analisis_caso })">Gestionar</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn btn-primary btn-sm" href="@Url.Action("CreateAnalisisEventosenSalud","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 3, idanalisis = item.id_analisis_caso })">Ver y Gestionar</a>
+                                        }
+
+                                    }
+                                    else if (item.valor_tipo_analisis == 4)
+                                    {
+                                        if (item.estado_caso == null || item.estado_caso == 3)
+                                        {
+                                            <a role="button" class="btn btn-success btn-sm" href="@Url.Action("CreateAnalisisAlertas","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 2, idanalisis = item.id_analisis_caso })">Gestionar</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn btn-primary btn-sm" href="@Url.Action("CreateAnalisisAlertas","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 3, idanalisis = item.id_analisis_caso })">Ver y Gestionar</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (item.estado_caso == null || item.estado_caso == 3)
+                                        {
+                                            <a role="button" class="btn btn-success btn-sm" href="@Url.Action("CreateAnalisisMuestreo","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 2, idanalisis = item.id_analisis_caso })">Gestionar</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn btn-primary btn-sm" href="@Url.Action("CreateAnalisisMuestreo","AnalisisCaso", new {id_concurrencia = item.id_concurrencia, opc = 3, idanalisis = item.id_analisis_caso })">Ver y Gestionar</a>
+                                        }
+                                    }
+
+
+                                </td>
+                                <td>
+                                    @if (item.estado_caso == null || item.estado_caso == 3)
+                                    {
+                                        <a role="button" title="Cerrar Analisis" class="btn btn-success btn-sm" href="javascript:abrirmodalcerraranalisis(@item.valor_tipo_analisis, @item.id_analisis_caso, '@item.tipo_analisis')">Cerrar</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.tipo_analisis == "Analisis Caso Eventos en salud")
+                                    {
+                                        <a href="@Url.Action("CrearPdfCartaAnalisisCasoEventoSalud", "AnalisisCaso", new { idConcurrencia = item.id_concurrencia , idanalisis =  item.id_analisis_caso}, null)">
+                                            DESCARGAR REPORTE
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="Modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal"></h4>
+                </div>
+                <div class="modal-body row">
+                    <input type="hidden" id="txttipoanalisis" />
+                    <input type="hidden" id="txtidanalisis" />
+                    <div class="col-sm-12">
+                        <span class="text-secondary_asalud">Observación:* </span>
+                        <textarea class="form-control" id="txtobservacion" rows="4" placeholder="- Escribir aqui su observacion frente al analisis -"></textarea>
+                        <span class="label label-danger" id="mensajeerror" style="display:none">- Este campo es obligatorio -</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="" onclick="cerraranalisis()">Cerrar Analisis</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar Ventana</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ModalCausalRechazo" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content modal-xs">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Causal Rechazo</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="txtcausalrechazo"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+
+      $('.datatable1').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[3, "desc"]],
+        responsive: false,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+    function abrirmodalcerraranalisis(a, b, c)
+    {
+        var tipoanalisis = a;
+        var idanalisis = b;
+        var nomtipoanalisis = c;
+
+        $("#txttipoanalisis").val(tipoanalisis);
+        $("#txtidanalisis").val(idanalisis);
+        $("#titlemodal").text("Cerrar " + nomtipoanalisis);
+        $("#mensajeerror").css('display', 'none');
+        $("#Modal").modal('show');
+    }
+
+
+    function cerraranalisis()
+    {
+        var tipoanalisis = $("#txttipoanalisis").val();
+        var idanalisis = $("#txtidanalisis").val();
+        var observacion = $("#txtobservacion").val();
+
+        if (observacion != "") {
+            $.ajax({
+
+                url: "@Url.Action("CerrarAnalisis", "AnalisisCaso")",
+                type: "post",
+                data: {
+                    idanalisis: idanalisis,
+                    idtipoanalisis: tipoanalisis,
+                    observacion: observacion
+                },
+                success: function (data) {
+                    location.reload();
+                }
+            })
+        } else
+        {
+            $("#mensajeerror").removeAttr('style');
+        }
+
+    }
+
+    function GestionarEstadoCaso(a, b, c, d)
+    {
+        var opcionarealizar = a; // decide que opcion se va a realizar
+        var tipoanalisis = b;
+        var idanalisis = c;
+        var idconcurrencia = d;
+
+        var mensaje;
+        if (opcionarealizar == 1) {
+            mensaje = "¿Seguro que desea aprobar este caso?";
+        } else {
+            mensaje = "¿Seguro que desea rechazar este caso?";
+        }
+
+        var opcion = confirm(mensaje);
+
+        if (opcion == true)
+        {
+
+            $.ajax({
+                url: "@Url.Action("GestionarEstadoCaso")",
+                type: "post",
+                data:
+                {
+                    opcionrealizar: opcionarealizar,
+                    idtipoanalisis: tipoanalisis,
+                    idanalisiscaso: idanalisis,
+                    idconcurrencia: idconcurrencia
+                },
+                success: function (data)
+                {
+                    var url = data;
+                    downloadURI(url);
+                    location.reload();
+                },
+                error: function (data)
+                {
+                    alert("error al momento de realizar el procedimiento")
+                }
+            })
+
+
+        } else
+        {
+
+        }
+
+    }
+
+
+    function abrirmodalrechazo(a)
+    {
+        $("#txtcausalrechazo").text(a);
+        $("#ModalCausalRechazo").modal('show');
+    }
+
+
+    function downloadURI(uri)
+    {
+        var link = document.createElement("a");
+        link.download = "ejemplodescarga.pdf";
+        link.href = uri;
+        link.click();
+    }
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

@@ -1,0 +1,703 @@
+﻿@{
+    ViewBag.Title = "TABLERO CONTROL RIPS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">BUSQUEDA</strong>
+        </div>
+        <br />
+
+        <div class="tab-content">
+            <form id="divFiltro" method="post" action="TableroControlMasivos" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <input type="text" id="codigoCuv" name="codigoCuv" class="form-control" placeholder="Código CUV" maxlength="20" />
+                        </div>
+                        <div class="col-md-1">
+                            <a class="button_Asalud_Aceptar" onclick="buscarCodigo();"><i class="glyphicon glyphicon-search"></i></a>
+                        </div>
+
+                        <div class="col-md-9 text-right">
+                            <button role="button" onclick="ExportarExcelRegistros();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br />
+    </div>
+
+    <ul class="nav nav-pills col-md-12" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">CONSULTAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">HOSPITALIZACIÓN</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#3a" id="tab3" data-toggle="tab">MEDICAMENTOS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#4a" id="tab4" data-toggle="tab">OTROS SERVICIOS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#5a" id="tab5" data-toggle="tab">PROCEDIMIENTOS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#6a" id="tab6" data-toggle="tab">RECIEN NACIDO</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#7a" id="tab7" data-toggle="tab">TRANSACCIÓN</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#8a" id="tab8" data-toggle="tab">URGENCIAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#9a" id="tab9" data-toggle="tab">USUARIOS</a>
+        </li>
+    </ul>
+    <br />
+
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Fecha inicio atención</th>
+                                    <th>Número autorización</th>
+                                    <th>Código consulta</th>
+                                    <th>Modalidad grupo servicio</th>
+                                    <th>Grupo servicios</th>
+                                    <th>Código servicios</th>
+                                    <th>Finalidad tecnología</th>
+                                    <th>Causa motivo atención</th>
+                                    <th>Código diagnóstico</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_consultaResult item in ViewBag.listaConsulta)
+                                {
+                                <tr>
+                                    <td>@item.id_lote</td>
+                                    <td>@item.nombreDigita</td>
+                                    <td>@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.codPrestador</td>
+                                    <td>@item.fechaInicioAtencion</td>
+                                    <td>@item.numAutorizacion</td>
+                                    <td>@item.codConsulta</td>
+                                    <td>@item.modalidadGrupoServicioTecSal</td>
+                                    <td>@item.grupoServicios</td>
+                                    <td>@item.codServicio</td>
+                                    <td>@item.finalidadTecnologiaSalud</td>
+                                    <td>@item.causaMotivoAtencion</td>
+                                    <td>@item.codDiagnosticoPrincipal</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="2a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Fecha inicio atención</th>
+                                    <th>Número autorización</th>
+                                    <th>Causa atención</th>
+                                    <th>Código diagnóstico principal</th>
+                                    <th>Código diagnóstico principal E</th>
+                                    <th>Código diagnóstico relacionado E1</th>
+                                    <th>Código diagnóstico relacionado E2</th>
+                                    <th>Código diagnóstico relacionado E3</th>
+                                    <th>Condición egreso usuario</th>
+                                    <th>Código diagóstico muerte</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_hospitalizacionResult item2 in ViewBag.listaHospitalizacion)
+                                {
+                                    <tr>
+                                        <td>@item2.id_hospitalizacion</td>
+                                        <td>@item2.nombreDigita</td>
+                                        <td>@item2.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                        <td>@item2.codPrestador</td>
+                                        <td>@item2.fechaInicioAtencion</td>
+                                        <td>@item2.numAutorizacion</td>
+                                        <td>@item2.causaMotivoAtencion</td>
+                                        <td>@item2.codDiagnosticoPrincipal</td>
+                                        <td>@item2.codDiagnosticoPrincipalE</td>
+                                        <td>@item2.codDiagnosticoRelacionadoE1</td>
+                                        <td>@item2.codDiagnosticoRelacionadoE2</td>
+                                        <td>@item2.codDiagnosticoRelacionadoE3</td>
+                                        <td>@item2.condicionDestinoUsuarioEgreso</td>
+                                        <td>@item2.codDiagnosticoCausaMuerte</td>
+                                        <td>@item2.fechaEgreso</td>
+                                        <td>@item2.consecutivo</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="3a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Número autorización</th>
+                                    <th>Fecha dispensación ADMON</th>
+                                    <th>Código diagnóstico principal</th>
+                                    <th>Código diagnóstico relacionado</th>
+                                    <th>Tipo medicamento</th>
+                                    <th>Código tecnología salud</th>
+                                    <th>Nombre tecnología salud</th>
+                                    <th>Concentración medicamento</th>
+                                    <th>Unidad medida</th>
+                                    <th>Forma farmaceutica</th>
+                                    <th>Unidad minima</th>
+                                    <th>Cantidad medicamento</th>
+                                    <th>Días tratamiento</th>
+                                    <th>Tipo identificación</th>
+                                    <th>Número identificación</th>
+                                    <th>Valor unidad medicamento</th>
+                                    <th>Valor servicio</th>
+                                    <th>Concepto recaudo</th>
+                                    <th>Valor pago moderador</th>
+                                    <th>Número FEV pago moderador</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_medicamentosResult item3 in ViewBag.listaMedicamento)
+                                {
+                                <tr>
+                                    <td>@item3.id_medicamentos</td>
+                                    <td>@item3.nombreDigita</td>
+                                    <td>@item3.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item3.codPrestador</td>
+                                    <td>@item3.numAutorizacion</td>
+                                    <td>@item3.fechaDispensAdmon</td>
+                                    <td>@item3.codDiagnosticoPrincipal</td>
+                                    <td>@item3.codDiagnosticoRelacionado</td>
+                                    <td>@item3.tipoMedicamento</td>
+                                    <td>@item3.codTecnologiaSalud</td>
+                                    <td>@item3.nomTecnologiaSalud </td>
+                                    <td>@item3.concentracionMedicamento</td>
+                                    <td>@item3.unidadMedida</td>
+                                    <td>@item3.formaFarmaceutica</td>
+                                    <td>@item3.unidadMinDispensa</td>
+                                    <td>@item3.cantidadMedicamento</td>
+                                    <td>@item3.diasTratamiento</td>
+                                    <td>@item3.tipoDocumentoIdentificacion</td>
+                                    <td>@item3.numDocumentoIdentificacion</td>
+                                    <td>@item3.vrUnitMedicamento</td>
+                                    <td>@item3.vrServicio</td>
+                                    <td>@item3.conceptoRecaudo</td>
+                                    <td>@item3.valorPagoModerador</td>
+                                    <td>@item3.numFEVPagoModerador</td>
+                                    <td>@item3.consecutivo</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="4a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Número autorización</th>
+                                    <th>Fecha suministro tecnología</th>
+                                    <th>Tipo OS</th>
+                                    <th>Código tecnología asalud</th>
+                                    <th>Nombre tecnología asalud</th>
+                                    <th>Cantidad OS</th>
+                                    <th>Tipo identificación</th>
+                                    <th>Número identificación</th>
+                                    <th>Valor unitario OS</th>
+                                    <th>Valor servicio</th>
+                                    <th>Concepto recaudo</th>
+                                    <th>Valor pago moderado</th>
+                                    <th>Número FEV pago moderador</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_otrosServiciosResult item4 in ViewBag.listaOtroServicio)
+                                {
+                                <tr>
+                                    <td>@item4.id_otros_servicios</td>
+                                    <td>@item4.nombreDigita</td>
+                                    <td>@item4.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item4.codPrestador</td>
+                                    <td>@item4.numAutorizacion</td>
+                                    <td>@item4.fechaSuministroTecnologia</td>
+                                    <td>@item4.tipoOS</td>
+                                    <td>@item4.codTecnologiaSalud</td>
+                                    <td>@item4.nomTecnologiaSalud</td>
+                                    <td>@item4.cantidadOS</td>
+                                    <td>@item4.tipoDocumentoIdentificacion</td>
+                                    <td>@item4.numDocumentoIdentificacion</td>
+                                    <td>@item4.vrUnitOS</td>
+                                    <td>@item4.vrServicio</td>
+                                    <td>@item4.conceptoRecaudo</td>
+                                    <td>@item4.valorPagoModerador</td>
+                                    <td>@item4.numFEVPagoModerador</td>
+                                    <td>@item4.consecutivo</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="5a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Fecha inicio atención</th>
+                                    <th>Número autorización</th>
+                                    <th>Código procedimiento</th>
+                                    <th>Vía ingreso</th>
+                                    <th>Modalidad grupo servicio</th>
+                                    <th>Grupo servicio</th>
+                                    <th>Código servicio</th>
+                                    <th>Finalidad tecnología</th>
+                                    <th>Tipo identificación</th>
+                                    <th>Número identificación</th>
+                                    <th>Código diagnóstico principal</th>
+                                    <th>Código diagnóstico relacionado</th>
+                                    <th>Código complicación</th>
+                                    <th>Valor servicio</th>
+                                    <th>Concepto recaudo</th>
+                                    <th>Valor pago moderador</th>
+                                    <th>Npumero FEV pago moderador</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_procedimientosResult item5 in ViewBag.listaProcedimiento)
+                                {
+                                <tr>
+                                    <td>@item5.id_procedimiento</td>
+                                    <td>@item5.nombreDigita</td>
+                                    <td>@item5.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item5.codPrestador</td>
+                                    <td>@item5.fechaInicioAtencion</td>
+                                    <td>@item5.numAutorizacion</td>
+                                    <td>@item5.codProcedimiento</td>
+                                    <td>@item5.viaIngresoServicioSalud</td>
+                                    <td>@item5.modalidadGrupoServicioTecSal</td>
+                                    <td>@item5.grupoServicios</td>
+                                    <td>@item5.codServicio</td>
+                                    <td>@item5.finalidadTecnologiaSalud</td>
+                                    <td>@item5.tipoDocumentoIdentificacion</td>
+                                    <td>@item5.numDocumentoIdentificacion</td>
+                                    <td>@item5.codDiagnosticoPrincipal</td>
+                                    <td>@item5.codDiagnosticoRelacionado</td>
+                                    <td>@item5.codComplicacion</td>
+                                    <td>@item5.vrServicio</td>
+                                    <td>@item5.conceptoRecaudo</td>
+                                    <td>@item5.valorPagoModerador</td>
+                                    <td>@item5.numFEVPagoModerador</td>
+                                    <td>@item5.consecutivo</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="6a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>Ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Tipo documento identificación</th>
+                                    <th>Número documento identificación</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Edad gestacional</th>
+                                    <th>Número consultas prenatal</th>
+                                    <th>Código sexo biológico</th>
+                                    <th>Peso</th>
+                                    <th>Código diagnóstico principal</th>
+                                    <th>Condición destino usuario egreso</th>
+                                    <th>Código diagnóstico causa muerte</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_recienNacidoResult item6 in ViewBag.listaRecienNacido)
+                                {
+                                <tr>
+                                    <td>@item6.id_nacido</td>
+                                    <td>@item6.nombreDigita</td>
+                                    <td>@item6.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item6.codPrestador</td>
+                                    <td>@item6.tipoDocumentoIdentificacion</td>
+                                    <td>@item6.numDocumentoIdentificacion</td>
+                                    <td>@item6.fechaNacimiento</td>
+                                    <td>@item6.edadGestacional</td>
+                                    <td>@item6.numConsultasCPrenatal</td>
+                                    <td>@item6.codSexoBiologico</td>
+                                    <td>@item6.peso</td>
+                                    <td>@item6.codDiagnosticoPrincipal</td>
+                                    <td>@item6.condicionDestinoUsuarioEgreso</td>
+                                    <td>@item6.codDiagnosticoCausaMuerte</td>
+                                    <td>@item6.fechaEgreso</td>
+                                    <td>@item6.consecutivo</td>
+                                </tr>
+                                }
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="7a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Número documento id obligado</th>
+                                    <th>Número factura</th>
+                                    <th>Tipo nota</th>
+                                    <th>Número nota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_transaccionResult item7 in ViewBag.listaTransaccion)
+                                {
+                                <tr>
+                                    <td>@item7.id_transaccion</td>
+                                    <td>@item7.nombreDigita</td>
+                                    <td>@item7.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item7.numDocumentoIdObligado</td>
+                                    <td>@item7.numFactura</td>
+                                    <td>@item7.tipoNota</td>
+                                    <td>@item7.numNota</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="8a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped " style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>Ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Código prestador</th>
+                                    <th>Fecha inicio atención</th>
+                                    <th>Causa motivo atención</th>
+                                    <th>Código diagnóstico principal</th>
+                                    <th>Código diagnóstico principal E</th>
+                                    <th>Código diagnóstico relacionado E1</th>
+                                    <th>Código diagnóstico relacionado E2</th>
+                                    <th>Código diagnóstico relacionado E3</th>
+                                    <th>Condición destino usuario egreso</th>
+                                    <th>Código diagnóstico causa muerte</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Consecutivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_urgenciasResult item8 in ViewBag.listaurgencia)
+                                {
+                                <tr>
+                                    <td>@item8.id_urgencias</td>
+                                    <td>@item8.nombreDigita</td>
+                                    <td>@item8.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item8.codPrestador</td>
+                                    <td>@item8.fechaInicioAtencion</td>
+                                    <td>@item8.causaMotivoAtencion</td>
+                                    <td>@item8.codDiagnosticoPrincipal</td>
+                                    <td>@item8.codDiagnosticoPrincipalE</td>
+                                    <td>@item8.codDiagnosticoRelacionadoE1</td>
+                                    <td>@item8.codDiagnosticoRelacionadoE2</td>
+                                    <td>@item8.codDiagnosticoRelacionadoE3</td>
+                                    <td>@item8.condicionDestinoUsuarioEgreso</td>
+                                    <td>@item8.codDiagnosticoCausaMuerte</td>
+                                    <td>@item8.fechaEgreso</td>
+                                    <td>@item8.consecutivo</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane row" id="9a">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-condensed table-striped" style="width:98%; font-size:10px;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Usuario cargue</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Tipo documento identificación</th>
+                                    <th>Número documento identificación</th>
+                                    <th>Tipo usuario</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Código sexo</th>
+                                    <th>Código país residencia</th>
+                                    <th>Código municipio residencia</th>
+                                    <th>Código zona territorial residencia</th>
+                                    <th>Incapacidad</th>
+                                    <th>Consecutivo</th>
+                                    <th>Código país origen</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_usuariosResult item9 in ViewBag.listaUsuario)
+                                {
+                                <tr>
+                                    <td>@item9.id_usuarios</td>
+                                    <td>@item9.nombreDigita</td>
+                                    <td>@item9.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td>@item9.tipoDocumentoIdentificacion</td>
+                                    <td>@item9.numDocumentoIdentificacion</td>
+                                    <td>@item9.tipoUsuario</td>
+                                    <td>@item9.fechaNacimiento</td>
+                                    <td>@item9.codSexo</td>
+                                    <td>@item9.codPaisResidencia</td>
+                                    <td>@item9.codMunicipioResidencia</td>
+                                    <td>@item9.codZonaTerritorialResidencia</td>
+                                    <td>@item9.incapacidad</td>
+                                    <td>@item9.consecutivo</td>
+                                    <td>@item9.codPaisOrigen</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        CambiarTabla("#1a");
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            // Obtener el ID de la pestaña activa
+            var nuevaPestana = $(e.target).attr("href");
+            CambiarTabla(nuevaPestana);
+        });
+    });
+
+
+
+    function CambiarTabla(pesta) {
+
+        $(pesta + ' table').DataTable().destroy(); // Destruye la instancia DataTable existente
+        $(pesta + ' table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 30,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    }
+
+
+    //function CambiarTabla(id) {
+    //    debugger
+
+    //    $('#' + id + 'a table').DataTable().destroy();
+    //    $('#' + id + 'a table').DataTable({
+    //        "sSearch": "Buscar:",
+    //        "searching": true,
+    //        "iDisplayLength": 10,
+    //        "lengthChange": false,
+    //        "info": false,
+    //        responsive: true,
+    //        language: {
+    //            "decimal": "",
+    //            "emptyTable": "No hay información",
+    //            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+    //            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+    //            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+    //            "infoPostFix": "",
+    //            "thousands": ",",
+    //            "lengthMenu": "Mostrar _MENU_ Entradas",
+    //            "loadingRecords": "Cargando...",
+    //            "processing": "Procesando...",
+    //            "search": "Buscar:",
+    //            "zeroRecords": "Sin resultados encontrados",
+    //            "paginate": {
+    //                "first": "Primero",
+    //                "last": "Ultimo",
+    //                "next": "Siguiente",
+    //                "previous": "Anterior"
+    //            }
+    //        },
+    //    });
+    //}
+
+
+
+
+    function buscarCodigo() {
+        $("#divFiltro").submit();
+    }
+
+    function ExportarExcelRegistros() {
+        var URL = "@Url.Action("ExcelTableroControlCarguesRips", "FIS_RIPS")";
+        window.open(URL, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+</script>
+
+
+<style>
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>

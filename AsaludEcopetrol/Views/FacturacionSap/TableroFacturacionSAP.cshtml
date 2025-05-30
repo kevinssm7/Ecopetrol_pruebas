@@ -1,0 +1,351 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS SAP";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int conteoResultados = ViewBag.conteo;
+    int resultado = ViewBag.resultado;
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">FACTURACIÓN SAP</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" action="TableroFacturacionSAP" method="post">
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaIni" id="fechaIni" required />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha final</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaFin" id="fechaFin" required />
+                </div>
+            </div>
+            @if (resultado == 2)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos en el periodo filtrado")</p>
+                    </div>
+                </div>
+            }
+            @if (ViewBag.conteo != 0)
+            {
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud"> Total de registros: @conteoResultados</label>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    @if (ViewBag.conteo != 0)
+                    {
+                        <a class="btn button_Asalud_descargas" href="@Url.Action("DescargarDatosFacturacion", "FacturacionSap")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+
+                    }
+                </div>
+            </div>
+        </form>
+
+        <br />
+        <table id="tabla" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Fecha cargue</th>
+                    <th>Usuario cargue</th>
+                    <th>Cargados</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+                @foreach (var item in ViewBag.list)
+                {
+                    i++;
+                    <tr>
+                        <td class="text-center">@item.id_factura_cargue</td>
+                        <td>@item.fecha_digita</td>
+                        <td>@item.usuario_digita</td>
+                        <td>@item.conteo</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        //$('#FechaInicialfiltro').attr('disabled', 'disabled');
+        //$('#FechaFinalfiltro').attr('disabled', 'disabled');
+    })
+
+    debugger
+    function cerrarModal() {
+        location.reload();
+
+    }
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form) {
+            $("#formulario").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

@@ -1,0 +1,55 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO ELIMINAR PEDIDO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">FILTRO</strong>
+        </div>
+        <form id="formValDatos">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Id factura</label>
+                        <input type="text" id="idAf" name="idAf" class="form-control" required maxlength="10" />
+                    </div>
+                    <br />
+
+                    <div class="col-md-3">
+                        <a class="btn button_Asalud_Rechazar" onclick="EliminarDatos();">Eliminar</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function EliminarDatos() {
+
+        var valida = $("#formValDatos").validate();
+        if (valida.form()) {
+            var idAf = $("#idAf").val();
+
+            $.ajax({
+                url: "@Url.Action("EliminarNroPedidoIdAf", "FIS_RIPS")",
+                data: {
+                    idAf: idAf
+                },
+                method: "post",
+                type: "post",
+                success: function (data) {
+
+                    alert(data.mensaje);
+                }
+            });
+        }
+    }
+
+</script>
+
+

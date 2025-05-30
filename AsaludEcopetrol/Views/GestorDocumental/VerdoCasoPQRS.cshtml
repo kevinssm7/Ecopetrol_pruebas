@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "DOCUMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string idadmin = (string)ViewBag.idadmin;
+
+}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<br />
+
+<table id="tabla" class="table table-bordered datatable1">
+    <thead>
+        <tr>
+
+            <th class="text-center th">FECHA CARGUE</th>
+            <th class="text-center th">NUMERO CASO</th>
+            <th class="text-center th">TIPO DOCUMENTAL</th>
+            <th class="text-center th">OBSERVACIONES</th>
+            <th class="text-center th"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ECOPETROL_COMMON.ENTIDADES.GestionDocumentalPQRS item in ViewBag.docspqrs)
+        {
+
+            <tr>
+
+                <td class="text-center">@item.cargue_fecha</td>
+                <td class="text-center">@item.numero_caso</td>
+                <td class="text-center">@item.Ref_gestion_tipo_documental.nombre</td>
+                <td class="text-center">@item.obs</td>
+                <td class="text-center">
+                    <h5> <a href="#" class="btn btn-primary" onclick="javascript:window.open('@Url.Action("GestorDocsPQR", "GestorDocumental" , new { id = item.id_gestion_documental_pqrs  })','','width=700,height =500,left =50,top =50,toolbar =yes');">VER DOCUMENTO</a></h5>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+
+
+    $('.datatable1').DataTable({
+        "searching": false,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+</script>
+
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 1px;
+        width: 700px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 13px;
+        font-weight: bold;
+        padding: 5px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 9px;
+        font-size: 11px;
+        border-bottom: 2px solid #fff;
+        color: #000000;
+        border-top: 1px solid transparent;
+        border: 1px solid #ccc;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

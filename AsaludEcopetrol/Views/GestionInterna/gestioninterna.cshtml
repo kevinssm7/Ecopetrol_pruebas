@@ -1,0 +1,179 @@
+﻿
+@{
+    ViewBag.Title = "GESTION INTERNA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">MODULO DE GESTION INTERNA</strong>
+    </div>
+
+    <div class="panel-body">
+        <div class="row">
+             <div class="col-sm-6 form-group">
+                 <label class="text-secondary_asalud">Elegir la gestion que desea realizar:</label>
+                 <select class="form-control select2" id="cbxgestion" name="cbxgestion">
+                     <option value="">- Seleccionar -</option>
+                     @foreach(ECOPETROL_COMMON.ENTIDADES.ref_gestion_interna item in ViewBag.gestioninterna)
+                     {
+                         <option value="@item.id_ref_gestion_interna">@item.nom_gestion</option>
+                     }
+                 </select>
+             </div>
+            <div class="col-sm-12 text-right">
+                <button type="button" class="btn button_Asalud_Guardar" onclick="RealizarGestion()">Realizar gestion</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div role="dialog" class="modal fade" id="modal">
+    <div class="modal-dialog" >
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">
+                    <strong id="titulo-modal" class="text-primary_asalud">Titulo</strong>
+                </h3>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script>
+
+    $(document).ready(function ()
+    {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    })
+
+    function RealizarGestion()
+    {
+
+        var valor = $("#cbxgestion").val();
+        $.ajax({
+            url:"@Url.Action("GetDatosGestion")",
+            type: "post",
+            dataType: "json",
+            data: { idgestioninterna: valor },
+            success: function (data)
+            {
+                if (data.id_tipo_ventana == 1)
+                {
+                    location.href = '/'+data.controlador+'/'+data.accion;
+                }
+                else
+                {
+                    $("#titulo-modal").text("Actualizar IPS");
+                    $('#modal').find('.modal-body').html("<p>Cargando...</p>");
+                    $('#modal').modal('show').find('.modal-body').load('/' + data.controlador + '/' + data.accion);
+                }
+            }
+        })
+    }
+
+    function CerrarModal()
+    {
+        $("#cbxgestion").val("").trigger("change");
+        $('#modal').modal('hide');
+    }
+
+</script>
+
+
+<style>
+    .modal-dialog{
+        margin-left:15%;
+    }
+
+    ul.ui-autocomplete {
+    z-index: 1100;
+}
+    .select2-container .select2-selection--single{
+        height:35px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

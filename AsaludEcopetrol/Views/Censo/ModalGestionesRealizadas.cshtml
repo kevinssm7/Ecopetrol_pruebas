@@ -1,0 +1,197 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_gestionesResult
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-secondary_asalud">Gestión</strong>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="tableDatos" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                <thead>
+                    <tr>
+                        <th class="text-center">Confirmación alerta</th>
+                        <th class="text-center">Estado final de paciente</th>
+                        <th class="text-center">Requiere análisis</th>
+                        <th class="text-center">Requiere cargue de soportes</th>
+                        <th class="text-center">Requiere verificación SIVIGILA</th>
+                        <th class="text-center">Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_gestionesResult item in ViewBag.dato)
+                    {
+                        <tr>
+                            <td>@item.confirmacion_alerta</td>
+                            <td>@item.estado_final_paciente</td>
+                            <td>@item.requiere_analisis</td>
+                            <td>@item.requiere_cargue_soportes</td>
+                            <td>@item.requiere_verificacion_sivigilia</td>
+                            <td>@item.observaciones</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                @if (item.requiere_analisis == "SI")
+                                {
+
+                                    if (Model.cerrada != 1)
+                                    {
+                                        if (item.id_gestion == null)
+                                        {
+                                            <a class="button_Asalud_Guardar" onclick="CargarGenerarAnalisis(@item.id_registro)" data-toggle="modal" data-target="#modalGestionAnalisis">Generar</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="button_Asalud_Guardar" onclick="CargarGenerarAnalisis(@item.id_registro, @item.id_gestion)" data-toggle="modal" data-target="#modalGestionAnalisis">En gestión</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="button_Asalud_Aceptar" onclick="PDFResultado(@item.id_gestion)">Descargar</a>
+
+                                    }
+
+                                }
+                            </td>
+                            <td>
+                                @if (item.requiere_cargue_soportes == "SI")
+                                {
+
+                                    if (item.existeSoporte == "SI")
+                                    {
+                                        if (ViewBag.cerrada == 1)
+                                        {
+                                            <a class="button_Asalud_Aceptar" onclick="CargarSoportes(1, @item.id_registro)">Ver</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="button_Asalud_Aceptar" onclick="CargarSoportes(1, @item.id_registro)">Ver/Cargar soportes</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="button_Asalud_Guardar" onclick="CargarSoportes(1, @item.id_registro)">Cargar soportes</a>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (item.requiere_verificacion_sivigilia == "SI")
+                                {
+                                    if (item.existeVerificacionSIVIGILIA == "SI")
+                                    {
+                                        if (ViewBag.cerrada == 1)
+                                        {
+                                            <a class="button_Asalud_Aceptar" onclick="CargarSoportes(2, @item.id_registro)">Ver</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="button_Asalud_Aceptar" onclick="CargarSoportes(2, @item.id_registro)">Ver/Cargar soportes de SIVIGILIA</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="button_Asalud_Guardar" onclick="CargarSoportes(2, @item.id_registro)">Cargar soportes de SIVIGILIA</a>
+                                    }
+                                }
+                            </td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-secondary_asalud">Cierre</strong>
+    </div>
+    <br />
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            @if (Model.cerrada == 1)
+            {
+                <label class="text-secondary_asalud">Alerta cerrada - @Model.fecha_cierre.Value.ToString("dd/MM/yyyy") </label>
+            }
+            else
+            {
+                <a class="button_Asalud_Rechazar" onclick="CerrarAlerta();">Cerrar alerta</a>
+            }
+        </div>
+    </div>
+    <br />
+</div>
+
+<script>
+
+    function CargarSoportes(tipo, idRegistro) {
+
+        var cerrada = "@ViewBag.cerrada";
+        var tipoIngreso = "@ViewBag.tipoIngreso";
+
+        $.ajax({
+            url: "@Url.Action("ModalCargarSoportes")",
+            type: "post",
+            data: {
+                tipo: tipo,
+                idRegistro: idRegistro,
+                cerrada: cerrada,
+                tipoIngreso: tipoIngreso
+            },
+            success: function (data) {
+                $("#idGestionSop").val(idRegistro);
+                $("#cerradaSop").val(cerrada);
+                $("#resultadoSo").empty();
+                $("#resultadoSo").html(data);
+                $("#modalSoportes").modal('show');
+            }
+        })
+    }
+
+    function CargarGenerarAnalisis(idRegistro, id_gestionAnalisis) {
+
+        var cerrada = "@ViewBag.cerrada";
+        $.ajax({
+            url: "@Url.Action("ModuloRequiereAnalisis")",
+            type: "post",
+            data: {
+                idGestion: idRegistro,
+                id_gestionAnalisis: id_gestionAnalisis
+            },
+            success: function (data) {
+                $("#idGestionAna").val(idRegistro);
+                $("#cerradaAna").val(cerrada);
+                $("#resultadoGA").empty();
+                $("#resultadoGA").html(data);
+            }
+        })
+    }
+
+    function CerrarAlerta() {
+
+        var idRegistro = "@ViewBag.idRegistro";
+
+        var confirmar = confirm("¿Seguro(a) de cerrar esta alerta?");
+        if (confirmar == true) {
+            $.ajax({
+                url: "@Url.Action("CerrarAlertaEpi", "Censo")",
+                type: "post",
+                data: { idRegistro: idRegistro },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    if (data.rta == 1) {
+                        location.reload();
+                    } else {
+                        return false;
+                    }
+                },
+            });
+        }
+    }
+
+
+</script>

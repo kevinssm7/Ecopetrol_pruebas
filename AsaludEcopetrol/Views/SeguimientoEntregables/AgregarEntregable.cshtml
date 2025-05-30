@@ -1,0 +1,199 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.seguimiento_entregables
+@{
+    if (Model.id_seg_entregables == 0)
+    {
+        ViewBag.Title = "AGREGAR ENTREGABLE";
+    }
+    else
+    {
+        ViewBag.Title = "EDITAR ENTREGABLE";
+    }
+
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    int rta = (int)ViewData["rta"];
+    string msg = (string)ViewData["Msg"];
+    string fechaControl = "";
+    if (Model.fecha_control != null)
+    {
+        fechaControl = Model.fecha_control.Value.ToString("MM/dd/yyyy");
+    }
+}
+
+<br />
+
+@if (rta != 0)
+{
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Éxito! </strong> @msg
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error! </strong> @msg
+        </div>
+    }
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        @if (Model.id_seg_entregables == 0)
+        {
+            <strong class="text-primary_asalud">FORMULARIO PARA AÑADIR UN NUEVO ENTREGABLE</strong>
+        }
+        else
+        {
+            <strong class="text-primary_asalud">FORMULARIO PARA EDICIÓN DE UN ENTREGABLE</strong>
+        }
+
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" enctype="multipart/form-data" action="@Url.Action("AgregarEntregable")">
+            <input type="hidden" id="idSegEntregable" name="idSegEntregable" value="@Model.id_seg_entregables"/>
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Periodicidad entrega:</label>
+                    <select class="form-control" id="periodicidad_entrega" name="periodicidad_entrega" required>
+                        <option value="">- Seleccionar</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_periodicidad_entregables item in ViewBag.periodicidad)
+                        {
+                            if (Model.periodicidad_entrega == item.id_periodicidad_entregables)
+                            {
+                                <option selected value="@item.id_periodicidad_entregables">@item.nom_periodicidad_entregable</option>
+                            }
+                            else
+                            {
+                                <option value="@item.id_periodicidad_entregables">@item.nom_periodicidad_entregable</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Nombre entregable:</label>
+                    <input autocomplete="off" type="text" class="form-control" id="nomentregable" name="nomentregable" maxlength="100" value="@Model.Nom_entregable" required />
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Proceso</label>
+                    <select class="form-control select2" id="proceso" name="proceso" required>
+                        <option value="">- Seleccionar</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_proceso_entregable item in ViewBag.procesos)
+                        {
+                            if (Model.Proceso != null)
+                            {
+                                if (item.id_ref_proceso_entregable == Model.Proceso.Value)
+                                {
+                                    <option selected value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.id_ref_proceso_entregable">@item.nom_proceso_entregable</option>
+                            }
+
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Fecha inicio:</label>
+                    <input class="datepickerr" value="" style="width: 100%" name="Fechainicio" id="Fechainicio" required />
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Tipo entregable:</label>
+                    <select class="form-control" id="tipo_entregable" name="tipo_entregable" required>
+                        <option value="">- Seleccionar</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_seguimiento_entregables_tipo_entregable item in ViewBag.tiposegentregable)
+                        {
+                            if (Model.id_tipo_entregable != null)
+                            {
+                                if (Model.id_tipo_entregable == item.id_tipo_entregable)
+                                {
+                                    <option selected value="@item.id_tipo_entregable">@item.nom_tipo_entregable</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.id_tipo_entregable">@item.nom_tipo_entregable</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.id_tipo_entregable">@item.nom_tipo_entregable</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class=" col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Persona responsable:</label>
+                    <select class="form-control select2" id="persona_responsable" name="persona_responsable" required>
+                        <option value="">- Seleccionar</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_responsables item in ViewBag.personaresponsable)
+                        {
+                            if (!string.IsNullOrEmpty(Model.persona_responsable))
+                            {
+                                if (item.usuario == Model.persona_responsable)
+                                {
+                                    <option selected value="@item.usuario">@item.nombre</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.usuario">@item.nombre</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.usuario">@item.nombre</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-center form-group">
+                    <a role="button" class="btn button_Asalud_Rechazar" href="@Url.Action("TableroControlEntregables","SeguimientoEntregables")">Volver</a>
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar cambios</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        if ("@fechaControl" != "")
+        {
+            var datepicker = $("#Fechainicio").data("kendoDatePicker");
+            var fechacontrol = "@fechaControl";
+            datepicker.value(new Date(fechacontrol));
+        }
+    })
+
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+</script>
+
+

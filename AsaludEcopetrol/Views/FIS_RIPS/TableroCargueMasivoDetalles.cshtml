@@ -1,0 +1,358 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO DE CONTROL CARGUES DETALLES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de cargues realizados</strong>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered datatable table-hover">
+            <thead>
+                <tr>
+                    <th>ítem</th>
+                    <th>Regional</th>
+                    <th>No registros cargados</th>
+                    <th>Valor total</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @if (ViewBag.conteo > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_fisRips_TableroDetallesCargueResult item in ViewBag.listado)
+                    {
+                        i++;
+                        <tr>
+                            <td>
+                                <input type="hidden" value="@item.valorPagar" id="valorPagar_@i" name="valorPagar_@i" />
+                                <input type="hidden" value="@item.conteoRegistros" id="conteo_@i" name="conteo_@i" />
+                                <input type="hidden" value="@item.id_lote" id="lote_@i" name="lote_@i" />
+                                @item.id_lote
+                            </td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.conteoRegistros</td>
+                            <td>@item.valorPagar</td>
+                            <td>
+                                @if (ViewBag.rol == 1 || ViewBag.rol == 19 || ViewBag.idUsuario == 1)
+                                {
+                                    <a class="btn button_Asalud_Rechazar" onclick="EliminarCargueMasivo(@i)">ELIMINAR</a>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn button_Asalud_Aceptar" onclick="DescargarReporte(@item.id_lote)">DESCARGAR</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="width:100%;">SIN DATOS</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="ModalEliminar" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" id="modallg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="TituloModal">Eliminar cargue</h4>
+            </div>
+            <div class="modal-body" id="Detalle">
+                <form id="formElim">
+                    <div class="row">
+                        <input type="hidden" id="txtValorPagar" />
+                        <input type="hidden" id="txtConteo" />
+                        <input type="hidden" id="txtLote" />
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observación</label>
+                            <textarea id="observacion" name="observacion" maxlength="2000" class="form-control" rows="4" cols="5" required></textarea>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row text-center">
+                        <a class="button_Asalud_Rechazar" onclick="ValidarEliminar();">Eliminar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function ()
+    {
+        $('.datatable').DataTable({
+            "searching": true,
+            "aLengthMenu": [[10, 30, 200, 500, 1000, 5000, -1], [10, 30, 200, 500, 1000, 5000, "Todos"]],
+            "iDisplayLength": 10,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Ultimo",
+                },
+            }
+        });
+    });
+
+    function EliminarCargueMasivo(id) {
+        $("#txtValorPagar").val($("#valorPagar_" + id).val());
+        $("#txtConteo").val($("#conteo_" + id).val());
+        $("#txtLote").val($("#lote_" + id).val());
+        $("#ModalEliminar").modal("show");
+    }
+
+    function ValidarEliminar() {
+
+        var validacion = $("#formElim").validate();
+        if (validacion.form()) {
+            var txt = confirm("¿Está seguro/a de eliminar el cargue de detalles masivo?");
+            if (txt) {
+                EliminarCargue();
+            }
+        }
+    }
+
+    function EliminarCargue() {
+        var lote = $("#txtLote").val();
+        var valor = $("#txtValorPagar").val();
+        var conteo = $("#txtConteo").val();
+        var observacion = $("#observacion").val();
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarCargueMasivo")",
+            type: "POST",
+            data: {
+                id_lote: lote,
+                conteo: conteo,
+                valor_total: valor,
+                observacion: observacion
+            },
+            success: function (data) {
+                LoadingHide();
+                if (data.success) {
+                    alertify.alert("¡Proceso Exitoso!", "<p style='text-align:justify'>" + data.mensaje + "</p>", function () {
+                        location.reload();
+                    }).set('label', 'Aceptar');
+                }
+                else {
+                    alertify.alert("¡Aviso!", "<p>" + data.mensaje + "</p>").set('label', 'Aceptar');
+                }
+            }
+        })
+    }
+    function DescargarReporte(idLote) {
+        var url = "@Url.Action("ExcelDescargarDetalles", "FIS_RIPS")?idLote=" + idLote;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=20,top=400,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

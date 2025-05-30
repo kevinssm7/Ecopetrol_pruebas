@@ -1,0 +1,375 @@
+﻿
+@{
+    ViewBag.Title = "CIERRE FACTURACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Validaciones activas</strong>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-condensed table-striped datatable" id="grid"></table>
+            <br />
+            <br />
+        </div>
+
+    </div>
+
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Ingreso validación</strong>
+    </div>
+    <div class="panel-body">
+        <form class="animated fadeInDown" id="formulario2">
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select" id="regional" name="regional" required>
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                        {
+                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Fecha inicial</label>
+                    <input type="text" class="datepickerr" value="" style="width: 100%" name="FechaInicio" id="FechaInicio" required="required" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Fecha final</label>
+                    <input type="text" class="datepickerr" style="width:100%" name="fechafinal" id="fechafinal" required />
+                </div>
+                @*<div class="col-sm-3">
+                <label class="text-secondary_asalud">Hora Final</label>
+                <input id="horafinal" width="150" name="horafinal" required />
+            </div>*@
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Año</label>
+                    <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="5" required name="ano" id="ano" disabled>
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Mes</label>
+                    <select class="form-control select2" required id="cbxmes" name="cbxmes" autocomplete="off" onchange="CargarTrimestre($(this).val())" >
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                        {
+                            <option value="@item.id_mes">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12" align="center">
+                    <button class="button_Asalud_Guardar" type="button" onclick="finalizar2()">GUARDAR</button>
+                </div>
+            </div>
+            
+            <div style="display:none">
+                <input class="form-control" type="text" name="id_lote" id="id_lote" value="@ViewBag.id_lote" />
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+</div>
+<script src="~/Scripts/validate.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $('#horafinal').timepicker();
+        $(".k-input").attr('readonly', true);
+
+        var grid = $('#grid').grid({
+            locale: 'es-es',
+            primaryKey: 'id_ref_validacion_fechas',
+            dataSource: '/RadicacionElectonica/GetAlertas/',
+
+            columns: [
+                { field: 'id_ref_validacion_fechas', title: 'Id' },
+                { field: 'fecha_inicial', title: 'Fecha inicial', type: 'date', format: "dd/mm/yyyy" },
+                { field: 'fecha_final', title: 'Fecha final', type: 'date', format: "dd/mm/yyyy" },
+                { field: 'nombre_regional', title: 'Regional' },
+                {
+                    title: 'Inactivar', tmpl: '<span class="material-icons">delete_forever</span >', align: 'center',
+                    events: { 'click': Edit1 }
+                },
+
+            ],
+            pager: { limit: 10 },
+        });
+
+        $("#FechaInicio").change(function () {
+
+            var fechaUno = $("#FechaInicio").val()
+            var fechados = $("#fechafinal").val()
+
+            var xMonth = fechaUno.substring(4, 5);
+            var xYear = fechaUno.substring(6, 10);
+           
+            $("#ano").val(xYear);
+            $("#cbxmes").val(xMonth);
+
+            if (fechados != "") {
+                compare_dates(fechaUno, fechados);
+
+                if (compare_dates(fechaUno, fechados)) {
+                    alert("ERROR... fecha inicial es mayor a fecha final");
+                    $("#FechaInicio").val("");
+                }
+                else {
+
+                }
+            }
+        });
+
+        $("#fechafinal").change(function () {
+
+            var fechaUno = $("#fechafinal").val()
+            var fechados = $("#FechaInicio").val()
+
+            if (fechados != "") {
+                compare_dates(fechaUno, fechados);
+                if (compare_dates(fechaUno, fechados)) {
+
+                }
+                else {
+                    alert("ERROR... fecha final es menor a fecha inicial");
+                    $("#fechafinal").val("");
+                }
+            }
+        });
+    })
+
+    function finalizar2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+
+            FinalizarDatos2();
+        }
+    }
+
+    function FinalizarDatos2() {
+
+        var formData = new FormData($("form")[0]);
+
+        var fecha2 = $("#fechafinal").val()
+        var xMonth2 = fecha2.substring(3, 5);
+        var xDay2 = fecha2.substring(0, 2);
+        var xYear2 = fecha2.substring(6, 10);
+        var fechafinal2 = xMonth2 + '/' + xDay2 + '/' + xYear2;
+
+        var fecha = $("#FechaInicio").val()
+        var xMonth = fecha.substring(3, 5);
+        var xDay = fecha.substring(0, 2);
+        var xYear = fecha.substring(6, 10);
+        var FechaInicio2 = xMonth + '/' + xDay + '/' + xYear;
+
+
+        formData.append("regional", $("#regional").val());
+        formData.append("fechaIni2", FechaInicio2);
+        formData.append("fechaFin", fechafinal2);
+        formData.append("mes", $("#cbxmes").val());
+        formData.append("año", $("#ano").val());
+        
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveGestionAlertas", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                  alert(response.message);
+                  location.reload();
+              }
+              else
+              {
+                  LoadingHide();
+                  alert(response.message);
+              }
+
+            }
+        })
+
+
+    }
+
+
+    function Edit1(e) {
+
+        var AI = e.data.record.id_ref_validacion_fechas;
+
+        var mensaje = "¿Esta seguro que desea Inactivar este Registro?";
+        var opcion = confirm(mensaje);
+        if (opcion == true) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("InactivarAlerta")",
+                type: "post",
+                data:
+                {
+                    ID: AI
+                },
+               success: function (response) {
+
+                  if (response.success)
+                  {
+                      LoadingHide();
+                      alert(response.message);
+                      location.reload();
+
+                  }
+                  else
+                  {
+                         alert(response.message);
+                         LoadingHide();
+                  }
+
+                }
+            })
+        }
+    }
+
+    function compare_dates(fecha, fecha2) {
+        var xMonth = fecha.substring(3, 5);
+        var xDay = fecha.substring(0, 2);
+        var xYear = fecha.substring(6, 10);
+        var yMonth = fecha2.substring(3, 5);
+        var yDay = fecha2.substring(0, 2);
+        var yYear = fecha2.substring(6, 10);
+        if (xYear > yYear) {
+            return (true)
+        }
+        else {
+            if (xYear == yYear) {
+                if (xMonth > yMonth) {
+                    return (true)
+                }
+                else {
+                    if (xMonth == yMonth) {
+                        if (xDay > yDay)
+                            return (true);
+                        else
+                            return (false);
+                    }
+                    else
+                        return (false);
+                }
+            }
+            else
+                return (false);
+        }
+    }
+
+
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+
+
+
+
+

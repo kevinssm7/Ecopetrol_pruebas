@@ -1,0 +1,148 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">EDICIÓN CIE10</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formCie10">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">CIE10</label>
+                    <input type="text" class="form-control" id="cie10" name="cie10" value="@ViewBag.cie10" />
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Descripción CIE10</label>
+                    <input type="text" class="form-control" id="descripcioncie10" name="descripcioncie10" value="@ViewBag.descripcioncie10" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">CIE10 relacionado</label>
+                    <input type="text" class="form-control" id="cie10relacionado" name="cie10relacionado" value="@ViewBag.cie10relacionado" />
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Descripción CIE10 relacionado</label>
+                    <input type="text" class="form-control" id="descripcioncie10relacionado" name="descripcioncie10relacionado" value="@ViewBag.descripcioncie10relacionado" />
+                </div>
+            </div>
+            <br />
+            <div class="row text-center">
+                <a class="btn button_Asalud_Guardar" onclick="ValidarDatos();">GUARDAR</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+
+    $("#cie10").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarCie10Fis",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            response(
+                                data.map(function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id,
+                                    };
+                                })
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    },
+                });
+            }
+        },
+        select: function (event, ui) {
+            let nomCamp = $(this).attr("id");
+            var idUs = nomCamp.split("_")[1];
+            $("#cie10" + idUs).val(ui.item.value);
+            var des = ui.item.label.split("-")[1];
+            $("#descripcioncie10").val(des);
+        },
+    });
+
+    $("#cie10relacionado").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarCie10Fis",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            response(
+                                data.map(function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id,
+                                    };
+                                })
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    },
+                });
+            }
+        },
+        select: function (event, ui) {
+            debugger
+
+            let nomCamp = $(this).attr("id");
+            var idUs = nomCamp.split("_")[1];
+            $("#cie10relacionado" + idUs).val(ui.item.value);
+            var des = ui.item.label.split("-")[1];
+            $("#descripcioncie10relacionado").val(des);
+        },
+    });
+
+
+    function ValidarDatos() {
+
+        var formData = new FormData($("#formCie10")[0]);
+        formData.append("idRegistro","@ViewBag.idRegistro");
+        formData.append("idFactura", "@ViewBag.idFactura");
+        formData.append("cie10", $("#cie10").val());
+        formData.append("descripcioncie10", $("#descripcioncie10").val());
+        formData.append("cie10relacionado", $("#cie10relacionado").val());
+        formData.append("descripcioncie10relacionado", $("#descripcioncie10relacionado").val());
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarEdicionCIE10")",
+            data: formData,
+            type: "post",
+            processData: false,
+            contentType: false,
+    
+            success: function (data) {
+
+                alert(data.mensaje);
+                LoadingHide();
+                $("#ModalEditarCIE10").modal("hide");
+
+                if (data.rta == 1) {
+                    PintarCupsIndividual("@ViewBag.idFactura", "@ViewBag.idRegistro");
+                }
+            }
+
+        });
+
+    }
+
+</script>

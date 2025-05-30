@@ -1,0 +1,612 @@
+﻿@{
+    ECOPETROL_COMMON.ENTIDADES.natalidad_registros Model = (ECOPETROL_COMMON.ENTIDADES.natalidad_registros)ViewBag.nat;
+}
+
+@{
+    ViewBag.Title = "INGRESO NATALIDAD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<br>
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="formNatalidad" enctype="multipart/form-data" method="post" action="@Url.Action("ReporteNatalidad","MorNat")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">INSERCIÓN</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="hidden" id="idNatalidad" name="idNatalidad" value="@ViewBag.idNatalidad" />
+                            <input type="hidden" id="VersionN" name="VersionN" />
+
+                            <label class="text-secondary_asalud">Regional pertenece</label>
+                            <select class="form-control select2" id="IdRegional" name="IdRegional" onchange="CargarUnis($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" id="IdUnis" name="IdUnis" onchange="ObtenerCiudades($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad SMed</label>
+                            <select class="form-control select2" id="IdCiudadSmed" name="IdCiudadSmed" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad nacimiento</label>
+                            <select class="form-control select2" id="idLocalidad" name="idLocalidad" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ciudades item in ViewBag.ciudades)
+                                {
+                                    <option value="@item.id_ref_ciudades">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Identificación de la madre</label>
+                            <input type="text" class="form-control solo-numero" id="IdentificacionMadre" name="IdentificacionMadre" maxlength="49" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Apellidos</label>
+                            <input type="text" class="form-control" id="Apellidos" name="Apellidos" maxlength="100" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nombres</label>
+                            <input type="text" class="form-control" id="Nombres" name="Nombres" maxlength="100" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Año:</label>
+                            <select id="Anio" name="Anio" class="form-control select2" required>
+                                <option value="">-Seleccione--</option>
+                                @foreach (var item in ViewBag.años)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control select2" id="IdMes" name="IdMes" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Cod personal</label>
+                            <input type="text" class="form-control solo-numero" id="CodPersonal" name="CodPersonal" maxlength="49" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha nacimiento</label>
+                            <input type="text" class="form-control datepickerr" id="FechaNacimiento" name="FechaNacimiento" style="width:100%" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Edad gestacional</label>
+                            <input type="text" class="form-control" id="EdadGestacional" name="EdadGestacional" maxlength="4" required>
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Peso</label>
+                            <input type="number" class="form-control solo-numero" id="Peso" name="Peso" required>
+                            <span class="error-message" style="color: red;"></span>
+
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Vía parto</label>
+                            <select id="ViaParto" name="ViaParto" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="Vaginal">Vaginal</option>
+                                <option value="Cesarea">Cesárea</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Talla</label>
+                            <input type="number" class="form-control solo-numero" id="Talla" name="Talla" required>
+                            <span class="error-message" style="color: red;"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Sexo</label>
+                            <select id="Sexo" name="Sexo" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Apgar</label>
+                            <input type="text" class="form-control" id="Apgar" name="Apgar" maxlength="49">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Causa egreso</label>
+                            <input type="text" maxlength="200" id="CausaEgreso" name="CausaEgreso" class="form-control" autocomplete="off" required />
+
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Control prenatal</label>
+                            <select id="ControlPrenatal" name="ControlPrenatal" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3"> 
+                            <label class="text-secondary_asalud">Fecha</label>
+                            <input type="text" class="form-control datepickerr" id="Fecha" name="Fecha" style="width:100%" required>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea class="form-control char-count" id="Observaciones" name="Observaciones" cols="4" rows="4" maxlength="5000" required></textarea>
+                            <p class="charCount">Te quedan 5000 caracteres.</p>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input id="BtnGuardar" onclick="ValidarFormulario();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date(),
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        const inputEdadGestacional = document.getElementById('EdadGestacional');
+        inputEdadGestacional.addEventListener('input', function (event) {
+            let valor = event.target.value;
+            valor = valor.replace(/[^\d.]/g, '');
+            event.target.value = valor;
+        });
+
+
+        var idNatalidad = $("#idNatalidad").val();
+        if (!isNaN(idNatalidad && idNatalidad != 0)) {
+            PintarDatos();
+        }
+
+
+
+        document.getElementById('Peso').addEventListener('invalid', function () {
+            this.setCustomValidity(''); // Reset custom validity to prevent browser default message
+            if (!this.validity.valid) {
+                this.setCustomValidity('Por favor, introduce un valor mayor o igual a 1500 y menor o igual a 5000.');
+                document.querySelector('.error-message').textContent = this.validationMessage;
+            }
+        });
+
+        // Clear the error message when the input is valid
+        document.getElementById('Peso').addEventListener('input', function () {
+            document.querySelector('.error-message').textContent = '';
+        });
+
+        var fechaActual = new Date();
+        var añoActual = fechaActual.getFullYear();
+        $("#Anio").val(añoActual).trigger("change");
+
+        PintarMes();
+
+        $("#Anio").change(function () {
+            PintarMes();
+        });
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+    });
+
+    function PintarMes() {
+        var fechaActual = new Date();
+        var añoActual = fechaActual.getFullYear();
+        var mesActual = fechaActual.getMonth() + 1; // Se suma 1 porque getMonth() devuelve el mes base 0 (enero es 0)
+        var añoSeleccionado = parseInt($("#Anio").val());
+
+        // Limpiar el select de meses
+        $("#IdMes").empty();
+
+        // Si el año seleccionado es igual al año actual
+        if (añoSeleccionado == añoActual) {
+            // Agregar opciones de meses hasta el mes actual
+            for (var i = 1; i <= mesActual; i++) {
+                $("#IdMes").append('<option value="' + i + '">' + obtenerNombreMes(i) + '</option>');
+            }
+            $("#IdMes").val(mesActual);
+
+        } else {
+            // Agregar todas las opciones de meses
+            for (var i = 1; i <= 12; i++) {
+                $("#IdMes").append('<option value="' + i + '">' + obtenerNombreMes(i) + '</option>');
+            }
+        }
+    }
+
+    // Función para obtener el nombre del mes dado su número (1-12)
+    function obtenerNombreMes(numeroMes) {
+        var nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        return nombresMeses[numeroMes - 1];
+    }
+
+    function PintarDatos() {
+
+        var FechaNacimiento = '@Model.fecha_nacimiento'.split(' ')[0];
+        var Fecha = '@Model.fecha'.split(' ')[0];
+
+        $("#IdRegional").val("@Model.id_regional").trigger("change");
+        $("#idLocalidad").val("@Model.id_localidad").trigger("change");
+
+        $("#IdentificacionMadre").val("@Model.identificacion_madre");
+
+        $("#CodPersonal").val("@Model.cod_personal");
+        $("#Apellidos").val("@Model.apellidos");
+        $("#Nombres").val("@Model.nombres");
+        $("#IdMes").val("@Model.id_mes").trigger("change");
+        $("#Anio").val("@Model.año").trigger("change");
+        $("#FechaNacimiento").val(FechaNacimiento);
+        $("#EdadGestacional").val("@Model.edad_gestacional");
+        $("#Peso").val("@Model.peso").trigger("change");
+        $("#ViaParto").val("@Model.via_parto").trigger("change");
+        $("#Talla").val("@Model.talla");
+        $("#Sexo").val("@Model.sexo").trigger("change");
+        $("#Apgar").val("@Model.apgar");
+        $("#CausaEgreso").val("@Model.causa_egreso");
+        $("#ControlPrenatal").val("@Model.control_prenatal").trigger("change");
+        $("#Fecha").val(Fecha).trigger("change");
+
+        var observaciones = `@Model.observaciones`;
+        observaciones = observaciones.trim();
+
+        document.getElementById("Observaciones").innerText = observaciones;
+
+        $("#VersionN").val("@Model.version").trigger("change");
+    }
+
+    $("#IdentificacionMadre").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "/MorNat/BuscarBeneficiarios",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data.length > 0 && data != null) {
+
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.id,
+                                };
+                            }));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+        select: function (event, ui) {
+            ElegirBB(ui.item.value); // Llama a la función ElegirBB pasando el valor del elemento seleccionado
+        }
+    });
+
+    function ElegirBB(idBB) {
+        $.ajax({
+            url: "@Url.Action("LlenarDatosBB")",
+            type: "post",
+            data: { idBB: idBB },
+            success: function (data) {
+                var datos = data.split('|');
+
+                $("#IdentificacionMadre").val(datos[1]);
+                $("#CodPersonal").val(datos[2]);
+                $("#Apellidos").val(datos[4]);
+                $("#Nombres").val(datos[5]);
+            }
+        });
+    }
+
+    function ValidacionArchivoConfirmados() {
+        var data = document.getElementById('soporte');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        for (contador; contador < distintosArchivos.length; contador++) {
+
+            var nameext = data.files[contador].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["pdf", "Pdf", "PDF"];
+
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos PDF.");
+                $("#soporte").val("");
+            }
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function CargarUnis(a) {
+
+        if (a != "") {
+            $("#IdCiudadSmed").empty();
+            $("#IdUnis").empty();
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#IdUnis").empty();
+                    $("#IdUnis").html(data);
+                    $("#IdUnis").val("").trigger("change");
+
+                    var idNatalidad = $("#idNatalidad").val();
+                    if (!isNaN(idNatalidad) && idNatalidad != 0) {
+                        if ("@Model.id_unis" != null) {
+                            $("#IdUnis").val("@Model.id_unis").trigger("change");
+                            ObtenerCiudades("@Model.id_unis");
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#IdCiudadSmed").empty();
+                    $("#IdCiudadSmed").html(data);
+                    $("#IdCiudadSmed").val("").trigger("change");
+
+                    var idNatalidad = $("#idNatalidad").val();
+                    if (!isNaN(idNatalidad) && idNatalidad != 0) {
+                        if ("@Model.id_ciudad_smed" != null) {
+                            $("#IdCiudadSmed").val("@Model.id_ciudad_smed").trigger("change");
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formNatalidad").validate();
+        if (validator.form()) {
+
+            var peso = $("#Peso").val();
+            if (peso < 1500 || peso > 5000) {
+                alert("Peso debe estar entre 1500 y 5000");
+                return false;
+            }
+
+            var talla = $("#Talla").val();
+            if (talla < 25 || talla > 60) {
+                alert("Talla debe estar entre 25 y 60");
+                return false;
+            }
+
+            LoadingShow();
+            $("#formNatalidad").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .charCount {
+        font-size: 10px;
+    }
+</style>
+
+

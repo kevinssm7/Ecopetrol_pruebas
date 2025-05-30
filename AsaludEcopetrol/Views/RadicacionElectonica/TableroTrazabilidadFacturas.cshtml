@@ -1,0 +1,304 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO TRAZABILIDAD FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+
+        @*<div class="gj-margin-top-10">*@
+        <div class="gj-float-left">
+            <form class="display-inline" id="formulariobuscar">
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha de Recepción Inicial</label>
+                        <input class="datepickerr" title="datepicker" style="width:100%" name="fechainicial" id="fechainicial" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha de Recepción Final</label>
+                        <input class="datepickerr" title="datepicker" style="width:100%" name="fechafinal" id="fechafinal" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud"> Prestador</label>
+                        <input type="text" class="form-control" name="prestador" id="prestador" autocomplete="off" maxlength="60" />
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Nit Prestador</label>
+                        <input type="text" class="form-control" name="nit" id="nit" autocomplete="off" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Numero Factura</label>
+                        <input type="text" class="form-control" name="numFac" id="numFac" autocomplete="off" />
+                    </div>
+                </div>
+
+                <br />
+                <button id="btnSearch" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                <button id="btnClear" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+            </form>
+        </div>
+        @*</div>*@
+    </div>
+</div>
+<div align="right">
+    <button id="btnDescarga1" type="button" class="button_Asalud_descargas">Descargar Resultados</button>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-condensed table-striped datatable" id="grid"></table>
+    <br />
+    <br />
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        var var1 = $('input:text[id$=fechainicial]').keyup();
+        var var2 = $('input:text[id$=fechafinal]').keyup();
+
+
+        var grid = $('#grid').grid({
+            locale: 'es-es',
+            primaryKey: 'id_cargue_dtll',
+            dataSource: '/RadicacionElectonica/GetTableroTrazabilidad/',
+            columns: [
+                { field: 'id_cargue_base', title: 'Lote', sortable: true },
+                { field: 'num_factura', title: 'Numero Factura', sortable: true },
+                { field: 'valor_neto', title: 'Valor Factura', sortable: true },
+                { field: 'homologacion_razonSocial', title: 'Prestador'},
+                { field: 'nombre_regional', title: 'Regional'},
+                { field: 'fecha_recepcion_fac', title: 'Fecha Recepción', type: 'date', format: "dd/mm/yyyy", sortable: true },
+                { field: 'estado_des', title: 'Estado Actual' },
+                { field: 'nom_analitica', title: 'Analista'},
+                { field: 'nom_auditor', title: 'Auditor'},
+            ],
+            pager: { limit: 10 }
+        });
+
+        grid.on('dataBound', function (e, records, totalRecords) {
+            LoadingHide();
+        });
+
+
+        $('#btnSearch').on('click', function () {
+            if (ValidacionArchivo()) {
+                LoadingShow();
+                grid.reload({ page: 1, fechainicial: $('#fechainicial').val(), fechafin: $('#fechafinal').val(), nombre_prestador: $('#prestador').val(), nit: $('#nit').val(), numFac: $('#numFac').val(), buscar: "True" });
+            }
+        });
+
+        $('#btnDescarga1').on('click', function () {
+
+            var var1 = $("#fechainicial").val();
+            var var2 = $("#fechafinal").val();
+            var var3 = $("#prestador").val();
+            var var6 = $("#nit").val();
+            var var7 = $("#numFac").val();
+
+            var url = "@Url.Action("ExportarLstTableroTrazabilidad", "RadicacionElectonica")?fechainicial=" + var1 + '&fechafin=' + var2 + '&nombre_prestador=' + var3 + '&nit=' + var6 + '&numFac=' + var7;
+            window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+
+        });
+
+        $("#prestador").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nombre",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nit").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nit",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+    })
+
+
+
+    function ValidacionArchivo() {
+        var fecha = $("#fechainicial").val()
+        var fecha2 = $("#fechafinal").val()
+
+        if (fecha != "") {
+            if (fecha2 != "") {
+                return true
+            }
+            else {
+                alert('Por favor, seleccione una fecha final...');
+                return false;
+            }
+        }
+        else {
+            return true
+        }
+
+    }
+
+</script>
+
+
+<style>
+    TABLE.gj-grid {
+        text-align: center;
+        margin: 10px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .gj-grid-md {
+        position: relative;
+        border: 1px solid #e0e0e0;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        background-color: #fff;
+    }
+
+
+        .gj-grid-md th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            position: relative;
+            vertical-align: bottom;
+            font-weight: 700;
+            line-height: 31px;
+            letter-spacing: 0;
+            height: 56px;
+            font-size: 12px;
+            color: #FDF9F9;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            background: #636363;
+        }
+
+        .gj-grid-md td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            position: relative;
+            height: 48px;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            color: rgba(0,0,0,.87);
+        }
+
+
+
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

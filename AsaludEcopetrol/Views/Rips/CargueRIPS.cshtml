@@ -1,0 +1,308 @@
+﻿    
+@{
+    ViewBag.Title = "CARGUE RIPS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int exito = (int)ViewData["exitoso"];
+    int año = DateTime.Now.Year;
+    List<string> listaerroneos = (List<string>)ViewData["archivosnoc"];
+}
+
+<br />
+
+<div class="container">
+    @if (exito == 1)
+    {
+        if (listaerroneos.Count() == 0)
+        {
+            <div class="row alert alert-new letra">
+                <strong>Carga Terminada! </strong>Registros cargados exitosamente. <br />
+                Archivos cargados correctamente: @ViewBag.numarchivos<br />
+            </div>
+        }
+        else
+        {
+            <div class="row alert alert-new letra">
+                <strong>Carga Terminada! </strong><p style="color:indianred">Algunos Archivos no se cargaron exitosamente.</p><br />
+                Archivos cargados correctamente: @ViewBag.numarchivos<br />
+                Archivos Cargados Incorrectamente:  @listaerroneos.Count() <br />
+                <ul>
+                    @foreach (string item in listaerroneos)
+                    {
+                        <li><strong style="color:indianred">@item</strong></li>
+                    }
+                </ul>
+
+            </div>
+        }
+
+        <br />
+    }
+    else if (exito == 3)
+    {
+        <div class="row alert alert-danger letra">
+            <strong>Carge Fallido!  </strong> Ya se encuentra un cargue similar en base de datos. porfavor comuniquese con el administrador para darle solución a su problema!<br />
+        </div>
+        <br />
+    }
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Cargue masivo de archivos RIPS</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formRips" name="formRips" action="/Rips/CargueRIPS" method="post" enctype="multipart/form-data">
+                <div class="col-lg-12">
+                    <div class="row form-group">
+                        <input type="hidden" name="chkant" value="0" id="chkant" />
+                        <div class="col-sm-2 text-center row">
+                            <label class="text-secondary_asalud">Cargue Anterior?</label>
+                            <input type="checkbox" id="checkant" class="big-checkbox" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Seleccione los archivos *</label>
+                            <input type="file" name="file" id="file" class="form-control" multiple />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Regional *</label>
+                            <select name="regional" id="regional" class="form-control select2">
+                                <option value="">Seleccione...</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.listaRegionales)
+                                   {
+                                       if (item.id_ref_regional != 0)
+                                       {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                       }
+
+                                   }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Mes y año *</label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="mes" name="mes" required>
+                                    <option value="">- MES- </option>
+                                    @for (int mes = 1; mes <= 12; mes++)
+                                       {
+                                    <option value="@mes">@mes</option>
+                                       }
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <input name="año" id="año" maxlength="4" placeholder="-AÑO-" type="text" class="form-control solo-numero year" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-12 text-center">
+                            <button class="btn button_Asalud_Guardar" type="submit">Cargar RIPS</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("form[name='formRips']").validate({
+            lang: 'Es',
+            rules: {
+                file: "required",
+                regional: "required",
+                mes: { required: true },
+                año: "required",
+            },
+            messages: {
+                file: 'No se ha seleccionado ningun archivo'
+            },
+            submitHandler: function (form) {
+                CargarRips();
+            }
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+
+        $("#checkant").change(function () {
+            if ($(this).is(':checked')) {
+                $("#chkant").val(1)
+            }
+            else {
+                $("#chkant").val(0)
+            }
+        })
+    })
+
+    function CargarRips() {
+        var año = '@año';
+        if (parseInt($("#año").val()) > parseInt(año) || parseInt($("#año").val()) < 2010) {
+            alert("El año no es valido.")
+        } else {
+            LoadingShow();
+            form.submit();
+        }
+    }
+
+
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label
+    {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

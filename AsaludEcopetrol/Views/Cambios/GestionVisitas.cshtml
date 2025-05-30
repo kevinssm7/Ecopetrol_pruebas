@@ -1,0 +1,324 @@
+﻿
+@{
+    ViewBag.Title = "GESTIÓN VISITAS DE CALIDAD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <ul class="nav nav-pills">
+        <li class="active"><a href="#1b" id="tab1" data-toggle="tab">Eliminar visitas de calidad</a></li>
+        <li><a href="#2b" id="tab2" data-toggle="tab">Eliminar evaluación de calidad </a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="1b">
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <p class="text-primary_asalud">BUSCAR VISITAS POR NUMERO ID O PRESTADOR</p>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-5">
+                            <label class="radio-inline">
+                                <input type="radio" name="check1" id="check1" checked="checked">Id visita de calidad
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="check2" id="check2">Identificación prestador
+                            </label>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <br />
+                    <div id="pnlvisita">
+                        <form id="formulario" name="formulario" action="GestionarVisita" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <label class="text-secondary_asalud">Id visita:</label><span style="color:red"></span>
+                                    <input type="text" class="form-control solo-numero" required name="id_visita" id="id_visita" maxlength="10" />
+                                </div>
+                                <div class="col-md-3">
+                                    <h5><span class="label label-default" style="visibility:hidden">buscar</span></h5>
+                                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">BUSCAR</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="pnlprestador" style="display:none">
+                        <form id="formulario2" name="formulario2" action="GestionarVisita" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <label class="text-secondary_asalud">Prestador :</label><span style="color:red"></span>
+                                    <select class="form-control select2" style="width:100%" required id="id_prestador" name="id_prestador">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.calidad_prestadores item in ViewBag.CalidadPrestadores)
+                                        {
+                                            <option value="@item.id_prestador">@item.num_contrato - @item.razon_social</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="label label-default" style="visibility:hidden; width:100%">Boton para buscar por prestador las evaluaciones</span>
+                                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario2()">BUSCAR</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="2b">
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <p class="text-primary_asalud">BUSCAR EVALUACION DE VISITAS POR ID VISITA O PRESTADOR</p>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-5">
+                            <label class="radio-inline">
+                                <input type="radio" name="check3" id="check3" checked="checked">Id visita de calidad
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="check4" id="check4">Identificación prestador
+                            </label>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <br />
+                    <div id="pnlvisita2">
+                        <form id="formulario3" name="formulario3" action="GestionarVisitasEvaluadas" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <label class="text-secondary_asalud">Id visita:</label><span style="color:red"></span>
+                                    <input type="text" class="form-control solo-numero" required name="id_visita2" id="id_visita2" maxlength="10" />
+                                </div>
+                                <div class="col-md-3">
+                                    <h5><span class="label label-default" style="visibility:hidden">buscar</span></h5>
+                                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario3()">BUSCAR</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="pnlprestador2" style="display:none">
+                        <form id="formulario4" name="formulario4" action="GestionarVisitasEvaluadas" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">Prestador :</label><span style="color:red"></span>
+                                    <select class="form-control select2" style="width:100%" required id="id_prestador2" name="id_prestador2">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.calidad_prestadores item in ViewBag.CalidadPrestadores)
+                                        {
+                                            <option value="@item.id_prestador">@item.num_contrato - @item.razon_social</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="label label-default" style="visibility:hidden; width:100%">Boton para buscar por prestador las evaluaciones</span>
+                                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario4()">BUSCAR</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#check1").click(function () {
+            $("#pnlvisita").css('display', 'block');
+            $("#pnlprestador").css('display', 'none');
+            $("#check2").prop('checked', false);
+            $("#id_prestador").val("");
+        })
+
+        $("#check2").click(function () {
+            $("#pnlprestador").css('display', 'block');
+            $("#pnlvisita").css('display', 'none');
+            $("#check1").prop('checked', false);
+            $("#id_visita").val("");
+        })
+
+        $("#check3").click(function () {
+            $("#pnlvisita2").css('display', 'block');
+            $("#pnlprestador2").css('display', 'none');
+            $("#check4").prop('checked', false);
+            $("#id_prestador2").val("");
+        })
+
+        $("#check4").click(function () {
+            $("#pnlprestador2").css('display', 'block');
+            $("#pnlvisita2").css('display', 'none');
+            $("#check3").prop('checked', false);
+            $("#id_visita2").val("");
+        })
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    })
+
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    function ValidarFormulario2() {
+
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            $("#formulario2").submit();
+        }
+    }
+
+    function ValidarFormulario3() {
+
+        var validator = $("#formulario3").validate();
+        if (validator.form()) {
+            $("#formulario3").submit();
+        }
+    }
+
+    function ValidarFormulario4() {
+
+        var validator = $("#formulario4").validate();
+        if (validator.form()) {
+            $("#formulario4").submit();
+        }
+    }
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }
+</style>
+

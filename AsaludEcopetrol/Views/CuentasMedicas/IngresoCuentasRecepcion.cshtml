@@ -1,0 +1,630 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.CuentasRecepcion
+@{
+    ViewBag.Title = "CUENTAS MEDICAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form id="myform" name="myform" action="@Url.Action("IngresoCuentasMedicas")" method="post" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Recepción factura</strong>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Mes:</label>
+                        <select class="form-control select2" id="txtmes" name="mes" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                            {
+                                <option value="@item.descripcion">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Año</label>
+                        <input name="año" id="txtaño" maxlength="4" placeholder="-AÑO-" type="text" class="form-control solo-numero year" autocomplete="off" required/>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">FECHA PRESENTACION FACTURA:</label>
+                        <input type="text" data-role='datepicker' id="txtfechaFactura" name="FechaFactura" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" value="@ViewBag.FechaFactura" />
+                        <span data-for='FechaFactura' class='k-invalid-msg'></span>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">UNIDAD</label>
+                        <select class="form-control select2" name="unidad" id="unidad" onchange="mostrarSatelite($(this).val());" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_unudadR item in ViewBag.unidad)
+
+                            {
+                                <option value="@item.id_ref_ffmm_unudadR">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">UNIDAD SATELITE:</label>
+                        <select class="form-control select2" id="satelite" name="satelite" required>
+                            <option value="0">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    @*<div class="col-sm-3">
+                        <label class="text-secondary_asalud">Tipo registro</label>
+                        <select class="form-control" name="tipo" id="tipo" onchange="mostrarPanel(this.value);" required>
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_ffmm_ips_prestadores_tipo item in ViewBag.tipo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>*@
+                </div>
+                <br />
+
+                <div id="pnlips" class="row">
+                    <div class="col-md-4 form-group">
+                        <label class="text-secondary_asalud">DEPARTAMENTO</label>
+                        <select class="form-control select2" style="width:100%" name="departamento" id="departamento" onchange="ObtenerCiudad($(this).val())" required>
+                            <option value="0">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ffmm_departamento item in ViewBag.regionales)
+                            {
+                                <option value="@item.cod_departamento">@item.departamento</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label class="text-secondary_asalud">MUNICIPIO:</label>
+                        <select class="form-control select2" id="ciudad" name="ciudad" onchange="ObtenerIpsPrestador($(this).val())" required>
+                            <option value="0">- Seleccionar -</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label class="text-secondary_asalud">NOMBRE IPS/PRESTADOR:</label>
+                        <select class="form-control select2" id="ipspre" name="IpsPrestador" required>
+                            <option value="0">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="@Url.Action("CreacionPrestadores", "ffmmAuditoria", new { } )" class="btn button_Asalud_Aceptar"><span class="glyphicon glyphicon-list-alt"></span> Ingresar Nuevo proveedor</a>
+                    </div>
+                </div>
+
+                <div id="pnlgeneral">
+                    <div class="row">
+
+                        <div class="col-md-4 form-group">
+                            <label class="text-secondary_asalud">PREFIJO FACTURA:</label>
+                            @Html.TextBoxFor(m => m.prefijo_factura, new { @class = "form-control", type = "text", validationmessage = "Este Campo es Obligatorio *" })
+
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="text-secondary_asalud">NUMERO FACTURA:</label>
+                            @Html.TextBoxFor(m => m.numero_factura, new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="text-secondary_asalud">VALOR FACTURA:</label>
+                            @Html.TextBoxFor(m => m.vlr_factura, new { @class = "form-control text-segundary_asalud", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label class="form-group text-secondary_asalud">VALOR NOTA CREDITO:</label>
+                            @Html.TextBoxFor(m => m.vlr_nota_credito, new { @class = "form-control", type = "number" })
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="text-secondary_asalud">VALOR ATENCION:</label>
+                            @Html.TextBoxFor(m => m.vlr_atencion, new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="text-secondary_asalud">DEVOLUCION:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.devolucion)
+                                          .Name("devolucion")
+                                         .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                          .OptionLabel("Seleccione...")
+                                          .DataTextField("descripcion")
+                                          .DataValueField("id_ref_ffmm_sino")
+                                          .Filter(FilterType.Contains)
+                                          .Events(events => events.Select("CustomerSelect8"))
+                                          .DataSource(source =>
+                                          {
+                                              source.Read(read =>
+                                              {
+                                                  read.Action("GetCascadesino", "CuentasMedicas");
+                                              });
+                                          })
+                            )
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="text-center">
+                            <input id="0" type="submit" value="INGRESAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_factura" id="id_factura" value="@ViewBag.id_factura" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("form[name='myform']").validate({
+            lang: 'Es',
+            rules: {
+
+                FechaFactura: "required",
+            },
+
+            submitHandler: function (form) {
+                LoadingShow();
+                form.submit();
+            }
+        });
+
+        //jQuery.extend(jQuery.validator.messages, {
+        //    required: "Este Campo es Obligatorio *",
+        //});
+
+        $('.date').datepicker({
+            autoclose: true,
+            format: 'mm/dd/yyyy',
+            orientation: "bottom",
+            todayBtn: "linked",
+            todayHighlight: false,
+        });
+
+        $(".datepicker").datepicker({
+            onSelect: function () {
+                $(this).valid();
+            }
+        });
+        $("#datetimepicker1").change(function () {
+
+            $("#txtFechaIngreso").val('');
+            $("#txtFechaEmision").val('');
+            $("#txtFechaEgreso").val('');
+        })
+
+        $("#vlr_factura").change(function () {
+
+            var valor = parseInt(document.getElementById("vlr_factura").value);
+            var valor2 = parseInt(document.getElementById("vlr_nota_credito").value);
+
+            if (valor2 = "") {
+                valor2 = 0;
+            }
+
+            var total = valor - valor2
+
+            $("#vlr_atencion").val(total);
+
+        })
+
+        $("#vlr_nota_credito").change(function () {
+
+            var valor = parseInt(document.getElementById("vlr_factura").value);
+            var valor2 = parseInt(document.getElementById("vlr_nota_credito").value);
+
+            var total = valor - valor2
+
+            $("#vlr_atencion").val(total);
+
+        })
+
+        var tipo = '@ViewBag.tipo2'
+        if (tipo != "") {
+            $("#tipo").val(tipo).trigger('change');
+        }
+
+        var departamento = '@ViewBag.cod_dane_departamento'
+        if (departamento != "") {
+            $("#departamento").val(departamento).trigger('change');
+        }
+
+        var ciudad = '@ViewBag.cod_dane_municipio'
+        if (ciudad != "") {
+            $("#ciudad").val(ciudad).trigger('change');
+        }
+
+        var ipspre = '@ViewBag.proveedor'
+        if (ipspre != "") {
+            $("#ipspre").val(ipspre).trigger('change');
+        }
+
+        calcular();
+        $("#numero_factura").change(function () {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("ips", $("#ipspre").val());
+            formData.append("fac", $("#numero_factura").val());
+            formData.append("prefijo", $("#prefijo_factura").val());
+
+
+            $.ajax({
+                url: "/CuentasMedicas/GetCascadeBuscarIPSfAC",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        alert('IPS con prefijo y Factura YA EXISTEN');
+
+                        $("#numero_factura").val('');
+                    } else {
+
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        })
+
+        $("#ipspre").change(function () {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("ips", $("#ipspre").val());
+            formData.append("fac", $("#numero_factura").val());
+            formData.append("prefijo", $("#prefijo_factura").val());
+
+
+            $.ajax({
+                url: "/CuentasMedicas/GetCascadeBuscarIPSfAC",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        alert('IPS con prefijo y Factura YA EXISTEN');
+
+                        $("#numero_factura").val('');
+                    } else {
+
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        })
+
+        $("#prefijo_factura").change(function () {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("ips", $("#ipspre").val());
+            formData.append("fac", $("#numero_factura").val());
+            formData.append("prefijo", $("#prefijo_factura").val());
+
+            $.ajax({
+                url: "/CuentasMedicas/GetCascadeBuscarIPSfAC",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        alert('IPS con prefijo y Factura YA EXISTEN');
+
+                        $("#numero_factura").val('');
+                    } else {
+
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        })
+
+
+
+
+        var container = $("#myform");
+        kendo.init(container);
+        container.kendoValidator({
+            rules: {
+                greaterdate: function (input) {
+                    if (input.is("[data-greaterdate-msg]") && input.val() != "") {
+                        var date = kendo.parseDate(input.val()),
+                            otherDate = kendo.parseDate($("[name='" + input.data("greaterdateField") + "']").val());
+                        return otherDate == null || otherDate.getTime() < date.getTime();
+                    }
+
+                    return true;
+                }
+            }
+        });
+    })
+
+    function calcular()
+    {
+        var valor = parseInt(document.getElementById("vlr_factura").value);
+        var valor2 = parseInt(document.getElementById("vlr_nota_credito").value);
+         if (valor2 = "") {
+             valor2 = 0;
+         }
+       var total = valor - valor2
+
+       $("#vlr_atencion").val(total);
+
+    }
+    function mostrarSatelite(a) {
+        $.ajax({
+            url: "@Url.Action("ObtenerSatelite")",
+            type: "post",
+            data: {
+                unidad: a,
+            },
+            success: function (data) {
+                $("#satelite").empty();
+                $("#satelite").html(data);
+                $("#satelite").val("").trigger("change");
+            }
+        })
+    }
+
+    function ObtenerCiudad(a) {
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudades")",
+            type: "post",
+            data: {
+                idDepartamento: a,
+            },
+            success: function (data) {
+                $("#ciudad").empty();
+                $("#ciudad").html(data);
+                $("#ciudad").val("").trigger("change");
+            }
+        })
+    }
+
+    function ObtenerIpsPrestador(a) {
+
+        var idCiudad = a;
+
+        $.ajax({
+            url: "@Url.Action("ObtenerIpsPrestadorSinTipo")",
+            type: "post",
+            data: {
+                idCiudad: idCiudad,
+            },
+            success: function (data) {
+                $("#ipspre").empty();
+                $("#ipspre").html(data);
+                $("#ipspre").val("").trigger("change");
+            }
+        })
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#unidad_regionalizadora").val(DataItem.id_ref_ffmm_unudadR);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#unidad_satelite").val(DataItem.id_ref_ffmm_unidad_satelite);
+    }
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#devolucion").val(DataItem.id_ref_ffmm_sino);
+
+    }
+
+
+    $(function () {
+        var validator = $("#myform").kendoValidator().data("kendoValidator");
+        var status = $(".status");
+        var Alerta = 0;
+        var mensaje = "";
+
+
+        $("form").submit(function (event) {
+            event.preventDefault();
+            if (validator.validate()) {
+
+                SaveRecepcion();
+
+
+            } else {
+                status.text("Oops! There is invalid data in the form.")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            }
+        });
+    });
+
+    function SaveRecepcion() {
+        var id = $("#id_factura").val();
+
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("mes", $("#txtmes").val());
+        formData.append("año", $("#txtaño").val());
+        formData.append("fecha_presentacion_factura", $("#txtfechaFactura").val());
+        formData.append("unidad_regionalizadora", $("#unidad").val());
+        formData.append("unidad_satelite", $("#satelite").val());
+        formData.append("cod_dane_departamento", $("#departamento").val());
+        formData.append("cod_dane_municipio", $("#ciudad").val());
+        formData.append("proveedor", $("#ipspre").val());
+        formData.append("prefijo_factura", $("#prefijo_factura").val());
+        formData.append("nit", $("#Nips").val());
+        formData.append("numero_factura", $("#numero_factura").val());
+        formData.append("vlr_factura", $("#vlr_factura").val());
+        formData.append("vlr_nota_credito", $("#vlr_nota_credito").val());
+        formData.append("vlr_atencion", $("#vlr_atencion").val());
+        formData.append("devolucion", $("#devolucion").val());
+        formData.append("optradio", $("#tipo").val());
+        formData.append("id_factura", $("#id_factura").val());
+        if (true) {
+
+        }
+
+        var variable = 0;
+        LoadingShow();
+        $.ajax({
+
+            url: "/CuentasMedicas/SaveRecepcion",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                variable = response.variable;
+                if (response.success) {
+
+                    alert(response.message);
+                    LoadingHide();
+                    window.location = "@Url.Action("IngresoCuentasRecepcion", "CuentasMedicas")?alerta=" + variable;
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+                    window.location = "@Url.Action("IngresoCuentasRecepcion", "CuentasMedicas")?alerta=" + variable;
+                }
+            }
+        })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                LoadingHide();
+            });
+    }
+
+
+</script>
+
+
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 20px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 1.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: red;
+        font-size: 11px;
+    }
+
+    .text-secondary_asalud {
+        font-size: 12px;
+        color: #556da2;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

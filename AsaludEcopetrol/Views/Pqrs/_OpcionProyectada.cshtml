@@ -1,0 +1,189 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "OPCION PROYECTADA";
+    var id = ViewBag.id;
+}
+
+<form id="formGestion" action="ModificarAnalista" method="post" enctype="multipart/form-data">
+
+    <div class="panel panel-default">
+
+        @if (ViewBag.conteoDetalle != 0 && ViewBag.conteoDetalle != null)
+        {
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-secondary_asalud">DETALLE GESTIÓN PQRS</strong>
+                </div>
+                <div class="panel-body table-responsive" id="estiloTabla">
+                    <table class="table table-bordered table-responsive">
+                        <tbody>
+                            <tr>
+                                @*<th class="text-center">SUBTEMATICA</th>*@
+                                <th class="text-center">PRESTADOR</th>
+                                <th class="text-center">FECHA GESTIÓN</th>
+                                <th class="text-center">REQUIRIÓ LLAMADA</th>
+                                <th class="text-center">A QUIEN LLAMÓ</th>
+                                <th class="text-center">NOMBRE QUIÉN LLAMÓ</th>
+                                <th class="text-center">OBSERVACIÓN</th>
+                                <th class="text-center">OBSERVACIÓN AMPLIACIÓN</th>
+                                <th class="text-center">FECHA AMPLIACIÓN</th>
+                                <th class="text-center">VOBO AUDITOR?</th>
+                                <th class="text-center">FECHA ENVÍO PRESTADOR</th>
+                            </tr>
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_ecop_PQRS_DetalleG item in ViewBag.listaDetalle)
+                            {
+                                <tr>
+                                    @*<td>@item.subtematica_des </td>*@
+                                    <td>@item.descripcion_prestador </td>
+                                    <td>@item.fecha_gestion </td>
+                                    <td>@item.requirio_llamada </td>
+                                    <td>@item.quien_llamo_desc </td>
+                                    <td>@item.nombre_quien_llamo </td>
+                                    <td>@item.observacion_gestion </td>
+                                    <td>@item.observacion_ampliacion </td>
+                                    <td>@item.fecha_ampliacion </td>
+                                    <td>@item.vobo_auditor </td>
+                                    @*<td>@item.nombre_vobo_auditor</td>
+                                        <td>@item.edad_beneficiario</td>*@
+                                    <td>@item.fecha_envio_prestador</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <div class="panel-heading">
+            <p class="text-primary_asalud">Gestionar proyección</p>
+        </div>
+        <div class="panel-body">
+            <div id="divotrosi">
+                <div id="formulario" class="col-md-12">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">¿Cerrar?</label>
+                        <br />
+                        <input type="radio" id="opcion" value="si" name="valor" onclick="validacionSiNo(this.value);" required />Si &nbsp;
+                        <input type="radio" id="opcion" value="no" name="valor" onclick="validacionSiNo(this.value);" />No
+                        <input type="hidden" id="radioFinal" name="radioFinal" />
+                        <input type="hidden" id="id" value="@id" />
+                        <input type="hidden" id="numero_caso" value="@ViewBag.numero_caso" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Archivo</label>
+                        @*<input type="file" id="file" class="form-control file" required/>*@
+                        @*<input type="file" id="file" class="form-control file" onchange="ValidacionArchivo()"/>*@
+                        <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@id, 9);" data-toggle="modal" data-target="#myModalArchivos">
+                            <i class="glyphicon glyphicon-file"></i>&nbsp; Ver archivos
+                        </a>
+
+                    </div>
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Observación</label>
+                        <textarea type="text" id="observacion" rows="4" cols="30" name="observacion" class="form-control col-md-12" maxlength="1999" required></textarea>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12 form-group text-right">
+                        <button type="button" id="btnGuardar" onclick="ValidarFormulario()" class="button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(".datepickerr2").kendoDatePicker({
+        format: "MM/dd/yyyy",
+    });
+
+    debugger
+    function validacionSiNo(valor) {
+
+        if (valor == "si") {
+            $("#radioFinal").val("si");
+            $('input[type="file"]').prop("multiple", true);
+        } else {
+            $("#radioFinal").val("no");
+            $('input[type="file"]').prop("multiple", false);
+
+        }
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formGestion").validate();
+        if (validator.form()) {
+            AvanzarProyectada();
+        }
+    }
+
+    function AvanzarProyectada() {
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id", $("#id").val());
+        formData.append("numero_caso", $("#numero_caso").val());
+        formData.append("observacion", $("#observacion").val());
+        formData.append("radio", $("#radioFinal").val());
+
+        //var archivos = $("#file").get(0).files;
+
+        //for (i = 0; i < archivos.length; i++) {
+        //    formData.append("file", archivos[i]);
+        //}
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("ActualizarProyectada", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                alert(data.message);
+                LoadingHide();
+                location.href = "@Url.Action("TableroCasosProyeccionesFinales", "Pqrs")";
+            }
+        })
+    }
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('file');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["pdf", "docx", "doc", "PDF", "DOCX", "DOC", "Pdf", "Docx", "Doc"];
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + "  no es válida. Por favor, solo subir archivos pdf o word");
+            $("#file").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+
+</script>
+
+<style>
+    .estiloTabla {
+        font-size: 9px;
+    }
+</style>

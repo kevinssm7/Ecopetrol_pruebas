@@ -1,0 +1,580 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.ProcesosInternos.ProcesosInternos
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "INDICADORES";
+    string alerta = (string)ViewData["Alerta"];
+    Double pesocapitulo = (Double)ViewBag.pesocapitulo;
+}
+
+
+<br />
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <div class="col-sm-12 form-group row">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+        <div class="form-group row" style="font-family:'Century Gothic'">
+            <div class="col-sm-4">
+                <strong>Nombre Regional: </strong> @ViewBag.nomregional
+            </div>
+            <div class="col-sm-3">
+                <strong>Nombre Prestador: </strong> @ViewBag.nomindicador
+            </div>
+            <div class="col-sm-3">
+                <strong>Nombre Capitulo: </strong> @ViewBag.nomcapitulo
+            </div>
+            <div class="col-sm-2">
+                <strong>Total: </strong> @ViewBag.totalpeso%
+            </div>
+        </div>
+        <div class="col-sm-12 form-group row">
+            <table class="table table-hover table-striped table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>item</th>
+                        <th style="width:40%">Nombre Item</th>
+                        <th>Peso Individual</th>
+                        <th>Meta</th>
+                        <th>Estado</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 0; }
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.item_capitulo item in ViewBag.listaitems)
+                    {
+                        i += 1;
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.nom_item</td>
+                            <td>@item.Peso_individual%</td>
+                            <td>
+                                @if (item.condicion_especial == false)
+                                {
+                                    foreach (var c in ViewBag.Condiciones)
+                                    {
+                                        if (item.condicion_meta == c.Value)
+                                        {
+                                            <label>@c.Text</label>
+                                        }
+                                    }
+                                    <label>@item.valor_meta</label>
+                                }
+                                else
+                                {
+                                    <label>Condiciones especiales</label>
+                                }
+
+                            </td>
+                            <td>
+                                @if (item.activo == true)
+                                {
+                                    <label>Habilitado</label>
+                                }
+                                else
+                                {
+                                    <label>Inhabilitado</label>
+                                }
+                            </td>
+                            <td style="align-content:center">
+                                <a role="button" href="javascript:void(0)" onclick="getitemInformacion(@item.id_item)" class="btn button_Asalud_Aceptar">Editar</a>
+                                @if (item.activo == true)
+                                {
+                                    <a role="button" id="btnhabilitardesabilitar" href="@Url.Action("HabilitareInhabilitaritem","ProcesosInternos", new {idregional = ViewBag.regional,  idindicador = item.indicador_id, idcapitulo = item.capitulo_id, IdItem = item.id_item,  estado=true})" class="btn button_Asalud_Aceptar">Inhabilitar</a>
+                                }
+                                else
+                                {
+                                    <a role="button" id="btnhabilitardesabilitar" href="@Url.Action("HabilitareInhabilitaritem","ProcesosInternos", new {idregional = ViewBag.regional, idindicador = item.indicador_id, idcapitulo = item.capitulo_id,IdItem = item.id_item, estado=false })" class="btn btn-danger">Habilitar</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-12 text-center form-group">
+            <button class="btn button_Asalud_Guardar" type="button" id="btnadditem">Agregar Item</button>
+            <a role="button" class="btn button_Asalud_Rechazar" id="btnvolver" href="javascript:FinalizarIndicadores()">Finalizar</a>
+        </div>
+
+        <div class="modal fade" id="ModalIndicadores" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form id="form_items" method="post" action="@Url.Action("Indicadores","ProcesosInternos")" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="titlemodal">Modal Header</h4>
+                        </div>
+                        <div class="modal-body row">
+                            <input type="hidden" id="txtiditem" name="iditem" />
+                            <input type="hidden" id="txtidregional" name="idregional" value="@ViewBag.regional" />
+                            <input type="hidden" id="txtidindicador" name="idindicador" value="@ViewBag.idindicador" />
+                            <input type="hidden" id="txtidcapitulo" name="idcapitulo" value="@ViewBag.idcapitulo" />
+                            <input type="hidden" id="txtdistribucionpesos" name="txtdistribucionpesos" />
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Peso Individual</label>
+                                <input type="text" class="form-control solo-numero" maxlength="8" name="pesoindv" id="txtpesoindv" required/>
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">¿otras condiciones?</label>
+                                <label><input type="radio" name="choOtrasCondiciones" id="choOtrasCondiciones1" onclick="otrasCondiciones(1)" checked />&nbsp;NO</label>
+                                <label><input type="radio" name="choOtrasCondiciones" id="choOtrasCondiciones2" onclick="otrasCondiciones(2)" />&nbsp;SI</label>
+                                <input type="hidden" id="txtOtrasCondiciones" name="txtOtrasCondiciones" value="NO" />
+                            </div>
+
+                            <div class="col-sm-4 form-group" id="divCondicionMeta">
+                                <label class="text-secondary_asalud">Condicion Meta</label>
+                                <select class="form-control" id="cbxcondicionmeta" name="condicionmeta">
+                                    <option value="">Seleeccione...</option>
+                                    @foreach (var item in ViewBag.Condiciones)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-4 form-group" id="divValorMeta">
+                                <label class="text-secondary_asalud">Valor Meta</label>
+                                <input type="text" class="form-control solo-numero" id="vlrmeta" maxlength="3" name="vlrmeta" />
+                            </div>
+
+                            <div class="col-sm-12 form-group">
+                                <label class="text-secondary_asalud">Item</label>
+                                <textarea class="form-control" id="txtitem" name="txtitem" maxlength="200" rows="3" required></textarea>
+                            </div>
+
+                            <div class="col-sm-12 form-group">
+                                <strong>Distribuir los pesos de los capitulos </strong>
+                                <input type="hidden" id="txtcountcampos" />
+                                <div id="paneldistribucion" style="max-height:130px; overflow-y:scroll"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn button_Asalud_Guardar" type="submit">Guardar</button>
+                            <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal fade" id="ModaldistrbIndicadores" data-backdrop="static" data-keyboard="false" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" disabled="disabled" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="titlemodal">Distribuir Peso de los indicadores</h4>
+
+                    </div>
+                    <div class="modal-body row">
+                        <div class="col-md-12">
+                            @if (!String.IsNullOrEmpty(alerta))
+                            {
+
+                                @Html.Raw(alerta);
+                            }
+                        </div>
+
+                        <div id="paneldistribuciontwo" style="margin-left:5px">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <label class="pull-left">Peso actual:&nbsp;@ViewBag.totalpeso%</label>
+                        <button type="button" class="btn button_Asalud_Guardar" onclick="postDistribuirPesosIndicadores()">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        var peso = (parseFloat('@ViewBag.totalpeso')%1);
+        if (peso < 0.5)
+        {
+            peso = Math.round(parseFloat('@ViewBag.totalpeso'));
+        }
+        else {
+            peso = Math.floor(parseFloat('@ViewBag.totalpeso'));
+        }
+
+
+        if (parseFloat('@ViewBag.totalpeso') < parseFloat('@pesocapitulo'))
+        {
+            alert("Señor usuario, recuerde que no podra finalizar hasta que el peso de los indicadores sea igual al "+@pesocapitulo+"%");
+        }
+
+        if ("@ViewBag.rta" != "")
+        {
+            if ("@ViewBag.rta" == "2")
+            {
+                DistribuirPesosIndicadores();
+            }
+        }
+
+        $("#form_items").validate({
+            lang: 'Es',
+            rules: {
+                pesoindv: "required",
+                vlrmeta: "required",
+                condicionmeta: { required: true },
+                txtitem: "required",
+            },
+
+            submitHandler: function (form)
+            {
+                if (ValidarValores(1))
+                {
+                    LoadingShow();
+                    $("#ModalIndicadores").modal('hide');
+                    $("#form_items").submit();
+                } else {
+                    return false;
+                }
+
+            }
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.,]/g, '');
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            "paging": false
+        });
+
+        $("#btnadditem").click(function ()
+        {
+            var idregional = '@ViewBag.regional';
+            var idindicaor = '@ViewBag.idindicador';
+            var idcapitulo = '@ViewBag.idcapitulo';
+
+            $.ajax({
+                url: "@Url.Action("GetItemInformacion","ProcesosInternos")",
+                type: "post",
+                data: {idregional :idregional, idindicador: idindicaor, idcapitulo: idcapitulo },
+                success: function (data)
+                {
+                    debugger
+                    $("#paneldistribucion").empty();
+                    $("#paneldistribucion").html(data.tabla);
+                    $("#txtcountcampos").val(data.countvalores);
+                    $("#txtiditem").val("");
+                    $("#cbxcondicionmeta").val("");
+                    $("#txtpesoindv").val("");
+                    $("#vlrmeta").val("");
+                    $("#txtitem").val("");
+                    $("#titlemodal").text("Agregar nuevo item");
+
+                    AbrirModal();
+                }
+            })
+        });
+
+        $("#vlrmeta").focusout(function () {
+            var value = $(this).val();
+            if (parseFloat(value) > 100) {
+                alert("No puede ingresar un valor mayor a 100");
+                $("#vlrmeta").val("");
+            }
+        })
+
+        $("#txtpesoindv").focusout(function () {
+            var value = $(this).val();
+            if (parseFloat(value) > 100) {
+                alert("No puede ingresar un valor mayor a 100");
+                $("#txtpesoindv").val("");
+            }
+        })
+
+        // Funcion que evita que el usuario pueda salir de la pantalla
+        window.onload = function ()
+        {
+            var url = '@Url.Action("Capitulos", "ProcesosInternos", new {idregional = ViewBag.regional,  idindicador = ViewBag.idindicador })';
+            if (typeof history.pushState === "function") {
+                history.pushState("jibberish", null, null);
+                window.onpopstate = function ()
+                {
+                    if (parseFloat("@ViewBag.totalpeso") == parseFloat(@pesocapitulo))
+                    {
+                        window.location = url;
+                    }
+                    else
+                    {
+                        alert("Esta accion no puede ser realizada, ya que el peso total de los indicadores no es igual al "+@pesocapitulo+"%");
+                        history.pushState('newjibberish', null, null);
+                    }
+                };
+            }
+        }
+
+    })
+
+
+    function otrasCondiciones(opc)
+    {
+        if (opc == 1)
+        {
+            $("#txtOtrasCondiciones").val('NO');
+            $("#divCondicionMeta").removeClass('hidden');
+            $("#divValorMeta").removeClass('hidden');
+        }
+        else
+        {
+            $("#txtOtrasCondiciones").val('SI');
+            $("#divCondicionMeta").addClass('hidden');
+            $("#divValorMeta").addClass('hidden');
+        }
+    }
+
+    function AbrirModal()
+    {
+        $("#ModalIndicadores").modal('show');
+    }
+
+    function getitemInformacion(a) {
+        var value = a;
+        var idregional = '@ViewBag.regional';
+        var idindicaor = '@ViewBag.idindicador';
+        var idcapitulo = '@ViewBag.idcapitulo';
+
+        $.ajax({
+            url: "@Url.Action("GetItemInformacion","ProcesosInternos")",
+            type: "post",
+            data: { iditem: value, idregional :idregional, idindicador: idindicaor, idcapitulo: idcapitulo },
+            success: function (data)
+            {
+                $("#paneldistribucion").empty();
+                $("#paneldistribucion").html(data.tabla);
+                $("#txtcountcampos").val(data.countvalores);
+                $("#titlemodal").text("Editar item")
+                $("#cbxcondicionmeta").val(data.condicionmeta);
+                $("#txtpesoindv").val(data.pesoindv);
+                $("#vlrmeta").val(data.valormeta);
+                $("#txtitem").val(data.nomitem);
+                $("#txtiditem").val(data.iditem);
+                if (data.OtraCondicion)
+                {
+                    $("#txtOtrasCondiciones").val('SI');
+                    $("#divCondicionMeta").addClass('hidden');
+                    $("#divValorMeta").addClass('hidden');
+                    $("#choOtrasCondiciones1").prop('checked', false);
+                    $("#choOtrasCondiciones2").prop('checked', true);
+                }
+                else
+                {
+                    $("#txtOtrasCondiciones").val('NO');
+                    $("#divCondicionMeta").removeClass('hidden');
+                    $("#divValorMeta").removeClass('hidden');
+                    $("#choOtrasCondiciones1").prop('checked', true);
+                    $("#choOtrasCondiciones2").prop('checked', false);
+                }
+                AbrirModal();
+            }
+        })
+    }
+
+    function ValidarValores(a)
+    {
+        var ind = a;
+        var rta = false;
+        var sumapesogeneral = 0;
+        var count = $("#txtcountcampos").val();
+        var lista = [];
+        for (var i = 1; i <= count; i++)
+        {
+            if ($("#txt_" + i).val() == "") {
+                $("#txt_" + i).val(0);
+            }
+            sumapesogeneral = (parseFloat(sumapesogeneral) + parseFloat($("#txt_" + i).val()));
+            lista.push($("#txt_" + i).val());
+        }
+        $("#txtdistribucionpesos").val(lista);
+
+        if (ind == 1) {
+            sumapesogeneral += parseFloat($("#txtpesoindv").val());
+        }
+
+        if (Math.round(sumapesogeneral) <= parseFloat('@pesocapitulo'))
+        {
+            rta = true
+        }
+        else {
+            alert("El procentaje total de los capitulos no puede ser mayor al "+@pesocapitulo+"%");
+        }
+
+        return rta;
+    }
+
+    function DistribuirPesosIndicadores()
+    {
+            var idregional = '@ViewBag.regional';
+            var idindicaor = '@ViewBag.idindicador';
+            var idcapitulo = '@ViewBag.idcapitulo';
+
+            $.ajax({
+                url: "@Url.Action("GetItemInformacion","ProcesosInternos")",
+                type: "post",
+                data: { idregional :idregional, idindicador: idindicaor, idcapitulo: idcapitulo },
+                success: function (data) {
+                    $("#paneldistribuciontwo").empty();
+                    $("#paneldistribuciontwo").html(data.tabla);
+                    $("#txtcountcampos").val(data.countvalores);
+                    $("#txtiditem").val("");
+                    $("#cbxcondicionmeta").val("");
+                    $("#txtpesoindv").val("");
+                    $("#vlrmeta").val("");
+                    $("#txtitem").val("");
+                    $("#titlemodal").text("Agregar nuevo item");
+                    $("#ModaldistrbIndicadores").modal('show');
+                }
+            })
+    }
+
+    function postDistribuirPesosIndicadores()
+    {
+        if (ValidarValores(2))
+        {
+            var idregional = '@ViewBag.regional';
+            var idindicaor = '@ViewBag.idindicador';
+            var idcapitulo = '@ViewBag.idcapitulo';
+            $.ajax({
+                url: "@Url.Action("RedistribuirPesoIndicadores", "ProcesosInternos")",
+                type: "post",
+                data: {
+                    idregional : idregional,
+                    idindicador: idindicaor,
+                    idcapitulo: idcapitulo,
+                    txtdistribucionpesos: $("#txtdistribucionpesos").val()
+                },
+                success: function (data)
+                {
+                    window.location = "@Url.Action("Indicadores", "procesosInternos")?idregional="+@ViewBag.regional+"&idindicador="+@ViewBag.idindicador+"&idcapitulo="+@ViewBag.idcapitulo+"&rta=1"
+                },
+            });
+        }
+    }
+
+    var prevKey = "";
+    $(document).keydown(function (e) {
+        if (e.key == "F5") {
+            window.onbeforeunload = ConfirmLeave;
+        }
+        else if (e.key.toUpperCase() == "W" && prevKey == "CONTROL") {
+            window.onbeforeunload = ConfirmLeave;
+        }
+        else if (e.key.toUpperCase() == "R" && prevKey == "CONTROL") {
+            window.onbeforeunload = ConfirmLeave;
+        }
+        else if (e.key.toUpperCase() == "F4" && (prevKey == "ALT" || prevKey == "CONTROL")) {
+            window.onbeforeunload = ConfirmLeave;
+        }
+        prevKey = e.key.toUpperCase();
+    });
+
+    function FinalizarIndicadores()
+    {
+        var idregional = "@ViewBag.regional";
+        var idindicador = "@ViewBag.idindicador";
+        var url = "@Url.Action("Capitulos", "ProcesosInternos")?idregional=" + idregional + "&idindicador=" + idindicador;
+
+        if (parseFloat('@ViewBag.totalpeso') == parseFloat("@pesocapitulo"))
+        {
+            window.location = url;
+        } else {
+            alert("Esta accion no puede ser realizada, ya que el peso total de los indicadores no es igual al "+@pesocapitulo+"%");
+        }
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "GestionarEstadoReasig";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CAMBIO ESTADO</strong>
+    </div>
+    <div class="panel-body">
+        <form class="animated fadeInDown" id="formulario2">
+            <div class="row">
+                <div class="col-sm-10">
+                    <label class="text-secondary_asalud">Estado del caso</label>
+                    <select class="form-control select2"  id="estado2" name="estado2" required>
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.view_ref_estado_facturas item in ViewBag.ref_estado)
+                        {
+                            <option value="@item.id_estado_factura">@item.nom_estado</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="text-secondary_asalud">Observación</label>
+                    <textarea class="form-control" id="observacion" name="observacion" rows="6" cols="5" placeholder="Escriba el texto" maxlength="2000" required></textarea>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12" align="center">
+                    <button class="button_Asalud_Guardar" type="button" onclick="finalizar2()">GUARDAR</button>
+                </div>
+            </div>
+            <div style="display:none">
+                <input class="form-control" type="text" name="id_af" id="id_af" value="@ViewBag.id_af" />
+                <input class="form-control" type="text" name="estado" id="estado" value="@ViewBag.estado" />
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+    })
+
+    function finalizar2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+
+            FinalizarDatos2();
+        }
+    }
+
+    function FinalizarDatos2() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("observaciones", $("#observacion").val());
+        formData.append("id_cargue_dtll", $("#id_af").val());
+        formData.append("estado", $("#estado").val());
+        formData.append("estado2", $("#estado2").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveGestionarEstadoReasig", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                  alert(response.message);
+                  location.reload();
+              }
+              else
+              {
+                  LoadingHide();
+                  alert(response.message);
+              }
+
+            }
+        })
+    }
+
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+
+

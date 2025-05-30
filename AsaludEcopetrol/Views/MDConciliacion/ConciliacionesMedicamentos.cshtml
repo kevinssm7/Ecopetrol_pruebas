@@ -1,0 +1,374 @@
+﻿
+@{
+    ViewBag.Title = "CONCILIACIÓN GLOSAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+<div class="container">
+    <div class="alert alert-success" id="pnlExito" style="display:none">
+        <strong>Éxito!</strong>
+        <input style="color:blue" type="text" class="form-control" name="msgex" id="msgex" />
+
+    </div>
+
+    <div class="alert alert-danger" id="pnlError" style="display:none">
+        <strong>Error!</strong>
+        <input style="color:firebrick" type="text" class="form-control" name="msgerr" id="msgerr" required />
+    </div>
+
+    <div id="pnlPrincipal" class="General">
+
+        <div class="col-sm-12 row">
+
+            <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Numero formula</th>
+                        <th>Numero factura</th>
+                        <th>Ciudad</th>
+                        <th>Valor total formula</th>
+                        <th>Glosa detalle</th>
+                        <th>Valor glosado</th>
+                        <th>Anexo</th>
+                        <th>Fecha cargue anexo</th>
+
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.Managment_md_tablero_Conciliaciones_detalleResult item in ViewBag.List)
+                    {
+                        <tr>
+                            <td>@item.numero_formula</td>
+                            <td>@item.numero_factura</td>
+                            <td>@item.ciudad</td>
+                            <td>@item.vlr_total</td>
+                            <td>@item.tipo_glosa</td>
+                            <td>@item.valor_glosado</td>
+                            <td>@item.tiene_anexo</td>
+                            <th>@item.cargue_fecha.Value.ToString("dd/MM/yyyy")</th>
+                            @if (item.Tiene_conciliacion == "SI")
+                            {
+                                <td class="text-center">
+                                    <div>
+
+                                        @if (@item.estado == 1)
+                                        {
+                                            <b>
+                                                Finalizada
+                                            </b>
+                                        }
+                                        else if (@item.estado == 2)
+                                        {
+                                            <b>
+                                                Ratificada
+                                            </b>
+                                        }
+                                        else
+                                        {
+                                            <b>
+
+                                            </b>
+                                        }
+
+
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center">
+                                    <a onclick="llamarVistaParcial(@item.Id);" data-toggle="modal" data-target="#myModal">
+                                        Auditar
+                                    </a>
+                                </td>
+                            }
+
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.table').DataTable({
+            "searching": false,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+
+        $('#close').on('click', function () {
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+                     
+    })
+
+
+   
+
+    function llamarVistaParcial(AI) {
+
+
+
+        var laURLDeLaVista = '@Url.Action("GestionarConciliacion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+     .modal-bodyA {
+        position: relative;
+        padding: 25px;
+    }
+
+    .modal-header {
+        background-color: #333333;
+        padding: 8px;
+    }
+
+    .modal-footer {
+        background-color: #333333;
+        padding: 8px;
+    }
+
+</style>
+
+
+
+
+
+
+

@@ -1,0 +1,129 @@
+﻿@model  AsaludEcopetrol.Models.Cambio.cambio
+
+@{ string alerta = (string)ViewData["alerta"];
+    string idadmin = (string)ViewBag.idadmin;
+
+}
+<link href="~/Scripts/css/StyleAsaludEcopetrol.css" rel="stylesheet" />
+
+
+<form class="animated fadeInDown" id="formulariovista">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <p class="text-primary_asalud"> CAMBIO AUDITOR  </p>
+        </div>
+        <div class="panel-body">
+
+            <div class="row">
+
+                <div class="col-md-10">
+                    <label class="text-secondary_asalud">Auditor :</label><span style="color:red"></span>
+                    <select class="form-control select2" style="width:100%" required id="auditorcaso" name="auditorcaso">
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.auditores2)
+                        {
+                            <option value="@item.id_usuario">@item.nombre</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col-sm-4 form-group"></div>
+                <div class="col-sm-4 form-group">
+                    <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                </div>
+                <div class="col-sm-4 form-group"></div>
+            </div>
+            <div style="display:none">
+
+                @Html.TextBoxFor(u => u.id_usuario)
+                @Html.TextBoxFor(u => u.usuario)
+                @Html.TextBoxFor(u => u.id_concurrencia)
+
+
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulariovista").validate();
+        if (validator.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+
+        debugger
+        var auditor =  $("#auditorcaso").val();    
+        auditor = parseInt(auditor);
+        var id_concurrencia = @Model.id_concurrencia;
+        var id_usuario = @Model.id_usuario;
+  
+
+        $.ajax({
+            url: "@Url.Action("ModificarAuditor", "Cambios")",
+            type: "post",
+            data:
+            {
+                auditor: auditor,
+                id_concurrencia: id_concurrencia,
+                id_usuario: id_usuario
+         
+
+            },
+
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    alert(response.message);
+                    window.location = "@Url.Action("_Auditor", "Cambios")?ID=" + "@Model.usuario";
+                }
+                else {
+                    alert(response.message);
+                }
+
+            }
+        })
+    }
+
+    $(document).ready(function () {
+
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            // max: new Date(today.setDate(today.getDate()))
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $(".date").datepicker();
+
+
+
+    });
+
+
+</script>

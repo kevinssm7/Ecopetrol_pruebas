@@ -1,0 +1,225 @@
+﻿<div class="tab-content">
+    <div class="tab-pane active" id="1d">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <BR />
+                    <table id="tbProgramadas2" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+                        <thead>
+                            <tr>
+                                <th class="hidden">id</th>
+                                <th class="text-center">Nombre prestador</th>
+                                <th class="text-center">NIT</th>
+                                <th class="text-center">Municipio</th>
+                                <th class="text-center">Departamento </th>
+                                <th class="text-center">Cantidad facturas</th>
+                                <th class="text-center" style="width: 150px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodytbl2">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Management_FFMM_Glosas_PrestadoresResult item in ViewBag.lista)
+                            {
+                                <tr>
+                                    <td class="hidden">@item.id_ref_ffmm_prestadores</td>
+                                    <td class="text-center">@item.nombre</td>
+                                    <td class="text-center">@item.nit</td>
+                                    <td class="text-center">@item.muninombre</td>
+                                    <td class="text-center">@item.departamento</td>
+                                    <td class="text-center">@item.cantidad_facturas</td>
+                                    <td class="text-center" style="width: 150px;">
+                                        <a class="button_Asalud_Guardar" font-weight:bold" onclick="llamarVistaParcialM3(@item.id_ref_ffmm_prestadores);" data-toggle="modal" data-target="#modal3">
+                                         PROGRAMAR NUEVA VISITA
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+@*modal*@
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modal3">
+    <div class="modal-dialog" style="width: 900px;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $('#tbProgramadas2').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+
+    function llamarVistaParcialM3(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_IngresarSegundaFechaVisita")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+
+
+        function llamarVistaParcial1(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_IngresarFechaAprobacion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoAprobacion').html('');
+                $('#resultadoAprobacion').html(response);
+            }
+        });
+    }
+
+
+
+</script>
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 20px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 1.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 11px;
+    }
+
+    .control-label {
+        font-size: 12px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

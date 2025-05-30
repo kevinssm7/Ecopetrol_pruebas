@@ -1,0 +1,382 @@
+﻿
+
+@{
+    var i = ViewBag.idPregunta;
+    ECOPETROL_COMMON.ENTIDADES.creacion_campana_camposSimples simple = (ECOPETROL_COMMON.ENTIDADES.creacion_campana_camposSimples)ViewBag.simples;
+    List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_listas> camposLista = (List<ECOPETROL_COMMON.ENTIDADES.creacion_campana_listas>)ViewBag.listas;
+    var tipo = ViewBag.tipo;
+}
+
+<hr class="separador">
+
+<div class="row">
+    <input type="hidden" id="idListas_@i" name="idListas_@i" value="@ViewBag.idListas" />
+    <input type="hidden" id="tipo_@ViewBag.tipo" name="tipo_@ViewBag.tipo" class="form-control" maxlength="199" required />
+
+    @if (ViewBag.nueva != 1)
+    {
+        <div class="col-md-4">
+            <label class="text-secondary_asalud">Pregunta</label>
+            <input type="text" id="pregunta_@ViewBag.idPregunta" name="pregunta_@ViewBag.idPregunta" value="@ViewBag.preguntaTexto" class="form-control" maxlength="199" required />
+        </div>
+        <div class="col-md-4">
+            <label class="text-secondary_asalud">Tipo pregunta</label>
+            <select id="tipoPregunta_@i" name="tipoPregunta_@i" value="@ViewBag.idPregunta" class="form-control select2" onchange="MostrarTipoPregunta(this.value, @i, 0)" required>
+                <option value="">--Seleccione--</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_campana_tipoPregunta item in ViewBag.tipoPregunta)
+                {
+                    <option value="@item.id_tipo">@item.descripcion</option>
+                }
+            </select>
+        </div>
+        <br />
+
+        if (ViewBag.obligatoria == 1)
+        {
+            <div class="col-md-2">
+                <label class="text-secondary_asalud">Obligatoria</label>
+                <input type="radio" id="obligatorioSi_@i" name="obligatorio_@i" value="1" checked required /> Si
+                <input type="radio" id="obligatorioNo_@i" name="obligatorio_@i" value="0" required /> No
+            </div>
+        }
+        else
+        {
+            <div class="col-md-2">
+                <label class="text-secondary_asalud">Obligatoria</label>
+                <input type="radio" id="obligatorioSi_@i" name="obligatorio_@i" value="1" required /> Si
+                <input type="radio" id="obligatorioNo_@i" name="obligatorio_@i" value="0" checked required /> No
+            </div>
+        }
+
+        <div class="col-md-2">
+            <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarDivPregunta(@i)">Eliminar</a>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-4">
+            <label class="text-secondary_asalud">Pregunta</label>
+            <input type="text" id="preguntaNueva_@ViewBag.idPregunta" name="preguntaNueva_@ViewBag.idPregunta" class="form-control" maxlength="199" required />
+        </div>
+        <div class="col-md-4">
+            <label class="text-secondary_asalud">Tipo pregunta</label>
+            <select id="tipoPreguntaNueva_@i" name="tipoPreguntaNueva_@i" class="form-control select2" onchange="MostrarTipoPregunta(this.value, @i, 1)" required>
+                <option value="">--Seleccione--</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_campana_tipoPregunta item in ViewBag.tipoPregunta)
+                {
+                    <option value="@item.id_tipo">@item.descripcion</option>
+                }
+            </select>
+        </div>
+        <br />
+        <div class="col-md-2">
+            <label class="text-secondary_asalud">Obligatoria</label>
+            <input type="radio" id="obligatorioSiNueva_@i" name="obligatorioNueva_@i" value="1" required /> Si
+            <input type="radio" id="obligatorioNoNueva_@i" name="obligatorioNueva_@i" value="0" required /> No
+        </div>
+
+        <div class="col-md-2">
+            <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarDivPreguntaNueva(@i)">Eliminar</a>
+        </div>
+    }
+</div>
+
+@if (ViewBag.nueva == 0)
+{
+    <div class="row" id="divMostrarTipo_@i">
+
+    </div>
+}
+else
+{
+    <div class="row" id="divMostrarTipoNueva_@i">
+    </div>
+}
+
+<br />
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        var nueva = "@ViewBag.nueva";
+        if (nueva == 0) {
+            $("#tipoPregunta_" + "@i").val("@ViewBag.tipo").trigger("change");
+        } else {
+            $("#conteoFinal").val("@i");
+        }
+
+        var idPregunta = "@i";
+        var tipoPregunta = "@ViewBag.tipo";
+        ArregloCampos(tipoPregunta, idPregunta);
+    });
+
+    function ArregloCampos(tipoPregunta, idPregunta) {
+
+        var lista = $("#idListas_" + idPregunta).val();
+        var listado = lista.split(",");
+
+        if (tipoPregunta == 2 || tipoPregunta == 3 || tipoPregunta == 4) {
+
+            if (listado.length > 0) {
+
+                for (var i = 0; i < listado.length; i++) {
+
+                    if (tipoPregunta == 2) {
+
+                        conteoOpciones = $("#conteoMultiple_" + idPregunta).val();
+                        conteoOpciones++;
+
+                        document.getElementById('divMostrarTipo_' + idPregunta).innerHTML +=
+
+                            "<div class='col-md-4'>" +
+                            '   <label> ' +
+                            '    <input type="checkbox" disabled class="checkMultiple"  id="tipomultiple_' + idPregunta + '_' + conteoOpciones + ' name="tipomultiple_"' + idPregunta + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                            '    <input type="text" value="' + listado[i] + '" class="inputMultiple"  id="textoMultiple_' + idPregunta + '_' + conteoOpciones + '" name="textoMultiple_' + idPregunta + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                            '   </label>' +
+                            "</div>";
+
+                        $("#conteoMultiple_" + idPregunta).val(conteoOpciones);
+                    }
+
+                    else if (tipoPregunta == 3) {
+
+                        conteoOpciones = $("#conteoVerificacion_" + idPregunta).val();
+                        conteoOpciones++;
+
+                        document.getElementById('divMostrarTipo_' + idPregunta).innerHTML +=
+                            "<div class='col-md-4'>" +
+                            '   <label> ' +
+                            '    <input type="checkbox" disabled id="tipoverificacion_' + idPregunta + '_' + conteoOpciones + ' name="tipoverificacion_"' + idPregunta + '_' + conteoOpciones + '  value="' + conteoOpciones + '" />' +
+                            '    <input type="text" value="' + listado[i] + '"  class="inputMultiple"  id="textoVerificacion_' + idPregunta + '_' + conteoOpciones + '" name="textoVerificacion_' + idPregunta + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                            '   </label>' +
+                            "</div>";
+
+                        $("#conteoVerificacion_" + idPregunta).val(conteoOpciones);
+                    }
+
+                    else if (tipoPregunta == 4) {
+
+                        conteoOpciones = $("#conteoSelect_" + idPregunta).val();
+                        conteoOpciones++;
+
+                        document.getElementById('divMostrarTipo_' + idPregunta).innerHTML +=
+                            "<div class='col-md-4'>" +
+                            '   <label> ' +
+                            '   <label> ' + conteoOpciones + ' </label> ' +
+                            '   <input type="text" value="' + listado[i] + '" class="inputMultiple"  id="textoSelect_' + idPregunta + '_' + conteoOpciones + '" name="textoSelect_' + idPregunta + '_' + conteoOpciones + '" required placeholder="Texto en opción ' + conteoOpciones + '"/>' +
+                            '   </label>' +
+                            "</div>";
+
+                        $("#conteoSelect_" + idPregunta).val(conteoOpciones);
+
+                    }
+                }
+            }
+        }
+
+        else if (tipoPregunta == 5) {
+
+            var idSimple = "@ViewBag.idSimple";
+
+            //archivos especificos si o no
+            var especificos = "@ViewBag.especificos";
+
+            if (especificos == 1) {
+
+                var checkbox = document.getElementById("archivosEspecificos_" + "@ViewBag.idPregunta");
+                checkbox.checked = true; // Esto marcará el checkbox
+
+                cambiarEstado(idPregunta, 0);
+
+                var tipoEspe = "@ViewBag.tipoExtension";
+                var maximo = "@ViewBag.maximoArchivos";
+
+                $("#cantidadMaximaArchivos_" + "@ViewBag.idPregunta").val(maximo).trigger("change");
+                $("#tipoArchivo_" + "@ViewBag.idPregunta").val(tipoEspe).trigger("change");
+            }
+        }
+    }
+
+   
+    function EliminarDivPreguntaNueva(id) {
+        var confirmar = confirm("¿Está seguro(a) de eliminar esta pregunta?");
+
+        if (confirmar) {
+            // Encuentra el índice de la pregunta en los arrays
+            var index = -1;
+
+            if (id >= 1) {
+                // Elimina de las preguntas nuevas
+                index = arrayBidimensionalPreguntasNuevas.findIndex(function (item) {
+                    return item[0] === parseInt(id);
+                });
+
+                if (index !== -1) {
+                    arrayBidimensionalPreguntasNuevas.splice(index, 1);
+                    arrayRespuestaBreveNuevas.splice(index, 1);
+                    arrayOpcionMultipleNuevas.splice(index, 1);
+                    arrayCasillasVerificacionNuevas.splice(index, 1);
+                    arrayListaDesplegableNuevas.splice(index, 1);
+                    arrayCargaArchivosNuevas.splice(index, 1);
+                    arrayCargaFechaNuevas.splice(index, 1);
+                }
+                // Elimina visualmente el div
+                $("#divContenidoPreguntasNuevas_" + id).fadeOut("slow", function () {
+                    $(this).remove();
+                });
+
+            } else {
+                // Elimina de las preguntas existentes
+                index = arrayBidimensionalPreguntas.findIndex(function (item) {
+                    return item[0] === parseInt(id);
+                });
+
+                if (index !== -1) {
+                    arrayBidimensionalPreguntas.splice(index, 1);
+                    arrayRespuestaBreve.splice(index, 1);
+                    arrayOpcionMultiple.splice(index, 1);
+                    arrayCasillasVerificacion.splice(index, 1);
+                    arrayListaDesplegable.splice(index, 1);
+                    arrayCargaArchivos.splice(index, 1);
+                    arrayCargaFecha.splice(index, 1);
+                }
+
+                // Elimina visualmente el div
+                $("#divContenidoPreguntas_" + id).fadeOut("slow", function () {
+                    $(this).remove();
+                });
+            }
+
+        }
+    }
+
+
+</script>
+
+<style>
+
+
+    .divContenidoAchivoEspecifico {
+        position: relative;
+    }
+
+    .activacionClass {
+        display: none;
+    }
+
+
+    .activacionClass:checked + .switch-label::before {
+        transform: translateX(25px);
+    }
+
+    .round {
+        position: absolute;
+    }
+
+        .round label {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            height: 28px;
+            left: 0;
+            /*position: relative;*/
+            top: 0;
+            width: 28px;
+        }
+
+            .round label:after {
+                border: 2px solid #fff;
+                border-top: none;
+                border-right: none;
+                content: "";
+                height: 6px;
+                left: 7px;
+                opacity: 0;
+                /*position: absolute;*/
+                top: 8px;
+                transform: rotate(-45deg);
+                width: 12px;
+            }
+
+        .round input[type="checkbox"] {
+            visibility: hidden;
+        }
+
+            .round input[type="checkbox"]:checked + label {
+                background-color: #66bb6a;
+                border-color: #66bb6a;
+            }
+
+                .round input[type="checkbox"]:checked + label:after {
+                    opacity: 1;
+                }
+
+    .inputMultiple {
+        color: #556da2;
+        border: 0px;
+    }
+
+
+    ::placeholder {
+        color: #556da2;
+        opacity: 1; /* Firefox */
+        font-family: 'Century Gothic';
+        font-size: 10px;
+    }
+
+    .checkMultiple {
+        width: 1.3em;
+        height: 1.3em;
+        background-color: white;
+        border-radius: 50%;
+        vertical-align: middle;
+        border: 1px solid #ddd;
+        -webkit-appearance: none;
+        /*        outline: none;
+    */
+    }
+
+        .checkMultiple:checked {
+            background-color: #556da2;
+        }
+
+    .botonAgregarSelect {
+        width: 40%;
+        height: 10%;
+        font-size: 10px;
+        color: white;
+        background-color: #dee6d4;
+    }
+
+
+    .boton-flotante {
+        position: fixed;
+        bottom: 50px; /* Espacio desde abajo */
+        right: 40px; /* Espacio desde la derecha */
+        /*background-color: #007bff;*/ /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 10px 20px; /* Espaciado interno */
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+        transition: all 0.3s ease;
+    }
+
+        .boton-flotante:hover {
+            /*background-color: #0056b3;*/ /* Color de fondo al pasar el mouse */
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Cambia la sombra al pasar el mouse */
+        }
+
+    .separador {
+        border: none;
+        height: 1px;
+        background-color: #b9b9b9;
+        margin-top: -5px;
+    }
+</style>

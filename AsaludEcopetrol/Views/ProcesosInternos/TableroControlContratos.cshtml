@@ -1,0 +1,57 @@
+﻿    <form id="tableroControl" method="post" action="TableroControlContratos">
+     
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <div class="panel-body">
+                    <table class="tableMasivo table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableMasivo">
+                        <thead>
+                            <tr>
+                                <th>Id cargue</th>
+                                <th>Número contrato</th>
+                                <th>Periodo finalización</th>
+                                <th>Fecha inicio</th>
+                                <th>Fecha fin</th>
+                                <th>Nit proveedor</th>
+                                <th>Documento SAP</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteo > 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_contratos_listadoResult item in ViewBag.lista)
+                                {
+                                    <tr>
+                                        <td>@item.id_cargue</td>
+                                        <td>@item.numero_contrato</td>
+                                        <td>@item.periodo_finalizacion</td>
+                                        <td>@item.fecha_inicio.Value.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.fecha_fin.Value.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.nit_proveedor</td>
+                                        <td>@item.documento_SAP</td>
+
+                                        <td style="text-align:center;">
+                                            <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("GestionContrato", "ProcesosInternos", new { idContrato = item.id_contrato })">
+                                                <i class="glyphicon glyphicon-plus"></i>&nbsp; Editar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="text-align:center; font-size:14px;">
+                                        SIN REGISTROS
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>

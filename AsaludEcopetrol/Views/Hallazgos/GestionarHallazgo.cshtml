@@ -1,0 +1,142 @@
+﻿@model AsaludEcopetrol.Models.Facturacion.hallazgosRips
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "GESTIÓN DE HALLAZGOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="container">
+
+        <form id="frm-alumno">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_recepcion)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_recepcion)
+
+                          .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+                          .Name("datepicker1")
+                         .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change1");
+                         })
+
+                    )
+
+                    @Html.ValidationMessageFor(u => u.fecha_recepcion, null, new { @class = "label label-danger" })
+                </div>
+
+
+                <div class="col-sm-4">
+
+                </div>
+
+            </div>
+
+            <div id="pnlGuardar" class="General">
+                <table align="left">
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="display:none">
+                         @Html.TextBoxFor(u => u.fecha_recepcionOK)
+                         @Html.TextBoxFor(u => u.id_hallazgo_RIPS)
+
+                        </td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+        </form>
+    </div>
+
+}
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_recepcionOK]').val(DataItem);
+
+    }
+
+   
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+
+

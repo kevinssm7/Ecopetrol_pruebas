@@ -1,0 +1,308 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONSULTA MEDICAMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Consulta medicamentos dispensación</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" name="formulario">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">Documento</label>
+                    <input type="text" autocomplete="off" class="form-control solo-numero" name="documento" id="documento" maxlength="100" />
+                </div>
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">Grupo familiar</label>
+                    <input type="text" class="form-control" id="familiar" name="familiar" />
+                </div>
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">Numero formula</label>
+                    <input type="text" class="form-control" id="formula" name="formula" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaIni" id="fechaIni" required />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha final</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaFin" id="fechaFin" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    <a class="btn button_Asalud_descargas" onclick="ExportarDatos()"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+
+
+    });
+
+    $("#documento").autocomplete({
+        source: "/MedicamentosCalidad/BuscarDocumento_medicamentosDispen",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.documento);
+            }
+        }
+    })
+    $("#familiar").autocomplete({
+        source: "/MedicamentosCalidad/BuscarFamiliar_medicamentosDispen",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.familiar);
+            }
+        }
+    })
+
+    $("#formula").autocomplete({
+        source: "/MedicamentosCalidad/BuscarFormula_medicamentosDispen",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.formula);
+            }
+        }
+    })
+
+    function ExportarDatos() {
+        var validator = $("#formulario").validate();
+        if (validator.form) {
+
+            LoadingHide();
+
+            var documento = document.getElementById("documento").value;
+            var familiar = document.getElementById("familiar").value;
+            var formula = document.getElementById("formula").value;
+            var fechaIni = $("#fechaIni").val();
+            var fechaFin = $("#fechaFin").val();
+
+            if (fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") {
+
+                if ((documento != "" && documento != null) || (familiar != "" && familiar != null) || (formula != null && formula != "")) {
+
+                    LoadingShow();
+                    var URL = "@Url.Action("ReporteMedicamentosDispensacion", "MedicamentosCalidad")?documento=" + documento + "&familiar=" + familiar + "&formula=" + formula + "&fechaInicio=" + fechaIni + "&fechaFin=" + fechaFin;
+                    window.open(URL, '', 'width=400,height=40,left=5,top=750,toolbar=yes');
+
+                } else {
+                    alert("Aparte del periodo, llene una de las otras opciones.");
+                }
+            } else {
+                alert("Seleccione periodo");
+            }
+        }
+
+        LoadingHide();
+
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

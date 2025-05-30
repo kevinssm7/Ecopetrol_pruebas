@@ -1,0 +1,298 @@
+﻿
+@{
+    ViewBag.Title = "CAMBIAR DATOS PACIENTE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string idadmin = (string)ViewBag.idadmin;
+
+}
+
+
+<br />
+
+<div class="container">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+
+            <p class="text-primary_asalud">DETALLE CASO POR DOCUMENTO PACIENTE</p>
+
+        </div>
+
+        <div class="panel-body">
+
+            @if (ViewBag.variante == 1)
+            {
+                <div class="table-responsive">
+
+
+
+                    <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+                        <thead>
+                            <tr>
+                                <th class="text-center ">ID</th>
+                                <th class="text-center ">Documento</th>
+                                <th class="text-center ">Nombre</th>
+                                <th class="text-center ">Auditor</th>
+                                <th class="text-center ">IPS</th>
+                                <th class="text-center ">Fecha ingreso</th>
+                                <th class="text-center ">Opcion</th>
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbody">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_tablero_levante_egreso item in ViewBag.lista)
+                            {
+
+                                <tr>
+                                    <td class="text-center">@item.id_concurrencia</td>
+                                    <td class="text-center">@item.id_afi</td>
+                                    <td class="text-center">@item.afi_nom</td>
+                                    <td class="text-center">@item.Nombre_usuario </td>
+                                    <td class="text-center">@item.nombre_ips </td>
+                                    @if (item.fecha_ingreso != null)
+                                    {
+                                        <td class="text-center">@item.fecha_ingreso.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center" width="20%">
+                                        <a class="button_Asalud_Guardar" onclick="llamarVistaParcial(@item.id_censo , @item.id_concurrencia);" data-toggle="modal" data-target="#myModal">
+                                            MODIFICAR PACIENTE
+                                        </a>
+                                    </td>
+                         
+                                </tr>
+
+                            }
+
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+
+            }
+            else
+            {
+
+                <div class="alert alert-danger" role="alert" style="font-family:'Century Gothic'">
+                    <p>
+                        <strong>Atencion! </strong>El numero de documento no se encuentra registrado en el aplicativo.
+                    </p>
+                </div>
+
+            }
+
+
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div id="pnlVolver" class="General">
+
+            <div class="text-center">
+                <a class="button_Asalud_Guardar" href="@Url.Action("GestionAuditor", "Cambios")">
+                    VOLVER
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <br />
+
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title letraa" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+                @*<div id="resultado2"></div>*@
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<script>
+
+    function llamarVistaParcial(AI, AI2) {
+
+        var laURLDeLaVista = '@Url.Action("_CambiosDatosPaciente")?ID=' + AI + "&IDConcu=" + AI2;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    $('.table').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "desc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+
+</script>
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+</style>
+

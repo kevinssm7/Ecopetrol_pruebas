@@ -1,0 +1,76 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="text-primary_asalud">Reabrir PQR</p>
+    </div>
+    <div class="panel-body">
+
+        <form id="formularioReabrir" action="ReabrirCasoPQR" method="post">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observaciones:</label>
+                    <textarea id="observacion" class="form-control" rows="4" cols="5" maxlength="3999" required></textarea>
+                </div>
+                <br />
+
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Archivo:</label>
+                    <input type="file" id="file" name="file" class="form-control" />
+                    <input type="hidden" id="idPqrs" name="idPqrs" value="@ViewBag.idPqr" />
+                    <input type="hidden" id="numeroCaso" name="numeroCaso" value="@ViewBag.numeroCaso" />
+                    <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+                </div>
+            </div>
+            <br />
+            <div class="row" style="text-align:center">
+                <button type="button" id="btnGuardar" onclick="ValidarReapertura()" class="button_Asalud_Guardar">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarReapertura() {
+        var validator = $("#formularioReabrir").validate();
+        if (validator.form()) {
+            GuardarReapertura();
+        }
+    }
+
+     debugger
+    function GuardarReapertura() {
+
+        var formData = new FormData($("form")[0]);
+        var file = $("#file").get(0).files;
+
+        formData.append("file", file[0]);
+        formData.append("idPqrs", $("#idPqrs").val());
+        formData.append("observacion", $("#observacion").val());
+        formData.append("numeroCaso", $("#numeroCaso").val());
+        formData.append("tipo", $("#tipo").val());
+        
+
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("ReabrirCasoPQR", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                location.reload();
+            }
+        })
+    }
+
+</script>
+

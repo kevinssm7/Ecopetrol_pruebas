@@ -1,0 +1,230 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">AMPLIACIONES</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idPlan</label>
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="tableAmpliaciones" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+
+                            <th class="text-center">Id</th>
+                            <th class="text-center">Id plan</th>
+                            <th class="text-center">Fecha ampliación</th>
+                            <th class="text-center">Observación</th>
+                            <th class="text-center">Usuario</th>
+                            <th class="text-center">Fecha digita</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoAmpliaciones > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_ampliacionesResult item in ViewBag.listadoAmpliaciones)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@item.id_log</td>
+                                    <td class="text-center">@item.id_pm</td>
+                                    <td class="text-center">@item.fecha_ampliacion.Value.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">@item.observacion_ampliacion</td>
+                                    <td class="text-center">@item.nombreCarga</td>
+                                    <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" style="text-align:center; font-size:15px;">
+                                    <label>Sin ampliaciones.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.maximoAmpliaciones == 1)
+    {
+        <div class="panel-body">
+            <form id="formIngresarAmpliacion">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Fecha ampliación</label>
+                        <input id="fechaAmpliacion" name="fechaAmpliacion" class="form-control" required />
+                        <input id="fechaMaxima" name="fechaMaxima" type="hidden" value="@ViewBag.fechaMaxima" />
+                        <input id="fechaCreacion" name="fechaCreacion" type="hidden" value="@ViewBag.fechaCreacion" />
+                        <input id="fechaEstimada" name="fechaEstimada" type="hidden" value="@ViewBag.fechaEstimada" />
+                        <input id="fechaAmplia" name="fechaAmplia" type="hidden" value="@ViewBag.fechaAmpliacion" />
+                        <input id="fechaInicialAumentada" name="fechaInicialAumentada" type="hidden" value="@ViewBag.fechaInicialAumentada" />
+
+                    </div>
+                    <br />
+                    <br />
+
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Observación ampliación</label>
+                        <textarea id="obsAmpliacion" name="obsAmpliacion" class="form-control" maxlength="400" required></textarea>
+                        <input id="idPlan" name="idPlan" value="@ViewBag.idPlan" class="hidden">
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button type="button" class="button_Asalud_Guardar" onclick="ValidarAmpliacion()">CERRAR</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $.validator.messages.required = 'Este campo es obligatorio';
+
+        debugger
+
+        var fechaMaxima = $("#fechaMaxima").val();
+        var fechaInicialAumentada = $("#fechaInicialAumentada").val();
+        var fechaCreacion = $("#fechaCreacion").val();
+        var fechaEstimada = $("#fechaEstimada").val();
+        var fechaAmplia = $("#fechaAmplia").val();
+
+        var ampliaciones = "@ViewBag.maximoAmpliaciones";
+
+        if (fechaAmplia != "" && fechaAmplia != null) {
+
+            $("#fechaAmpliacion").kendoDatePicker({
+                format: "MM/dd/yyyy",
+                min: fechaAmplia,
+                max: fechaInicialAumentada,
+            });
+        }
+
+        else {
+            $("#fechaAmpliacion").kendoDatePicker({
+                format: "MM/dd/yyyy",
+                min: fechaCreacion,
+                max: fechaInicialAumentada,
+            });
+        }
+
+        $("#fechaAmpliacion").prop('readonly', true);
+
+        MostrarTablaAmpliaciones();
+
+    });
+
+    function MostrarTablaAmpliaciones() {
+        var conteo = "@ViewBag.conteoAmpliaciones";
+        if (conteo > 0) {
+
+            $('#tableAmpliaciones').DataTable().destroy();
+            $('#tableAmpliaciones').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function ValidarAmpliacion() {
+        var validator = $("#formIngresarAmpliacion").validate();
+        if (validator.form()) {
+            GuardarAmpliacion();
+        }
+    }
+
+    function GuardarAmpliacion() {
+
+        debugger
+        var fechaAmpliacionStr = $("#fechaAmpliacion").val();
+        var fechaRespuestaStr = "@ViewBag.fechaRespuesta";
+
+        //if (fechaAmpliacionStr !== "" && fechaRespuestaStr !== "") {
+
+        //    if (fechaAmpliacionStr < fechaRespuestaStr) {
+        //        alert("La fecha de ampliación debe ser posterior a la fecha de respuesta.");
+        //        $("#fechaAmpliacion").val('');
+        //        return false;
+        //    }
+        //}
+
+        var fechaAmpliacion = new Date(fechaAmpliacionStr);
+        var fechaRespuesta = new Date(fechaRespuestaStr);
+
+        if (fechaAmpliacion < fechaRespuesta) {
+            alert("La fecha de ampliación debe ser posterior a la fecha de respuesta.");
+            $("#fechaAmpliacion").val('');
+            return false;
+        }
+
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("fechaAmpliacion", $("#fechaAmpliacion").val());
+        formData.append("obsAmpliacion", $("#obsAmpliacion").val());
+        formData.append("idPlan", "@ViewBag.idPlan");
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarAmpliacion", "PlanMejora")",
+            type: "post",
+            data: formData,
+
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                //AmplicacionFecha(response.id);
+                location.href = "@Url.Action("TableroControlPlanMejora", "PlanMejora")";
+            }
+        })
+    }
+
+
+</script>

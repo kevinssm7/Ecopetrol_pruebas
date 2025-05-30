@@ -1,0 +1,169 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-secondary_asalud">Gestión</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formModal">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="hidden" id="idConcu" name="idConcu" value="@ViewBag.idConcu" />
+                    <input type="hidden" id="idCenso" name="idCenso" value="@ViewBag.idCenso" />
+                    <input type="hidden" id="idRef" name="idRef" value="@ViewBag.idRef" />
+                    <label class="text-secondary_asalud">Confirmación alerta</label>
+                    <select id="confirmacion" name="confirmacion" class="form-control" required onchange="tipoConfirmacion(this.value)">
+                        <option value="">-Seleccione-</option>
+                        <option value="CONFIRMADA">CONFIRMADA</option>
+                        <option value="DESCARTADA">DESCARTADA</option>
+                    </select>
+                </div>
+            </div>
+            <br />
+
+            <div class="row" id="divConfirmada" style="display:none;">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Estado final de paciente</label>
+                    <select id="estado_paciente" name="estado_paciente" class="form-control" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="VIVO">VIVO</option>
+                        <option value="MUERTO">MUERTO</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Requiere analisis</label>
+                    <select id="requiere_analisis" name="requiere_analisis" class="form-control" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <br />
+                <br />
+
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Requiere cargue de soportes</label>
+                    <select id="requiere_soportes" name="requiere_soportes" class="form-control" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Requiere verificación SIVIGILA</label>
+                    <select id="requiere_sivigila" name="requiere_sivigila" class="form-control" required>
+                        <option value="">-Seleccione-</option>
+                        <option value="SI">SI</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <br />
+                <br />
+
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observaciones</label>
+                    <textarea id="observaciones" name="observaciones" class="form-control char-count" cols="6" rows="6" required maxlength="2000"></textarea>
+                    <p class="charCount">Te quedan 2000 caracteres.</p>
+
+                </div>
+            </div>
+
+            <div class="row" id="divDescartada" style="display:none;">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Motivo de descarte</label>
+                    <textarea id="motivo_descarte" name="motivo_descarte" class="form-control char-count" cols="6" rows="6" required maxlength="2000"></textarea>
+                    <p class="charCount">Te quedan 2000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row text-center">
+                <a class="btn button_Asalud_Guardar" onclick="validarFormModal()">GUARDAR</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+
+    });
+
+    function tipoConfirmacion(valor) {
+        if (valor == "CONFIRMADA") {
+            document.getElementById("divConfirmada").style.display = "block";
+            document.getElementById("divDescartada").style.display = "none";
+        } else {
+            document.getElementById("divDescartada").style.display = "block";
+            document.getElementById("divConfirmada").style.display = "none";
+        }
+    }
+
+    function validarFormModal() {
+
+        var validacion = $("#formModal").validate();
+        if (validacion.form()) {
+            GuardarModal();
+        }
+    }
+
+    function GuardarModal() {
+
+        var formData = new FormData($("#formModal")[0]);
+        formData.append("idConcu", $("#idConcu").val());
+        formData.append("idCenso", $("#idCenso").val());
+        formData.append("idRef", $("#idRef").val());
+        formData.append("confirmacion", $("#confirmacion").val());
+        formData.append("estado_paciente", $("#estado_paciente").val());
+        formData.append("requiere_analisis", $("#requiere_analisis").val());
+        formData.append("requiere_soportes", $("#requiere_soportes").val());
+        formData.append("requiere_sivigila", $("#requiere_sivigila").val());
+        formData.append("observaciones", $("#observaciones").val());
+        formData.append("motivo_descarte", $("#motivo_descarte").val());
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarGestionEpidemiologica")",
+            method: "post",
+            type: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                if (data.rta == 1) {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .charCount {
+        font-size: 10px;
+    }
+</style>

@@ -1,0 +1,714 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "TABLERO CIERRE PRE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var numFactura = ViewBag.numFactura;
+    var conteoAbiertas = ViewBag.conteoAbiertas;
+    var conteoCerradas = ViewBag.conteoCerradas;
+}
+
+<br />
+
+<div class="container">
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">EN TRAMITE</a>
+            <input type="hidden" id="cargueBase" name="cargueBase" value="@ViewBag.cargueBase" />
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">TRAMITADAS</a>
+        </li>
+    </ul>
+    <br />
+
+
+    <div class="tab-content">
+        <div class="tab-pane active row active" id="1a">
+            <label class="text-secondary_asalud">Total en trámite: @ViewBag.conteoAbiertas</label>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="button_Asalud_Aceptar" id="btnaprobarfacturas2" onclick="mostrarCargueMasivoCerrar();">Cerrar prefacturas desde excel</button>
+                </div>
+                @if (ViewBag.conteoAbiertas > 0)
+                {
+                    <div class="col-md-6" style="text-align: right;">
+                        <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:excelAbiertas()">
+                            <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                        </a>
+                    </div>
+                }
+            </div>
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form id="formAprobadas" action="tableroCierrePrefacturas" name="formAprobadas" enctype="multipart/form-data" method="post">
+
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-3 form-group">
+                                    <input type="hidden" id="cargueBase" name="cargueBase" value="@ViewBag.cargueBase" />
+                                    <label class="text-secondary_asalud">Regional:</label>
+                                    <select class="form-control select2" name="regional" id="regional">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                        {
+                                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label class="text-secondary_asalud">Prestador:</label>
+                                    <select class="form-control select2" name="prestador" id="prestador">
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                                        {
+                                            if (item.id_ref_proveedor != 0)
+                                            {
+                                                <option value="@item.id_ref_proveedor">@item.nombre</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="text-secondary_asalud">Nro pre-factura</label>
+                                    <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                                </div>
+                                <br />
+                                <div class="col-sm-3 form-group text-right">
+                                    <button class="button_Asalud_Guardar" onclick="buscarDatos()"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="tablaAbiertas table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Ítem</th>
+                                            <th>Nro prefactura</th>
+                                            <th>Regional</th>
+                                            <th>Conteo prefacturas</th>
+                                            @*<th>Valor individual valor</th>*@
+                                            <th>Valor total inicial</th>
+                                            <th>Valor aprobado</th>
+                                            <th>Usuario auditor</th>
+                                            <th>Cerrar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (ViewBag.conteoAbiertas != 0)
+                                            {
+                                                var i = 0;
+                                                foreach (ECOPETROL_COMMON.ENTIDADES.management_prefacturas_consolidado_abiertasResult item in ViewBag.listaAbiertas)
+                                                {
+                                                    i++;
+                                                    <tr>
+                                                        <td>
+                                                            @i
+                                                            <input id="numPrefactura_@i" type="hidden" value="@item.remision_prefactura_fact" />
+                                                            <input id="idBase_@i" type="hidden" value="@item.id_cargue_base" />
+                                                            <input id="valorTotal_@i" type="hidden" value="@item.nuevoValor_suma" />
+                                                        </td>
+                                                        <td>@item.remision_prefactura_fact</td>
+                                                        <td>@item.nombre_regional</td>
+                                                        <td>@item.conteoPrefacturas</td>
+                                                        @*<td>@item.vlrUnitario_suma</td>*@
+                                                        <td>@item.valorTotalPrefacturas</td>
+                                                        <td>@item.nuevoValor_suma</td>
+                                                        <td>@item.nombre</td>
+
+                                                        <td class="text-center" style="color:#77b589">
+                                                            ABIERTA &nbsp; <a role="button" href="javascript:CerrarPrefactura(@i)" class="btn button_Asalud_Aceptar btn-xs">Cerrar&nbsp;<i class="glyphicon glyphicon-save"></i> </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="12" style="text-align:center; font-size:15px;">
+                                                        <label>No hay prefacturas abiertas.</label>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane row" id="1b">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Total en trámite: @ViewBag.conteoCerradas</label>
+                </div>
+                @if (ViewBag.conteoCerradas > 0)
+                {
+                    <div class="col-md-6" style="text-align: right;">
+                        <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:excelCerradasDetalle()">
+                            <i class="glyphicon glyphicon-download"></i> Reporte cerradas
+                        </a>
+
+                        <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:excelCerradas()">
+                            <i class="glyphicon glyphicon-download"></i> Reporte cerradas consolidado
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <br />
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form id="formAprobadas" action="tableroCierrePrefacturas" name="formAprobadas" enctype="multipart/form-data" method="post">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-3 form-group">
+                                    <input type="hidden" id="cargueBase" name="cargueBase" value="@ViewBag.cargueBase" />
+                                    <label class="text-secondary_asalud">Regional:</label>
+                                    <select class="form-control select2" name="regional2" id="regional2">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                        {
+                                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label class="text-secondary_asalud">Prestador:</label>
+                                    <select class="form-control select2" name="prestador2" id="prestador2">
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                                        {
+                                            if (item.id_ref_proveedor != 0)
+                                            {
+                                                <option value="@item.id_ref_proveedor">@item.nombre</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="text-secondary_asalud">Nro pre-factura</label>
+                                    <input type="text" class="form-control" id="numFactura2" name="numFactura2" />
+                                </div>
+                                <br />
+                                <div class="col-sm-3 form-group text-right">
+                                    <button class="button_Asalud_Guardar" onclick="buscarDatos()"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="tablaCerradas table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Ítem</th>
+                                            <th>Nro prefactura</th>
+                                            <th>Nro factura cierre</th>
+                                            <th>Regional</th>
+                                            <th>Conteo cerradas</th>
+                                            @*<th>Valor total unitario</th>*@
+                                            <th>Valor total</th>
+                                            <th>Nuevo valor total</th>
+                                            <th>Valor cierre</th>
+                                            <th>Usuario cierra</th>
+                                            <th>Cerrada</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (ViewBag.conteoCerradas != 0)
+                                            {
+                                                var i = 0;
+                                                foreach (ECOPETROL_COMMON.ENTIDADES.management_prefacturas_consolidado_cerradasResult item in ViewBag.listaCerradas)
+                                                {
+                                                    i++;
+                                                    <tr>
+                                                        <td>
+                                                            @i
+                                                        </td>
+                                                        <td>@item.remision_prefactura_fact</td>
+                                                        <td>@item.facturaCierre</td>
+                                                        <td>@item.nombre_regional</td>
+                                                        <td>@item.conteoPrefacturas</td>
+                                                        @*<td>@item.vlrUnitario_suma</td>*@
+                                                        <td>@item.valorTotalPrefacturas</td>
+                                                        <td>@item.nuevoValor_suma</td>
+                                                        <td>@item.valorCierre</td>
+                                                        <td>@item.nombreCierre</td>
+
+                                                        <td class="text-center">
+                                                            <a role="button" class="btn button_Asalud_Rechazar btn-xs">CERRADA</a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="12" style="text-align:center; font-size:15px;">
+                                                        <label>No hay prefacturas cerradas.</label>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" data-keyboard="false">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Cerrar prefactura</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formCerrarFactura">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Número factura final:</label>
+                            <input type="text" class="form-control" name="numFacturam" id="numFacturam" required="required" />
+                            <input type="hidden" class="form-control" name="numeroPrefactura" id="numeroPrefactura" />
+                            <input type="hidden" class="form-control" name="idBase" id="idBase" />
+                            <input type="hidden" class="form-control" name="valorT" id="valorT" />
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Valor final:</label>
+                            <input type="text" class="form-control solo-numero" name="valorm" id="valorm" required="required" />
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">IVA:</label>
+                            <input type="text" class="form-control solo-numero" name="ivam" id="ivam" required="required" />
+                        </div>
+                        <div class="col-md-8 form-group">
+                            <label class="text-secondary_asalud">Fecha factura:</label>
+                            <br />
+                            <input type="text" class="form-control datepicker" name="fechaFacturam" id="fechaFacturam" required="required" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario2()" class="button_Asalud_Guardar" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="ModalCerradas" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Cerrar prefacturas desde excel</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formCierreMasivo">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Seleccionar documento prefacturas: *</label>
+                            <input type="file" class="form-control" name="txtdocDesa" id="txtdocDesa" onchange="ValidacionArchivo2();" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required="required" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario5()" class="button_Asalud_Guardar" type="submit">Guardar&nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $(".datepicker").kendoDatePicker();
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+        mostrarTabla();
+        mostrarTabla2();
+
+    });
+
+    @*$("#tab1").click(function () {
+            LoadingShow();
+            $("#1a").empty();
+            $("#1a").load("@Url.Action("_NOTRAMITADAS", "medicamentos")", function () {
+                LoadingHide();
+                mostrarTabla();
+            });
+        });
+
+        $("#tab2").click(function () {
+            LoadingShow();
+            $("#1a").empty();
+            $("#1a").load("@Url.Action("_TRAMITADAS", "medicamentos")", function () {
+                LoadingHide();
+                mostrarTabla();
+            })
+        });*@
+
+    function mostrarCargueMasivoCerrar() {
+        $("#ModalCerradas").modal('show');
+    }
+
+
+    function mostrarTabla() {
+
+        var conteoAbiertas = @conteoAbiertas;
+        if (conteoAbiertas > 0) {
+
+            $('.tablaAbiertas').DataTable().destroy();
+            $('.tablaAbiertas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+
+    function mostrarTabla2() {
+
+        var conteoCerradas = @conteoCerradas;
+        if (conteoCerradas > 0) {
+
+            $('.tablaCerradas').DataTable().destroy();
+            $('.tablaCerradas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function excelAbiertas() {
+        var URL = "@Url.Action("ExportarExcelConsolidadoAbiertas", "medicamentos")";
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }
+
+    function excelCerradas() {
+        var URL = "@Url.Action("ExportarExcelConsolidadoCerradas", "medicamentos")";
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }
+
+    function excelCerradasDetalle() {
+
+        var idCargue = $("#cargueBase").val();
+
+        var URL = "@Url.Action("ExportarExcelCerradas", "medicamentos")?idCargue=" + idCargue;
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }
+
+
+
+    function buscarDatos() {
+
+        LoadingShow();
+        $("#formAprobadas").submit();
+    }
+
+    function CerrarPrefactura(a) {
+
+        var numPrefactura = document.getElementById("numPrefactura_" + a).value;
+        var idBase = document.getElementById("idBase_" + a).value;
+        var valorTotal = document.getElementById("valorTotal_" + a).value;
+
+        $("#numFacturam").val("");
+        $("#fechaFacturam").val(null);
+        $("#numeroPrefactura").val(numPrefactura);
+        $("#valorT").val(valorTotal);
+        $("#idBase").val(idBase);
+        $("#valorm").val("");
+        $("#ivam").val("");
+
+        $("#Modal").modal('show');
+    }
+
+    function validarformulario2() {
+
+        hasChangue = false;
+        var validator = $("#formCerrarFactura").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var numeroPrefactura = $("#numeroPrefactura").val();
+            var numFactura = $("#numFacturam").val();
+            var fechaFactura = $("#fechaFacturam").val();
+            var iva = $("#ivam").val();
+            var valor = $("#valorm").val();
+            var valorTot = $("#valorT").val();
+            var idCargueBase = $("#idBase").val();
+
+            var valorFinal = parseInt(valor) - parseInt(valorTot);
+
+            if (valorFinal > 100 || valorFinal < -100 ) {
+                alert("Valor cierre no puede ser menor a 100 pesos o mayor a 100 pesos del valor aprobado.");
+                return false;
+            }
+
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("UpdatePrefactura")",
+                type: "post",
+                data: {
+                    numeroPrefactura: numeroPrefactura,
+                    numFactura: numFactura,
+                    fechaFactura: fechaFactura,
+                    valor: valor,
+                    iva : iva,
+                    idCargueBase: idCargueBase
+                },
+                success: function (data) {
+
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                        return false;
+                    }
+                }
+            })
+        }
+    }
+
+    function validarfacturas(a, b) {
+        LoadingShow()
+        var idcarguebase = a;
+        var prestador = b;
+        var url = "@Url.Action("ValidacionFacturas", "medicamentos")?idPrefacturaBase=" + idcarguebase + "&prestador=" + prestador;
+        location.href = url;
+    }
+
+
+    function BuscarTramitadas() {
+
+        var regionalT = $("#regionalT").val();
+        var prestadorT = $("#prestadorT").val();
+        var numFacturaT = $("#numFacturaT").val();
+
+        LoadingShow();
+        $("#1b").empty();
+        $("#1a").load("@Url.Action("_TRAMITADAS", "medicamentos")?regionalT=" + regionalT + "&prestadorT=" + prestadorT + "&numFacturaT=" + numFacturaT, function () {
+            LoadingHide();
+        })
+    }
+
+     function validarformulario5() {
+
+        hasChangue = false;
+         var validator = $("#formCierreMasivo").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            var formData = new FormData();
+
+            formData.append('file', $('#txtdocDesa')[0].files[0]);
+            formData.append('cargueBase', $('#cargueBase').val());
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("CierrePrefacturasMasivoExcel")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+
+                    alert(data.message);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function ValidacionArchivo2() {
+        var data = document.getElementById('txtdocDesa');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos excel.");
+            $("#files").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    /*    .dataTables_length {
+        visibility: hidden;
+    }*/
+</style>
+

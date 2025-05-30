@@ -1,0 +1,179 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.ConsultaMed
+@{
+    ViewBag.Title = "CONSULTAS VITALES NO DISPONIBLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.bundle.min.js"></script>
+
+
+<br>
+<br>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<link href="~/Scripts/Descargas/dist/css/tableexport.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.2.61/jspdf.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<div id="divEmployee">
+    @if (Model.ListaConsulta.Count == 0)
+    {
+
+        <div class="alert alert-info">
+            <strong>Información!</strong> Periodo sin registros.
+        </div>
+    }
+    else
+    {
+        <button onclick="javascript:Export();" class="btn btn-default" style="font-size:14px"><i class="fa fa-file-pdf-o" style="font-size:22px;color:red"></i> Exportar a PDF </button>
+        <table id="exportTable" class="table table-striped">
+
+            <thead class='warning'>
+                <tr>
+                    <th class="text-left th" style="font-family:Arial">DESCRIPCION</th>
+                    <th class="text-left th" style="font-family:Arial">VALOR</th>
+
+            </thead>
+            <tbody id="exportTable">
+                @foreach (var order in Model.ListaConsulta)
+                {
+                    <tr>
+
+                        <td>@order.descripcion</td>
+                        <td>@order.valor</td>
+
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }
+
+
+
+</div>
+
+
+<script src="~/Scripts/Descargas/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/Descargas/FileSaver.min.js"></script>
+<script src="~/Scripts/Descargas/Blob.min.js"></script>
+<script src="~/Scripts/Descargas/xls.core.min.js"></script>
+<script src="~/Scripts/Descargas/dist/js/tableexport.js"></script>
+
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+
+
+
+    //    gf1();
+
+    // })
+
+    $("table").tableExport({
+        formats: ["xlsx", "txt", "csv"], //Tipo de archivos a exportar ("xlsx","txt", "csv", "xls")
+        position: 'button',  // Posicion que se muestran los botones puedes ser: (top, bottom)
+        bootstrap: true,//Usar lo estilos de css de bootstrap para los botones (true, false)
+        fileName: "BaseConsolidado",    //Nombre del archivo
+
+    });
+
+    function Export() {
+        var pdf = new jsPDF('p', 'pt', 'letter');
+
+        pdf.text(50, 25, "Reporte masivo PDF");
+        // source can be HTML-formatted string, or a reference
+        // to an actual DOM element from which the text will be scraped.
+        source = document.getElementById('divEmployee').innerHTML;
+
+        // we support special element handlers. Register them with jQuery-style
+        // ID selector for either ID or node name. ("#iAmID", "div", "span" etc.)
+        // There is no support for any other type of selectors
+        // (class, of compound) at this time.
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 50,
+            bottom: 50,
+            left: 30,
+            width: 600
+        };
+        // all coords and widths are in jsPDF instance's declared units
+        // 'inches' in this case
+        pdf.fromHTML(
+            source, // HTML string or DOM elem ref.
+            margins.left, // x coord
+            margins.top, { // y coord
+                'width': margins.width, // max width of content on PDF
+                'elementHandlers': specialElementHandlers
+            },
+
+            function (dispose) {
+                // dispose: object with X, Y of the last line add to the PDF
+                // this allow the insertion of new lines after html
+                pdf.save('BaseConsolidado.pdf');
+            }, margins);
+    }
+
+
+
+</script>
+
+
+<style>
+
+    #exportButton {
+        border-radius: 0;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>
+

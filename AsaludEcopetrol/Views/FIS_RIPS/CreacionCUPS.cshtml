@@ -1,0 +1,145 @@
+﻿
+@model ECOPETROL_COMMON.ENTIDADES.fis_rips_cups
+
+@{
+    ViewBag.Title = "CREACIÓN CUPS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CUPS</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formularioIngreso">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="hidden" name="id_cups" id="id_cups" value="@ViewBag.id_cups" />
+                            <label class="text-secondary_asalud">Código CUPS</label>
+                            <input type="text" class="form-control" id="codigo_cups" name="codigo_cups" maxlength="12" value="@Model.codigo_cups" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Descripción</label>
+                            <input type="text" class="form-control" style="width:100%;" id="descripcion" maxlength="199" name="descripcion" value="@Model.descripcion" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Manual tarifario</label>
+                            <select id="manual" name="manual" class="form-control" required>
+                                <option value="">--Seleccione--</option>
+                                <option value="SOAT">SOAT</option>
+                                <option value="ISS">ISS</option>
+                                <option value="ECP">ECP</option>
+                                <option value="PROPIAS">PROPIAS</option>
+                                <option value="OTRO">OTRO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">ACTIVO</label>
+                            <select id="estado" name="estado" class="form-control" required>
+                                <option value="">-Seleccione-</option>
+                                <option value="1">SI</option>
+                                <option value="2">NO</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">GUARDADO</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button onclick="ValidarFormulario()" class="button_Asalud_Guardar">GUARDAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('.solo-numeros').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        var idCups = "@Model.id_cups";
+        if (idCups != 0 && idCups != null && idCups != "") {
+            PintarCampos();
+        }
+    });
+
+
+    $("#codigo_cups").change(function () {
+        var value = this.value;
+
+        if (value.length < 6) {
+            this.setCustomValidity('El código debe tener al menos 6 caracteres.');
+        } else if (value.length > 12) {
+            this.setCustomValidity('El código no debe exceder los 12 caracteres.');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    function PintarCampos() {
+        $("#manual").val("@Model.manual").trigger("change");
+        $("#estado").val("@Model.estado").trigger("change");
+    }
+
+    function ValidarFormulario() {
+        var validar = $("#formularioIngreso").validate();
+        if (validar.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+
+        var formData = new FormData($("#formularioIngreso")[0]);
+
+        formData.append("id_cups", $("#id_cups").val());
+        formData.append("codigo_cups", $("#codigo_cups").val());
+        formData.append("descripcion", $("#descripcion").val());
+        formData.append("manual", $("#manual").val());
+        formData.append("estado", $("#estado").val());
+        
+        LoadingShow();
+        $.ajax({
+            url: '@Url.Action("GuardarCups", "FIS_RIPS")',
+            data: formData,
+            method: "POST",
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                if (response.rta == 1) {
+                    location.href = "@Url.Action("TableroCups", "FIS_RIPS")";
+                }
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+</script>

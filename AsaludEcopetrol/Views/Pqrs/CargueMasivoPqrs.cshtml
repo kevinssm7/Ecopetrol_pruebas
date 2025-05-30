@@ -1,0 +1,178 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE MASIVO PQRS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string mensajerespuesta = (string)ViewData["MensajeRta"];
+}
+
+
+
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">CARGUE MASIVO PQRS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">CONTROL CARGUES PQRS</a>
+        </li>
+    </ul>
+    <br />
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @if (!String.IsNullOrEmpty(mensajerespuesta))
+                    {
+                        if (mensajerespuesta.Contains("Error"))
+                        {
+                            <label class="danger"> @Html.Raw(mensajerespuesta)</label>
+                        }
+                        else
+                        {
+                            @Html.Raw(mensajerespuesta);
+                        }
+                    }
+
+                    <form id="formPQRS" name="formPQRS" enctype="multipart/form-data" method="post" action="CargueMasivoPqrs">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Seleccionar archivo:</label>
+                                <input type="file" id="files" name="files" class="form-control" onchange="ValidacionArchivo();" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
+                            </div>
+                        </div>
+                        <br />
+                        <div>
+                            <div class="col-sm-12 text-right form-group">
+                                <button onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="2a">
+            @Html.Action("ControlCargueMasivo", "Pqrs")
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".soloNumeros").keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+    });
+
+    function ValidarFormulario() {
+        var validator = $("#formPQRS").validate();
+
+        if (validator.form()) {
+            LoadingShow();
+            $("#formPQRS").submit();
+        }
+    }
+
+    //function enviarDatos() {
+
+    //    var archivo = document.getElementById("file");
+    //    var file = archivo.files[0];
+
+    //    $ajax.
+
+    //}
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('files');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos excel.");
+            $("#files").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+</script>
+
+
+<style>
+    .error {
+        color: indianred;
+        font-weight: bold;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

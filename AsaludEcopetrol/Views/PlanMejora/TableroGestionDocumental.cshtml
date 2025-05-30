@@ -1,0 +1,797 @@
+﻿@{
+    ViewBag.Title = "TABLERO PLAN MEJORA GESTIÓN DOCUMENTAL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+    int i = 0;
+}
+
+<input type="hidden" id="CargaDoc" name="CargaDoc" />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO GESTIÓN DOCUMENTAL</strong>
+    </div>
+    <div class="panel-body">
+
+        <form id="formularioPMG" action="TableroGestionDocumental" method="post">
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select id="regional" name="regional" class="form-control select2">
+                        <option value="">--Seleccionar</option>
+
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                        {
+                            <option value="@item.id_ref_regional">@item.indice</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input type="text" id="fechaInicio" name="fechaInicio" class="form-control" style="width:100%;" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha fin</label>
+                    <input type="text" id="fechaFin" name="fechaFin" class="form-control" style="width:100%;" />
+
+                </div>
+                <br />
+                <div class="col-md-3">
+                    <button id="btnbuscar" class="btn button_Asalud_Aceptar" onclick="Buscar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    @if (resultado != 0)
+                    {
+                        <a class="button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+                    }
+                </div>
+            </div>
+            @if (resultado == 0)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos.")</p>
+                    </div>
+                </div>
+            }
+        </form>
+
+        <br />
+        <table id="tablaDatos" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id plan</th>
+                    <th>Id visitas</th>
+                    @*<th>Fecha digita</th>*@
+                    <th>Regional</th>
+                    <th>Unis</th>
+                    <th>Localidad</th>
+                    <th>Prestador</th>
+                    <th>Fecha plan de mejora</th>
+                    <th>Fecha ampliación</th>
+                    <th>Nro ampliaciones</th>
+                    <th>Fecha de cierre</th>
+                    <th>Estado</th>
+                    <th>Proceso</th>
+                    <th>Auditor</th>
+                    <th>Creación</th>
+                    <th>Cierre</th>
+                    <th>Archivos creación firmado</th>
+                    <th>Archivos cierre firmado</th>
+                    <th>Archivos soporte firmado</th>
+                    @*<th>Archivos soporte administrador</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.conteo > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroDocumentalResult item in ViewBag.listado)
+                    {
+                        i++;
+                        <tr>
+                            <td>@item.id_plan_de_mejora</td>
+                            <td>@item.id_visitas</td>
+                            @*<td>@item.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>*@
+                            <td>@item.nombre_regional</td>
+                            <td>@item.descripcionUnis</td>
+                            <td>@item.nombreLocalidad</td>
+                            <td>@item.nombrePrestador</td>
+
+                            <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+
+                            @if (item.ultimaFechaAmpliacion != null)
+                            {
+                                <td>@item.ultimaFechaAmpliacion.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td>@item.ultimaFechaAmpliacion</td>
+                            }
+
+                            <td>@item.conteoAmpliacion</td>
+
+                            @if (item.fecha_cierre != null)
+                            {
+                                <td>@item.fecha_cierre.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td>@item.fecha_cierre</td>
+                            }
+
+                            <td>@item.estadoplan</td>
+
+                            <td>@item.descripcionProcesoAuditado</td>
+                            <td>@item.nombreAuditor</td>
+
+                            <td class="text-center">
+                                <a class="button_Asalud_Aceptar" onclick="MostrarCreacion(@item.id_plan_de_mejora);" data-toggle="modal">
+                                    <i class="glyphicon glyphicon-download"></i>&nbsp; GENERAR
+                                </a>
+                            </td>
+                            <td class="text-center">
+
+                                @if (item.estado_plan == 2)
+                                {
+                                    <a class="button_Asalud_Aceptar" onclick="MostrarCierre(@item.id_plan_de_mejora);" data-toggle="modal">
+                                        <i class="glyphicon glyphicon-download"></i>&nbsp; GENERAR
+                                    </a>
+                                }
+                                else
+                                {
+                                    <label class="text-secondary_asalud">Sin cierre</label>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.archivoCreacion == 1)
+                                {
+                                    <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 1, 1);" data-toggle="modal" title="Con registros">
+                                        <i class="glyphicon glyphicon-file"></i>VER
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="button_Asalud_Guardar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 1, 1);" data-toggle="modal" title="Sin registros">
+                                        <i class="glyphicon glyphicon-file"></i>CARGAR
+                                    </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.archivoCierre == 1)
+                                {
+                                    <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 2, 1);" data-toggle="modal" title="Con registros">
+                                        <i class="glyphicon glyphicon-file"></i>VER
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="button_Asalud_Guardar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 2, 1);" data-toggle="modal" title="Sin registros">
+                                        <i class="glyphicon glyphicon-file"></i>CARGAR
+                                    </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.archivoSoporte == 1)
+                                {
+                                    <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 3, 1);" data-toggle="modal" title="Con registros">
+                                        <i class="glyphicon glyphicon-file"></i>VER
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="button_Asalud_Guardar" onclick="MostrarArchivos(@item.id_plan_de_mejora, 3, 1);" data-toggle="modal" title="Sin registros">
+                                        <i class="glyphicon glyphicon-file"></i>CARGAR
+                                    </a>
+                                }
+                            </td>
+                            @*<td>
+                                @if (item.estadoplan == "notificar al administrador del contrato" && item.estado_plan != 3)
+                                {
+                                    <a class="button_Asalud_Guardar" onclick="CargarSoporteAdmin(@item.id_plan_de_mejora);" data-toggle="modal" title="Sin registros">
+                                        <i class="glyphicon glyphicon-file"></i>Cargar
+                                    </a>
+                                }
+
+                                else if (item.estado_plan == 3)
+                                {
+                                    <a class="button_Asalud_Guardar" onclick="MostrarArchivosNotificacion(@item.id_plan_de_mejora);" data-toggle="modal" title="Con registros">
+                                        <i class="glyphicon glyphicon-file"></i>Ver
+                                    </a>
+
+                                    <a class="button_Asalud_Aceptar" onclick="NotificarALiderazgo(@item.id_plan_de_mejora);" title="Notificación">
+                                        <i class="glyphicon glyphicon-send"></i> &nbsp; Notificar
+                                    </a>
+                                }
+
+                            </td>*@
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalArchivos" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud">Archivo</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formArchivosPM">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Archivo-Plan nro <label id="lblidPlan"></label></label>
+                            <input type="file" name="file" id="file" class="form-control" accept=".pdf" onchange="ValidaArchivos()" multiple required />
+                            <input type="hidden" id="idPlan" name="idPlan" />
+                            <input type="hidden" id="tipo" name="tipo" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:EnviarRegistros()" class="button_Asalud_Guardar">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:65%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivosNotificacion">
+    <div class="modal-dialog modal-lg" style="width:65%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoNoti"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalCreacion">
+    <div class="modal-dialog modal-lg" style="width:45%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">DESCARGUE ARCHIVO CREACIÓN CON FIRMA</strong>
+                </div>
+                <div class="panel-body">
+                    <form id="formFirma">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <input type="hidden" id="idPlan" name="idPlan" />
+                                <label class="text-secondary_asalud">Firma</label>
+                                <input type="file" name="firma" id="firma" onchange="ValidaArchivosFirma();" class="form-control" required />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <a class="button_Asalud_Guardar" onclick="MostrarCreacionFirma();">DESCARGAR</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="modalCierre">
+    <div class="modal-dialog modal-lg" style="width:45%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">DESCARGUE ARCHIVO CIERRE CON FIRMA</strong>
+                </div>
+                <div class="panel-body">
+                    <form id="formFirmaC">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <input type="hidden" id="idPlanC" name="idPlanC" />
+                                <label class="text-secondary_asalud">Firma</label>
+                                <input type="file" name="firmaC" id="firmaC" onchange="ValidaArchivosFirmaC();" class="form-control" required />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <a class="button_Asalud_Guardar" onclick="MostrarCierreFirma();">DESCARGAR</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalCargueAdmin" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="rslAdmin"></div>
+            </div>
+
+            @*<div class="modal-footer">
+                    <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#fechaInicio").kendoDatePicker();
+        $("#fechaFin").kendoDatePicker();
+
+        $("#fechaInicio").prop('readonly', true);
+        $("#fechaFin").prop('readonly', true);
+
+        MostrarTabla();
+    })
+
+    function MostrarTabla() {
+        var conteo = "@ViewBag.conteo";
+        if (conteo > 0) {
+
+            $('#tablaDatos').DataTable().destroy();
+            $('#tablaDatos').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function CargarArchivo(idPlan, tipo) {
+
+        $("#file").val('');
+        $("#idPlan").val(idPlan);
+        $("#tipo").val(tipo);
+        $("#lblidPlan").text(idPlan);
+        $("#ModalArchivos").modal("show");
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReportePMGD", "PlanMejora")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+    function MostrarArchivos(idPlan, tipo, cargaDocumentos) {
+        var laURLDeLaVista = '@Url.Action("MostrarArchivosDocumental")?idPlan=' + idPlan + '&tipo=' + tipo + "&cargaDocumentos=" + cargaDocumentos;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                $("#myModalArchivos").modal("show");
+            }
+        })
+    }
+
+    function MostrarArchivosNotificacion(idPlan) {
+        var laURLDeLaVista = '@Url.Action("MostrarArchivosDocumentalNotificacion")?idPlan=' + idPlan;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoNoti').html('');
+                $('#resultadoNoti').html(response);
+                $("#myModalArchivosNotificacion").modal("show");
+            }
+        })
+    }
+
+    function GestionCerrar() {
+
+        debugger
+
+        var cargaDoc = $("#CargaDoc").val();
+        $("#myModalArchivos").modal("hide");
+
+        if (cargaDoc == 2) {
+            location.reload();
+        }
+    }
+
+    function ValidaArchivos() {
+        var fileInput = $("#file");
+        var selectedFile = fileInput[0].files[0];
+
+        if (!selectedFile) {
+            alert("Selecciona un archivo.");
+            return;
+        }
+
+        var allowedExtensions = ["pdf"];
+        var fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+        if (allowedExtensions.indexOf(fileExtension) === -1) {
+            alert("El archivo debe ser un PDF.");
+            $("#file").val('');
+            return;
+        }
+    }
+
+    function EnviarRegistros() {
+
+        hasChangue = false;
+        var validator = $("#formArchivosPM").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            var formData = new FormData();
+
+            formData.append('idPlan', $('#idPlan').val());
+            formData.append('tipo', $('#tipo').val());
+
+            var archivoInput = $("#file")[0];
+            if (archivoInput.files.length > 0) {
+                var archivo = archivoInput.files[0];
+                formData.append("files", archivo);
+            }
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("GuardarArchivoPlanMejora", "PlanMejora")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+
+                    alert(data.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function MostrarCreacion(idPlan) {
+        $("#idPlan").val(idPlan);
+        $("#firma").val(''); // Limpiar el campo de archivo
+        $("#modalCreacion").modal("show");
+    }
+
+    function ValidaArchivosFirma() {
+        var fileInput = $("#firma");
+        var selectedFile = fileInput[0].files[0];
+
+        if (!selectedFile) {
+            alert("Selecciona un archivo.");
+            return;
+        }
+
+        // Extensiones permitidas
+        var allowedExtensions = ["jpg", "jpeg", "png"];
+        var fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+        // Validar extensión del archivo
+        if (allowedExtensions.indexOf(fileExtension) === -1) {
+            alert("El archivo debe ser un JPG o PNG.");
+            $("#firma").val(''); // Limpiar el campo de archivo
+            return;
+        }
+
+        // Validar tamaño del archivo (máximo 2 MB)
+        var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
+        if (selectedFile.size > maxSize) {
+            alert("El archivo no debe superar los 2 MB.");
+            $("#firma").val(''); // Limpiar el campo de archivo
+            return;
+        }
+    }
+
+
+    function ValidaArchivosFirmaC() {
+        var fileInput = $("#firmaC");
+        var selectedFile = fileInput[0].files[0];
+
+        if (!selectedFile) {
+            alert("Selecciona un archivo.");
+            return;
+        }
+
+        // Extensiones permitidas
+        var allowedExtensions = ["jpg", "jpeg", "png"];
+        var fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+        // Validar extensión del archivo
+        if (allowedExtensions.indexOf(fileExtension) === -1) {
+            alert("El archivo debe ser un JPG o PNG.");
+            $("#firmaC").val(''); // Limpiar el campo de archivo
+            return;
+        }
+
+        // Validar tamaño del archivo (máximo 2 MB)
+        var maxSize = 2 * 1024 * 1024; // 2 MB en bytes
+        if (selectedFile.size > maxSize) {
+            alert("El archivo no debe superar los 2 MB.");
+            $("#firmaC").val(''); // Limpiar el campo de archivo
+            return;
+        }
+    }
+
+    function MostrarCreacionFirma() {
+        var valida = $("#formFirma").validate();
+        if (valida.form()) {
+            var idPlan = $("#idPlan").val();
+            var formData = new FormData();
+            formData.append("idPlan", idPlan);
+            formData.append("firma", $("#firma")[0].files[0]);
+
+            var xhr = new XMLHttpRequest();  // Crear una instancia de XMLHttpRequest
+            xhr.open("POST", "@Url.Action("CrearReporteCreacionPMFirma", "PlanMejora")", true);
+            xhr.responseType = 'blob';  // Especificamos que la respuesta será un blob (archivo binario)
+
+            // Establecer el evento de éxito
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var blob = xhr.response;  // Obtener el contenido binario (PDF)
+                    var link = document.createElement('a');
+                    var url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = 'CreacionPlanMejora_' + idPlan + '.pdf';  // Nombre del archivo descargado
+                    link.click();  // Simula el clic para iniciar la descarga
+                    URL.revokeObjectURL(url);  // Limpiar la URL de descarga después de usarla
+                } else {
+                    alert("Error al generar el reporte: " + xhr.statusText);
+                }
+            };
+
+            // Establecer el evento de error
+            xhr.onerror = function () {
+                alert("Error de conexión al servidor.");
+            };
+
+            // Enviar la solicitud
+            xhr.send(formData);
+        }
+    }
+
+    function MostrarCierre(idPlan) {
+
+        $("#idPlanC").val(idPlan);
+        $("#firmaC").val(''); // Limpiar el campo de archivo
+        $("#modalCierre").modal("show");
+    }
+
+    function MostrarCierreFirma() {
+
+        var valida = $("#formFirmaC").validate();
+        if (valida.form()) {
+            var idPlan = $("#idPlanC").val();
+            var formData = new FormData();
+            formData.append("idPlan", idPlan);
+            formData.append("firma", $("#firmaC")[0].files[0]);
+
+            var xhr = new XMLHttpRequest();  // Crear una instancia de XMLHttpRequest
+            xhr.open("POST", "@Url.Action("CrearReporteCierrePMFirma", "PlanMejora")", true);
+            xhr.responseType = 'blob';  // Especificamos que la respuesta será un blob (archivo binario)
+
+            // Establecer el evento de éxito
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var blob = xhr.response;  // Obtener el contenido binario (PDF)
+                    var link = document.createElement('a');
+                    var url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = 'CierrePlanMejora_' + idPlan + '.pdf';  // Nombre del archivo descargado
+                    link.click();  // Simula el clic para iniciar la descarga
+                    URL.revokeObjectURL(url);  // Limpiar la URL de descarga después de usarla
+                } else {
+                    alert("Error al generar el reporte: " + xhr.statusText);
+                }
+            };
+
+            // Establecer el evento de error
+            xhr.onerror = function () {
+                alert("Error de conexión al servidor.");
+            };
+
+            // Enviar la solicitud
+            xhr.send(formData);
+        }
+    }
+
+    function CargarSoporteAdmin(idPlan) {
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: "@Url.Action("ModalCargueSoportesAdmin", "PlanMejora")",
+            data: {
+                idPlan: idPlan
+            },
+            success: function (response) {
+                $('#rslAdmin').html('');
+                $('#rslAdmin').html(response);
+                $("#ModalCargueAdmin").modal("show");
+            }
+        })
+    }
+
+
+    function NotificarALiderazgo(idPlan) {
+
+        var confirmar = confirm("¿Seguro(a) de enviar esta notiticación?");
+        if (confirmar == true) {
+            $.ajax({
+                url: "@Url.Action("EnviarNotificacionLiderazgo", "PlanMejora")",
+                method: "post",
+                data: { idPlan: idPlan },
+                type: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                }
+            });
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+

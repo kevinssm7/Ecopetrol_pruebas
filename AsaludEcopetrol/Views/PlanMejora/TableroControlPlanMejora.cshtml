@@ -1,0 +1,848 @@
+﻿@{
+    ViewBag.Title = "TABLERO PLAN DE MEJORA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">ESTADOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="nav nav-pills" style="font-size: 12px">
+                    <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Abiertos @ViewBag.conteoAbiertas</a></li>
+                    <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">Cerrados @ViewBag.conteoCerrados</a></li>
+                    <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Por notificar @ViewBag.conteoPorNotificar</a></li>
+                    <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">Notificados @ViewBag.conteoNotificados</a></li>
+                </ul>
+            </div>
+            <div class="col-md-6 text-right">
+                <a class="btn button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">DATOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab0">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaAbiertos table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Ampliación fecha</th>
+                                        <th>Acciones de mejora</th>
+                                        <th>Cerrar plan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoAbiertas > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tableroResult item in ViewBag.listAbiertos)
+                                        {
+                                            var estilo = "";
+                                            var fechaMinimaPlazo = new DateTime();
+                                            var fechaMaximaPlazo = new DateTime();
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            {
+                                                if (item.conteomeses > 0)
+                                                {
+                                                    estilo = "TrAzul";
+                                                }
+                                                else
+                                                {
+                                                    estilo = "TrNaranja";
+
+                                                }
+                                            }
+
+                                            <tr class="@estilo">
+
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+
+                                                <td class="text-center">
+                                                    @if (item.prioridad != 3)
+                                                    {
+                                                        if (item.conteoampliaciones > 1)
+                                                        {
+                                                            <a class="button_Asalud_Aceptar" onclick="AmplicacionFecha(@item.id_plan_de_mejora, '@fechaMinimaPlazo', 2, '@item.fecha_creacion.Value.ToString("MM/dd/yyyy")', '@item.fecha_estimada_cierre', '@item.fecha_ampliacion')" data-toggle="modal" data-target="#myModalAmpliacion">Ampliar</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a class="button_Asalud_Aceptar" onclick="AmplicacionFecha(@item.id_plan_de_mejora, '@fechaMaximaPlazo', 1, '@item.fecha_creacion.Value.ToString("MM/dd/yyyy")', '@item.fecha_estimada_cierre', '@item.fecha_ampliacion')" data-toggle="modal" data-target="#myModalAmpliacion">Ampliar</a>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <label class="text-secondary_asalud">Sin ampliación disponible por prioridad alta</label>
+                                                    }
+
+                                                </td>
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Guardar" onclick="CerrarPlan(@item.id_plan_de_mejora)">Cerrar</a>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab1">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaCerrados table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoCerrados > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tableroResult item in ViewBag.listCerrados)
+                                        {
+                                            <tr>
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab2">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaPorNoti table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                        <th>Enviar notificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoPorNotificar > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tableroResult item in ViewBag.listPorNotificar)
+                                        {
+                                            <tr>
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Guardar" onclick="CargarSoporteAdmin(@item.id_plan_de_mejora);" data-toggle="modal" title="Enviar notificación">
+                                                        Enviar
+                                                    </a>
+                                                </td>
+
+                                                @*<td class="text-center">
+                                                        <a class="button_Asalud_Aceptar" onclick="NotificarALiderazgo(@item.id_plan_de_mejora);" title="Notificación">
+                                                            <i class="glyphicon glyphicon-send"></i> &nbsp; Notificar
+                                                        </a>
+                                                    </td>*@
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab3">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaNotificados table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoNotificados > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tableroResult item in ViewBag.listNotificados)
+                                        {
+                                            <tr>
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("yyyy/MM/dd") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalTareas">
+    <div class="modal-dialog modal-lg" style="width:85%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalAmpliacion">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalCargueAdmin">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="rslAdmin"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        validacionExistenPlanesACerrar();
+
+        MostrarTablaAbiertos();
+        MostrarTablaCerrados();
+        MostrarTablaPorNoti();
+        MostrarTablaNotifi();
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#fechaInicio").kendoDatePicker();
+        $("#fechaFin").kendoDatePicker();
+
+        $("#fechaInicio").prop('readonly', true);
+        $("#fechaFin").prop('readonly', true);
+    })
+
+    function validacionExistenPlanesACerrar() {
+        $.ajax({
+            url: "@Url.Action("ValidarCerradaPlanesMejora", "PlanMejora")",
+            method: "post",
+            type: "post"
+        });
+    }
+
+    function MostrarTablaAbiertos() {
+        var conteo = "@ViewBag.conteoAbiertas";
+        if (conteo > 0) {
+
+            $('.tablaAbiertos').DataTable().destroy();
+            $('.tablaAbiertos').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaCerrados() {
+        var conteo = "@ViewBag.conteoCerrados";
+        if (conteo > 0) {
+            $('.tablaCerrados').DataTable().destroy();
+            $('.tablaCerrados').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaPorNoti() {
+        var conteo = "@ViewBag.conteoPorNotificar";
+        if (conteo > 0) {
+            $('.tablaPorNoti').DataTable().destroy();
+            $('.tablaPorNoti').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaNotifi() {
+        var conteo = "@ViewBag.conteoNotificados";
+        if (conteo > 0) {
+            $('.tablaNotificados').DataTable().destroy();
+            $('.tablaNotificados').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function VerTareas(idPlan) {
+        var laURLDeLaVista = '@Url.Action("MostrarTareasPlanMejora")?idPlan=' + idPlan;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function CerrarPlan(idPlan) {
+
+        var confirmar = confirm("¿Está seguro(a) de cerrar el plan: " + idPlan + "?");
+
+        if (confirmar == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("CerrarplanMejoraCompleto", "PlanMejora")",
+                type: "POST",
+                data: {
+                    idPlan: idPlan,
+                },
+
+                success: function (response) {
+
+                    if (response.success) {
+                        LoadingHide();
+                        alert(response.message);
+                        ReporteCierrePM(response.id)
+                        location.reload();
+                    }
+                    else {
+                        alert(response.message);
+                        LoadingHide();
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+    function ReporteCierrePM(idPlan) {
+        var URL2 = "@Url.Action("CrearReporteCierrePM", "PlanMejora")?idPlan=" + idPlan;
+        window.open(URL2, '', 'width =450,height =540,left =10,top =150,toolbar =yes');
+    }
+
+    function AmplicacionFecha(idPlan, fechaMaxima, maximoAmpliaciones, fechaInicial, fechaEstimada, fechaAmpliacion) {
+        debugger
+        var laURLDeLaVista = '@Url.Action("MostrarAmpliacionPM")?idPlan=' + idPlan + "&fechaMaxima=" + fechaMaxima + "&maximoAmpliaciones=" + maximoAmpliaciones + "&fechaInicial=" + fechaInicial + "&fechaEstimada=" + fechaEstimada + "&fechaAmpliacion=" + fechaAmpliacion;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+    //function AmplicacionFecha(idPlan) {
+    //    $("#idPlanAmpliacion").val(idPlan);
+    //    $("#myModalAmpliacion").modal("show");
+    //}
+
+    function finalizarObs() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+
+    function FinalizarDatos() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("IdTarea", $("#IdTarea").val());
+        formData.append("idEstado", $("#idEstado").val());
+        formData.append("observacion", $("#observacion").val());
+
+        LoadingShow();
+        $.ajax({
+             url: "@Url.Action("SavegestionFacturas", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+
+                }
+            }
+        })
+    }
+
+    function GestionCerrar() {
+
+        location.href = "@Url.Action("TableroControlPlanMejora", "PlanMejora")";
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReportePM", "PlanMejora")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+    function CargarSoporteAdmin(idPlan) {
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: "@Url.Action("ModalCargueSoportesAdmin", "PlanMejora")",
+            data: {
+                idPlan: idPlan
+            },
+            success: function (response) {
+                $('#rslAdmin').html('');
+                $('#rslAdmin').html(response);
+                $("#ModalCargueAdmin").modal("show");
+            }
+        })
+    }
+
+    function NotificarALiderazgo(idPlan) {
+
+        var confirmar = confirm("¿Seguro(a) de enviar esta notiticación?");
+        if (confirmar == true) {
+            $.ajax({
+                url: "@Url.Action("EnviarNotificacionLiderazgo", "PlanMejora")",
+                method: "post",
+                data: { idPlan: idPlan },
+                type: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    location.reload();
+                }
+            });
+        }
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        /*   .table td {
+                            padding: 8px;
+                            background: #efefef;
+                            border-bottom: 2px solid #fff;
+                            color: #636363;
+                            border-top: 1px solid transparent;
+                        }*/
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+
+    .TrAzul {
+        background: #bbd0da;
+        color: black;
+    }
+
+    .TrNaranja {
+        background-color: #daccbb;
+        color: black;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>
+
+
+

@@ -1,0 +1,345 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_prestadores_lotes>
+@{
+    ViewBag.Title = "TABLERO DE RECEPCIÓN DE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewData["rta"];
+    string msg = (string)ViewData["Msg"];
+}
+
+<br />
+
+@if (rta != 0)
+{
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">@msg</div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">@msg</div>
+    }
+}
+
+@if (ViewBag.idusuario == 396)
+{
+    <div class="col-md-12" style="text-align:right;">
+        <a class="button_Asalud_Aceptar" onclick="ActualizaRutas();">Actualizar</a>
+        <div class="col-md-3">
+        </div>
+    </div>
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud"> Listado de facturas radicadas</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-12 text-left form-group">
+                    <button class="button_Asalud_Guardar" onclick="GuardarSeleccion();">Asignar Masivo</button>
+                    <button title="Eliminar cache, y recargar datos" type="button" onclick="refrescarTableroControl()" class="btn btn-xs button_Asalud_Aceptar">Refrescar tablero de control&nbsp;<i class="glyphicon glyphicon-refresh"></i></button>
+                </div>
+                <table class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>Items</th>
+                            <th>Días Trascurridos</th>
+                            <th>Id</th>
+                            <th>Regional</th>
+                            <th>Prestador</th>
+                            <th>Fecha Recepción Factura</th>
+                            @*<th></th>*@
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int i = 0; }
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.vw_prestadores_lotes item in ViewBag.lista)
+                        {
+                            i += 1;
+
+                            <tr>
+                                <td class="text-center">
+                                    <input id="ch_@i" name="ch_@i" type="checkbox" value="@item.id_cargue_base" />
+                                </td>
+
+                                @if (item.dias_trascurridos > 1)
+                                {
+                                    <td class="text-center" style="background-color:#FFEDED">@item.dias_trascurridos Días</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.id_cargue_base</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.nombre_regional</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.Nombre</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.dias_trascurridos Días</td>
+                                    <td class="text-center">@item.id_cargue_base</td>
+                                    <td class="text-center">@item.nombre_regional</td>
+                                    <td class="text-center">@item.Nombre</td>
+                                    <td class="text-center">@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                }
+                                @*<td>
+                                        <a href="@Url.Action("TableroFacturas","RadicacionElectonica", new {idcargue = item.id_cargue_base})" role="button" class="button_Asalud_Aceptar"> Facturas</a>
+                                    </td>*@
+                                <td>
+                                    <a href="javascript:asignaranalista(@item.id_cargue_base, @item.id_ref_regional)" role="button" class="button_Asalud_Guardar">Asignar</a>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalAsignacion" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Asignar este lote a un analista.</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario" method="post" action="@Url.Action("AsignarLoteAnalista")">
+                    <div class="row">
+                        <input type="hidden" id="id_lote" name="id_lote" />
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Seleccionar analista:</label>
+                            <input type="hidden" id="validacionRepetir" />
+                            <select class="form-control select2" id="id_analista" name="id_analista" required>
+                                <option value="">-Seleccionar-</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" id="validarForm" type="button" onclick="ValidarFormulario()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "order": [[5, "desc"]],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        document.getElementById("validarForm").style.display = "block";
+
+    });
+
+    function asignaranalista(id, idregional)
+    {
+
+        $("#id_lote").val(id);
+        $.ajax({
+            url: "@Url.Action("ObtenerAnalistasRegional")",
+            type: "post",
+            data: { idregional: idregional },
+            success: function (data)
+            {
+                $("#id_analista").empty();
+                $("#id_analista").html(data);
+                $("#id_analista").val("").trigger('change');
+                $("#ModalAsignacion").modal('show');
+            }
+        })
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            document.getElementById("validarForm").style.display = "none";
+            $("#formulario").submit();
+        }
+    }
+
+    function GuardarSeleccion() {
+
+        var seleccionados = CapitulosSeleccionados();
+
+        if (seleccionados.length > 0) {
+
+            //var laURLDeLaVista = '@Url.Action("ObtenerAnalistasRegional")';
+            var laURLDeLaVista = '@Url.Action("ObtenerAnalistasRegional2")';
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: laURLDeLaVista,
+                data: { capitulos: seleccionados },
+                success: function (response) {
+                    $("#myModal2").modal("show");
+                    $('#resultado2').html('');
+                    $('#resultado2').html(response);
+                }
+            });
+
+        }
+        else {
+            $("#myModal2").modal("hide");
+            document.getElementById("myModal2").style.display = "none";
+            alert("Debe seleccionar almenos uno de los items");
+
+            return false;
+        }
+    }
+
+    function CapitulosSeleccionados() {
+        var contador = "@ViewBag.count";
+        var seleccionados = [];
+
+        for (var i = 1; i <= contador; i++) {
+            if ($("#ch_" + i).is(':checked')) {
+                seleccionados.push($("#ch_" + i).val());
+            }
+        }
+        return seleccionados;
+    }
+
+    function refrescarTableroControl()
+    {
+        LoadingShow();
+        var url = "@Url.Action("RefrescarTableroRecepcionFacturas", "RadicacionElectonica")";
+        location.href = url
+    }
+
+    function ActualizaRutas() {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("MasivoReaporbacioncartasAprobacion", "RadicacionElectonica")",
+            method: "post",
+            type: "post",
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+            }
+        });
+    }
+
+
+</script>
+
+
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    #validarForm {
+        position: relative;
+        margin-left: 350px;
+        margin-top: -34px;
+    }
+</style>

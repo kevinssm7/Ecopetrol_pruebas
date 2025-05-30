@@ -1,0 +1,449 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO LISTADO RASTREO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string mensajerespuesta = (string)ViewBag.msg;
+
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        @if (!String.IsNullOrEmpty(mensajerespuesta))
+        {
+            if (mensajerespuesta.Contains("Error"))
+            {
+                <label class="danger"> @Html.Raw(mensajerespuesta)</label>
+            }
+            else
+            {
+                @Html.Raw(mensajerespuesta);
+            }
+        }
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Filtrado</strong>
+        </div>
+        <input type="hidden" id="tipoFiltrado" name="tipoFiltrado" value="@ViewBag.tipoFiltrado" />
+        <div class="panel-body">
+
+            <form id="formFiltro" action="TableroListadoRastreo" method="post">
+                <div class="panel-default">
+                    <input type="hidden" id="mensaje" name="mensaje" value="@ViewBag.msg" />
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Tipo</label>
+                        <select id="tipo" name="tipo" class="form-control select2">
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cargue_cuentas_altoCosto item in ViewBag.tipo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+
+                        </select>
+                    </div>
+                    <br />
+                    <div class="col-md-8">
+                        <button onclick="ValidarFormulario()" class="btn-sm button_Asalud_Guardar">BUscar</button>
+                        <a class="btn-sm button_Asalud_descargas" onclick="VerDatosExcel();" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>&nbsp; DESCARGAR</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li0"><a href="#tab0" class="collapse0" data-toggle="tab">Sin gestión @ViewBag.conteoSin</a></li>
+                <li id="li1"><a href="#tab1" class="collapse1" data-toggle="tab">En tramite @ViewBag.conteoCon</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Datos</strong>
+        </div>
+        <div class="tab-content">
+
+            <div class="tab-pane active" id="tab0">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaSin table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Cargue</th>
+                                        <th class="text-center">Mes rastreo</th>
+                                        <th class="text-center">Regional</th>
+                                        <th class="text-center">Unis</th>
+                                        <th class="text-center">Tipo documento</th>
+                                        <th class="text-center">Documento</th>
+                                        <th class="text-center">Nombre</th>
+                                        <th class="text-center">Fecha nacimiento </th>
+                                        <th class="text-center">Edad</th>
+                                        <th class="text-center">Sexo</th>
+                                        <th class="text-center">Diagnóstico CIE10</th>
+                                        <th class="text-center">Descripción Dx</th>
+                                        <th class="text-center">Reportado CAC</th>
+                                        <th class="text-center">Tipo</th>
+                                        <th class="text-center">Gestionar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoSin > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_cuentasAltoCosto_rastreosResult item in ViewBag.listadoSin)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@item.id_cargue </td>
+                                                <td class="text-center">@item.rastreo_mes </td>
+                                                <td class="text-center">@item.regional</td>
+                                                <td class="text-center">@item.unis</td>
+                                                <td class="text-center">@item.tipo_documento</td>
+                                                <td class="text-center">@item.documento</td>
+                                                <td class="text-center">@item.nombreCompleto</td>
+                                                <td class="text-center">@item.fecha_nacimiento</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.sexo</td>
+                                                <td class="text-center">@item.diagnostico_cie10</td>
+                                                <td class="text-center">@item.descripcion_dx</td>
+                                                <td class="text-center">@item.reportado_cac</td>
+                                                <td class="text-center">@item.descripcion_tipo</td>
+                                                <td class="text-center">
+                                                    <a class="btn-sm button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
+                                                        Gestionar
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center"> SIN DATOS </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab1">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaCon table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Cargue</th>
+                                        <th class="text-center">Mes rastreo</th>
+                                        <th class="text-center">Regional</th>
+                                        <th class="text-center">Unis</th>
+                                        <th class="text-center">Tipo documento</th>
+                                        <th class="text-center">Documento</th>
+                                        <th class="text-center">Nombre</th>
+                                        <th class="text-center">Fecha nacimiento </th>
+                                        <th class="text-center">Edad</th>
+                                        <th class="text-center">Sexo</th>
+                                        <th class="text-center">Diagnóstico CIE10</th>
+                                        <th class="text-center">Descripción Dx</th>
+                                        <th class="text-center">Reportado CAC</th>
+                                        <th class="text-center">Tipo</th>
+                                        <th class="text-center">Gestionar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoCon > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_cuentasAltoCosto_rastreosResult item in ViewBag.listadoCon)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@item.id_cargue </td>
+                                                <td class="text-center">@item.rastreo_mes </td>
+                                                <td class="text-center">@item.regional</td>
+                                                <td class="text-center">@item.unis</td>
+                                                <td class="text-center">@item.tipo_documento</td>
+                                                <td class="text-center">@item.documento</td>
+                                                <td class="text-center">@item.nombreCompleto</td>
+                                                <td class="text-center">@item.fecha_nacimiento</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.sexo</td>
+                                                <td class="text-center">@item.diagnostico_cie10</td>
+                                                <td class="text-center">@item.descripcion_dx</td>
+                                                <td class="text-center">@item.reportado_cac</td>
+                                                <td class="text-center">@item.descripcion_tipo</td>
+                                                <td class="text-center">
+                                                    <a class="btn-sm button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
+                                                        Gestionar
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center"> SIN DATOS </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" data-backdrop="static" id="modalMensaje" aria-labelledby="mensaje" aria-hidden="true">
+    <div class="modal-dialog modal-sm" style="width:20%">
+        <label class="text-primary_asalud" id="mensajeGestion">
+        </label>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalGestion">
+    <div class="modal-dialog modal-lg" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Gestionar</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        MostrarTablaSin();
+        MostrarTablaCon();
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#tipo option[value=5]").remove();
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+
+                if (tab0) {
+                    MostrarTablaSin();
+                }
+
+                if (tab1) {
+                    MostrarTablaCon();
+                }
+
+            }, 100);
+        });
+
+
+
+    });
+
+    function MostrarTablaSin() {
+        var conteo = "@ViewBag.conteoSin";
+        if (conteo > 0) {
+            $('.tablaSin').DataTable().destroy();
+            $('.tablaSin').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaCon() {
+        var conteo = "@ViewBag.conteoCon";
+        if (conteo > 0) {
+            $('.tablaCon').DataTable().destroy();
+            $('.tablaCon').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formFiltro").validate();
+
+        if (validator.form()) {
+            LoadingShow();
+            $("#formFiltro").submit();
+        }
+    }
+
+    function llamarVistaGestion(idRegistro, tipo) {
+
+        var urlVista = '@Url.Action("_GestionRastreos")?idRegistro=' + idRegistro + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: urlVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReporteRastreo", "InventarioAltoCosto")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

@@ -1,0 +1,352 @@
+﻿
+@model ECOPETROL_COMMON.ENTIDADES.categorizacion_egreso_hospitalario
+@{
+    ViewBag.Title = "CATEGORIZACION EGRESO HOSPITALARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string alerta = (string)ViewData["alerta"];
+
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                <p style="font-family:'Century Gothic'">@Html.Raw(alerta)</p>}
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CONSOLIDADO EVOLUCIONES</strong>
+    </div>
+    <div class="panel-body">
+        <div class="panel-body">
+            <div id="pnlEvolucionesCargadasNuevas" class="General table-responsive">
+                <table class="table table-bordered table-responsive" style="font-size:10px; width:98%;">
+                    <thead>
+                        <tr>
+                            <th>ítem</th>
+                            <th>IPS</th>
+                            <th>Beneficiario</th>
+                            <th>Documento</th>
+                            <th>Días de estancia</th>
+                            <th>Diagnóstico</th>
+                            <th>Valor glosa</th>
+                            <th>Cantidad glosa</th>
+                            <th>Evoluciones</th>
+                            <th>Estancia pertinente</th>
+                            <th>Evaluación pertinencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteo > 0)
+                        {
+                            var i = 0;
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_egresos_categorizacionResult order in ViewBag.lista)
+                            {
+                                i++;
+                                <tr>
+                                    <td>
+                                        @i
+                                        <input type="hidden" id="descripcion_@i" name="descripcion_@i" value="@order.consolidadoDescripcionEvaluacion" />
+                                    </td>
+                                    <td>@order.nombre_ips</td>
+                                    <td>@order.nombre_beneficiario</td>
+                                    <td>@order.documento_beneficiario</td>
+                                    <td>@order.diasEstancia</td>
+                                    <td>@order.diagnosticoEgreso</td>
+                                    <td>@order.valorGlosasTotal</td>
+                                    <td>@order.cantidadGlosaTotal</td>
+                                    @*<td>@order.consolidadoDescripcionEvaluacion</td>*@
+
+                                    <td style="text-align:center;">
+                                        <a class="button_Asalud_Guardar btn-sm" onclick="verDetalle(@i);" data-toggle="modal">
+                                            Ver
+                                        </a>
+                                    </td>
+
+                                    <td>@order.estancia_pertinente</td>
+
+
+                                    <td>
+                                        @if (order.tiene_evaluacion_pertinencia == "NO")
+                                        {
+                                            <a role="button" class="btn button_Asalud_Guardar btn-sm" href="javascript:EvaluarPertinencia(@order.idEgreso,@order.id_concurrencia, @order.diasEstancia, @order.documento_beneficiario)">Categorizar egreso</a>
+                                        }
+                                        else
+                                        {
+                                            <a role="button" class="btn button_Asalud_Aceptar btn-sm" href="javascript:VerEvaluacionPertinencia(@order.idEgreso)">Ver categorización</a>
+                                        }
+
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="14" style="width:98%; text-align:center;">SIN REGISTROS</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="modal fade" id="Modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content modal-lg" style="margin-left: -30%;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title text-primary_asalud">CATEGORIZACIÓN EGRESO HOSPITALARIO - EVALUAR PERTINENCIA</h5>
+            </div>
+            <div class="modal-body" id="cuerpo-modal">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="modalMensaje">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="panel-body">
+                <div class="panel panel-default panel-heading">
+                    <p class="text-primary_asalud" id="idTipo"></p>
+                </div>
+                <div class="panel panel-default panel-heading">
+                    <p id="mensaje"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.ui/1.8.10/jquery-ui.min.js"></script>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            "order": [[3, "desc"]],
+            responsive: true,
+        });
+
+        $('.tableVer').DataTable({
+            "searching": true,
+            "idisplaylength": 10,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+
+    })
+
+    function EvaluarPertinencia(idEgreso, idConcurrencia, diasEstancia, documento) {
+        var idegreso = "@ViewBag.idegreso";
+        $('#Modal').find('.modal-body').html("<p>Cargando...</p>");
+        $('#Modal').modal('show').find('.modal-body').load('/Concurrencia/EvaluarPertinencia?idegreso=' + idEgreso + '&idConcurrencia=' + idConcurrencia + '&dias=' + diasEstancia + "&documento=" + documento);
+    }
+
+    function VerEvaluacionPertinencia(idEgreso) {
+        $('#Modal').find('.modal-body').html("<p>Cargando...</p>");
+        $('#Modal').modal('show').find('.modal-body').load('/Concurrencia/VerEvaluacionPertinencia?idEgreso=' + idEgreso);
+    }
+
+
+    function verDetalle(i) {
+
+        var detalle = document.getElementById("descripcion_" + i).value;
+        $("#mensaje").html(detalle);
+        $("#idTipo").html('Descripción evoluciones');
+        $("#modalMensaje").modal('show');
+    }
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .table {
+        font-size: 10px;
+    }
+
+        .table th {
+            font-weight: bold;
+        }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

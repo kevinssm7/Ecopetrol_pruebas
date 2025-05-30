@@ -1,0 +1,251 @@
+﻿
+@model  AsaludEcopetrol.Models.Medicamentos.herramientasTec
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "BUSCAR PROVEEDOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<br />
+
+@using (Html.BeginForm())
+{
+
+
+    <div class="container">
+        <form id="frm-alumno">
+
+            <div class="row">
+                <div class="col-sm-6">
+
+                    <h4><span class="text-secondary_asalud">@Html.Label("BUSCAR PROVEEDOR")</span></h4>
+                    @Html.DropDownListFor(model => model.nombre_auditor, new SelectList(Model.Listproveedor, "id_ref_proveedor", "nombre"), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.nombre_auditor, null, new { @class = "label label-danger" })
+                    <br />
+                    <input id="BtnBuscar" type="submit" value="BUSCAR" class="btn btn-success" />
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+
+
+
+    <br />
+    if (Model.ListproveedorIndicadorHerramienta != null && Model != null && Model.ListproveedorIndicadorHerramienta.Count != 0)
+    {
+        <div id='resultado' class="General">
+
+            <table align="center" class="ListCaja">
+
+                <tr>
+
+                    <th class="text-center th">ID </th>
+                    <th class="text-center th">FECHA AUDITORIA</th>
+                    <th class="text-center th">NOMBRE AUDITOR</th>
+                    <th class="text-center th">FARMACIA</th>
+                    <th class="text-center th">TABLA1</th>
+                    <th class="text-center th">TABLA2</th>
+                    <th class="text-center th">TABLA3</th>
+                    <th class="text-center th">TABLA4</th>
+
+
+                </tr>
+
+                @foreach (var item in Model.ListproveedorIndicadorHerramienta)
+                {
+            <tr>
+                <td class="text-center td"> @item.id_herramienta_tec_med</td>
+                <td class="text-center td"> @item.fecha_auditoria.Value.ToString("dd/MM/yyyy")</td>
+                <td class="text-center td"> @item.nombre_auditor</td>
+                <td class="text-center td"> @item.nombre_farmacia</td>
+                @if (item.tieneT1 == "SI")
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla1", "herramientaTecnologica", new { id= item.id_herramienta_tec_med,tipo= 2})">
+                            VER
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla1", "herramientaTecnologica", new { id= item.id_herramienta_tec_med,tipo= 1})">
+                            INGRESAR
+                        </a>
+                    </td>
+                }
+
+                @if (item.tieneT2 == "SI")
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla2", "herramientaTecnologica", new { id= item.id_herramienta_tec_med,tipo= 2})">
+                            VER
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla2", "herramientaTecnologica", new { id= item.id_herramienta_tec_med,tipo= 1})">
+                            INGRESAR
+                        </a>
+                    </td>
+                }
+
+                @if (item.tieneT3 == "SI")
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla3", "herramientaTecnologica", new { id= item.id_herramienta_tec_med, tipo= 2})">
+                            VER
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla3", "herramientaTecnologica", new { id= item.id_herramienta_tec_med, tipo= 1})">
+                            INGRESAR
+                        </a>
+                    </td>
+                }
+
+
+                @if (item.tieneT4 == "SI")
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla4", "herramientaTecnologica", new { id= item.id_herramienta_tec_med ,tipo= 2})">
+                            VER
+                        </a>
+
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a class="btn btn-primary" href="@Url.Action("Tabla4", "herramientaTecnologica", new { id= item.id_herramienta_tec_med ,tipo= 1})">
+                            INGRESAR
+                        </a>
+
+                    </td>
+                }
+
+
+
+            </tr>
+
+                }
+
+            </table>
+
+        </div>
+
+    }
+
+    <div class="container">
+        <form id="frm-alumno">
+
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <h4><span class="text-secondary_asalud">@Html.Label("INGRESAR NUEVO REGISTRO")</span></h4>
+                    <a class="btn btn-success" href="@Url.Action("ingreso", "herramientaTecnologica", new { })">
+                        INGRESAR
+                    </a>
+                </div>
+
+
+            </div>
+
+        </form>
+    </div>
+}
+
+
+<script>
+
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>
+
+

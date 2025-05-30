@@ -1,0 +1,2087 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "GESTIÓN PQRS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+    var pasa = ViewBag.pasaAuditor;
+    var decisionAudi = ViewBag.final;
+    var campoReadonly = ViewBag.rol == "10" || ViewBag.rol == "1" ? false : true;
+
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br>
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong>@mensaje
+            </div>
+        </div>
+    }
+</div>
+
+<div class="panel-body">
+    <form id="divFiltro" method="post" action="TableroControl" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <input type="text" id="numero_caso" name="numero_caso" class="form-control solo-numero" placeholder="Número de caso" />
+            </div>
+            <div class="col-md-1">
+                <a class="button_Asalud_Aceptar botonFiltro" onclick="buscarNumeroCaso();"><i class="glyphicon glyphicon-search"></i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<form id="GestionPQRS" enctype="multipart/form-data" method="post" action="@Url.Action("GestionPQRS","Pqrs")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="control-label text-secondary_asalud">DETALLE GESTIÓN PQRS ANALISTA</strong>
+                </div>
+                <div class="panel-body">
+                    @if (ViewBag.count > 0)
+                    {
+                        <div class="panel-body table-responsive">
+                            <table class="table table-bordered" style="font-size:10px;">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-center">¿Plan de mejora?</th>
+                                        <th class="text-center">Observación plan de mejora</th>
+                                        <th class="text-center">Prestador</th>
+                                        <th class="text-center">Fecha gestión</th>
+                                        <th class="text-center">Requirió llamada</th>
+                                        <th class="text-center">Observación</th>
+                                        @*<th class="text-center">Observación ampliación</th>*@
+                                        <th class="text-center">Fecha ampliación</th>
+                                        <th class="text-center">Vobo auditor</th>
+                                        <th class="text-center">Nombre Vobo auditor</th>
+                                        <th class="text-center">Fecha envío prestador</th>
+                                    </tr>
+
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_vw_ecop_PQRS_DetalleGResult item in ViewBag.Lista)
+                                    {
+                                <tr>
+                                    <td>@item.plan_de_mejora </td>
+                                    <td>@item.observacion_plan_mejor </td>
+                                    <td>@item.descripcion_prestador </td>
+
+                                    @if (item.fecha_gestion != null)
+                                    {
+                                        <td>@item.fecha_gestion.Value.ToString("dd/MM/yyyy") </td>
+
+                                    }
+                                    else
+                                    {
+                                        <td>@item.fecha_gestion </td>
+                                    }
+
+                                    <td>@item.requirio_llamada </td>
+
+
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td>@item.fecha_digita.Value.ToString("dd/MM/yyyy") - @item.observacion_gestion </td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.observacion_gestion </td>
+                                    }
+
+
+                                    @*<td>@item.observacion_ampliacion </td>*@
+
+                                    @if (item.fecha_ampliacion != null)
+                                    {
+                                        <td>@item.fecha_ampliacion.Value.ToString("dd/MM/yyyy") </td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.fecha_ampliacion </td>
+                                    }
+
+                                    <td>@item.vobo_auditor </td>
+                                    <td>@item.nombre_vobo_auditor</td>
+
+                                    @if (item.fecha_envio_prestador != null)
+                                    {
+                                        <td>@item.fecha_envio_prestador.Value.ToString("dd/MM/yyyy") </td>
+
+                                    }
+                                    else
+                                    {
+                                        <td>@item.fecha_envio_prestador </td>
+                                    }
+                                </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <br />
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            SIN GESTIÓN DEL ANALISTA.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div id="pnlPrincipal" class="General">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="control-label text-secondary_asalud">DETALLE GESTIÓN PQRS AUDITOR</strong>
+                    </div>
+                    <div class="panel-body">
+                        @if (Model != null && Model.ListDetallePqrsAud != null && Model.ListDetallePqrsAud.Count > 0)
+                        {
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-center">Observación</th>
+                                        <th class="text-center">Atributo</th>
+                                        <th class="text-center">Válido</th>
+                                        <th class="text-center">VoBo</th>
+                                        <th class="text-center">Respuesta prestador</th>
+                                        <th class="text-center">Contacto con beneficiario</th>
+                                        <th class="text-center">Contacto técnico auditor</th>
+                                        <th class="text-center">Soluciona el problema</th>
+                                        <th class="text-center">Fecha gestión</th>
+                                    </tr>
+
+                                    @foreach (var item in Model.ListDetallePqrsAud)
+                                    {
+                                        <tr>
+                                            <td>@item.observacion_gestion</td>
+                                            <td>@item.descripcion </td>
+                                            <td>@item.validez </td>
+                                            <td>@item.vobo </td>
+                                            <td>@item.respuesta_prestador </td>
+                                            <td>@item.contacto_con_beneficiario </td>
+                                            <td>@item.concepto_tecnico_auditor </td>
+                                            <td>@item.soluciona_el_problema </td>
+
+                                            @if (item.fecha_ingreso != null)
+                                            {
+                                                <td>@item.fecha_ingreso.Value.ToString("dd/MM/yyyy HH:mm") </td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fecha_ingreso </td>
+                                            }
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                SIN GESTIÓN DEL AUDITOR.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="control-label text-secondary_asalud">OBSERVACIONES AUDITOR</strong>
+                    </div>
+                    <div class="panel-body">
+                        @if (ViewBag.conteoObs > 0)
+                        {
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-center">Observación</th>
+                                        <th class="text-center">Fecha gestión</th>
+                                        <th class="text-center">Auditor gestiona</th>
+                                    </tr>
+
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_observacionesAuditorResult item in ViewBag.observaciones)
+                                    {
+                                        <tr>
+                                            <td>@item.observacion </td>
+
+                                            @if (item.fecha_digita != null)
+                                            {
+                                                <td>@item.fecha_digita.Value.ToString("dd/MM/yyyyY") </td>
+                                            }
+                                            else
+                                            {
+                                                <td>@item.fecha_digita </td>
+                                            }
+
+                                            <td>@item.nombre </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                SIN OBSERVACIONES DEL AUDITOR.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="control-label text-secondary_asalud">DETALLE PQRS</strong>
+                    <input type="hidden" id="pasa" name="pasa" value="@pasa" />
+                    <input type="hidden" id="decisionAudi" name="decisionAudi" value="@decisionAudi" />
+                    <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+                    <input type="hidden" id="idPqrs" name="idPqrs" value="@ViewBag.idPqrs" />
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <h5><label class="control-label  text-secondary_asalud">@Html.LabelFor(p => p.numero_caso)</label></h5>
+                            @Html.TextBoxFor(p => p.numero_caso, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.numero_caso, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.consecutivo_caso)</span></h5>
+                            @Html.TextBoxFor(p => p.consecutivo_caso, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.consecutivo_caso, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso_salesforce)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_ingreso_salesforce)
+                         .Name("datepicker1")
+                        .Format("dd/MM/yyyy")
+                        .Enable(false)
+                         .Events(e =>
+                         {
+                             e.Change("change1");
+                         })
+                        .HtmlAttributes(new { style = "width: 90%", title = "Vigencia desde" })
+
+                        )
+                            @Html.ValidationMessageFor(u => u.fecha_ingreso_salesforce, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_egreso_salesforce)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_egreso_salesforce)
+                         .Name("datepicker7")
+                        .Format("dd/MM/yyyy")
+                        .Enable(false)
+                         .Events(e =>
+                         {
+                             e.Change("change11");
+                         })
+                        .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+                        )
+                            @Html.ValidationMessageFor(u => u.fecha_egreso_salesforce, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso_buzon_asalud)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_ingreso_buzon_asalud)
+                         .Name("datepicker2")
+                        .Format("dd/MM/yyyy")
+                        .Enable(false)
+                         .Events(e =>
+                         {
+                             e.Change("change2");
+                         })
+                        .HtmlAttributes(new { style = "width: 98%", title = "Vigencia desde" })
+
+
+                )
+                            @Html.ValidationMessageFor(u => u.fecha_ingreso_buzon_asalud, null, new { @class = "label label-danger" })
+                        </div>
+
+
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_asignacion)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_asignacion)
+                         .Name("datepicker3")
+                        .Format("dd/MM/yyyy")
+                        .Enable(false)
+                         .Events(e =>
+                         {
+                             e.Change("change3");
+                         })
+                        .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+
+                )
+                            @Html.ValidationMessageFor(u => u.fecha_asignacion, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.tipo_solicitud)</span></h5>
+                            @Html.DropDownListFor(model => model.tipo_solicitud, new SelectList(Model.ListTipoSolicitud, "id_ref_pqrs_tipo_solicitud", "descripcion"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.tipo_solicitud, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Regional:</label><span style="color:red"></span>
+                            @(Html.Kendo().DropDownListFor(m => m.regional)
+                                          .Name("regional")
+                                          .HtmlAttributes(new { style = "width:100%" })
+                                          .Enable(campoReadonly)
+                                          .DataTextField("nombre_regional")
+                                          .DataValueField("id_ref_regional")
+                                          .Filter(FilterType.Contains)
+                                          .Events(events => events.Select("CustomerSelect3"))
+                                           .DataSource(source =>
+                                           {
+                                               source.Read(read =>
+                                               {
+                                                   read.Action("GetCascadeRegional", "Facturas");
+                                               });
+                                           })
+                                )
+
+                            @Html.ValidationMessageFor(u => u.regional)
+
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.ciudad_del_caso)</span></h5>
+
+                            @(Html.Kendo().DropDownListFor(m => m.ciudad_del_caso)
+                                  .Name("ciudad_del_caso")
+                                  .HtmlAttributes(new { style = "width:98%" })
+                                  .Enable(campoReadonly)
+                                  .DataTextField("nombre")
+                                  .DataValueField("id_ref_ciudades")
+                                  .Filter(FilterType.Contains)
+                                  .Events(events => events.Select("CustomerSelect4"))
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCascadeCiudades", "Facturas")
+                                          .Data("filterProducts");
+                                      })
+                                      .ServerFiltering(true);
+                                  })
+
+                                  .CascadeFrom("regional")
+                )
+                            <script>
+                                function filterProducts() {
+                                    return {
+                                        regional: $("#regional").val()
+                                    };
+
+                                }
+                            </script>
+
+                            @Html.ValidationMessageFor(u => u.ciudad_del_caso, null, new { @class = "label label-danger" })
+
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">Archivos de ingreso:</span></h5>
+
+                            @if (ViewBag.existeArchivo == "SI")
+                            {
+                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@ViewBag.idPqrs, 8);" data-toggle="modal" data-target="#myModalArchivos">
+                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Ver archivos
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="button_Asalud_Guardar">Sin archivo</a>
+                            }
+
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.solicitante_numero_identi)</span></h5>
+                            @Html.TextBoxFor(p => p.solicitante_numero_identi, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.solicitante_numero_identi, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.solicitante_nombre)</span></h5>
+                            @Html.TextBoxFor(p => p.solicitante_nombre, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.solicitante_nombre, null, new { @class = "label label-danger" })
+                        </div>
+
+                        @*<select class="form-control select2" id="solucionador" name="solucionador" onchange="onChange(this.value);" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                            <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />*@
+
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.usuario_asignado)</span></h5>
+                            @Html.DropDownListFor(model => model.usuario_asignado, new SelectList(Model.PqrsUsuarios, "id_ref_PQRS_usuarios", "nombre"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.usuario_asignado, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.nombre_paciente)</span></h5>
+                            @Html.TextBoxFor(p => p.nombre_paciente, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.nombre_paciente, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.identificacion_paciente)</span></h5>
+                            @Html.TextBoxFor(p => p.identificacion_paciente, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.identificacion_paciente, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            @if (ViewBag.idRol == "1" || ViewBag.idRol == "10")
+                            {
+                                <h5><span class="text-secondary_asalud">Solucionador:</span></h5>
+                                <select class="form-control select2" id="solucionador" name="solucionador" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                                <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />
+                            }
+                            else
+                            {
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.solucionador)</span></h5>
+                                @Html.TextBoxFor(p => p.solucionador, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(u => u.solucionador, null, new { @class = "label label-danger" })
+                            }
+
+                            <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />
+
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.especificacion_solicitud)</span></h5>
+                            @Html.TextAreaFor(p => p.especificacion_solicitud, new { @class = "form-control", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(u => u.especificacion_solicitud, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="panel panel-default" id="divGestionPqrs">
+                <div class="panel-heading text-center">
+                    <strong class="control-label text-secondary_asalud">GESTIÓN PQRS</strong>
+                </div>
+                <div class="panel-body">
+
+                    <div class="row form-group" id="divVobo">
+                        <div class="col-sm-3 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.Voboauditor)</span></h5>
+                            @Html.RadioButtonFor(model => model.Voboauditor, "SI", new { @onclick = "mostrar4()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.Voboauditor, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.Voboauditor, "NO", new { @onclick = "mostrar5()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.Voboauditor, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.requiereAnalisis_caso)</span></h5>
+                            @Html.RadioButtonFor(model => model.requiereAnalisis_caso, "SI", new { @onclick = "cambioRequiere(1)" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.requiereAnalisis_caso, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.requiereAnalisis_caso, "NO", new { @onclick = "cambioRequiere(2)" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.requiereAnalisis_caso, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row form-group" id="divvoboauditor" style="display:none">
+                        <div class="col-sm-6">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.cargo)</span></h5>
+                            <input name="cargo" id="cargo" style="width: 100%; max-width:100%; max-height:60%;" required />
+
+                            @*@(Html.Kendo().DropDownListFor(m => m.cargo)
+                                      .Name("cargo")
+                                      .HtmlAttributes(new { style = "width:90%" })
+                                      .OptionLabel("Select cargo...")
+                                      .DataTextField("Rol")
+                                      .DataValueField("id_rol_cargo")
+                                      .Filter(FilterType.Contains)
+                                      .Events(events => events.Select("CustomerSelect5"))
+                                      .DataSource(source =>
+                                      {
+                                         source.Read(read =>
+                                         {
+                                          read.Action("GetCascadeCargos", "Pqrs")
+                                          .Data("filterProducts");
+                                         })
+                                         .ServerFiltering(true);
+                                      })
+                                      .CascadeFrom("regional")
+                                )*@
+                            @Html.ValidationMessageFor(u => u.cargo, null, new { @class = "label label-danger" })
+
+                        </div>
+
+                        <div class="col-sm-5" id="divAuditor" style="display:none">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.auditor)</span></h5>
+                            <input name="auditor" id="auditor" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            @Html.ValidationMessageFor(u => u.auditor, null, new { @class = "label label-danger" })
+                        </div>
+
+                        @*<h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.auditor)</span></h5>
+                            @(Html.Kendo().DropDownListFor(m => m.auditor)
+                                                  .Name("auditor")
+                                                  .HtmlAttributes(new { style = "width:90%" })
+                                                  .OptionLabel("Select Auditor...")
+                                                  .DataTextField("nombre")
+                                                  .DataValueField("id_usuario")
+                                                  .Filter(FilterType.Contains)
+                                                  .Events(events => events.Select("CustomerSelect6"))
+                                                  .DataSource(source =>
+                                                  {
+                                                      source.Read(read =>
+                                                      {
+                                                          read.Action("GetCascadeAuditor", "Pqrs")
+                                                          .Data("filterProducts");
+                                                      })
+                                                      .ServerFiltering(true);
+                                                  })
+
+                                                  .CascadeFrom("cargo")
+                            )
+                            <script>
+                                function filterProducts() {
+                                    return {
+                                        cargo: $("#cargo").val(),
+                                        regional: $("#regional").val()
+
+                                    };
+
+                                }
+                            </script>
+
+                            @Html.ValidationMessageFor(u => u.auditor, null, new { @class = "label label-danger" })*@
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-sm-6">
+                            <h5><span class="control-label text-secondary_asalud">Estado gestión:</span></h5>
+                            <select id="estado_gestion" name="estado_gestion" class="form-control select2" onchange="mostrar1()" required>
+                                <option value="">Seleccione...</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_estado_Gestion item in ViewBag.listEstados)
+                                {
+                                    <option selected="@ViewBag.estado_gestion" value="@item.id_ref_PQRS_estado_Gestion">@item.descripcion</option>
+                                }
+                            </select>
+
+                            @*<h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.estado_gestion)</span></h5>
+                                @Html.DropDownListFor(model => model.estado_gestion, new SelectList(Model.PqrsEstadoGest, "id_ref_PQRS_estado_Gestion", "descripcion"), "Seleccione...", new { @class = "form-control select2", @onchange = "mostrar1()", @required = "required" })
+                                @Html.ValidationMessageFor(u => u.estado_gestion, null, new { @class = "label label-danger" })*@
+                        </div>
+
+                        <div class="col-sm-6" id="divPrestador">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
+                            <input name="prestador" id="prestador" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            @Html.ValidationMessageFor(u => u.prestador, null, new { @class = "label label-danger" })
+
+
+
+                            @*<h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
+                                  @(Html.Kendo().DropDownListFor(m => m.prestador)
+                                .Name("prestador")
+                                .HtmlAttributes(new { style = "width:90%" })
+
+                                .DataTextField("Nombre")
+                                .DataValueField("id_ref_ips_cuentas")
+                                .Filter(FilterType.Contains)
+                                .Events(events => events.Select("CustomerSelect2"))
+                                 .DataSource(source =>
+                                 {
+                                     source.Read(read =>
+                                     {
+                                         read.Action("GetCascadeIPS", "Pqrs");
+                                     });
+                                 })
+                                  )
+
+                                  @Html.ValidationMessageFor(u => u.prestador, null, new { @class = "label label-danger" })*@
+
+
+                        </div>
+
+
+                    </div>
+
+                    @*<div class="row form-group" id="DivOtroPrestador" style="display:none;">
+                            <div class="col-md-6">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
+                                <input type="text" id="otro_prestador" name="otro_prestador" class="form-control" maxlength="100" required />
+                                @Html.ValidationMessageFor(u => u.otro_prestador, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>*@
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-6 form-group" id="DivOtroPrestador" style="display:none;">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
+                            @*<input type="text" id="otro_prestador" name="otro_prestador" class="form-control" maxlength="100" value="" required />*@
+                            @Html.TextBoxFor(p => p.otro_prestador, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.otro_prestador, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-6 form-group" id="divSubtematica">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.id_pqrs_subtematica)</span></h5>
+                            @*@Html.DropDownListFor(model => model.id_pqrs_subtematica, new SelectList(Model.PqrSubtematica, "id_pqrs_subtematica", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "mostrar1()" })*@
+
+                            @(Html.Kendo().DropDownListFor(m => m.id_pqrs_subtematica)
+                          .Name("id_pqrs_subtematica")
+                          .HtmlAttributes(new { style = "width:90%", required = "required" })
+
+                          .DataTextField("descripcion")
+                          .DataValueField("id_pqrs_subtematica")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect1"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeSubtematica", "Pqrs");
+                               });
+                           })
+                            )
+
+                            @Html.ValidationMessageFor(u => u.id_pqrs_subtematica, null, new { @class = "label label-danger", required = "required" })
+                        </div>
+
+                        <div class="col-sm-6 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_gestion)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_gestion)
+                         .Name("datepicker4")
+                        .Format("dd/MM/yyyy")
+                        .Events(e =>
+                         {
+                             e.Change("change4");
+                         })
+                        .HtmlAttributes(new { style = "width: 90%", title = "Vigencia desde" })
+
+
+                            )
+                            @Html.ValidationMessageFor(u => u.fecha_gestion, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row form-group" id="divEvento">
+                        <div class="col-sm-3 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.documento_beneficiario)</span></h5>
+                            @Html.TextBoxFor(p => p.documento_beneficiario, new { @class = "form-control beneficiario solo-numero", @maxlength = "100" })
+                            @Html.ValidationMessageFor(u => u.documento_beneficiario, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.edad_beneficiario)</span></h5>
+                            @Html.TextBoxFor(p => p.edad_beneficiario, new { @class = "form-control solo-numero", @readonly = "readonly", @autocomplete = "off", @maxlength = "10" })
+                            @Html.ValidationMessageFor(u => u.edad_beneficiario, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-2 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.evento_adverso)</span></h5>
+                            @Html.RadioButtonFor(model => model.evento_adverso, "SI")@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.evento_adverso, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.evento_adverso, "NO")@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.evento_adverso, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-2 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.requirio_llamada)</span></h5>
+                            @Html.RadioButtonFor(model => model.requirio_llamada, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.requirio_llamada, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.requirio_llamada, "NO", new { @onclick = "mostrar3()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.requirio_llamada, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+
+
+                    <div id='pnlllamada' style='display:none;' class="row form-group">
+                        <div class="col-sm-3 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.a_quie_llamo)</span></h5>
+                            @*@Html.DropDownListFor(model => model.a_quie_llamo, new SelectList(Model.PqrsLLamada, "id_ref_PQRS_llamada", "descripcion"), "Seleccione...", new { @class = "form-control" })*@
+                            <input name="a_quie_llamo" id="a_quie_llamo" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            @Html.ValidationMessageFor(u => u.a_quie_llamo, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div id="llamarPrestador" style="display:none">
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.nombrellamo_prestador)</span></h5>
+                                @Html.TextBoxFor(p => p.nombrellamo_prestador, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.nombrellamo_prestador, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.telefono_llamo_prestador)</span></h5>
+                                @Html.TextBoxFor(p => p.telefono_llamo_prestador, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.telefono_llamo_prestador, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+
+                        <div id="llamarAuditor" style="display:none">
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.nombrellamo_auditor)</span></h5>
+                                @Html.TextBoxFor(p => p.nombrellamo_auditor, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.nombrellamo_auditor, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.telefono_llamo_auditor)</span></h5>
+                                @Html.TextBoxFor(p => p.telefono_llamo_auditor, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.telefono_llamo_auditor, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+
+                        <div id="llamarEcopetrol" style="display:none">
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.nombrellamo_ecopetrol)</span></h5>
+                                @Html.TextBoxFor(p => p.nombrellamo_ecopetrol, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.nombrellamo_ecopetrol, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.telefono_llamo_ecopetrol)</span></h5>
+                                @Html.TextBoxFor(p => p.telefono_llamo_ecopetrol, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.telefono_llamo_ecopetrol, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+
+                        <div id="llamarPaciente" style="display:none">
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.nombrellamo_paciente)</span></h5>
+                                @Html.TextBoxFor(p => p.nombrellamo_paciente, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.nombrellamo_paciente, null, new { @class = "label label-danger" })
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.telefono_llamo_paciente)</span></h5>
+                                @Html.TextBoxFor(p => p.telefono_llamo_paciente, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.telefono_llamo_paciente, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="pnlPlanMejora" style='display:none;' class="row form-group">
+                        <div class="col-md-2">
+                            <label class="text-secondary_asalud">¿Tiene plan de mejora?</label>
+                            @Html.RadioButtonFor(model => model.plan_mejora, 1, new { @onclick = "mostrarPlanMejora()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.plan_mejora, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.plan_mejora, 0, new { @onclick = "ocultarPlanMejora()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.plan_mejora, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-md-10" id="divAreaPM" style="display:none;">
+                            <label class="text-secondary_asalud">Observación plan de mejora</label>
+                            @Html.TextAreaFor(p => p.observacion_plan_mejora, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.observacion_plan_mejora, null, new { @class = "label label-danger", @maxlength = "2000" })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4 form-group" id="pnlenrevision" style="display:none;">
+                            <h5><span class="control-label text-secondary_asalud">Archivo de la revisión:</span></h5>
+                            <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@ViewBag.idPqrs, 5);" data-toggle="modal" data-target="#myModalArchivos">
+                                <i class="glyphicon glyphicon-file"></i>&nbsp; Archivos
+                            </a>
+                        </div>
+                    </div>
+
+                    @*<div id='pnlProceso' style='display:none;'>
+                            <div class="row">
+
+                                <div class="col-sm-2 form-group">
+                                    <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.FechaPrestador)</span></h5>
+                                    @Html.RadioButtonFor(model => model.FechaPrestador, "SI", new { @onclick = "mostrar8()" })@Html.Label("SI")
+                                    @Html.ValidationMessageFor(u => u.FechaPrestador, null, new { @class = "label label-danger" })
+                                    &nbsp;
+                                    @Html.RadioButtonFor(model => model.FechaPrestador, "NO", new { @onclick = "mostrar9()" })@Html.Label("NO")
+                                    @Html.ValidationMessageFor(u => u.FechaPrestador, null, new { @class = "label label-danger" })
+                                </div>
+
+                                <div id="DivfechaPrestador" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-sm-4 form-group">
+                                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fechaenvioprestador)</span></h5>
+                                            <input type="text" class="datepicker" id="fechaenvioprestador" style="width: 100%" onchange="change6()" name="fechaenvioprestador" required="required" />
+                                            <span id="lerror1" style="display:none" class="label label-danger">Este campo es obligatorio *</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <div id='pnlaceptada' style='display:none;'>
+                        <div class="row">
+                            <div class="col-sm-2 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.validez)</span></h5>
+                                @Html.RadioButtonFor(model => model.validez, "SI")@Html.Label("SI")
+                                @Html.ValidationMessageFor(u => u.validez, null, new { @class = "label label-danger" })
+                                &nbsp;
+                                @Html.RadioButtonFor(model => model.validez, "NO")@Html.Label("NO")
+                                @Html.ValidationMessageFor(u => u.validez, null, new { @class = "label label-danger" })
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.atributo)</span></h5>
+                                @Html.DropDownListFor(model => model.atributo, new SelectList(Model.PqrsAtributo, "id_ref_pqrs_atributo", "descripcion"), "Seleccione...", new { @class = "form-control select2" })
+                                @Html.ValidationMessageFor(u => u.atributo, null, new { @class = "label label-danger" })
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecharecepcionprestador)</span></h5>
+                                @(Html.Kendo().DateTimePickerFor(p => p.fecharecepcionprestador)
+                            .Name("datepicker6")
+                            .Format("dd/MM/yyyy")
+                            .Events(e =>
+                             {
+                                 e.Change("change7");
+                             })
+                            .HtmlAttributes(new { style = "width: 90%", title = "Fecha de recepcion respuesta del prestador" })
+                                )
+                                @Html.ValidationMessageFor(u => u.fecharecepcionprestador, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <h5><span class="control-label text-secondary_asalud">Archivo proyección</span></h5>
+                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@ViewBag.idPqrs, 10);" data-toggle="modal" data-target="#myModalArchivos">
+                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Archivos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div id='pnlampliacion' style='display:none;'>
+                            @*<div class="col-sm-6 form-group">
+                                    <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.observacion_ampliacion)</span></h5>
+                                    @Html.TextAreaFor(p => p.observacion_ampliacion, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(u => u.observacion_ampliacion, null, new { @class = "label label-danger" })
+                                </div>*@
+
+                            <div class="col-sm-6 form-group">
+                                <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_ampliacion)</span></h5>
+                                @(Html.Kendo().DateTimePickerFor(p => p.fecha_ampliacion)
+
+                            .Name("datepicker5")
+                            .Format("dd/MM/yyyy")
+                            .Events(e =>
+                             {
+                                 e.Change("change5");
+                             })
+                            .HtmlAttributes(new { style = "width: 90%", title = "Vigencia desde", required = true })
+                                )
+                                @Html.ValidationMessageFor(u => u.fecha_ampliacion, null, new { @class = "label label-danger required" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id='pnlProceso' style='display:none;'>
+                        <div class="row">
+                            <div id="DivPrestador" style="display:none;">
+                                <div class="col-sm-2 form-group">
+                                    <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.FechaPrestador)</span></h5>
+                                    @Html.RadioButtonFor(model => model.FechaPrestador, "SI", new { @onclick = "mostrar8()" })@Html.Label("SI")
+                                    @Html.ValidationMessageFor(u => u.FechaPrestador, null, new { @class = "label label-danger" })
+                                    &nbsp;
+                                    @Html.RadioButtonFor(model => model.FechaPrestador, "NO", new { @onclick = "mostrar9()" })@Html.Label("NO")
+                                    @Html.ValidationMessageFor(u => u.FechaPrestador, null, new { @class = "label label-danger" })
+                                </div>
+                            </div>
+
+                            <div id="DivfechaPrestador" style="display:none;">
+                                <div class="col-sm-4 form-group">
+                                    <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fechaenvioprestador)</span></h5>
+                                    <input type="text" class="datepicker" id="fechaenvioprestador" style="width: 100%" name="fechaenvioprestador" required="required" />
+                                    <span id="lerror1" style="display:none" class="label label-danger">Este campo es obligatorio *</span>
+                                    @Html.ValidationMessageFor(u => u.fechaenvioprestador, null, new { @class = "label label-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8 form-group">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.observacion_gestion)</span></h5>
+                            @Html.TextAreaFor(p => p.observacion_gestion, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.observacion_gestion, null, new { @class = "label label-danger", @maxlength = "2000" })
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <h5><span class="control-label text-secondary_asalud">Componente:</span></h5>
+                            @*<select id="componente" name="componente" class="select2" required>
+                                    <option value="">--Seleccionar--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_componente_hospitalario item in ViewBag.componentes)
+                                    {
+                                        <option value="@item.id_componente">@item.descripcion</option>
+                                    }
+                                </select>*@
+                            @(Html.Kendo().DropDownListFor(m => m.componente)
+                          .Name("componente")
+                          .HtmlAttributes(new { style = "width:90%" })
+
+                          .DataTextField("descripcion")
+                          .DataValueField("id_componente")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect7"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadaComponente", "Pqrs");
+                               });
+                           })
+                            )
+
+                            @Html.ValidationMessageFor(u => u.componente, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <div id="pnlGuardar" class="General">
+                        <div class="col-md-12 text-center">
+                            <input id="BtnActualizar" type="button" value="ACTUALIZAR" onclick="botonActualizar();" class="btn button_Asalud_Guardar" />
+                        </div>
+
+                        <table align="center" class="text-center">
+                            <tr>
+                                <td class="Error">
+                                    @Html.ValidationSummary(true, "")
+                                </td>
+                            </tr>
+
+                            <tr>
+
+                                <td style="display:none">
+
+                                    @*<td>*@
+
+                                    @Html.TextBoxFor(u => u.fecha_ingreso_salesforceOK)
+                                    @Html.TextBoxFor(u => u.fecha_egreso_salesforceOK)
+                                    @Html.TextBoxFor(u => u.fecha_ingreso_buzon_asaludOK)
+                                    @Html.TextBoxFor(u => u.listaQuien)
+                                    @Html.TextBoxFor(u => u.listaAuditor)
+                                    @Html.TextBoxFor(u => u.listaPrestador)
+                                    @Html.TextBoxFor(u => u.fecha_asignacionOK)
+                                    @Html.TextBoxFor(u => u.fecha_gestionOK)
+                                    @Html.TextBoxFor(u => u.id_ecop_PQRS)
+                                    @Html.TextBoxFor(u => u.auditor)
+                                    @Html.TextBoxFor(u => u.fecha_ampliacionok)
+                                    @Html.TextBoxFor(u => u.fechaenvioprestador)
+                                    @Html.TextBoxFor(u => u.fecharecepcionprestador)
+                                    @Html.TextBoxFor(u => u.fecharecepcionprestadorselect)
+                                    @Html.TextBoxFor(u => u.seHaceLlamada)
+                                    
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="divObservacionAuditor" style="display:none;">
+                <div class="panel-heading text-center">
+                    <strong class="control-label text-secondary_asalud">OBSERVACIÓN AUDITOR</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observación auditor:</label>
+                            <textarea id="observaAuditor" class="form-control" rows="5" cols="5" maxlength="4000"></textarea>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="btn button_Asalud_Guardar" onclick="guardarObservacion();">GUARDAR</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" data-keyboard="false" id="myModalArchivos">
+        <div class="modal-dialog modal-lg" style="width:70%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="titlemodal"></h4>
+                </div>
+                <div class="modal-body">
+                    <div id="resultado3"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@*<script src="~/Scripts/validate.js"></script>*@
+<script>
+
+    $(document).ready(function () {
+
+        var otroPrestador = document.getElementById("prestador").value;
+        if (otroPrestador == 10000) {
+            document.getElementById("DivOtroPrestador").style.display = "block";
+        } else {
+            document.getElementById("DivOtroPrestador").style.display = "none";
+        }
+
+
+        var tipo = document.getElementById("tipo").value;
+
+        if (tipo == 1) {
+            document.getElementById("divGestionPqrs").style.display = "block";
+            document.getElementById("divObservacionAuditor").style.display = "none";
+        } else {
+            document.getElementById("divGestionPqrs").style.display = "none";
+            document.getElementById("divObservacionAuditor").style.display = "block";
+        }
+
+
+        var pasa = document.getElementById("pasa").value;
+        var decisionAudi = document.getElementById("decisionAudi").value;
+
+        if (decisionAudi == 0) {
+
+            if (pasa == 1) {
+                $("#estado_gestion").find("option[value='3']").remove();
+            }
+            else if (pasa == 2) {
+
+                var existeEstado = $("#estado_gestion").find("option[value='3']").val();
+
+                if (existeEstado == null) {
+                    $('#estado_gestion').append('<option value="3">PROYECTADA</option>');
+                }
+            }
+        }
+        else {
+
+            if (decisionAudi == 1) {
+                var existeEstado = $("#estado_gestion").find("option[value='3']").val();
+
+                if (existeEstado == null) {
+                    $('#estado_gestion').append('<option value="3">PROYECTADA</option>');
+                }
+            } else if (decisionAudi == 2) {
+                $("#estado_gestion").find("option[value='3']").remove();
+            }
+        }
+
+        $('#datepicker1').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#datepicker3').attr('disabled', 'disabled');
+        $('#datepicker4').attr('disabled', 'disabled');
+        $('#datepicker5').attr('disabled', 'disabled');
+        $('#datepicker6').attr('disabled', 'disabled');
+        $('#datepicker7').attr('disabled', 'disabled');
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        //getlistaauditores();
+
+        $(".beneficiario").autocomplete({
+            source: "/Adherencia/Buscar_Beneficiario",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item == null) {
+                    $("#edad_beneficiario").val("").prop('readonly', false);
+                }
+                else {
+                    $(this).val(ui.item.nit);
+                    $("#edad_beneficiario").val(ui.item.edad).prop('readonly', true);;
+                }
+            },
+            select: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    $("#edad_beneficiario").val("").prop('readonly', false);
+                } else {
+                    $(this).val(ui.item.nit);
+                    $("#edad_beneficiario").val(ui.item.edad).prop('readonly', true);
+                }
+            }
+        })
+
+
+        $("#cargo").kendoDropDownTree({
+            checkboxes: true,
+            change: onCargoChange,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("GetCascadeCargos", "Pqrs")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+                // Cambia el texto de "Check all"
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+            }
+        });
+
+        debugger
+        var requirioLlamada = "@Model.requirio_llamada";
+        $('#requirio_llamada').val(requirioLlamada).trigger('change');
+
+        if (requirioLlamada == "SI") {
+            mostrar2();
+        } else if (requirioLlamada == "NO") {
+            mostrar3();
+        }
+
+        var quienLlamo = "@ViewBag.listQuienLlamo";
+        var listaQuienLlamo = quienLlamo ? quienLlamo.split(",") : [];
+
+        $("#a_quie_llamo").kendoDropDownTree({
+            checkboxes: true,
+            change: changeQuienLlamo,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("traeraQuienLlamar", "Pqrs")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+                var dropDownTree = $("#a_quie_llamo").data("kendoDropDownTree");
+
+                var treeView = dropDownTree.treeview; // Accede al TreeView interno
+                if (listaQuienLlamo.length > 0) {
+                    debugger
+
+                    for (var i = 0; i < listaQuienLlamo.length; i++) {
+
+                        var listaCompleta = listaQuienLlamo[i].split("_");
+                        var idTipoLlama = listaCompleta[0];
+                        var nombreLlama = listaCompleta[1];
+                        var teefonollama = listaCompleta[2];
+
+                        treeView.dataSource.view().forEach(function (item) {
+                            if (idTipoLlama.includes(item.id.toString())) {
+                                treeView.findByUid(item.uid).find(".k-checkbox").prop("checked", true);
+                                item.set("checked", true);
+
+                                if (idTipoLlama == 1) {
+                                    document.getElementById('llamarPrestador').style.display = 'block';
+                                    $("#nombrellamo_prestador").val(nombreLlama);
+                                    $("#telefono_llamo_prestador").val(teefonollama);
+                                }
+                                else if (idTipoLlama == 2) {
+                                    document.getElementById('llamarAuditor').style.display = 'block';
+                                    $("#nombrellamo_auditor").val(nombreLlama);
+                                    $("#telefono_llamo_auditor").val(teefonollama);
+                                }
+                                else if (idTipoLlama == 3) {
+                                    document.getElementById('llamarEcopetrol').style.display = 'block';
+                                    $("#nombrellamo_ecopetrol").val(nombreLlama);
+                                    $("#telefono_llamo_ecopetrol").val(teefonollama);
+                                }
+
+                                else if (idTipoLlama == 4) {
+                                    document.getElementById('llamarPaciente').style.display = 'block';
+                                    $("#nombrellamo_paciente").val(nombreLlama);
+                                    $("#telefono_llamo_paciente").val(teefonollama);
+                                }
+
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        function changeQuienLlamo(e) {
+            var value = this.value();
+            var dropdowntree = $("#a_quie_llamo").data("kendoDropDownTree");
+            var lista = dropdowntree.value();
+            var habilitar = "";
+            var prestador = 0;
+            var auditor = 0;
+            var ecopetrol = 0;
+            var paciente = 0;
+
+            for (var i in lista) {
+                if (lista[i] == 1) {
+                    prestador = 1;
+                }
+                else if (lista[i] == 2) {
+                    auditor = 1;
+                }
+                else if (lista[i] == 3) {
+                    ecopetrol = 1;
+                }
+                else if (lista[i] == 4) {
+                    paciente = 1;
+                }
+            }
+
+            if (prestador == 1) {
+                document.getElementById('llamarPrestador').style.display = 'block';
+            } else {
+                document.getElementById('llamarPrestador').style.display = 'none';
+            }
+
+            if (auditor == 1) {
+                document.getElementById('llamarAuditor').style.display = 'block';
+            } else {
+                document.getElementById('llamarAuditor').style.display = 'none';
+            }
+
+            if (ecopetrol == 1) {
+                document.getElementById('llamarEcopetrol').style.display = 'block';
+            } else {
+                document.getElementById('llamarEcopetrol').style.display = 'none';
+            }
+
+            if (paciente == 1) {
+                document.getElementById('llamarPaciente').style.display = 'block';
+            } else {
+                document.getElementById('llamarPaciente').style.display = 'none';
+            }
+        }
+
+        var prestadores = "@ViewBag.listPrestadores";
+        var listadoPrestadores = prestadores ? prestadores.split(",") : [];
+
+        $("#prestador").kendoDropDownTree({
+            checkboxes: true,
+            change: changeQuienLlamo,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("TraeraPrestadores", "Pqrs")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+                var dropDownTree = $("#prestador").data("kendoDropDownTree");
+                var treeView = dropDownTree.treeview; // Accede al TreeView interno
+
+                // Itera sobre los elementos visibles y marca los que coinciden con el listadoPrestadores
+                if (listadoPrestadores.length > 0) {
+                    treeView.dataSource.view().forEach(function (item) {
+                        if (listadoPrestadores.includes(item.id.toString())) {
+                            treeView.findByUid(item.uid).find(".k-checkbox").prop("checked", true);
+                            item.set("checked", true);
+                        }
+                    });
+                }
+            }
+        });
+
+        var regional = "@Model.regional";
+        if (regional != "") {
+            ObtenerSolucionador(regional);
+        }
+    });
+
+    function ObtenerSolucionador(a) {
+
+        $.ajax({
+            url: "@Url.Action("ObtenerSolucionador", "Pqrs")",
+            type: "post",
+            data: { regional: a },
+            success: function (data) {
+
+                var partido = data.split("|");
+                var dato = partido[0];
+                var tipo = partido[1];
+                var nombre = partido[2];
+
+                $("#solucionador").empty();
+                $("#solucionador").html(dato);
+                $("#solucionador").val("").trigger("change");
+
+                if (tipo == 2) {
+                    $("#solucionador").val(nombre).trigger("change");
+                    $("#solucionador").val(nombre);
+                    $("#solucionadorLleno").val(nombre);
+                    document.getElementById("solucionador").disabled = true;
+
+                } else {
+                    document.getElementById("solucionador").disabled = false;
+                }
+
+
+                if ("@Model.solucionador" != "") {
+                    $("#solucionador").val("@Model.solucionador").trigger("change");
+                }
+            }
+        });
+    }
+
+    function onCargoChange() {
+
+        var regional = $("#regional").val();
+        var ciudad = $("#ciudad_del_caso").val();
+        var cargoTree = $("#cargo").data("kendoDropDownTree");
+        var valoresSeleccionados = cargoTree.value();  // Obtiene los valores seleccionados como un array
+        var cargo = valoresSeleccionados.join(",");
+
+        if (cargo) {
+
+            $.ajax({
+                url: '@Url.Action("TraerAuditores", "Pqrs")',
+                type: 'POST',
+                data: {
+                    cargo: cargo,
+                    regional: regional,
+                    ciudad: ciudad
+                },
+
+                success: function (data) {
+
+                    $("#divAuditor").remove();
+
+                    // Crear un nuevo div para el campo de auditor
+                    var auditorDiv = `
+                <div class="col-sm-5" id="divAuditor">
+                    <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.auditor)</span></h5>
+                    <input name="auditor" id="auditor" style="width: 100%; max-width:100%; max-height:60%;" required />
+                    @Html.ValidationMessageFor(u => u.auditor, null, new { @class = "label label-danger" })
+                </div>`;
+
+                    // Añadir el nuevo div al contenedor adecuado
+                    $("#divvoboauditor").append(auditorDiv); // Reemplaza #someContainer con el ID del contenedor padre donde deseas añadir el div
+
+                    // Inicializar o actualizar el DropDownTree de auditor con los nuevos datos
+
+                    $("#auditor").kendoDropDownTree({
+
+                        checkboxes: true,
+                        placeholder: "Seleccionar...",
+                        filter: "startswith",
+                        dataSource: data,
+                        schema: {
+                            model: {
+                                id: "value",
+                                text: "text"
+                            }
+                        },
+                        placeholder: "Seleccionar...",
+
+                        checkboxes: true,
+                        checkAll: true,
+                        autoClose: false,
+                        dataBound: function () {
+                            // Cambia el texto de "Check all"
+                            $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+                        }
+
+                        //checkAll: true,
+                        //autoClose: false,
+
+
+                    });
+                    document.getElementById("divAuditor").style.display = "block";
+                }
+            });
+
+        }
+        else {
+
+            $("#auditor").val("");
+            $("#divAuditor").hide();
+        }
+    }
+
+    function buscarNumeroCaso() {
+
+        $("#divFiltro").submit();
+    }
+
+    function botonActualizar() {
+
+        var mivalor = $("#estado_gestion").val()
+
+        if (mivalor == "0" || mivalor == "") {
+            alert("Seleccione estado gestión");
+            return false;
+        }
+
+        var valido = true;
+        if ($("#estado_gestion").val() == 3) {
+            if ($("#fechap_1").val() == "") {
+                valido = false;
+                $("#lerror1").css("display", "block");
+            } else {
+                valido = true;
+                $("#lerror1").css("display", "none");
+            }
+
+            if ($("#fechap_2").val() == "") {
+                valido = false;
+                $("#lerror2").css("display", "block");
+            } else {
+                valido = true;
+                $("#lerror2").css("display", "none");
+            }
+        }
+
+        var subtematica = $("#id_pqrs_subtematica").val();
+        if (mivalor != 4) {
+
+            if (subtematica == 0 || subtematica == "") {
+                alert("Seleccione subtematica.");
+                return false;
+            }
+        }
+
+        var requirioLlamado = $("#seHaceLlamada").val();
+        if (requirioLlamado == 1 && mivalor != 4) {
+
+            var aQuien = $("#a_quie_llamo").data("kendoDropDownTree");
+            var listaQuien = aQuien.value();
+
+            if (listaQuien.length == 0) {
+                alert("Seleccione a quien llamó.");
+                return false;
+            } else {
+                $('input:text[id$=listaQuien]').val(listaQuien);
+            }
+        }
+
+        var valorVoboauditor = $('input[name="Voboauditor"]:checked').val();
+        if (valorVoboauditor == "SI") {
+
+            var cargoTree = $("#cargo").data("kendoDropDownTree");
+            var valoresSeleccionados = cargoTree.value();  // Obtiene los valores seleccionados como un array
+            var cargo = valoresSeleccionados.join(",");
+
+            if (cargo != "") {
+
+                var auditores = $("#auditor").data("kendoDropDownTree");
+                var listaAuditores = auditores.value();
+
+                if (listaAuditores.length == 0) {
+                    alert("Seleccione auditor.");
+                    return false;
+                } else {
+                    $('input:text[id$=listaAuditor]').val(listaAuditores);
+                }
+            }
+
+            //else {
+            //    alert("Seleccione cargos");
+            //    return false;
+            //}
+        }
+
+        var prestador = $("#prestador").data("kendoDropDownTree");
+        var listaPrestador = prestador.value();
+
+        if (listaPrestador.length == 0 && $("#estado_gestion").val() != 4) {
+            alert("Seleccione prestador.");
+            return false;
+        }
+        else
+        {
+            $('input:text[id$=listaPrestador]').val(listaPrestador);
+        }
+
+        var validator = $("#GestionPQRS").validate();
+        if (validator.form()) {
+            if (valido) {
+                LoadingShow();
+                $("#GestionPQRS").submit();
+            }
+        }
+    }
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_ingreso_salesforceOK]').val(DataItem);
+    }
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_ingreso_buzon_asaludOK]').val(DataItem);
+    }
+
+    function change11() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_egreso_salesforceOK]').val(DataItem);
+    }
+
+    function change3() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_asignacionOK]').val(DataItem);
+    }
+
+    function change4() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_gestionOK]').val(DataItem);
+    }
+
+    function change5() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_ampliacionok]').val(DataItem);
+    }
+
+    function change7() {
+
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $.ajax({
+            url: "@Url.Action("devolverFecha", "Pqrs")?fecha=" + DataItem,
+            method: "POST",
+            type: "post",
+            success: function (data) {
+                if (data == 1) {
+                    $('input:text[id$=fecharecepcionprestadorselect]').val(DataItem);
+                }
+                else {
+                    $("#datepicker6").val(null);
+                    $('input:text[id$=fecharecepcionprestadorselect]').val(null);
+                    alert('Fecha recepción prestador no puede ser mayor a la fecha actual.');
+                }
+            }
+        })
+
+        $('input:text[id$=fecharecepcionprestadorselect]').val(DataItem);
+    }
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_pqrs_subtematica").val(DataItem.id_pqrs_subtematica);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+
+        if (DataItem.id_ref_ips_cuentas == 10000) {
+            document.getElementById("DivOtroPrestador").style.display = "block";
+        } else {
+            document.getElementById("DivOtroPrestador").style.display = "none";
+        }
+
+        $("#prestador").val(DataItem.id_ref_ips_cuentas);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#regional").val(DataItem.id_ref_regional);
+
+
+        var reg = $("#regional").val();
+
+        ObtenerSolucionador(reg);
+        onCargoChange();
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ciudad_del_caso").val(DataItem.id_ref_ciudades);
+        onCargoChange();
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cargo").val(DataItem.id_rol_cargo);
+
+        var idCargo = DataItem.id_rol_cargo;
+        var regional = $("#regional").val();
+        var ciudad = $("#ciudad_del_caso").val();
+        onCargoChange(idCargo, regional, ciudad);
+    }
+
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#auditor").val(DataItem.id_usuario);
+    }
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#componente").val(DataItem.componente);
+    }
+
+    function mostrarPlanMejora() {
+        document.getElementById("divAreaPM").style.display = "block";
+    }
+
+    function ocultarPlanMejora() {
+        document.getElementById("divAreaPM").style.display = "none";
+    }
+
+    function mostrar1() {
+
+        var mivalor = $("#estado_gestion").val()
+        var mitexto = $("#estado_gestion option:selected").text()
+        var llamado = $("#seHaceLlamada").val();
+
+        if (llamado == 1) {
+            document.getElementById('pnlllamada').style.display = 'block';
+        }
+
+        if (mivalor == 3) {
+            document.getElementById('pnlaceptada').style.display = 'block';
+            document.getElementById('pnlampliacion').style.display = 'none';
+            document.getElementById('pnlenrevision').style.display = 'none';
+            document.getElementById('pnlProceso').style.display = 'none';
+
+            document.getElementById('divVobo').style.display = 'block';
+            document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divSubtematica').style.display = 'block';
+            document.getElementById('divEvento').style.display = 'block';
+            document.getElementById('pnlPlanMejora').style.display = 'block';
+
+
+            //resetform();
+        }
+        else if (mivalor == 4) {
+
+            $('#requirio_llamada').val(null).trigger('change');
+            $('#a_quie_llamo').val(null).trigger('change');
+            $('#nombre_quien_llamo').val('').trigger('change');
+
+            document.getElementById('pnlaceptada').style.display = 'none';
+            document.getElementById('pnlenrevision').style.display = 'none';
+            document.getElementById('pnlampliacion').style.display = 'block';
+            document.getElementById('pnlProceso').style.display = 'none';
+
+            document.getElementById('divVobo').style.display = 'none';
+            document.getElementById('divPrestador').style.display = 'none';
+            document.getElementById('divSubtematica').style.display = 'none';
+            document.getElementById('divEvento').style.display = 'none';
+            document.getElementById('pnlPlanMejora').style.display = 'none';
+
+            document.getElementById('divvoboauditor').style.display = 'none';
+            document.getElementById('pnlllamada').style.display = 'none';
+        }
+        else if (mivalor == 5) {
+            document.getElementById('pnlenrevision').style.display = 'block';
+            document.getElementById('pnlaceptada').style.display = 'none';
+            document.getElementById('pnlampliacion').style.display = 'none';
+            document.getElementById('pnlProceso').style.display = 'none';
+
+            document.getElementById('divVobo').style.display = 'block';
+            document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divSubtematica').style.display = 'block';
+            document.getElementById('divEvento').style.display = 'block';
+            document.getElementById('pnlPlanMejora').style.display = 'none';
+
+        }
+        else if (mivalor == 2)
+        {
+            var count = '@ViewBag.count'
+            if (count <= 0)
+            {
+                document.getElementById('DivPrestador').style.display = 'none';
+                document.getElementById('DivfechaPrestador').style.display = 'block';
+
+            } else
+            {
+                document.getElementById('DivPrestador').style.display = 'block';
+                document.getElementById('DivfechaPrestador').style.display = 'block';
+            }
+
+            document.getElementById('pnlaceptada').style.display = 'none';
+            document.getElementById('pnlampliacion').style.display = 'none';
+            document.getElementById('pnlenrevision').style.display = 'none';
+            document.getElementById('pnlProceso').style.display = 'block';
+
+
+            document.getElementById('divVobo').style.display = 'block';
+            document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divSubtematica').style.display = 'block';
+            document.getElementById('divEvento').style.display = 'block';
+            document.getElementById('pnlPlanMejora').style.display = 'none';
+
+        }
+        else {
+            document.getElementById('pnlaceptada').style.display = 'none';
+            document.getElementById('pnlampliacion').style.display = 'none';
+            document.getElementById('pnlenrevision').style.display = 'none';
+            document.getElementById('pnlProceso').style.display = 'none';
+
+            document.getElementById('divVobo').style.display = 'block';
+            document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divSubtematica').style.display = 'block';
+            document.getElementById('divEvento').style.display = 'block';
+            document.getElementById('pnlPlanMejora').style.display = 'none';
+        }
+    }
+
+    function mostrar2() {
+        document.getElementById('pnlllamada').style.display = 'block';
+        $("#seHaceLlamada").val(1);
+    };
+
+    function mostrar3() {
+        document.getElementById('pnlllamada').style.display = 'none';
+        $("#seHaceLlamada").val(2);
+    };
+
+    function mostrar4()
+    {
+        document.getElementById('divvoboauditor').style.display = 'block';
+        var existeEstado = $("#estado_gestion").find("option[value='5']").val();
+
+        if (existeEstado == null) {
+            $('#estado_gestion').append('<option value="5">EN REVISION</option>');
+        }
+
+        $("input[name=requiereAnalisis_caso][value='NO']").prop("checked", true);
+    };
+
+    function mostrar5()
+    {
+        $("#cargo").val(0).trigger('change');
+        document.getElementById('divvoboauditor').style.display = 'none';
+
+        var analisis = $("requiereAnalisis_caso").val();
+
+        if (analisis == "NO") {
+            $("#estado_gestion").find("option[value='5']").remove();
+        }
+        $("input[name=requiereAnalisis_caso][value='SI']").prop("checked", true);
+    };
+
+    function mostrar6() {
+        document.getElementById('nuevoanalista').style.display = 'block';
+    };
+
+    function mostrar7() {
+        document.getElementById('nuevoanalista').style.display = 'none';
+    };
+
+    function mostrar8() {
+        document.getElementById('DivfechaPrestador').style.display = 'block';
+    };
+
+    function mostrar9() {
+        document.getElementById('DivfechaPrestador').style.display = 'none';
+    };
+
+    function cambioRequiere(valor) {
+
+        let vobo = $('input[name="Voboauditor"]:checked').val();
+
+        if (valor == 1) {
+
+            $("input[name=Voboauditor][value='NO']").prop("checked", true);
+
+            $("#cargo").val(0).trigger('change');
+            document.getElementById('divvoboauditor').style.display = 'none';
+            $("#estado_gestion").find("option[value='5']").remove();
+
+            var existeEstado = $("#estado_gestion").find("option[value='5']").val();
+
+            if (existeEstado == null) {
+                $('#estado_gestion').append('<option value="5">EN REVISION</option>');
+            }
+        } else {
+            if (vobo == "NO") {
+                $("#estado_gestion").find("option[value='5']").remove();
+            }
+        }
+    };
+
+    function getlistaauditores() {
+
+        $.ajax({
+            url: "@Url.Action("GetCascadeAuditores")",
+            type: "post",
+            data: {
+                regional: $("#regional").val(),
+                ciudad_del_caso: $("#ciudad_del_caso").val()
+            },
+            success: function (data) {
+                $("#auditor").empty();
+                $("#auditor").append("<option value='0'>Seleccione...</option>");
+                data.forEach(function (data) {
+                    $("#auditor").append("<option value='" + data.id_usuario + "'>" + data.Nombre + "</option>");
+
+                });
+
+                $("#auditor").val('@Model.auditor');
+            }
+
+        })
+    }
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('FileUpload1').files;
+        var longitud = data.length;
+
+        if (data != null && longitud > 0) {
+
+            for (var i = 0; i < longitud; i++) {
+
+                var nameext = data[i].name;
+                var extension = getFileExtension(nameext);
+
+                var listaextensiones = ["pdf", "docx", "doc", "PDF", "DOCX", "DOC", "Pdf", "Docx", "Doc"];
+                var valida = false;
+
+                jQuery.each(listaextensiones, function (i, val) {
+                    if (extension == val) {
+                        valida = true;
+                    }
+                });
+
+                if (valida == false) {
+                    alert("La extensión " + extension + "  no es válida. Por favor, solo subir archivos pdf o word");
+                    $("#FileUpload1").val("");
+                    return false;
+                }
+            }
+        }
+    }
+
+    function ValidacionArchivo2() {
+
+        var data = document.getElementById('FileUpload2').files;
+        var longitud = data.length;
+
+        if (data != null && longitud > 0) {
+
+            for (var i = 0; i < longitud; i++) {
+
+                var nameext = data[i].name;
+                var extension = getFileExtension(nameext);
+
+                var listaextensiones = ["pdf", "docx", "doc", "PDF", "DOCX", "DOC", "Pdf", "Docx", "Doc"];
+                var valida = false;
+
+                jQuery.each(listaextensiones, function (i, val) {
+                    if (extension == val) {
+                        valida = true;
+                    }
+                });
+
+                if (valida == false) {
+                    alert("La extensión " + extension + "  no es válida. Por favor, solo subir archivos pdf o word");
+                    $("#FileUpload2").val("");
+                    return false;
+                }
+            }
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function verArIngreso() {
+        var idPqrs = $("#idPqrs").val();
+        var URL2 = "@Url.Action("GestorUrlArchivoIngresoPqr", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =500,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function guardarObservacion() {
+        var observacion = $("#observaAuditor").val();
+        var idPqr = $("#idPqrs").val();
+
+        $.ajax({
+            url: "@Url.Action("GuardarObservacionAuditor","Pqrs")",
+            method: "post",
+            type: "post",
+            data: {
+                observacion: observacion,
+                idPqr: idPqr,
+            },
+            success: function (data) {
+                location.href = "@Url.Action("GestionPqrs", "Pqrs")?idPqrs=" + data.idPqr + "&msg=" + data.msg + "&rta=" + data.rta + "&tipo=2";
+            }
+        })
+    }
+
+    function MostrarArchivos(idPqrs, tipo, reingreso) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+
+                if (reingreso == 1) {
+                    $("#myModalArchivos").show();
+                }
+
+            }
+        });
+    }
+
+</script>
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

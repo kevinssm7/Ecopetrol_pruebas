@@ -1,0 +1,279 @@
+﻿
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+@{ string alerta = (string)ViewData["alerta"];
+}
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <div>
+            <label class="text-secondary_asalud">Total evaluadas: <input type="text" name="conteom" id="conteom" style="background-color: transparent; border: 0px;" disabled /> </label>
+        </div>
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="table-responsive">
+
+                    <form action="TableroPuntoDispensacion" method="post" id="formM">
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaIniM" id="fechaIniM" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha final</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaFinM" id="fechaFinM" />
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" style="width:100%" name="regionalM" id="regionalM">
+                                    <option value="">- Seleccione -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        <option value="@item.indice">@item.nombre_regional</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Nit prestador</label>
+                                <input type="text" autocomplete="off" class="form-control solo-numero" name="nitPrestadorM" id="nitPrestadorM" maxlength="100" />
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <input type="text" autocomplete="off" class="form-control" name="prestadorM" id="prestadorM" maxlength="100" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 form-group text-right">
+                                <div id="exportar" style="display:none;">
+                                    <a class="button_Asalud_descargas" onclick="exportarExcelTo();" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte evaluadas</a>
+                                </div>
+                                <br />
+
+                                <button type="button" onclick="verTablero2(1)" class="button_Asalud_Guardar"> <i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table id="tabla2" class="tabla2 table-bordered table-condensed" style="font-size:10px; width:98%;">
+                        <thead>
+                            <tr>
+                                <th>Evaluación</th>
+                                <th>Prestador</th>
+                                <th>Telefono contacto</th>
+                                <th>Ciudad</th>
+                                <th>Regional</th>
+                                <th>Resultado general</th>
+                                <th>Recursos humanos</th>
+                                <th>Instalaciones fisicas / dotaciones</th>
+                                <th>Procesos procedimientos</th>
+                                <th>Fecha verificación</th>
+                                <th>Auditor</th>
+                                <th>Repositorio</th>
+                                <th>Evaluación</th>
+                                <th>Exportables</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="modalRepositorio">
+    <div class="modal-dialog modal-lg" style="width:85%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            @*<div class="col-md-12" style="text-align:center;">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrarRepositorio()">Cerrar</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function MostrarArchivos(idEvaluacion) {
+
+        var laUrl = "@Url.Action("_modalEvaluacionRepositorio", "Verificacion")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idEvaluacion: idEvaluacion
+            },
+            success: function (response) {
+
+                $("#modalRepositorio").modal('show');
+                $('#resultado').empty();
+                $("#SpinnerCarga").modal('hide');
+                $('#resultado').html(response);
+                $("#loader").css('display', 'none');
+            }
+
+        })
+        $("#SpinnerCarga").modal('hide');
+    }
+
+    function verEvalua(idPunto) {
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto + "&tipo=" + 1;
+    }
+
+    function exportarExcelInd(id) {
+        location.href = "@Url.Action("ExcelExportarIndividual", "Verificacion")?id=" + id;
+    }
+
+    function exportarExcelTo() {
+        location.href = "@Url.Action("ExcelExportarTotal", "Verificacion")";
+    }
+
+    function pdfEvaluacion(idEvaluacion) {
+        var url = "@Url.Action("VerArchivosPdfVisitas", "Verificacion")?idEvaluacion=" + idEvaluacion;
+        opupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function verTablero2(tipo) {
+
+        var fechaIniM = $("#fechaIniM").val();
+        var fechaFinM = $("#fechaFinM").val();
+        var regionalM = $("#regionalM").val();
+        var prestadorM = $("#prestadorM").val();
+        var nitPrestadorM = $("#nitPrestadorM").val();
+
+        $.ajax({
+            url: "@Url.Action("_REALIZADASDatos")",
+            type: "post",
+            data: {
+                regionalM: regionalM,
+                fechaIniM: fechaIniM,
+                fechaFinM: fechaFinM,
+                prestadorM: prestadorM,
+                nitPrestadorM: nitPrestadorM,
+                tipo: tipo
+            },
+            success: function (data) {
+
+                var Particion = data.split("|");
+                var tabla = Particion[0];
+                var conteo = Particion[1];
+
+                if (conteo > 0) {
+                    $("#exportar").css("display", "block");
+                } else {
+                    $("#exportar").css("display", "none");
+                }
+
+                $("#tabla2 tbody").empty();
+                $("#tabla2 tbody").html(tabla);
+                $("#conteom").val(conteo);
+            }
+        })
+    }
+
+    function MostrarModal(idEvaluacion) {
+        alert(idEvaluacion);
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla2 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla2 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla2 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

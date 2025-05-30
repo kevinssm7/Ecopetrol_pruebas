@@ -1,0 +1,315 @@
+﻿
+@{
+    ViewBag.Title = "INGRESO PRESTADORES RIPS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<br>
+
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="formPrestadoresRips" enctype="multipart/form-data" method="post" action="@Url.Action("CreacionPrestadorRips","Rips")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">INSERCIÓN</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Código prestador</label>
+                            <input type="text" maxlength="12" id="IDPrestador" name="IDPrestador" class="form-control solo-numero" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Razón social</label>
+                            <input type="text" maxlength="99" id="nombre_prestador" name="nombre_prestador" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Tipo ID</label>
+                            <select id="TipoID" name="TipoID" class="form-control" required>
+                                <option value="">-Seleccione-</option>
+                                <option value="CC">CC</option>
+                                <option value="NIT">NIT</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">ID prestador</label>
+                            <input type="text" maxlength="12" id="nit" name="nit" class="form-control solo-numero" required />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" id="regional" name="regional" onchange="ObtenerDepartamento($(this).val())" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Departamento</label>
+                            <select class="form-control select2" id="departamento" name="departamento" onchange="ObtenerCiudades($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Ciudad</label>
+                            <select class="form-control select2" id="ciudad" name="ciudad" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input id="BtnGuardar" onclick="ValidarFormulario();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+    });
+
+    $("#nit").on("change", function () {
+        var nit = $(this).val();
+        if (nit.length < 3) {
+            alert("El nit debe contener al menos tres dígitos");
+            $(this).val("");
+            $("#nit").focus();
+            return false;
+        }
+        //else {
+        //    BuscarExistenciaNit(nit);
+        //}
+    });
+
+    $("#IDPrestador").on("change", function () {
+        var IDPrestador = $(this).val();
+
+          $.ajax({
+            url: "@Url.Action("ValidarExistenciaPrestadorId", "Rips")",
+            type: "post",
+              data: { IDPrestador: IDPrestador},
+            success: function (data) {
+                if (data != "") {
+                    $("#IDPrestador").val("");
+                    $("#IDPrestador").focus();
+                    alert(data);
+                }
+            }
+          })
+
+    });
+
+    function BuscarExistenciaNit(nit) {
+        $.ajax({
+            url: "@Url.Action("ValidarExistenciaPrestadorNit", "Rips")",
+            type: "post",
+            data: { nit: nit},
+            success: function (data) {
+                if (data != "") {
+                    $("#nit").val("");
+                    $("#nit").focus();
+                    alert(data);
+                }
+            }
+        })
+    }
+
+    function ObtenerDepartamento(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerDepartamentos", "Rips")",
+                type: "post",
+                data: { regional: a },
+                success: function (data) {
+                    $("#departamento").empty();
+                    $("#departamento").html(data);
+                    $("#departamento").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+
+        var regional = $("#regional").val();
+
+        if (a != "" && regional != 0 && regional != null) {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades", "Rips")",
+                type: "post",
+                data: {
+                    departamento: a,
+                    regional: regional,
+                },
+
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formPrestadoresRips").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formPrestadoresRips").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

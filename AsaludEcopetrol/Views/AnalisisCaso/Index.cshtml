@@ -1,0 +1,167 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "ANALISIS DE CASOS";
+}
+
+<br />
+<div class="container row">
+    <div class="col-sm-12 form-group row">
+        <div class="col-sm-6">
+            <h5><span class="text-secondary_asalud">Número de documento</span></h5>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="- Ecriba el numero de documento que desea buscar -" id="txtnumdocumento" name="txtnumdocumento">
+                <span class="input-group-btn">
+                    <button class="btn button_Asalud_Aceptar" type="button" id="btnbuscar">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true">
+                        </span> Buscar
+                    </button>
+                </span>
+          
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 form-group" style="display:none" id="paneltbl">
+        <table id="tblconcurrencias" class="table table-bordered table-striped table-condensed" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Num Concurrencia</th>
+                    <th>Nombre Afiliado</th>
+                    <th>Fecha Ingreso</th>
+                    <th style="width:15%">Opciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $("#btnbuscar").click(function () {
+            var numdocumento = $("#txtnumdocumento").val();
+            if (numdocumento != "") {
+                LoadingShow();
+                $.ajax({
+                    url: "@Url.Action("ObtenerConcurrencias", "AnalisisCaso")",
+                    type: "post",
+                    data: { numdocumento: numdocumento },
+                    success: function (data) {
+                        $("#tblconcurrencias tbody").empty();
+                        $("#tblconcurrencias tbody").html(data);
+                        $("#paneltbl").removeAttr('Style');
+                        LoadingHide();
+                    }
+                })
+            }
+
+        })
+    })
+
+
+</script>
+
+<style>
+
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .modal-dialog{
+        position:initial !important;
+    }
+</style>

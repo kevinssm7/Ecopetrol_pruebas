@@ -1,0 +1,260 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE VERIFICACIÓN DISPENSACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string msg = (string)ViewData["Msg"];
+    int rta = (int)ViewData["rta"];
+}
+
+<br />
+
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE MASIVO VERIFICACIÓN PUNTO DE DISPENSACIÓN</strong>
+        </div>
+        <div class="panel-body">
+            @if (rta > 0)
+            {
+                <div class="form-group">
+                    @if (rta == 1)
+                    {
+                        <div class="alert alert-success">
+                            <strong>Éxito!</strong> @msg
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> @msg
+                        </div>
+                    }
+                </div>
+                <br />
+            }
+            <form id="formvd" name="formvd" action="/Verificacion/CargueVerificacionPuntoDispensacion" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Seleccione el archivo *</label>
+                        <input type="file" class="form-control" id="file" name="file" onchange="ValidacionArchivo()" required />
+                    </div>
+                    <div class="col-sm-12 text-center">
+                        <div class="col-sm-12 text-right">
+                            <button class="button_Asalud_Guardar" type="submit">Cargar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $("form[name='formvd']").validate({
+            lang: 'Es',
+            rules: {
+                file: "required",
+                mes: { required: true },
+                año: "required",
+            },
+            messages: {
+                file: 'No se ha seleccionado ningun archivo.'
+            },
+            submitHandler: function (form) {
+                CargarDatos();
+            }
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+    })
+
+    function CargarDatos() {
+        LoadingShow();
+        form.submit();
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.xls|.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Solo se aceptan registros en excel.');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+
+</script>
+
+<style>
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+

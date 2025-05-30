@@ -1,0 +1,47 @@
+﻿
+<div class="row">
+    <div class="col-sm-6 form-group">
+        <label class="control-label text-secondary_asalud">Tipo reporte</label>
+        <select class="form-control" id="selectTipoReporte" name="selectTipoReporte" onchange="MostrarReportePorTipoReporte()">
+            <option value="">- Seleccionar -</option>
+            <option value="1">Reporte por componente</option>
+            <option value="2">Reporte por persona</option>
+            <option value="3">Reporte por componente y periodicidad</option>
+        </select>
+    </div>
+</div>
+<div id="divResultadosReporteOportunidadSegEntregables">
+    <center><h4 class="text-secondary_asalud">Seleccione el tipo de reporte que desea generar</h4></center>
+</div>
+
+<script>
+
+    function MostrarReportePorTipoReporte()
+    {
+        var value = $("#selectTipoReporte").val();
+        $("#divResultadosReporteOportunidadSegEntregables").empty();
+        switch (value) {
+            case "1":
+                LoadingShow();
+                $("#divResultadosReporteOportunidadSegEntregables").load("@Url.Action("_IndicadoresGestionEntregablesPorComponente", "SeguimientoEntregables")", function () {
+                    LoadingHide();
+                });
+                break;
+            case "2":
+                LoadingShow();
+                $("#divResultadosReporteOportunidadSegEntregables").load("@Url.Action("_IndicadoresGestionEntregablesPorPesona","SeguimientoEntregables")", function () {
+                    LoadingHide();
+                });
+            case "3":
+                LoadingShow();
+                $("#divResultadosReporteOportunidadSegEntregables").load("@Url.Action("_IndicadoresGestionEntregablesPorCompyPeriodicidad", "SeguimientoEntregables")", function () {
+                    LoadingHide();
+                });
+                break;
+            default:
+                $("#divResultadosReporteOportunidadSegEntregables").html("<center><h4 class='text-secondary_asalud'>Seleccione el tipo de reporte que desea generar</h4></center>");
+                break
+        }
+    }
+
+</script>

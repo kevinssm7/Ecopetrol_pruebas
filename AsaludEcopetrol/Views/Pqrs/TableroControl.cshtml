@@ -1,0 +1,485 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "TABLERO CONTROL PQRS";
+
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+}
+
+
+<div class="container">
+
+    <div class="tab-content contenedorFiltros" id="contenedorFiltro">
+        <form id="divFiltro" method="post" action="TableroControl" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="text-secondary_asalud">Categorización:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control select2" id="idCategoria" name="idCategoria" onchange="buscarPorCategoria(this.value);" required>
+                        <option value="">-Seleccione una categoría-</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_categorizacion item in ViewBag.categorias)
+                        {
+                            <option value="@item.id_ref_categorizacon">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type="text" id="numero_caso" name="numero_caso" class="form-control solo-numero" placeholder="Número de caso" />
+                </div>
+
+                <div class="col-md-1">
+                    <a class="button_Asalud_Aceptar botonFiltro" onclick="buscarNumeroCaso();"><i class="glyphicon glyphicon-search"></i></a>
+                </div>  
+
+
+                <div class="col-md-3">
+                    <a class="button_Asalud_Rechazar" onclick="ActualizarTablero();"><i class="glyphicon glyphicon-upload"></i>Refrescar datos</a>
+                </div>
+
+
+                @*<div class="col-md-2">
+            <a class="button_Asalud_descargas botonFiltro" onclick="descargarPqr(1);" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>DESCARGAR</a>
+        </div>*@
+            </div>
+        </form>
+    </div>
+    <br />
+
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">CONTROL PQRS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">SEMAFORIZACIÓN SALESFORCE</a>
+            <input type="hidden" id="tipo" value="@ViewBag.tipo" name="tipo" />
+        </li>
+    </ul>
+
+    <br />
+    <br />
+
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            @Html.Action("_TableroControl", "Pqrs")
+        </div>
+        <div class="tab-pane row" id="2b">
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalGestion">
+    <div class="modal-dialog modal-lg" style="width:35%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="modalGestion2">
+    <div class="modal-dialog modal-lg" style="width:25%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar2()">CERRAR</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $('#idCategoria').append('<option value="0">COMPLETO</option>');
+
+
+
+        $("#tab1").click(function ()
+        {
+            LoadingShow();
+            $("#1b").empty();
+            $("#1a").load("@Url.Action("_TableroControl", "Pqrs")", function () {
+                LoadingHide();
+            });
+        })
+
+        $("#tab2").click(function () {
+            LoadingShow();
+            $("#1b").empty();
+            $("#1a").load("@Url.Action("_TableroControlSemaforizacion", "Pqrs")", function () {
+                LoadingHide();
+            })
+        });
+
+        //$('#idCategoria').append('<option value="20">Supersalud</option>');
+
+        var tipo = $("#tipo").val();
+        if (tipo != null) {
+            if (tipo == 1) {
+
+                $("#tab1").click();
+                $("#1b").empty();
+                $("#1a").load("@Url.Action("_TableroControl", "Pqrs")", function () {
+                    LoadingHide();
+                });
+            }
+            else if (tipo == 2) {
+
+                $("#tab2").click();
+                $("#1b").empty();
+                $("#1a").load("@Url.Action("_TableroControlSemaforizacion", "Pqrs")", function () {
+                    LoadingHide();
+                })
+            }
+        }
+    })
+
+    function buscarNumeroCaso() {
+
+        $("#divFiltro").submit();
+    }
+
+
+    function mostrar() {
+
+        document.getElementById('pnlBusquedaDocumento').style.display = 'block';
+        document.getElementById('BusquedaID').style.display = 'none';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('BusquedaID').style.display = 'block';
+        document.getElementById('pnlBusquedaDocumento').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+        document.getElementById('resultado').style.display = 'block';
+    };
+
+
+    $('#close').on('click', function () {
+        $('#popup').fadeOut('slow');
+        $('.popup-overlay').fadeOut('slow');
+        return false;
+    });
+
+    function Eliminar(Valor) {
+        var opcion = confirm("¿Está seguro de eliminar este registro?");
+        if (opcion == true) {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("id_ecop_PQRS", Valor);
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarPQRS", "Pqrs")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    if (response.success) {
+                        alert(response.message);
+                        LoadingHide();
+                        location.reload();
+                    }
+                    else {
+                        alert(response.message);
+                        LoadingHide();
+                    }
+
+                }
+            })
+        }
+    }
+
+    function modalNuevoAnalista(id)
+    {
+         var idanalista = id
+        var laUrl = "@Url.Action("_ModalGestion", "Pqrs")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idanalista: idanalista
+            },
+            success: function (response) {
+
+                $("#modalGestion").modal('show');
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        })
+    }
+
+    function modalActualizarCategorizacion(idPqr)
+    {
+        var laUrl = "@Url.Action("_ModalCategorizacion", "Pqrs")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idPqr: idPqr
+            },
+            success: function (response) {
+
+                $("#modalGestion2").modal('show');
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        })
+    }
+    function GestionCerrar() {
+        $("#modalGestion").modal('hide');
+    }
+    function GestionCerrar2() {
+        $("#modalGestion2").modal('hide');
+    }
+
+    function verArIngreso(idPqrs) {
+        var URL2 = "@Url.Action("GestorUrlArchivoIngresoPqr", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =500,height =500,left =50,top =50,toolbar =yes');
+    }
+
+    function verArAudi (a) {
+
+        var idecopPqrs = a;
+
+        $.ajax({
+            url: "@Url.Action("ArtefactoProyeccion")",
+            type: "GET",
+            data:
+            {
+                idecopPqrs: idecopPqrs
+            },
+            success: function (data) {
+                var URL2 = "@Url.Action("GestorUrlArchivoAuditor", "Pqrs")?idecopPqrs=" + data.idecopPqrs;
+                window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+            },
+            error: function (data) {
+                alert("error al momento de realizar el procedimiento")
+            }
+        })
+    }
+
+    function verArAproyec(idPqrs) {
+
+        var URL2 = "@Url.Action("GestorUrlArchivoRespuestaProyectada", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =450,height =150,left =10,top =550,toolbar =yes');
+
+    }
+
+    function verArReabierto(idPqrs) {
+        var URL2 = "@Url.Action("GestorUrlArchivoReabierto", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =450,height =150,left =10,top =550,toolbar =yes');
+    }
+
+    function buscarPorCategoria(id) {
+
+        var x2 = document.getElementById("tab2").getAttribute("aria-expanded");
+
+        var tipo = 0;
+        if (x2 == "true") {
+            tipo = 2;
+        }
+
+        LoadingShow();
+        location.href = "@Url.Action("TableroControl", "Pqrs")?idCategoria=" + id + "&tipoBusqueda=" +tipo;
+    }
+
+    @*function buscarPorCategoria(id) {
+        LoadingShow();
+        location.href = "@Url.Action("TableroControl", "Pqrs")?idCategoria=" + id;
+    }*@
+
+    function mostrarEstados(estado) {
+        location.href = "@Url.Action("TableroControl", "Pqrs")?estado=" + estado + "&tipoBusqueda=1";
+    }
+
+    function mostrarEstados2(estado2) {
+        location.href = "@Url.Action("TableroControl", "Pqrs")?estado2=" + estado2 + "&tipoBusqueda=2";
+    }
+
+    @*function descargarPqr(tipo) {
+        var URL = "@Url.Action("ExportarInformePQRS", "Pqrs")?tipo=" + tipo;
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }*@
+
+    function descargarPqr(tipo) {
+        var URL = "@Url.Action("ExportarInformePQRSSalesForce", "Pqrs")?tipo=" + tipo;
+        window.open(URL, '', 'width=500,height=150,left=50,top=550,toolbar =yes');
+    }
+
+    function ActualizarTablero() {
+        location.href = "@Url.Action("RefrescarTableroControlPqrs", "Pqrs")";
+    }
+
+</script>
+
+
+<style>
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /*  .contenedorFiltros {
+        position: relative;
+        left: -100px;
+    }*/
+
+    #numero_caso {
+        height: 28px;
+        position: relative;
+        left: -20px;
+    }
+
+    .botonFiltro {
+        height: 40px;
+        position: relative;
+        left: -40px;
+    }
+    
+    .divDescarga {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+

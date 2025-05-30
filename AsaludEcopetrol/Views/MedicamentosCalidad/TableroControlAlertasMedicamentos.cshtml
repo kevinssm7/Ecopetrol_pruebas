@@ -1,0 +1,484 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL ALERTAS MEDICAMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="container">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">FILTROS</strong>
+        </div>
+        <div class="tab-content form-group">
+
+            @if (rta == 2)
+            {
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Error al cargar! </strong>@mensaje
+                    </div>
+                </div>
+            }
+            else if (rta == 1)
+            {
+                <div class="form-group">
+                    <div class="alert alert-success" role="alert">
+                        <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+                    </div>
+                </div>
+            }
+
+            <div class="panel panel-body">
+                <form id="formulario" method="post" action="TableroControlAlertasMedicamentos">
+                    <div class="row">
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Fecha prescripción</label>
+                            <input class="datepickerr form-control" style="width: 100%" name="fecha_prescripcion" id="fecha_prescripcion" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Nombre comercial</label>
+                            <input class="form-control" style="width: 100%" name="nombre_comercial" id="nombre_comercial" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Número fórmula</label>
+                            <input class="form-control" style="width: 100%" name="numero_formula" id="numero_formula" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Identificación beneficiario</label>
+                            <input class="form-control" style="width: 100%" name="documento_beneficiario" id="documento_beneficiario" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Id prescriptor</label>
+                            <input class="form-control" style="width: 100%" name="id_prescriptor" id="id_prescriptor" />
+                        </div>
+                        <br />
+
+                        <div class="col-sm-3 form-group">
+                            <button class="btn button_Asalud_Aceptar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                        </div>
+
+                        @if (ViewBag.conteo > 0)
+                        {
+                            <div class="col-md-6 text-right">
+                                <a onclick="ExportarExcel();" class="button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar datos</a>
+                            </div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">DATOS</strong>
+        </div>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Sin gestión @ViewBag.conteoSin</a></li>
+                <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">En tramite @ViewBag.conteoCon</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab0">
+                <div class="panel-body">
+                    <table class="tablaSin table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Dependencia salud</th>
+                                <th>Nombre comercial</th>
+                                <th>Número fórmula</th>
+                                <th>Tipo fórmula</th>
+                                <th>Identificación beneficiario</th>
+                                <th>Beneficiario</th>
+                                <th>Ciudad despacho</th>
+                                <th>UNIS</th>
+                                <th>IPS atención</th>
+                                <th>Fecha prescripción</th>
+                                <th>Laboratorio fabricante</th>
+                                <th>Id prescriptor</th>
+                                <th>Valor</th>
+                                <th>Gestionar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int i = 0;}
+
+                            @if (ViewBag.conteoSin > 0)
+                            {
+
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_alertasDispensacion_tableroControlResult item in ViewBag.listadoSin)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td class="text-center">@item.id_registro</td>
+                                        <td class="text-center">@item.dependencia_salid</td>
+                                        <td class="text-center">@item.nombre_comercial_medicamento</td>
+                                        <td class="text-center">@item.numero_formula</td>
+                                        <td class="text-center">@item.tipo_formula</td>
+                                        <td class="text-center">@item.tipo_identificacion_beneficiario-@item.numero_documento_beneficiario</td>
+                                        <td class="text-center">@item.nombre_beneficiario</td>
+                                        <td class="text-center">@item.ciudad_despacho</td>
+                                        <td class="text-center">@item.unis</td>
+                                        <td class="text-center">@item.nombre_ips_atencion</td>
+                                        <td class="text-center">@item.fecha_prescripcion_formula</td>
+                                        <td class="text-center">@item.laboratorio_fabricante</td>
+                                        <td class="text-center">@item.id_prescriptor</td>
+                                        <td class="text-center">@item.valor</td>
+                                        <td>
+                                            <a class="button_Asalud_Aceptar archivos" onclick="GestionarCaso(@item.id_registro, @item.id_alerta, @item.id_detalle);">
+                                                Gestión
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="font-size: 14px; text-align:center">
+                                        SIN DATOS
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab1">
+                <div class="panel-body">
+                    <table class="tablaCon table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ítem</th>
+                                <th>Dependencia salud</th>
+                                <th>Nombre comercial</th>
+                                <th>Número fórmula</th>
+                                <th>Tipo fórmula</th>
+                                <th>Identificación beneficiario</th>
+                                <th>Beneficiario</th>
+                                <th>Ciudad despacho</th>
+                                <th>UNIS</th>
+                                <th>IPS atención</th>
+                                <th>Fecha prescripción</th>
+                                <th>Laboratorio fabricante</th>
+                                <th>Id prescriptor</th>
+                                <th>Valor</th>
+                                <th>Gestionar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int j = 0;}
+
+                            @if (ViewBag.conteoCon > 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_alertasDispensacion_tableroControlResult item in ViewBag.listadoCon)
+                                {
+                                    j++;
+                                    <tr>
+                                        <td class="text-center">@item.id_registro</td>
+                                        <td class="text-center">@item.dependencia_salid</td>
+                                        <td class="text-center">@item.nombre_comercial_medicamento</td>
+                                        <td class="text-center">@item.numero_formula</td>
+                                        <td class="text-center">@item.tipo_formula</td>
+                                        <td class="text-center">@item.tipo_identificacion_beneficiario-@item.numero_documento_beneficiario</td>
+                                        <td class="text-center">@item.nombre_beneficiario</td>
+                                        <td class="text-center">@item.ciudad_despacho</td>
+                                        <td class="text-center">@item.unis</td>
+                                        <td class="text-center">@item.nombre_ips_atencion</td>
+                                        <td class="text-center">@item.fecha_prescripcion_formula</td>
+                                        <td class="text-center">@item.laboratorio_fabricante</td>
+                                        <td class="text-center">@item.id_prescriptor</td>
+                                        <td class="text-center">@item.valor</td>
+                                        <td>
+                                            <a class="button_Asalud_Aceptar archivos" onclick="GestionarCaso(@item.id_registro, @item.id_alerta, @item.id_detalle);">
+                                                Gestión
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="font-size: 14px; text-align:center">
+                                        SIN DATOS
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTablaSin();
+        MostrarTablaCon();
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab1 = $("#tab" + 0).hasClass("active");
+                var tab2 = $("#tab" + 1).hasClass("active");
+
+                if (tab1) {
+                    MostrarTablaSin();
+                }
+
+                if (tab2) {
+                    MostrarTablaCon();
+                }
+            }, 100);
+        });
+
+
+    });
+
+
+    $("#nombre_comercial").autocomplete({
+        source: "/MedicamentosCalidad/Buscar_nombre_comercial",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.nombre);
+            }
+        }
+    });
+
+
+
+    function MostrarTablaSin() {
+        var conteo = '@ViewBag.conteoSin';
+        if (conteo > 0) {
+
+            $('.tablaSin').DataTable().destroy();
+            $('.tablaSin').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaCon() {
+        var conteo = '@ViewBag.conteoCon';
+        if (conteo > 0) {
+
+            $('.tablaCon').DataTable().destroy();
+            $('.tablaCon').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function GestionarCaso(idRegistro, idAlerta, idDetalle) {
+        var confirmar = confirm("¿Seguro(a) de gestionar este caso?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("GestionarCasoAlerta", "MedicamentosCalidad")?idRegistro=" + idRegistro + "&idAlerta=" + idAlerta + "&idDetalle=" + idDetalle;
+        }
+    }
+
+
+    function ExportarExcel() {
+        var URL2 = "@Url.Action("ExcelExportarAlertasSinConfirmar", "MedicamentosCalidad")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function ValidarFormulario() {
+        var nombre_comercial = $("#nombre_comercial").val();
+        var fecha_prescripcion = $("#fecha_prescripcion").val();
+        var numero_formula = $("#numero_formula").val();
+        var documento_beneficiario = $("#documento_beneficiario").val();
+        var id_prescriptor = $("#id_prescriptor").val();
+
+        // Verificar si alguna de las variables no está vacía ni nula
+        if (nombre_comercial || fecha_prescripcion || numero_formula || documento_beneficiario || id_prescriptor) {
+            $("#formulario").submit(); // Enviar el formulario si al menos una variable no está vacía ni nula
+        } else {
+            alert("Por favor, llene al menos un campo."); // Mostrar alerta si todas las variables están vacías o nulas
+        }
+    }
+
+</script>
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+        position: absolute;
+        margin-top: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>

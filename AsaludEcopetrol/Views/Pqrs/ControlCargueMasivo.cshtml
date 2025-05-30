@@ -1,0 +1,168 @@
+﻿<div class="tab-pane" id="2a">
+    <div class="panel panel-default">
+        <form id="tableroControl">
+            <div class="panel-body">
+                <table class="tableMasivo table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableMasivo">
+                    <thead>
+                        <tr>
+                            <th style='display:none;'>Id masivo</th>
+                            <th>Fecha cargue</th>
+                            <th>Registros</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteo > 0)
+                        {
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_consolidadoMasivoResult item in ViewBag.lista)
+                            {
+                                <tr>
+                                    <td>@item.id_masivo</td>
+                                    <td>@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                                    <td style="text-align:center;">
+                                        <a class="button_Asalud_Aceptar" onclick="irDetalle(@item.id_masivo);">
+                                            <i class="glyphicon glyphicon-plus"></i>&nbsp; Ingresar
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="14" style="text-align:center; font-size:14px;">
+                                    SIN REGISTROS
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.tableMasivo').DataTable({
+            "searching": true,
+            "idisplaylength": 15,
+            "lengthchange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "Buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+    });
+
+
+    function irDetalle(idMasivo) {
+
+        location.href = "@Url.Action("ControlIngresoArchivoMasivo", "Pqrs")?idMasivo=" + idMasivo;
+
+    }
+</script>
+
+
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

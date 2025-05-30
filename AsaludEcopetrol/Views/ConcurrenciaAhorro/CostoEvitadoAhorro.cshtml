@@ -1,0 +1,543 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Evolucion.ConcurrenciaAhorro
+@{
+    ViewBag.Title = "OPTIMIZACIÓN DE SERVICIOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+
+            <table>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+            <br />
+            <table border="1" align="center" width="600">
+
+
+                @if (Model != null && Model.LstAhorroOtro != null && Model.LstAhorroOtro.Count > 0)
+                {
+                    <tr>
+
+                        <th class="text-center">ID</th>
+                        <th class="text-center">ID CONCURRENCIA</th>
+                        <th class="text-center">TIPO AHORRO</th>
+                        <th class="text-center">CANTIDAD</th>
+                        <th class="text-center">AHORRO</th>
+                        <th class="text-center">VALOR AHORRO</th>
+                        <th class="text-center">VALOR AHORRO OTRO</th>
+                        <th class="text-center">OBSERVACIONES</th>
+                        <th class="text-center">FECHA DIGITA</th>
+
+                    </tr>
+
+
+                    foreach (var item in Model.LstAhorroOtro)
+                    {
+
+
+
+                        <tr>
+
+                            <td class="text-center">@item.id_concurrencia_ahorro</td>
+                            <td class="text-center">@item.id_concurrencia</td>
+                            <td class="text-center">@item.descripcion_tipo_ahorro</td>
+                            <td class="text-center">@item.cantidad</td>
+                            <td class="text-center">@item.descripcion_ahorro</td>
+                            <td class="text-center">@item.valor_ahorro</td>
+                            <td class="text-center">@item.valor_ahorro_otro</td>
+                            <td class="text-center">@item.observacion</td>
+                            <td class="text-center">@item.fecha_digita</td>
+
+
+                        </tr>
+                    }
+
+                }
+
+
+            </table>
+
+
+        </div>
+        <br /><br />
+        <div class="row">
+            <div class="col-sm-12">
+                <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+                    <tr>
+                        <td class="text-center">
+                            <Label>AHORRO</Label>
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <br />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-centrada">
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ref_tipo_ahorro)</span></h4>
+                @Html.DropDownListFor(model => model.id_ref_tipo_ahorro, new SelectList(Model.LstRefTipoAhorro, "id_ref_tipo_ahorro", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "mostrar()" })
+                @Html.ValidationMessageFor(u => u.id_ref_tipo_ahorro, null, new { @class = "label label-danger" })
+            </div>
+
+
+            <div class="col-lg-6 col-centrada" style='display:none;' id='pnlotro'>
+                <div class="General">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.otro_tipo_ahorro)</span></h4>
+                    @Html.TextBoxFor(u => u.otro_tipo_ahorro, "{0:#.#}", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.otro_tipo_ahorro, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-centrada">
+                <div>
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.cantidad)</span></h4>
+                    @Html.TextBoxFor(u => u.cantidad, new { @class = "form-control", @id = "cantidad", @onchange = "HabilitarOtro()" })
+                    @Html.ValidationMessageFor(u => u.cantidad, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-6 col-centrada">
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ref_valor_ahorro)</span></h4>
+                @Html.DropDownListFor(model => model.id_ref_valor_ahorro, new SelectList(Model.LstRefValorAhorro, "id_ref_valor_ahorro", "tipo_de_estancia"), "Seleccione...", new { @class = "form-control", @onchange = "format3()" })
+                @Html.ValidationMessageFor(u => u.id_ref_valor_ahorro, null, new { @class = "label label-danger" })
+            </div>
+
+
+            <div class="col-lg-6 col-centrada" id="pnlvalorahorro3" style='display:none;'>
+                <div class="General">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.ingreso_valor_otro)</span></h4>
+                    @Html.TextBoxFor(p => p.ingreso_valor_otro, "{0:#.#}", new { @class = "form-control", @id = "ingreso_valor_otro", @onchange = "multiplicarOtro()", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.ingreso_valor_otro, null, new { @class = "label label-danger" })
+                </div>
+
+
+            </div>
+
+            <div class="col-lg-6 col-centrada" style='display:none;'>
+                <div class="General">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.costo_estancia)</span></h4>
+                    @Html.TextBoxFor(u => u.costo_estancia, "{0:#.#}", new { @class = "form-control", @id = "costo_estancia" })
+                    @Html.ValidationMessageFor(u => u.costo_estancia, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-centrada" id="pnlvalorahorro1">
+                <div class="General">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.valor_ahorro)</span></h4>
+                    @Html.TextBoxFor(p => p.valor_ahorro, "{0:#.#}", new { @class = "form-control", @id = "valor_ahorro", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.valor_ahorro, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-centrada" id="pnlvalorahorro2" style='display:none;'>
+                <div class="General">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.valor_ahorro2)</span></h4>
+                    @Html.TextBoxFor(p => p.valor_ahorro2, "{0:#.#}", new { @class = "form-control", @id = "valor_ahorro2", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.valor_ahorro2, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+
+            <div class="col-lg-6 col-centrada">
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.observacion)</span></h4>
+                @Html.TextAreaFor(u => u.observacion, new { @class = "form-control" })
+                @Html.ValidationMessageFor(u => u.observacion, null, new { @class = "label label-danger" })
+            </div>
+
+        </div>
+
+
+        <div id="pnlGuardar" class="General">
+            <table align="center">
+                <tr>
+                    <td>    &nbsp;
+                    <td class="auto-style3"></td>
+                </tr>
+                <tr>
+                    <td>
+                        @if (ViewBag.usuario == "14")
+                        {
+
+                        }
+                        else
+                        {
+                            <input id="BtnAgregar" type="submit" value="AGREGAR" class="btn btn-success" />
+                        }
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Error">
+                        @Html.ValidationSummary(true, "")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="display:none">
+                        @Html.TextBoxFor(u => u.id_concurrencia, new { @id = "idconcu" })
+                    </td>
+                </tr>
+
+
+
+            </table>
+        </div>
+    </div>
+}
+<script>
+
+    function format2(input) {
+
+        var textBox1 = $('input:text[id$=ingreso_valor_otro]').keyup();
+        var n = textBox1.val();
+
+
+
+        var num = n.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            input.value = input.value.replace(/[^\d\.]*/g, '');
+        }
+    }
+
+
+    function mostrar() {
+
+        var mivalor = $("#id_ref_tipo_ahorro").val()
+        var mitexto = $("#id_ref_tipo_ahorro option:selected").text()
+        if (mivalor == 6) {
+
+            document.getElementById('pnlotro').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlotro').style.display = 'none';
+        }
+
+
+    };
+
+
+    function mostrar2() {
+
+        var mivalor = $("#id_ref_valor_ahorro").val()
+        var mitexto = $("#id_ref_valor_ahorro option:selected").text()
+        if (mivalor == 4) {
+
+            document.getElementById('pnlotro2').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlotro').style.display = 'none';
+        }
+
+
+    };
+
+
+      function format3(input) {
+
+        var mivalor = $("#id_ref_valor_ahorro").val()
+          var mitexto = $("#id_ref_valor_ahorro option:selected").text()
+
+
+
+              $.ajax({
+                url: '@Url.Action("ListaValorAhorro")/' + mivalor,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                  success: function (data) {
+                     $('input:text[id$=costo_estancia]').val(data.OBJ.costo_dia_de_estancia);
+                      var valor2 = document.getElementById("cantidad").value;
+                      var valor4 = document.getElementById("ingreso_valor_otro").value;
+                      var valor1 = data.OBJ.costo_dia_de_estancia
+                      var valor3 = valor1 * valor2;
+                      var valor5 = valor4 * valor2;
+
+
+                      var valor6 = formatNumber.new(valor3) 
+                      var valor7 = formatNumber.new(valor5) 
+
+
+                      document.getElementById("valor_ahorro").value = valor6;
+                      document.getElementById("valor_ahorro2").value = valor7;
+
+
+
+
+                      if (mivalor == 4) {
+
+                          document.getElementById('pnlvalorahorro2').style.display = 'block';
+                          document.getElementById('pnlvalorahorro3').style.display = 'block';
+                          document.getElementById('pnlvalorahorro1').style.display = 'none';
+
+
+
+
+                      } else {
+
+                          document.getElementById('pnlvalorahorro2').style.display = 'none';
+                          document.getElementById('pnlvalorahorro3').style.display = 'none';
+                          document.getElementById('pnlvalorahorro1').style.display = 'block';
+
+
+                       }
+
+
+
+                 },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+    }
+
+    function multiplicarOtro(input) {
+
+       var textBox1 = $('input:text[id$=ingreso_valor_otro]').keyup();
+       var m2 = textBox1.val();
+
+             var m1 = document.getElementById("cantidad").value;
+                   var m2 = document.getElementById("ingreso_valor_otro").value;
+                   var r = m1 * m2;
+
+                   var res = formatNumber.new(r)
+            document.getElementById("valor_ahorro2").value = res;
+
+        var num = m2.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            document.getElementById("ingreso_valor_otro").value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            document.getElementById("ingreso_valor_otro").value = '';
+        }
+
+
+
+
+    }
+
+
+    function HabilitarOtro() {
+
+
+         document.getElementById("ingreso_valor_otro").readOnly = false;
+
+
+    }
+
+
+    var formatNumber = {
+              separador: ".", // separador para los miles
+            sepDecimal: ',', // separador para los decimales
+                 formatear:function (num){
+               num +='';
+              var splitStr = num.split('.');
+             var splitLeft = splitStr[0];
+            var splitRight = splitStr.length > 1 ? this.sepDecimal + splitStr[1] : '';
+             var regx = /(\d+)(\d{3})/;
+              while (regx.test(splitLeft)) {
+              splitLeft = splitLeft.replace(regx, '$1' + this.separador + '$2');
+              }
+               return this.simbol + splitLeft +splitRight;
+              },
+              new:function(num, simbol){
+              this.simbol = simbol ||'';
+              return this.formatear(num);
+              }
+     }
+
+
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+        /* support: IE7 */
+        *height: 1.7em;
+        *top: 0.1em;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 0.3em;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 105px;
+    }
+
+    .tdGrande {
+        width: 300px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .auto-style3 {
+        height: 26px;
+    }
+
+
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .col-centrada {
+        float: none;
+        margin: 0 auto;
+    }
+</style>
+
+
+
+

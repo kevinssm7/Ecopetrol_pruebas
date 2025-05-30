@@ -1,0 +1,256 @@
+﻿@{
+    var conteo = ViewBag.conteoArchivos;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS</a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="tableGestionDocumental" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Archivos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoArchivos > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_tableroControl_archivosResult item in ViewBag.listadoArchivos)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_digita</td>
+                                    }
+
+                                    <td class="text-center">@item.nombre_archivo</td>
+                                    <td class="text-center">@item.nombreDigita</td>
+
+                                    <td class="text-center">
+                                        <a class="btn btn-sm button_Asalud_descargas" onclick="MostrarArchivo(@item.id_prestador, @item.id_archivo)">Ver</a>
+                                        &nbsp;
+                                        <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_prestador, @item.id_archivo)">Eliminar</a>
+
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+    </div>
+</div>
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ADJUNTAR</a>
+            </h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <form id="formArchivos">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <input type="hidden" id="id_prestador" name="id_prestador" value="@ViewBag.id_prestador" />
+                        <label class="text-secondary_asalud">Adjuntar archivos</label>
+                        <input type="file" id="archivo" name="archivo" class="tipoArchivo form-control" multiple required />
+                    </div>
+                    <br />
+
+                    <div class="col-md-6 text-left">
+                        <a class="btn btn-sm button_Asalud_Guardar" onclick="ValidarArchivo()">Guardar</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        MostrarTablaArchivos();
+        $.validator.messages.required = 'Este campo es obligatorio';
+    });
+
+    function MostrarTablaArchivos() {
+
+        var conteo = "@ViewBag.conteoArchivos";
+        if (conteo > 0) {
+            $('#tableGestionDocumental').DataTable().destroy();
+            $('#tableGestionDocumental').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarArchivo(id_prestador, idArchivo) {
+        var url = "@Url.Action("VerArchivoPrestador", "FIS_RIPS")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function ValidarArchivo() {
+
+        var validacion = $("#formArchivos").validate();
+        if (validacion.form()) {
+            GuardarArchivos();
+        }
+    }
+
+    function GuardarArchivos() {
+
+        var id_prestador = $("#id_prestador").val();
+
+        var formData = new FormData($("#formularioIngreso")[0]);
+        formData.append("id_prestador", $("#id_prestador").val());
+
+        var archivos = $("#archivo")[0].files;
+        console.log("Cantidad de archivos seleccionados:", archivos.length); // Agregamos un registro para verificar la cantidad de archivos seleccionados
+
+        for (var i = 0; i < archivos.length; i++) {
+            formData.append("archivosNuevos", archivos[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: '@Url.Action("GuardarArchivosNuevos", "FIS_RIPS")',
+            data: formData,
+            method: "POST",
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                MirarRepositorio(id_prestador);
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+    function EliminarArchivo(id_prestador, idArchivo) {
+
+        var confirmar = confirm("¿Seguro(a) de eliminar este archivo?");
+        if (confirmar == true) {
+
+            console.log(idArchivo);
+            LoadingShow();
+
+            $.ajax({
+                url: '@Url.Action("EliminarArchivo", "FIS_RIPS")',
+                type: "POST",
+                data: {
+                    id_prestador: id_prestador,
+                    idArchivo: idArchivo,
+                },
+                method: "POST",
+                success: function (response) {
+                    LoadingHide();
+                    alert(response.mensaje);
+                    MirarRepositorio(id_prestador);
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .tipoArchivo {
+        background-color: transparent !important;
+        color:black !important;
+    }
+</style>

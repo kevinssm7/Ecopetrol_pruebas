@@ -1,0 +1,134 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "_ModalGestion";
+}
+
+<form id="formGestion" action="MotificarPuntoDspensacion" method="post" enctype="multipart/form-data">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p class="text-primary_asalud">Gestión</p>
+        </div>
+        <div class="panel-body">
+            <div>
+                <div id="divotrosi">
+                    <div id="formulario" class="col-md-12  ">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Motivo:</label><span style="color:red"></span>
+
+                                <select class="form-control" id="txtmotivo" onchange="seleccion(this.value);">
+                                    <option value=""></option>
+                                    <option value="1">PRESTADOR NO ESTA DISPONIBLE PARA ATENDER VISITA</option>
+                                    <option value="2">CONTRATO FINALIZADO</option>
+                                    <option value="3">REPROGRAMADA</option>
+                                    <option value="4">OTRO</option>
+                                </select>
+
+                                @*<textarea class="form-control" requerid id="txtmotivo" name="txtmotivo" rows="5" cols="10" maxlength="1999" required></textarea>*@
+                                <input type="hidden" name="txtidverificacion" id="txtidverificacion" value="@ViewBag.idVerificacion" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            </div>
+                        </div>
+                        <div id="panel" style="display:none;">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="text-secondary_asalud">Nueva fecha visita:</label><span style="color:red"></span>
+                                    <input class="datepickerr2" onkeydown="javascript:return false;" style="width:100%" id="txtfecha" name="txtfecha" autocomplete="off" required />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="text-secondary_asalud">Auditor:</label><span style="color:red"></span>
+                                    <input name="txtauditor" id="txtauditor" class="form-control" required />
+                                </div>
+                            </div>
+                            <br />
+                        </div>
+                        <div id="DivObserva" style="display:none;">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label class="text-secondary_asalud">Observación:</label><span style="color:red"></span>
+                                    <textarea class="form-control" requerid id="txtobservacion" name="txtobservacion" rows="5" cols="10" maxlength="4999" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12 form-group text-right">
+                                <button type="button" id="btnGuardar" onclick="ValidarFormulario()" class="button_Asalud_Guardar">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(".datepickerr2").kendoDatePicker({
+        format: "MM/dd/yyyy",
+    });
+
+    function seleccion(select) {
+        if (select == 2) {
+            //$("#panel").removeAttr("Style");
+            $("#panel").css('display', 'none');
+            $("#DivObserva").removeAttr("Style");
+            $("#DivObserva").css('display', 'block');
+            $("#txtfecha").val(null);
+            $("#txtauditor").val("");
+            $("#txtobservacion").val("");
+        }
+        else {
+            $("#DivObserva").removeAttr("Style");
+            $("#DivObserva").css('display', 'block');
+            $("#panel").removeAttr("Style");
+            $("#panel").css('display', 'block');
+            $("#txtfecha").val(null);
+            $("#txtauditor").val("");
+            $("#txtobservacion").val("");
+        } 
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formGestion").validate();
+        if (validator.form()) {
+            GuardarNuevaVisita();
+        }
+    }
+
+    function GuardarNuevaVisita() {
+
+        var idVerificacion = document.getElementById("txtidverificacion").value;
+        var motivo = document.getElementById("txtmotivo").value;
+        var fechavisita = document.getElementById("txtfecha").value;
+        var auditor = document.getElementById("txtauditor").value;
+        var observacion = document.getElementById("txtobservacion").value;
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("idVerificacion", $("#txtidverificacion").val());
+        formData.append("motivo", $("#txtmotivo").val());
+        formData.append("fecha", $("#txtfecha").val());
+        formData.append("auditor", $("#txtauditor").val());
+        formData.append("observacion", $("#txtobservacion").val());
+
+        $.ajax({
+            url: "@Url.Action("MotificarPuntoDspensacion", "Verificacion")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                alert(data.message);
+                location.href = "@Url.Action("TableroPuntoDispensacion", "Verificacion")";
+            }
+        })
+    }
+</script>

@@ -1,0 +1,887 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL GRCP";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CONTROL DATOS</strong>
+        </div>
+        <form id="divFiltro" method="post" action="TableroControlDatosGRPC" enctype="multipart/form-data">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Año:</label>
+                        <select id="año" name="año" class="form-control select2">
+                            <option value="">-Seleccione--</option>
+                            @foreach (var item in ViewBag.años)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Mes:</label>
+                        <select class="form-control select2" id="mes" name="mes">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                            {
+                                <option value="@item.id_mes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Regional prestación:</label>
+                        <select class="form-control select2" id="regional" name="regional" onchange="CargarLocalidad($(this).val())">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                <option value="@item.indice">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Localidad prestación</label>
+                        <select class="form-control select2" id="localidad" name="localidad" onchange="ObtenerCiudades($(this).val())" required>
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+
+                <div class="row" style="align-content:center;">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Ciudad prestación</label>
+                        <select class="form-control select2" id="municipio" name="municipio" required>
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Tipo</label>
+                        <select class="form-control select2" id="tipo" name="tipo" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cargue_vigilanciaCohortes_tipos item in ViewBag.tipo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <br />
+                    <div class="col-md-2">
+                        <a role="button" onclick="BuscarFiltro();" class="btn button_Asalud_Aceptar" style="text-align:left;">BUSCAR</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <a role="button" onclick="VerDatosExcel();" class="btn button_Asalud_descargas" style="text-align:left;"><i class="glyphicon glyphicon-download"></i>&nbsp; DESCARGAR</a>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Gestantes @ViewBag.conteoGes</a></li>
+                <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">RCV @ViewBag.conteoRCV</a></li>
+                <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Salud mental @ViewBag.conteoSM</a></li>
+                <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">EPOC @ViewBag.conteoEPOC</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab0">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaGes table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Id registro</th>
+                                    <th>Lote</th>
+                                    <th>Mes</th>
+                                    <th>Año</th>
+                                    <th>Documento paciente</th>
+                                    <th>Nombre paciente</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Edad paciente</th>
+                                    <th>Ciudad prestación</th>
+                                    <th>Localidad prestación</th>
+                                    <th>Regional prestación</th>
+                                    <th>Nombre prestador</th>
+                                    <th>Especialidad</th>
+                                    <th>Tipo diagnóstico</th>
+                                    <th>fecha prestación</th>
+                                    <th>Diagnótico principal</th>
+                                    <th>Diagnóstico relacionado 1</th>
+                                    <th>Diagnóstico relacionado 2</th>
+                                    <th>Diagnóstico relacionado 3</th>
+                                    <th>Posición diagnóstico detectado</th>
+                                    <th>Código detectado</th>
+                                    <th>Código consulta</th>
+                                    <th>Programa potencial</th>
+                                    <th>Fuente</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoGes != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_VigilanciaCohortes_TableroInicialResult item in ViewBag.listadoGES)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.id_registro</td>
+                                                <td>@item.id_lote</td>
+                                                <td>@item.mes</td>
+                                                <td>@item.año</td>
+                                                <td>@item.documento_paciente</td>
+                                                <td>@item.nombre_paciente</td>
+                                                @if (item.fecha_nacimiento != null)
+                                                {
+                                                    <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_nacimiento</td>
+                                                }
+                                                <td>@item.edad_paciente</td>
+                                                <td>@item.ciudad_prestacion</td>
+                                                <td>@item.localidad_prestacion</td>
+                                                <td>@item.regional_prestacion</td>
+                                                <td>@item.nombre_prestador</td>
+                                                <td>@item.especialidad</td>
+                                                <td>@item.tipo_diagnostico</td>
+                                                @if (item.fecha_prestacion != null)
+                                                {
+                                                    <td>@item.fecha_prestacion.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_prestacion</td>
+                                                }
+                                                <td>@item.codigo_dx_principal - @item.descripcion_codigo_dx_principal</td>
+                                                <td>@item.codigo_dx_relacionado_1 - @item.descripcion_codigo_dx_relacionado_1</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_2 - @item.descripcion_codigo_dx_relacionado_2</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_3 - @item.descripcion_codigo_dx_relacionado_3</td>
+                                                <td>@item.posicion_diagnostico_detectado</td>
+                                                <td>@item.codigo_dx_detectado - @item.descripcion_dx_detectado</td>
+                                                <td>@item.codigo_de_consulta - @item.descripcion_consulta</td>
+                                                <td>@item.programa_potencial</td>
+                                                <td>@item.fuente</td>
+                                                <td class="text-center">
+                                                    <a role="button" class="btn btn-sm button_Asalud_Aceptar" onclick="AgregrGestion(@item.id_registro, @item.id_lote)">Gestionar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab1">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaRCV table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Id registro</th>
+                                    <th>Lote</th>
+                                    <th>Mes</th>
+                                    <th>Año</th>
+                                    <th>Documento paciente</th>
+                                    <th>Nombre paciente</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Edad paciente</th>
+                                    <th>Ciudad prestación</th>
+                                    <th>Localidad prestación</th>
+                                    <th>Regional prestación</th>
+                                    <th>Nombre prestador</th>
+                                    <th>Especialidad</th>
+                                    <th>Tipo diagnóstico</th>
+
+                                    <th>Fecha prestación</th>
+                                    <th>Diagnótico principal</th>
+                                    <th>Diagnóstico relacionado 1</th>
+                                    <th>Diagnóstico relacionado 2</th>
+                                    <th>Diagnóstico relacionado 3</th>
+                                    <th>Posición diagnóstico detectado</th>
+                                    <th>Código detectado</th>
+                                    <th>Código consulta</th>
+                                    <th>Programa potencial</th>
+                                    <th>Fuente</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoRCV != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_VigilanciaCohortes_TableroInicialResult item in ViewBag.listadoRCV)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.id_registro</td>
+                                                <td>@item.id_lote</td>
+                                                <td>@item.mes</td>
+                                                <td>@item.año</td>
+                                                <td>@item.documento_paciente</td>
+                                                <td>@item.nombre_paciente</td>
+                                                @if (item.fecha_nacimiento != null)
+                                                {
+                                                    <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_nacimiento</td>
+                                                }
+                                                <td>@item.edad_paciente</td>
+                                                <td>@item.ciudad_prestacion</td>
+                                                <td>@item.localidad_prestacion</td>
+                                                <td>@item.regional_prestacion</td>
+                                                <td>@item.nombre_prestador</td>
+                                                <td>@item.especialidad</td>
+                                                <td>@item.tipo_diagnostico</td>
+
+                                                @if (item.fecha_prestacion != null)
+                                                {
+                                                    <td>@item.fecha_prestacion.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_prestacion</td>
+                                                }
+                                                <td>@item.codigo_dx_principal - @item.descripcion_codigo_dx_principal</td>
+                                                <td>@item.codigo_dx_relacionado_1 - @item.descripcion_codigo_dx_relacionado_1</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_2 - @item.descripcion_codigo_dx_relacionado_2</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_3 - @item.descripcion_codigo_dx_relacionado_3</td>
+                                                <td>@item.posicion_diagnostico_detectado</td>
+                                                <td>@item.codigo_dx_detectado - @item.descripcion_dx_detectado</td>
+                                                <td>@item.codigo_de_consulta - @item.descripcion_consulta</td>
+                                                <td>@item.programa_potencial</td>
+                                                <td>@item.fuente</td>
+                                                <td class="text-center">
+                                                    <a role="button" class="btn btn-sm button_Asalud_Aceptar" onclick="AgregrGestion(@item.id_registro, @item.id_lote)">Gestionar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="tab2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaSalud table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Id registro</th>
+                                    <th>Lote</th>
+                                    <th>Mes</th>
+                                    <th>Año</th>
+                                    <th>Documento paciente</th>
+                                    <th>Nombre paciente</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Edad paciente</th>
+                                    <th>Ciudad prestación</th>
+                                    <th>Localidad prestación</th>
+                                    <th>Regional prestación</th>
+                                    <th>Nombre prestador</th>
+                                    <th>Especialidad</th>
+                                    <th>Tipo diagnóstico</th>
+                                    <th>Fecha prestación</th>
+                                    <th>Diagnótico principal</th>
+                                    <th>Diagnóstico relacionado 1</th>
+                                    <th>Diagnóstico relacionado 2</th>
+                                    <th>Diagnóstico relacionado 3</th>
+                                    <th>Posición diagnóstico detectado</th>
+                                    <th>Código detectado</th>
+                                    <th>Código consulta</th>
+                                    <th>Programa potencial</th>
+                                    <th>Fuente</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoSM != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_VigilanciaCohortes_TableroInicialResult item in ViewBag.listadoSM)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.id_registro</td>
+                                                <td>@item.id_lote</td>
+                                                <td>@item.mes</td>
+                                                <td>@item.año</td>
+                                                <td>@item.documento_paciente</td>
+                                                <td>@item.nombre_paciente</td>
+                                                @if (item.fecha_nacimiento != null)
+                                                {
+                                                    <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_nacimiento</td>
+                                                }
+                                                <td>@item.edad_paciente</td>
+                                                <td>@item.ciudad_prestacion</td>
+                                                <td>@item.localidad_prestacion</td>
+                                                <td>@item.regional_prestacion</td>
+                                                <td>@item.nombre_prestador</td>
+                                                <td>@item.especialidad</td>
+                                                <td>@item.tipo_diagnostico</td>
+
+                                                @if (item.fecha_prestacion != null)
+                                                {
+                                                    <td>@item.fecha_prestacion.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_prestacion</td>
+                                                }
+                                                <td>@item.codigo_dx_principal - @item.descripcion_codigo_dx_principal</td>
+                                                <td>@item.codigo_dx_relacionado_1 - @item.descripcion_codigo_dx_relacionado_1</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_2 - @item.descripcion_codigo_dx_relacionado_2</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_3 - @item.descripcion_codigo_dx_relacionado_3</td>
+                                                <td>@item.posicion_diagnostico_detectado</td>
+                                                <td>@item.codigo_dx_detectado - @item.descripcion_dx_detectado</td>
+                                                <td>@item.codigo_de_consulta - @item.descripcion_consulta</td>
+                                                <td>@item.programa_potencial</td>
+                                                <td>@item.fuente</td>
+                                                <td class="text-center">
+                                                    <a role="button" class="btn btn-sm button_Asalud_Aceptar" onclick="AgregrGestion(@item.id_registro, @item.id_lote)">Gestionar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaEpoc table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Id registro</th>
+                                    <th>Lote</th>
+                                    <th>Mes</th>
+                                    <th>Año</th>
+                                    <th>Documento paciente</th>
+                                    <th>Nombre paciente</th>
+                                    <th>Fecha nacimiento</th>
+                                    <th>Edad paciente</th>
+                                    <th>Ciudad prestación</th>
+                                    <th>Localidad prestación</th>
+                                    <th>Regional prestación</th>
+                                    <th>Nombre prestador</th>
+                                    <th>Especialidad</th>
+                                    <th>Tipo diagnóstico</th>
+                                    <th>Fecha prestación</th>
+                                    <th>Diagnótico principal</th>
+                                    <th>Diagnóstico relacionado 1</th>
+                                    <th>Diagnóstico relacionado 2</th>
+                                    <th>Diagnóstico relacionado 3</th>
+                                    <th>Posición diagnóstico detectado</th>
+                                    <th>Código detectado</th>
+                                    <th>Código consulta</th>
+                                    <th>Programa potencial</th>
+                                    <th>Fuente</th>
+                                    <th>Acción</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoEPOC != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_VigilanciaCohortes_TableroInicialResult item in ViewBag.listadoEPOC)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td>@item.id_registro</td>
+                                                <td>@item.id_lote</td>
+                                                <td>@item.mes</td>
+                                                <td>@item.año</td>
+                                                <td>@item.documento_paciente</td>
+                                                <td>@item.nombre_paciente</td>
+                                                @if (item.fecha_nacimiento != null)
+                                                {
+                                                    <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_nacimiento</td>
+                                                }
+                                                <td>@item.edad_paciente</td>
+                                                <td>@item.ciudad_prestacion</td>
+                                                <td>@item.localidad_prestacion</td>
+                                                <td>@item.regional_prestacion</td>
+                                                <td>@item.nombre_prestador</td>
+                                                <td>@item.especialidad</td>
+                                                <td>@item.tipo_diagnostico</td>
+
+                                                @if (item.fecha_prestacion != null)
+                                                {
+                                                    <td>@item.fecha_prestacion.Value.ToString("dd/MM/yyyy")</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.fecha_prestacion</td>
+                                                }
+                                                <td>@item.codigo_dx_principal - @item.descripcion_codigo_dx_principal</td>
+                                                <td>@item.codigo_dx_relacionado_1 - @item.descripcion_codigo_dx_relacionado_1</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_2 - @item.descripcion_codigo_dx_relacionado_2</td>
+                                                <td>@item.descripcion_codigo_dx_relacionado_3 - @item.descripcion_codigo_dx_relacionado_3</td>
+                                                <td>@item.posicion_diagnostico_detectado</td>
+                                                <td>@item.codigo_dx_detectado - @item.descripcion_dx_detectado</td>
+                                                <td>@item.codigo_de_consulta - @item.descripcion_consulta</td>
+                                                <td>@item.programa_potencial</td>
+                                                <td>@item.fuente</td>
+                                                <td>@item.accion</td>
+                                                <td class="text-center">
+                                                    <a role="button" class="btn btn-sm button_Asalud_Aceptar" onclick="AgregrGestion(@item.id_registro, @item.id_lote)">Gestionar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="16" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalGestion">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal">GESTIONAR</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        MostrarTablaGes();
+        MostrarTablaRCV();
+        MostrarTablaSalud();
+        MostrarTablaEPOC();
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+
+                if (tab0) {
+                    MostrarTablaGes();
+                }
+
+                if (tab1) {
+                    MostrarTablaRCV();
+                }
+
+                if (tab2) {
+                    MostrarTablaSalud();
+                }
+
+                if (tab3) {
+                    MostrarTablaEPOC();
+                }
+
+            }, 100);
+        });
+    });
+
+    function MostrarTablaGes() {
+        var conteo = '@ViewBag.conteoGes';
+
+        if (conteo > 0) {
+
+            $('.tablaGes').DataTable().destroy();
+            $('.tablaGes').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 1000,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaRCV() {
+        var conteo = '@ViewBag.conteoRCV ';
+
+        if (conteo > 0) {
+
+            $('.tablaRCV').DataTable().destroy();
+            $('.tablaRCV').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 1000,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaSalud() {
+        var conteo = '@ViewBag.conteoSM';
+
+        if (conteo > 0) {
+
+            $('.tablaSalud').DataTable().destroy();
+            $('.tablaSalud').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 1000,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaEPOC() {
+        var conteo = '@ViewBag.conteoEPOC';
+
+        if (conteo > 0) {
+
+            $('.tablaEpoc').DataTable().destroy();
+            $('.tablaEpoc').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 1000,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function CargarLocalidad(a) {
+
+        if (a != "") {
+            $("#localidad").empty();
+            $("#municipio").empty();
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { regional: a },
+                success: function (data) {
+                    $("#localidad").empty();
+                    $("#localidad").html(data);
+                    $("#localidad").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { localidad: a },
+                success: function (data) {
+                    $("#municipio").empty();
+                    $("#municipio").html(data);
+                    $("#municipio").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function BuscarFiltro() {
+        $("#divFiltro").submit();
+    }
+
+    function AgregrGestion(idRegistro, idLote) {
+        $.ajax({
+            url: "@Url.Action("ModalGestionGRCP")",
+            cache: false,
+            async: true,
+            type: "GET",
+            data: {
+                idLote: idLote,
+                idRegistro: idRegistro,
+            },
+
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                $("#ModalGestion").modal("show");
+            }
+        });
+    }
+
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("ExcelGRCP", "Cohortes")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

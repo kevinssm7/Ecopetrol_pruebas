@@ -1,0 +1,202 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.seguimiento_entregables>
+@{
+    ViewBag.Title = "TABLERO DE CONTROL ENTREGABLES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    List<ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_responsables> responables = (List<ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_entregables_responsables>)ViewBag.personaresponsable;
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">TABLERO ENTREGABLES</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12 text-left form-group">
+                <a role="button" class="btn btn-xs button_Asalud_Aceptar" href="@Url.Action("AgregarEntregable","SeguimientoEntregables")"><i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir nuevo entregable</a>
+            </div>
+        </div>
+        <table id="tableroControl" class="table table-bordered" style="margin-left:0">
+            <thead>
+                <tr>
+                    <th>Id entregable</th>
+                    <th>Nombre del entregable</th>
+                    <th>Proceso</th>
+                    <th>Tipo</th>
+                    <th>Periodicidad</th>
+                    <th>Responsable</th>
+                    <th>Fecha control</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.seguimiento_entregables item in Model)
+                {
+                    var responsable = responables.Find(l => l.usuario == item.persona_responsable);
+
+                    <tr>
+                        <td>@item.id_seg_entregables</td>
+                        <td>@item.Nom_entregable</td>
+                        <td>@item.ref_proceso_entregable.nom_proceso_entregable</td>
+                        <td>@item.ref_seguimiento_entregables_tipo_entregable.nom_tipo_entregable</td>
+                        <td>@item.ref_periodicidad_entregables.nom_periodicidad_entregable</td>
+                        <td>@responsable.nombre</td>
+                        <td>@item.fecha_control.Value.ToString("yyyy/MM/dd")</td>
+                        <td class="text-center"><a style="margin:1%" role="button" class="btn btn-xs button_Asalud_Guardar" href="@Url.Action("AgregarEntregable","SeguimientoEntregables", new {idSeguimientoEntregable = item.id_seg_entregables })"><i class="glyphicon glyphicon-pencil"></i>&nbsp; Editar entregable</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        var table = $('#tableroControl').DataTable({
+             orderCellsTop: true,
+            "lengthChange": false,
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Página_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+    })
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .pagination > .active > a {
+        background-color: #333333 !important;
+        border-color: white !important;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .notice {
+        margin: 0.2%;
+        padding: 10px;
+        border-left: 6px solid #7f7f84;
+        margin-bottom: 10px;
+        -webkit-box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+        -moz-box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+        box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+    }
+
+    .notice-sm {
+        padding: 10px;
+        font-size: 80%;
+    }
+
+    .notice-lg {
+        padding: 35px;
+        font-size: large;
+    }
+
+    .notice-success {
+        border-color: #80D651;
+    }
+
+        .notice-success > strong {
+            color: #80D651;
+        }
+
+    .notice-info {
+        border-color: #45ABCD;
+    }
+
+        .notice-info > strong {
+            color: #45ABCD;
+        }
+
+    .notice-warning {
+        border-color: #FEAF20;
+    }
+
+        .notice-warning > strong {
+            color: #FEAF20;
+        }
+
+    .notice-danger {
+        border-color: #d73814;
+    }
+
+        .notice-danger > strong {
+            color: #d73814;
+        }
+
+    .notice-danger-pro {
+        border-color: #5086c1;
+    }
+
+        .notice-danger-pro > strong {
+            color: #5086c1;
+        }
+
+    .alert-observaciones {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab !important;
+    }
+
+        .alert-observaciones > strong {
+            color: #8f7193 !important;
+        }
+
+    .alert-plazoAmpliado {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab;
+    }
+
+    .notice-gestionar > strong {
+        color: #b87400;
+    }
+
+    .alert-gestionar {
+        color: #7e4400;
+        background-color: #fed353;
+        border-color: #b87400;
+    }
+</style>

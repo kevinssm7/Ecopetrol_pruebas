@@ -1,0 +1,2775 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.cuentasmedicas
+@{
+    ViewBag.Title = "CUENTAS MEDICAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int countCups = ViewBag.cantidadCups;
+    int countGlosas = ViewBag.cantidadGlosas;
+
+}
+
+<br>
+
+@using (Html.BeginForm())
+{
+}
+
+
+<div class="container">
+
+    <div>
+        <form id="myform" name="myform" action="@Url.Action("IngresoCuentasMedicas")" method="post" enctype="multipart/form-data">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+
+                    <h3 class="panel-title">AUDITORIA FACTURA</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+
+                        @*<div class="col-sm-3">
+                                <label class="text-secondary_asalud">COBRO/PAGO:</label>
+                                @Html.TextBoxFor(m => m.cobro_pago, "{0:#.#}", new { @class = "form-control", type = "number" })
+
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">COBRO/CONCILIACION:</label>
+                                @Html.TextBoxFor(m => m.cobro_conciliacion, "{0:#.#}", new { @class = "form-control", type = "number" })
+                            </div>*@
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO LOTE:</label>
+                            @Html.TextBoxFor(m => m.numero_lote, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">DATOS USUARIO</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NOMBRES Y APELLIDOS DEL USUARIO:</label>
+                            @Html.TextBoxFor(m => m.nombres_apellidos_usuario, new { @class = "form-control", type = "text", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="tipo_id" class="text-secondary_asalud">TIPO ID:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.tipo_id)
+                                     .Name("tipo_id")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_tipo_documental")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect1"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeTipoID", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="tipo_id"></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO ID:</label>
+                            @Html.TextBoxFor(m => m.numero_id, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA NACIMIENTO:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaNacimiento" name="FechaNacimiento" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                            <span data-for='FechaNacimiento' class='k-invalid-msg'></span>
+                        </div>
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">EDAD N:</label>
+                            @Html.TextBoxFor(m => m.edadN, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">EDAD T:</label>
+                            @Html.TextBoxFor(m => m.edadT, new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">GRUPO ETARIO:</label>
+                            @Html.TextBoxFor(m => m.grupo_etario, new { @class = "form-control", type = "Text", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="sexo" class="text-secondary_asalud">SEXO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.sexo)
+                                     .Name("sexo")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_sexo")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect2"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeSexo", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="sexo"></span>
+                        </div>
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="estado_afilicacion" class="text-secondary_asalud">ESTADO AFILIACION:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.estado_afilicacion)
+                                     .Name("estado_afilicacion")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_estado")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect3"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeEstadoAfi", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="estado_afilicacion"></span>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="adscrpcion" class="text-secondary_asalud">SITIO ADSCRIPCIÓN:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.sitio_adscripcion)
+                                     .Name("adscrpcion")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("sitio_adscripcion")
+                                     .DataValueField("sitio_adscripcion")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect4"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadesitio_adscripcion", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="adscrpcion"></span>
+
+                        </div>
+
+
+                        @*@(Html.Kendo().AutoComplete()
+                            .Name("adscrpcion")
+                            .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                            .Placeholder("Seleccione...")
+                            .DataTextField("sitio_adscripcion")
+                            .Events(events => events.Select("CustomerSelect4"))
+                            .Filter(FilterType.Contains)
+
+                            .DataSource(source =>
+                             {
+                              source.Read(read =>
+                              {
+                               read.Action("GetCascadesitio_adscripcion", "CuentasMedicas");
+                              });
+
+                              })
+
+                            )
+                                @Html.HiddenFor(x => x.sitio_adscripcion)
+                                <span class="k-invalid-msg" data-for="adscrpcion"></span>
+                            </div>*@
+
+
+                        <div class="col-sm-3">
+
+                            <label for="tipo_afiliacion" class="text-secondary_asalud"> TIPO AFILIACION:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.tipo_afiliacion)
+                                         .Name("tipo_afiliacion")
+                                         .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_ref_ffmm_tipo_afiliacion")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect5"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadeTipoAfi", "CuentasMedicas");
+                                             });
+                                         })
+                        )
+                            <span class="k-invalid-msg" data-for="tipo_afiliacion"></span>
+
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FUERZA</label>
+                            <select class="form-control select2" style="width:100%" name="fuerza" id="fuerza" onchange="ObtenerGrado($(this).val())" required>
+                                <option value="0">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ffmm_fuerza itemm in ViewBag.fuerza)
+                                {
+                                    {
+                                        <option value="@itemm.id_ref_ffmm_fuerza"> @itemm.descripcion</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-2">
+                            <label for="grado" class="text-secondary_asalud">GRADO:</label>
+                            <select class="form-control select2" id="grado" name="grado" required>
+                                <option value="0">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">SERVICIO RED EXTERNA</h3>
+                </div>
+
+                <div class="panel-body">
+
+
+                    <div class="row form-group">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO AUTORIZACION:</label>
+                            @Html.TextBoxFor(m => m.numero_autorizacion, new { @class = "form-control", type = "text", @maxlength = "49", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA AUTORIZACION:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaAutorizacion" name="FechaAutorizacion" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                            <span data-for='FechaAutorizacion' class='k-invalid-msg'></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA INGRESO IPS:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaIngreso" name="FechaIngreso" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                            <span data-for='FechaIngreso' class='k-invalid-msg'></span>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA EGRESO IPS:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaEgreso" name="FechaEgreso" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                            <span data-for='FechaEgreso' class='k-invalid-msg'></span>
+
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">DIAS ESTANCIA IPS:</label>
+                            <input type="text" name="ipsDiasEstan" id="ipsDiasEstan" readonly class="form-control" />
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">DATOS FACTURA:</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA EMISION FACTURA:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaEmision" name="FechaEmision" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                            <span data-for='FechaEmision' class='k-invalid-msg'></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">PREFIJO FACTURA:</label>
+                            @Html.TextBoxFor(m => m.prefijo_factura, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO FACTURA:</label>
+                            @Html.TextBoxFor(m => m.numero_factura, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">VALOR FACTURA:</label>
+                            @Html.TextBoxFor(m => m.vlr_factura, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">VALOR NOTA CREDITO:</label>
+                            @Html.TextBoxFor(m => m.vlr_nota_credito, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">VALOR ATENCION:</label>
+                            @Html.TextBoxFor(m => m.vlr_atencion, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">MODALIDAD DE PAGO:</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NIT DV CONTRATANTE:</label>
+                            <input type="number" name="NitCont" id="NitCont" class="form-control" readonly />
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="modalidad" class="text-secondary_asalud"> MODALIDAD DE PAGO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.modalidad_pago)
+                                     .Name("modalidad")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_modalidad_pago")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect8"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeModalidadP", "CuentasMedicas");
+                                         });
+                                     })
+                                     .Events(e =>
+                                     {
+                                           e.Select("onSelect");
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="modalidad"></span>
+                        </div>
+
+
+
+                    </div>
+                    <div id="contrato" style="display:none">
+                        <div class="row form-group">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">NUMERO CONTRATO:</label>
+                                <input type="text" class="k-textbox" required name="NumCont" id="NumCont" validationmessage="Este Campo es Obligatorio *" />
+
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">VALOR CONTRATO:</label>
+                                <input type="number" class="k-textbox" required name="vlrCont" id="vlrCont" validationmessage="Este Campo es Obligatorio *" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">FECHA INICIO CONTRATO:</label>
+                                <input type="text" data-role='datepicker' autocomplete="off" required id="txtFechaInicioC" name="FechaInicioC" data-type="date" validationmessage="Este Campo es Obligatorio *" />
+                                <span data-for='FechaInicioC' class='k-invalid-msg'></span>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">DATOS HISTORIA CLINICA:</h3>
+                </div>
+                <div class="panel-body">
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="origen_servicio" class="text-secondary_asalud"> ORIGEN DEL SERVICIO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.origen_servicio)
+                                     .Name("origen_servicio")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_origen_servicio")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect9"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeOrigenServicio", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="origen_servicio"></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="servicio" class="text-secondary_asalud">SERVICIO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.servicio)
+                                     .Name("servicio")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_servicio")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect10"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeServicio", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="servicio"></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="Tservicio" class="text-secondary_asalud">TIPO SERVICIO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.tipo_servicio)
+                                     .Name("Tservicio")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_tipo_servicio")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect11"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeTServicio", "CuentasMedicas");
+                                         });
+                                     })
+                                     .Events(e =>
+                                     {
+                                           e.Select("onSelect2");
+                                     })
+
+                        )
+                            <span class="k-invalid-msg" data-for="Tservicio"></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="remitio" class="text-secondary_asalud">ESPECIALIDAD QUE REMITIO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.especialidad_remitio)
+                                         .Name("remitio")
+                                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_servicio_tratante")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect12"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadeEspremitio", "CuentasMedicas");
+                                             });
+                                         })
+                            )
+                            <span class="k-invalid-msg" data-for="remitio"></span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="remite" class="text-secondary_asalud">ESPECIALIDAD A LA QUE SE REMITE:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.especialidad_remite)
+                                         .Name("remite")
+                                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_servicio_tratante")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect13"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadeEspremite", "CuentasMedicas");
+                                             });
+                                         })
+                            )
+                            <span class="k-invalid-msg" data-for="remite"></span>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="altoc" class="text-secondary_asalud">GRUPO DE ALTO COSTO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.grupo_alto_costo)
+                                     .Name("altoc")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_alto_costo")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect14"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeAltocosto", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="altoc"></span>
+                        </div>
+                        <div class="col-sm-3" id="TipoImg" style="display:none">
+                            <label for="img" class="text-secondary_asalud">TIPO IMAGEN Y PROCEDIMIENTO DIAGNOSTICO:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.tipo_img_procedimiento_diag)
+                                     .Name("img")
+                                    .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_imagen_proc")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect15"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeimgdiag", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="img"></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="nivela" class="text-secondary_asalud">NIVEL ATENCIÒN:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.nivel_atencion)
+                                     .Name("nivela")
+                                     .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_nivel_atencion")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect16"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeNivAtencion", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="nivela"></span>
+                        </div>
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="nivelcom" class="text-secondary_asalud">NIVEL COMPLEJIDAD:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.nivel_complejidad)
+                                     .Name("nivelcom")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_nivel_complejidad")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect17"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeNivComplejidad", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="nivelcom"></span>
+                        </div>
+
+                        <div class="col-sm-3">
+
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="dx1" class="text-secondary_asalud">CODIGO CIE-10 PRINCIPAL INGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dx1")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect18"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10Principal", "Evolucion");
+                          });
+
+                        })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect3");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.cie10_principal)
+                            <span class="k-invalid-msg" data-for="dx1"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="dx1des" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 PRINCIPAL INGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dx1des")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect19"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                         .Events(e =>
+                        {
+                          e.Select("onSelect4");
+                        })
+                        )
+                            @Html.HiddenFor(x => x.descripcion_cie10_principal)
+                            <span class="k-invalid-msg" data-for="dx1des"></span>
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="dx2" class="text-secondary_asalud">CODIGO CIE-10 SECUNDARIO INGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dx2")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect20"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect5");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.cie10_secundario)
+                            <span class="k-invalid-msg" data-for="dx2"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="dx2des" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 SECUNDARIO INGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dx2des")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect21"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect6");
+                        })
+                        )
+                            @Html.HiddenFor(x => x.descripcion_cie10_secundario)
+                            <span class="k-invalid-msg" data-for="dx2des"></span>
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="dxEgre" class="text-secondary_asalud">CODIGO CIE-10 PRINCIPAL EGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dxEgre")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect22"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect7");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.cie10_principal_egreso)
+                            <span class="k-invalid-msg" data-for="dxEgre"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="dxEgredes" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 PRINCIPAL EGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dxEgredes")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect23"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect8");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.descripcion_cia10_principal_egreso)
+                            <span class="k-invalid-msg" data-for="dxEgredes"></span>
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="dxEgre2" class="text-secondary_asalud">CODIGO CIE-10 SECUNDARIO EGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dxEgre2")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect24"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect9");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.cie10_secundario_egreso)
+                            <span class="k-invalid-msg" data-for="dxEgre2"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="dxEgredes2" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 PRINCIPAL EGRESO:</label>
+                            @(Html.Kendo().AutoComplete()
+                        .Name("dxEgredes2")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect25"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect10");
+                        })
+
+                        )
+                            @Html.HiddenFor(x => x.descripcion_cie10_secundario_egrso)
+                            <span class="k-invalid-msg" data-for="dxEgredes2"></span>
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+
+
+                    </div>
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="idcups1" class="text-secondary_asalud">CODIGO CUPS:</label>
+                            @(Html.Kendo().AutoComplete()
+                          .Name("idcup1")
+                          .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                          .Placeholder("Seleccione...")
+                          .DataTextField("id_cups")
+                          .Events(events => events.Select("CustomerSelect26"))
+                          .Filter(FilterType.Contains)
+
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCups", "ProcedimientoQuirurgicoCancelados");
+                              });
+
+                          })
+                            .Events(e =>
+                            {
+                              e.Select("onSelect11");
+                            })
+                        )
+                            @Html.HiddenFor(x => x.codigo_cups)
+                            <span class="k-invalid-msg" data-for="idcups1"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="descups1" class="text-secondary_asalud">DESCRIPCION CODIGO CUPS:</label>
+                            @(Html.Kendo().AutoComplete()
+                          .Name("descup1")
+                          .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                          .Placeholder("Seleccione...")
+                          .DataTextField("des")
+                          .Events(events => events.Select("CustomerSelect27"))
+                          .Filter(FilterType.Contains)
+
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCups", "ProcedimientoQuirurgicoCancelados");
+                              });
+
+                          })
+                          .Events(e =>
+                            {
+                              e.Select("onSelect12");
+                            })
+                        )
+                            @Html.HiddenFor(x => x.descripcion_cups)
+                            <span class="k-invalid-msg" data-for="descup1"></span>
+                        </div>
+                        <br />
+                        <div class="col-sm-2" id="divMostrarCup">
+                            <button type="button" id="btnMostrarCups" onclick="mostrarCups()" class="button_Asalud_Aceptar"> + </button>
+                        </div>
+                        <div class="col-sm-2" id="divOcultarCup" style="display:none;">
+                            <button type="button" id="btnOcultarCups" onclick="ocultarCups()" class="button_Asalud_Aceptar"> - </button>
+                        </div>
+                        <input type="hidden" id="conteoCups" name="conteoCups" value="@countCups" />
+
+
+                    </div>
+                    <div class="form-group" id="divNuevoCup" style="display:none">
+                        <div class="row">
+
+                            <div class="col-sm-3">
+                                <label for="idcups2" class="text-secondary_asalud">NUEVO CODIGO CUPS:</label>
+                                @(Html.Kendo().AutoComplete()
+                                      .Name("idcup2")
+                                      .HtmlAttributes(new {style = "width:100%" })
+                                      .Placeholder("Seleccione...")
+                                      .DataTextField("id_cups")
+                                      .Events(events => events.Select("CustomerSelect34"))
+                                      .Filter(FilterType.Contains)
+
+                                      .DataSource(source =>
+                                      {
+                                          source.Read(read =>
+                                          {
+                                              read.Action("GetCups", "ProcedimientoQuirurgicoCancelados");
+                                          });
+
+                                      })
+                                       .Events(e =>
+                                       {
+                                           e.Select("onSelect16");
+                                       })
+
+                                    )
+                                @Html.HiddenFor(x => x.codigo_cups)
+                                <span class="k-invalid-msg" data-for="idcups2"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="descups2" class="text-secondary_asalud">NUEVA DESCRIPCIÓN CODIGO CUPS:</label>
+                                @(Html.Kendo().AutoComplete()
+                                      .Name("descup2")
+                                      .HtmlAttributes(new {style = "width:100%" })
+                                      .Placeholder("Seleccione...")
+                                      .DataTextField("des")
+                                      .Events(events => events.Select("CustomerSelect35"))
+                                      .Filter(FilterType.Contains)
+
+                                      .DataSource(source =>
+                                      {
+                                          source.Read(read =>
+                                          {
+                                              read.Action("GetCups", "ProcedimientoQuirurgicoCancelados");
+                                          });
+
+                                      })
+                                       .Events(e =>
+                                        {
+                                            e.Select("onSelect17");
+                                        })
+
+                                    )
+                                @Html.HiddenFor(x => x.descripcion_cups)
+                                <span class="k-invalid-msg" data-for="descups2"></span>
+                            </div>
+                            <br />
+                            <div class="col-sm-2" id="divMostrarCup">
+                                <button type="button" id="btnGuardarCups" onclick="GuardarCups()" class="button_Asalud_Guardar">Agregar</button>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="panelCups">
+                            <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblOtroCup">
+                                <thead>
+                                    <tr style="background-color:#636363;color:white; font-weight:bold">
+                                        <th>#</th>
+                                        <th>Codigo</th>
+                                        <th>Descripción</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (countCups > 0)
+                                    {
+                                        int count = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.ffmm_cuentas_medicas_cups item in ViewBag.listaOtroCup)
+                                        {
+                                            count = count + 1;
+                                            <tr>
+                                                <td>@count</td>
+                                                <td>@item.codigo_cups</td>
+                                                <td>@item.descripcion_cups</td>
+                                                <td class="text-center"><a title="Remover" href='javascript:removerCups(@count)'><i class='glyphicon glyphicon-trash'></i></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="10" style="text-align:center">No se han agregado Cups.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <br />
+                        <div class="clearfix divider"></div>
+                    </div>
+                    <br />
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label for="herido" class="text-secondary_asalud">HERIDO EN COMBATE:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.herido_en_combate)
+                                     .Name("herido")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_sino")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect28"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadesino", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                            <span class="k-invalid-msg" data-for="herido"></span>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA INGRESO HOSPITALIZACION:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaHospitaliz" name="FechaHospitaliz" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaHospitaliz' class='k-invalid-msg'></span>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA EGRESO HOSPITALIZACION:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaHospitalizEgre" name="FechaHospitalizEgre" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaHospitalizEgre' class='k-invalid-msg'></span>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">DIAS ESTANCIA HOSPITALIZACION:</label>
+                            <input type="number" name="diasInsHos" id="diasInsHos" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA INGRESO UCI:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaIngresoUCI" name="FechaIngresoUCI" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaIngresoUCI' class='k-invalid-msg'></span>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA EGRESO UCI:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaEgresoUCI" name="FechaEgresoUCI" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaEgresoUCI' class='k-invalid-msg'></span>
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">DIAS ESTANCIA UCI:</label>
+                            <input type="number" name="diasInsuci" id="diasInsuci" readonly class="form-control" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA INGRESO INTERMEDIOS:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaIngresoInt" name="FechaIngresoInt" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaIngresoInt' class='k-invalid-msg'></span>
+
+                        </div>
+
+
+
+
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">FECHA EGRESO INTERMEDIOS:</label>
+                            <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaEgresoInt" name="FechaEgresoInt" data-type="date" validationmessage="Este Campo es Obligatorio *" required />
+                            <span data-for='FechaEgresoInt' class='k-invalid-msg'></span>
+
+
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">DIAS ESTANCIA INTERMEDIOS:</label>
+                            <input type="number" name="diasEstInt" id="diasEstInt" class="form-control" readonly />
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">DATOS GLOSA:</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+
+                        <div class="col-sm-3">
+                            <label for="ident_glosa" class="text-secondary_asalud">IDENTIFICACION DE GLOSA:</label>
+                            @(Html.Kendo().DropDownListFor(m => m.identificacion_glosa)
+                                     .Name("ident_glosa")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_sino")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect31"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadesino", "CuentasMedicas");
+                                         });
+                                     })
+                                       .Events(e =>
+                                        {
+                                          e.Select("onSelect13");
+                                        })
+
+                        )
+                            <span class="k-invalid-msg" data-for="ident_glosa"></span>
+                        </div>
+
+
+
+                    </div>
+
+                    <div id="pnlGlosa" style="display:none">
+
+                        <div class="row">
+
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">FECHA GLOSA INICIAL:</label>
+                                <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaGlosaInicial" name="FechaGlosaInicial" data-type="date" validationmessage="Este Campo es Obligatorio *" />
+                                <span data-for='FechaGlosaInicial' class='k-invalid-msg'></span>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">FECHA NOTIFICACION GLOSA:</label>
+                                <input type="text" data-role='datepicker' autocomplete="off" id="txtFechaNotificaGlosa" name="FechaNotificaGlosa" data-type="date" validationmessage="Este Campo es Obligatorio *" />
+                                <span data-for='FechaNotificaGlosa' class='k-invalid-msg'></span>
+
+                            </div>
+
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">CODIGO GLOSA INICIAL:</label>
+                                @(Html.Kendo().AutoComplete()
+                            .Name("id_glosa")
+                            .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                            .Placeholder("Seleccione...")
+                            .DataTextField("id_glosa")
+                            .Events(events => events.Select("CustomerSelect29"))
+                            .Filter(FilterType.Contains)
+
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetCascadeGlosas", "CuentasMedicas");
+                                });
+
+                            })
+                             .Events(e =>
+                                           {
+                                             e.Select("onSelect14");
+                                           })
+
+                            )
+                                @Html.HiddenFor(x => x.codigo_glosa_inicial)
+
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="text-secondary_asalud">DESCRIPCION CODIGO GLOSA INICIAL:</label>
+                                @(Html.Kendo().AutoComplete()
+                           .Name("motivoG")
+                           .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                           .Placeholder("Seleccione...")
+                           .DataTextField("motivo")
+                           .Events(events => events.Select("CustomerSelect30"))
+                           .Filter(FilterType.Contains)
+
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeGlosas", "CuentasMedicas");
+                               });
+
+                           })
+                            .Events(e =>
+                             {
+                              e.Select("onSelect15");
+                             })
+
+                            )
+                                @Html.HiddenFor(x => x.descripcion_glosa_inicial)
+
+                            </div>
+
+
+                        </div>
+
+                        <br />
+
+                        <div id="pnlOtraGlosa" style="display:none">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label class="text-secondary_asalud">CODIGO OTRA GLOSA INICIAL:</label>
+                                    @(Html.Kendo().AutoComplete()
+                            .Name("id_glosaOtra")
+                            .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                            .Placeholder("Seleccione...")
+                            .DataTextField("id_glosa")
+                            .Events(events => events.Select("CustomerSelect29"))
+                            .Filter(FilterType.Contains)
+
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetCascadeGlosas", "CuentasMedicas");
+                                });
+
+                            })
+                             .Events(e =>
+                                           {
+                                             e.Select("onSelect18");
+                                           })
+
+                            )
+                                    @Html.HiddenFor(x => x.codigo_glosa_inicial)
+
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="text-secondary_asalud">DESCRIPCION OTRO CODIGO GLOSA INICIAL:</label>
+                                    @(Html.Kendo().AutoComplete()
+                           .Name("motivoGOtra")
+                           .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                           .Placeholder("Seleccione...")
+                           .DataTextField("motivo")
+                           .Events(events => events.Select("CustomerSelect30"))
+                           .Filter(FilterType.Contains)
+
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeGlosas", "CuentasMedicas");
+                               });
+
+                           })
+                            .Events(e =>
+                             {
+                              e.Select("onSelect19");
+                             })
+
+                            )
+                                    @Html.HiddenFor(x => x.descripcion_glosa_inicial)
+
+                                </div>
+
+
+                                <br />
+                                <div class="col-sm-2" id="divMostrarCup">
+                                    <button type="button" id="btnGuardarCups" onclick="GuardarGlosas()" class="button_Asalud_Guardar">Agregar</button>
+                                </div>
+                                <br />
+                            </div>
+                            <br />
+
+                            <div id="panelGlosas">
+                                <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblOtraGlosa">
+                                    <thead>
+                                        <tr style="background-color:#636363;color:white; font-weight:bold">
+                                            <th>#</th>
+                                            <th>Codigo glosa</th>
+                                            <th>Descrípción glosa</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (countCups > 0)
+                                        {
+                                            int count = 0;
+                                            foreach (ECOPETROL_COMMON.ENTIDADES.ffmm_cuentas_medicas_glosas item in ViewBag.listaOtroCup)
+                                            {
+                                                count = count + 1;
+                                                <tr>
+                                                    <td>@count</td>
+                                                    <td>@item.codigo_glosa_inicial</td>
+                                                    <td>@item.descripcion_glosa_inicial</td>
+                                                    <td class="text-center"><a title="Remover" href='javascript:removerGlosa(@count)'><i class='glyphicon glyphicon-trash'></i></a></td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="10" style="text-align:center">No se han agregado Glosas.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-10">
+                                <label class="text-secondary_asalud">DESCRIPCION GLOSA POR PARTE DEL AUDITOR:</label>
+                                @Html.TextAreaFor(m => m.descrpcion_glosa_auditor, new { @class = "form-control", type = "Text", validationmessage = "Este Campo es Obligatorio *", maxlength = 300 })
+                            </div>
+                            <br />
+                            <div class="col-sm-2" id="divMostrarGlosas">
+                                <button type="button" id="btnMostrarGlosas" onclick="mostrarGlosas()" class="button_Asalud_Aceptar"> + </button>
+                            </div>
+                            <div class="col-sm-2" id="divOcultarGlosas" style="display:none;">
+                                <button type="button" id="btnOcultarGlosas" onclick="ocultarGlosas()" class="button_Asalud_Aceptar"> - </button>
+                            </div>
+                            <input type="hidden" id="conteoGlosas" name="conteoGlosas" value="@countGlosas" />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">VL GLOSA INICIAL:</label>
+                            <input type="number" class="k-textbox" name="vlrglosainicial" id="vlrglosainicial" required="required" validationmessage="Este Campo es Obligatorio *" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+
+
+
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">RESULTADO AUDITORIA:</h3>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">VL A PAGAR PRIMERA AUDITORIA:</label>
+                            <input type="number" class="k-textbox" name="vlrPrimeraAud" id="vlrPrimeraAud" required="required" readonly validationmessage="Este Campo es Obligatorio *" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">TIPO AUDITOR:</label>
+
+                            <select id="tipoAuditor" name="Auditor" class="form-control select2" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_auditor item in ViewBag.auditor)
+                                {
+                                    <option value="@item.descripcion">@item.descripcion</option>
+                                }
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pnlGuardar" class="General">
+                <table align="left">
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="visibility:hidden">
+
+                            @Html.TextBoxFor(u => u.id_ref_ffmm_radicacion_Cuentas)
+                            @Html.TextBoxFor(u => u.fecha_presentacion_factura)
+                            @Html.TextBoxFor(u => u.proveedor)
+                            @Html.TextBoxFor(u => u.prefijo_factura)
+                            @Html.TextBoxFor(u => u.numero_factura)
+                            @Html.TextBoxFor(u => u.vlr_factura)
+                            @Html.TextBoxFor(u => u.vlr_nota_credito)
+                            @Html.TextBoxFor(u => u.vlr_atencion)
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@*<script src="~/Scripts/validate.js"></script>*@
+<script>
+
+
+    $(".datepickerr").kendoDatePicker({
+        format: "MM/dd/yyyy"
+    });
+
+    $(".k-input").attr('readonly', true);
+
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("form[name='myform']").validate({
+            lang: 'Es',
+            rules: {
+
+                FechaFactura: "required",
+
+
+            },
+
+            submitHandler: function (form) {
+                LoadingShow();
+                form.submit();
+            }
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $('.date').datepicker({
+            autoclose: true,
+            format: 'mm/dd/yyyy',
+            orientation: "bottom",
+            todayBtn: "linked",
+            todayHighlight: false,
+        });
+
+        var container = $("#myform");
+        kendo.init(container);
+        container.kendoValidator({
+            rules: {
+                greaterdate: function (input) {
+                    if (input.is("[data-greaterdate-msg]") && input.val() != "") {
+                        var date = kendo.parseDate(input.val()),
+                            otherDate = kendo.parseDate($("[name='" + input.data("greaterdateField") + "']").val());
+                        return otherDate == null || otherDate.getTime() < date.getTime();
+                    }
+
+                    return true;
+                }
+            }
+        });
+
+
+
+
+        $("#txtFechaNacimiento").change(function () {
+
+            var fecha = new Date(document.getElementById("txtFechaNacimiento").value);
+
+            var age = calcularEdad(fecha);
+            $("#edadN").val(age);
+            $("#edadT").val(age);
+            var etareo = calcularGrupoEtareo(age);
+            $("#grupo_etario").val(etareo);
+
+
+        })
+
+        $("#txtFechaIngreso").change(function () {
+
+            var textBox1 = $('input:text[id$=fecha_presentacion_factura]').keyup();
+            var fechaFac = textBox1.val();
+
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var fecha_emision = new Date(document.getElementById("txtFechaEmision").value);
+            var FechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+
+            if ((fechaIngreso != "" && fechaIngreso != null) && (FechaEgreso != "" && FechaEgreso != null)) {
+                if (fechaIngreso < fechaFac) {
+                    alert('FECHA INGRESO NO PUEDE SER MENOR A LA FECHA DE PRESENTACION DE LA FACTURA...');
+                    $("#txtFechaIngreso").val('')
+                    return false
+
+                }
+                if (fechaIngreso < fecha_emision) {
+                    alert('FECHA INGRESO NO PUEDE SER MENOR A LA FECHA DE EMISION FACTURA...');
+                    $("#txtFechaIngreso").val('');
+                    return false
+                }
+
+                var dias = restaFechas(fechaIngreso, FechaEgreso);
+
+                $("#ipsDiasEstan").val(dias);
+            }
+        })
+
+        $("#txtFechaEgreso").change(function () {
+
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+
+            if (txtFechaEgreso != null && txtFechaEgreso != "") {
+
+                if (fechaIngreso == null || fechaIngreso == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO PRIMERAMENTE.');
+                    $("#txtFechaEgreso").val('');
+                    return false
+                }
+
+                if (txtFechaEgreso < fechaIngreso) {
+                    alert('FECHA EGRESO NO PUEDE SER MENOR A LA FECHA DE INGRESO IPS...');
+                    $("#txtFechaEgreso").val('');
+                    return false
+                }
+
+                var dias = restaFechas(fechaIngreso, txtFechaEgreso);
+
+                $("#ipsDiasEstan").val(dias);
+            }
+        })
+
+
+        $("#txtFechaEmision").change(function () {
+
+            var textBox1 = $('input:text[id$=fecha_presentacion_factura]').keyup();
+            var fechaFac = textBox1.val();
+
+            var fecha_emision = new Date($("#txtFechaEmision").val());
+            var txtFechaEgreso = new Date($("#txtFechaEgreso").val());
+
+            if (fecha_emision != null && fecha_emision != "") {
+
+                if (txtFechaEgreso == null || txtFechaEgreso == "") {
+                    alert('GESTIONE LA FECHA DE EGRESO PRIMERAMENTE.');
+                    $("#txtFechaEmision").val('');
+                    return false
+
+                }
+
+                if (fecha_emision < fechaFac) {
+
+                    alert('FECHA EMISIÓN NO PUEDE SER MENOR A LA FECHA PRESENTACION DE LA FACTURA...');
+                    $("#txtFechaEmision").val('');
+                    return false
+
+                }
+
+                if (fecha_emision < txtFechaEgreso) {
+                    alert('FECHA EMISIÓN NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                    $("#txtFechaEmision").val('');
+                    return false
+
+                }
+            }
+
+
+        })
+        $("#txtFechaHospitaliz").change(function () {
+
+            var fechaHosp = new Date(document.getElementById("txtFechaHospitaliz").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+            var txtFechaEgresoH = new Date(document.getElementById("txtFechaHospitalizEgre").value);
+
+            if (fechaHosp != "" && fechaHosp != null) {
+
+                if (fechaIngreso == null || fechaIngreso == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO PRIMERAMENTE.');
+                    $("#txtFechaHospitaliz").val('');
+                    return false
+                }
+
+                if (txtFechaEgreso == null || txtFechaEgreso == "") {
+                    alert('GESTIONE LA FECHA DE EGRESO PRIMERAMENTE.');
+                    $("#txtFechaHospitaliz").val('');
+                    return false
+                }
+
+                if (fechaHosp < fechaIngreso) {
+                    alert('FECHA HOSPITALIZACIÓN NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaHospitaliz").val('');
+                    return false
+
+                }
+
+                //if (fechaHosp < txtFechaEgreso) {
+                //    alert('FECHA HOSPITALIZACIÓN NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                //    $("#txtFechaHospitaliz").val('');
+                //    return false
+
+                //}
+
+                if (txtFechaEgresoH != null && txtFechaEgresoH != "") {
+
+                    var dias = restaFechas(fechaHosp, txtFechaEgresoH);
+
+                    $("#diasInsHos").val(dias);
+
+                }
+            }
+        })
+
+        $("#txtFechaHospitalizEgre").change(function () {
+
+            var fechaHosp = new Date(document.getElementById("txtFechaHospitaliz").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+            var txtFechaEgresoH = new Date(document.getElementById("txtFechaHospitalizEgre").value);
+
+            if (txtFechaEgresoH != "" && txtFechaEgresoH != null) {
+
+
+
+                if (fechaHosp == null || fechaHosp == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO HOSPITALIZACIÓN PRIMERAMENTE.');
+                    $("#txtFechaHospitalizEgre").val('');
+                    return false
+                }
+
+
+                if (txtFechaEgresoH < fechaIngreso) {
+                    alert('FECHA EGRESO HOSPITALIZACIÓN NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaHospitalizEgre").val('');
+                    return false
+
+                }
+
+                if (txtFechaEgresoH < txtFechaEgreso) {
+                    alert('FECHA EGRESO HOSPITALIZACIÓN NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                    $("#txtFechaHospitalizEgre").val('');
+                    return false
+
+                }
+
+                if (txtFechaEgresoH < fechaHosp) {
+                    alert('FECHA EGRESO HOSPITALIZACIÓN NO PUEDE SER MENOR A LA FECHA DE INGRESO HOSPITALIZACION...');
+                    $("#txtFechaHospitalizEgre").val('');
+                    return false
+
+                }
+
+                if (fechaHosp != null && fechaHosp != "") {
+                    var dias = restaFechas(fechaHosp, txtFechaEgresoH);
+                    $("#diasInsHos").val(dias);
+                }
+            }
+        })
+
+
+        $("#txtFechaIngresoUCI").change(function () {
+
+            var fechaIngUCI = new Date(document.getElementById("txtFechaIngresoUCI").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgresoUCI = new Date(document.getElementById("txtFechaEgresoUCI").value);
+
+            if (fechaIngUCI != null && fechaIngUCI != "") {
+
+                if (fechaIngreso == null || fechaIngreso == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO PRIMERAMENTE.');
+                    $("#txtFechaIngresoUCI").val('');
+                    return false
+                }
+
+                if (fechaIngUCI < fechaIngreso) {
+                    alert('FECHA INGRESO UCI NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaIngresoUCI").val('');
+                    return false
+                }
+
+                if (txtFechaEgresoUCI != null && txtFechaEgresoUCI != "") {
+                    var dias = restaFechas(fechaIngUCI, txtFechaEgresoUCI);
+                    $("#diasInsuci").val(dias);
+                }
+            }
+        })
+
+        $("#txtFechaEgresoUCI").change(function () {
+
+            var fechaIngUCI = new Date(document.getElementById("txtFechaIngresoUCI").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+            var txtFechaEgresoUCI = new Date(document.getElementById("txtFechaEgresoUCI").value);
+
+
+            if (txtFechaEgresoUCI != null && txtFechaEgresoUCI != "") {
+                if (fechaIngUCI == null || fechaIngUCI == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO UCI PRIMERAMENTE.');
+                    $("#txtFechaEgresoUCI").val('');
+                    return false
+                }
+
+                if (txtFechaEgresoUCI < fechaIngreso) {
+                    alert('FECHA EGRESO UCI NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaEgresoUCI").val('');
+                    return false
+                }
+
+                //if (txtFechaEgresoUCI < txtFechaEgreso) {
+                //    alert('FECHA EGRESO UCI NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                //    $("#txtFechaEgresoUCI").val('');
+                //    return false
+
+                //}
+
+                if (txtFechaEgresoUCI < fechaIngUCI) {
+                    alert('FECHA EGRESO UCI NO PUEDE SER MENOR A LA FECHA DE INGRESO UCI IPS...');
+                    $("#txtFechaEgresoUCI").val('');
+                    return false
+
+                }
+
+                if (fechaIngUCI != null && fechaIngUCI != "") {
+                    var dias = restaFechas(fechaIngUCI, txtFechaEgresoUCI);
+                    $("#diasInsuci").val(dias);
+                }
+
+            }
+        })
+
+
+
+        $("#txtFechaIngresoInt").change(function () {
+
+            var fechaIngInt = new Date(document.getElementById("txtFechaIngresoInt").value);
+            var fechaIngEgre = new Date(document.getElementById("txtFechaEgresoInt").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+
+            if (fechaIngInt != "" && fechaIngInt != null) {
+
+                if (fechaIngreso == null || fechaIngreso == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO PRIMERAMENTE.');
+                    $("#txtFechaIngresoInt").val('');
+                    return false
+                }
+
+                if (fechaIngInt < fechaIngreso) {
+                    alert('FECHA INGRESO INTERMEDIOS NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaIngresoInt").val('');
+                    return false
+
+                }
+
+                //if (fechaIngInt < txtFechaEgreso) {
+                //    alert('FECHA INGRESO INTERMEDIOS NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                //    $("#txtFechaIngresoInt").val('');
+                //    return false
+
+                //}
+
+                if (fechaIngEgre != null && fechaIngEgre != "") {
+                    var dias = restaFechas(fechaIngInt, txtFechaEgresoInt);
+                    $("#diasEstInt").val(dias);
+                    return false
+
+                }
+            }
+        })
+
+        $("#txtFechaEgresoInt").change(function () {
+
+            var fechaIngInt = new Date(document.getElementById("txtFechaIngresoInt").value);
+            var fechaIngreso = new Date(document.getElementById("txtFechaIngreso").value);
+            var txtFechaEgreso = new Date(document.getElementById("txtFechaEgreso").value);
+            var txtFechaEgresoInt = new Date(document.getElementById("txtFechaEgresoInt").value);
+
+            if (txtFechaEgresoInt != null && txtFechaEgresoInt != "") {
+
+                if (fechaIngreso == null || fechaIngreso == "") {
+                    alert('GESTIONE LA FECHA DE INGRESO PRIMERAMENTE.');
+                    $("#txtFechaIngresoInt").val('');
+                    return false
+                }
+
+
+                if (txtFechaEgresoInt < fechaIngreso) {
+                    alert('FECHA EGRESO INTERMEDIOS NO PUEDE SER MENOR A LA FECHA INGRESO IPS...');
+                    $("#txtFechaEgresoInt").val('');
+                    return false
+
+                }
+
+                if (txtFechaEgresoInt < txtFechaEgreso) {
+                    alert('FECHA EGRESO INTERMEDIOS NO PUEDE SER MENOR A LA FECHA DE EGRESO IPS...');
+                    $("#txtFechaEgresoInt").val('');
+                    return false
+
+                }
+
+                if (txtFechaEgresoInt < fechaIngInt) {
+                    alert('FECHA EGRESO INTERMEDIOS NO PUEDE SER MENOR A LA FECHA DE INGRESO INTERMEDIOS ...');
+                    $("#txtFechaEgresoInt").val('');
+                    return false
+
+                }
+
+                if (fechaIngreso != null || fechaIngreso != "") {
+                    var dias = restaFechas(fechaIngInt, txtFechaEgresoInt);
+                    $("#diasEstInt").val(dias);
+                    return false
+
+                }
+
+            }
+        })
+
+        $("#vlrglosainicial").change(function () {
+
+            var valor = parseInt(document.getElementById("vlrglosainicial").value);
+            var textBox1 = $('input:text[id$=vlr_atencion]').keyup();
+            var valor2 = parseInt(textBox1.val());
+
+            if (valor2 < valor) {
+                alert('VALOR NO PUEDE SER MAYOR AL VALOR DE LA ATENCION....' + ' ' + '$' + valor2);
+                $("#vlrglosainicial").val('');
+                $("#vlrPrimeraAud").val('');
+            } else {
+
+                var total = valor2 - valor
+
+                $("#vlrPrimeraAud").val(total);
+            }
+
+
+
+        })
+
+        var Numero = 830039670 - 5
+
+        $("#NitCont").val(Numero);
+
+
+
+    })
+
+    $(function () {
+
+        var validator = $("#myform").kendoValidator().data("kendoValidator");
+        var status = $(".status");
+        var Alerta = 0;
+        var mensaje = "";
+        $("form").submit(function (event) {
+            event.preventDefault();
+            if (validator.validate()) {
+                SaveAuditoria();
+            } else {
+                status.text("Oops! There is invalid data in the form.")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            }
+        });
+    });
+
+    function SaveAuditoria() {
+        var formData = new FormData($("form")[0]);
+
+        formData.append("cobro_pago", $("#cobro_pago").val());
+        formData.append("cobro_conciliacion", $("#cobro_conciliacion").val());
+        formData.append("numero_lote", $("#numero_lote").val());
+        formData.append("nombres_apellidos_usuario", $("#nombres_apellidos_usuario").val());
+        formData.append("tipo_id", $("#tipo_id").val());
+        formData.append("numero_id", $("#numero_id").val());
+        formData.append("fecha_nacimiento", $("#txtFechaNacimiento").val());
+        formData.append("edadN", $("#edadN").val());
+        formData.append("edadT", $("#edadT").val());
+        formData.append("grupo_etario", $("#grupo_etario").val());
+        formData.append("sexo", $("#sexo").val());
+        formData.append("estado_afilicacion", $("#estado_afilicacion").val());
+        formData.append("sitio_adscripcion", $("#adscrpcion").val());
+        formData.append("tipo_afiliacion", $("#tipo_afiliacion").val());
+        formData.append("grado", $("#grado").val());
+        formData.append("fuerza", $("#fuerza").val());
+        formData.append("numero_autorizacion", $("#numero_autorizacion").val());
+        formData.append("fecha_autorizacion", $("#txtFechaAutorizacion").val());
+        formData.append("fecha_ingreso_ips", $("#txtFechaIngreso").val());
+        formData.append("fecha_egreso_ips", $("#txtFechaEgreso").val());
+        formData.append("dias_estancia_ips", $("#ipsDiasEstan").val());
+        formData.append("fecha_emision_factura", $("#txtFechaEmision").val());
+        formData.append("nit_contratante", $("#NitCont").val());
+        formData.append("modalidad_pago", $("#modalidad").val());
+        formData.append("numero_contrato", $("#NumCont").val());
+        formData.append("vlr_contrato", $("#vlrCont").val());
+        formData.append("fecha_inicio_contrato", $("#txtFechaInicioC").val());
+        formData.append("origen_servicio", $("#origen_servicio").val());
+        formData.append("servicio", $("#servicio").val());
+        formData.append("tipo_servicio", $("#Tservicio").val());
+        formData.append("especialidad_remitio", $("#remitio").val());
+        formData.append("especialidad_remite", $("#remite").val());
+        formData.append("grupo_alto_costo", $("#altoc").val());
+        formData.append("tipo_img_procedimiento_diag", $("#img").val());
+        formData.append("nivel_atencion", $("#nivela").val());
+        formData.append("nivel_complejidad", $("#nivelcom").val());
+        formData.append("cie10_principal", $("#dx1").val());
+        formData.append("descripcion_cie10_principal", $("#dx1des").val());
+        formData.append("cie10_secundario", $("#dx2").val());
+        formData.append("descripcion_cie10_secundario", $("#dx2des").val());
+        formData.append("cie10_principal_egreso", $("#dxEgre").val());
+        formData.append("descripcion_cia10_principal_egreso", $("#dxEgredes").val());
+        formData.append("cie10_secundario_egreso", $("#dxEgre2").val());
+        formData.append("descripcion_cie10_secundario_egrso", $("#dxEgredes2").val());
+        formData.append("codigo_cups", $("#idcup1").val());
+        formData.append("descripcion_cups", $("#descup1").val());
+        formData.append("herido_en_combate", $("#herido").val());
+        formData.append("fecha_ingreso_hospitalizacion", $("#txtFechaHospitaliz").val());
+        formData.append("fecha_egreso_hospitalizacion", $("#txtFechaHospitalizEgre").val());
+        formData.append("dias_estancia_hospitalizacion", $("#diasInsHos").val());
+        formData.append("fecha_ingreso_uci", $("#txtFechaIngresoUCI").val());
+        formData.append("fecha_egreso_uci", $("#txtFechaEgresoUCI").val());
+        formData.append("dias_estancias_uci", $("#diasInsuci").val());
+        formData.append("fecha_ingreso_intermedios", $("#txtFechaIngresoInt").val());
+        formData.append("fecha_egreso_intermedios", $("#txtFechaEgresoInt").val());
+        formData.append("dias_instancia_intermedios", $("#diasEstInt").val());
+        formData.append("identificacion_glosa", $("#ident_glosa").val());
+        formData.append("fecha_glosa_inicial", $("#txtFechaGlosaInicial").val());
+        formData.append("fecha_notificacion_glosa", $("#txtFechaNotificaGlosa").val());
+        formData.append("vlr_glosa_inicial", $("#vlrglosainicial").val());
+        formData.append("codigo_glosa_inicial", $("#id_glosa").val());
+        formData.append("descripcion_glosa_inicial", $("#motivoG").val());
+        formData.append("descrpcion_glosa_auditor", $("#descrpcion_glosa_auditor").val());
+        formData.append("vlr_pagar_primer_auditoria", $("#vlrPrimeraAud").val());
+        formData.append("id_ref_ffmm_radicacion_Cuentas", $("#id_ref_ffmm_radicacion_Cuentas").val());
+        formData.append("tipoAuditor", $("#tipoAuditor").val());
+
+
+
+
+        LoadingShow();
+        $.ajax({
+            url: "/CuentasMedicas/SaveAuditoria",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    LoadingHide();
+                    alert(response.message);
+                    window.location = "/CuentasMedicas/CuentasAuditoria"
+
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+
+            }
+        })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                LoadingHide();
+            });
+
+    }
+
+    function mostrarCups() {
+        $("#divNuevoCup").removeAttr("Style");
+        $("#divNuevoCup").css('display', 'block');
+
+        $("#divMostrarCup").css('display', 'none');
+        $("#divOcultarCup").removeAttr("Style");
+        $("#divOcultarCup").css('display', 'block');
+
+    }
+    function ocultarCups() {
+        $("#divNuevoCup").css('display', 'none');
+        $("#divMostrarCup").removeAttr("Style");
+        $("#divMostrarCup").css('display', 'block');
+        $("#divOcultarCup").css('display', 'none');
+    }
+
+
+    function mostrarGlosas() {
+        $("#pnlOtraGlosa").removeAttr("Style");
+        $("#pnlOtraGlosa").css('display', 'block');
+
+        $("#divMostrarGlosas").css('display', 'none');
+        $("#divOcultarGlosas").removeAttr("Style");
+        $("#divOcultarGlosas").css('display', 'block');
+    }
+    function ocultarGlosas() {
+        $("#pnlOtraGlosa").css('display', 'none');
+        $("#divMostrarGlosas").removeAttr("Style");
+        $("#divMostrarGlosas").css('display', 'block');
+        $("#divOcultarGlosas").css('display', 'none');
+    }
+
+    function calcularEdad(fecha) {
+        var hoy = new Date();
+        var cumpleanos = new Date(fecha);
+        var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+        var m = hoy.getMonth() - cumpleanos.getMonth();
+
+        if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+            edad--;
+        }
+
+        return edad;
+    }
+
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#tipo_id").val(DataItem.id_ref_tipo_documental);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#sexo").val(DataItem.id_ref_ffmm_sexo);
+    }
+
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#estado_afilicacion").val(DataItem.id_ref_ffmm_estado);
+    }
+
+
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#adscrpcion").val(DataItem.sitio_adscripcion);
+
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#tipo_afiliacion").val(DataItem.id_ref_ffmm_tipo_afiliacion);
+    }
+
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#grado").val(DataItem.grado);
+    }
+
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#fuerza").val(DataItem.id_ref_ffmm_fuerza);
+    }
+
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#modalidad").val(DataItem.id_ref_modalidad_pago);
+    }
+
+    function CustomerSelect9(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#origen_servicio").val(DataItem.id_ref_ffmm_origen_servicio);
+    }
+
+    function CustomerSelect10(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#servicio").val(DataItem.id_ref_ffmm_servicio);
+    }
+
+
+    function CustomerSelect11(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#Tservicio").val(DataItem.id_ref_ffmm_tipo_servicio);
+    }
+
+    function CustomerSelect12(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#remitio").val(DataItem.id_servicio_tratante);
+    }
+
+    function CustomerSelect13(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#remite").val(DataItem.id_servicio_tratante);
+    }
+
+    function CustomerSelect14(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#altoc").val(DataItem.id_ref_ffmm_alto_costo);
+    }
+
+    function CustomerSelect15(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#img").val(DataItem.id_ref_ffmm_imagen_proc);
+    }
+
+    function CustomerSelect16(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#nivela").val(DataItem.id_ref_ffmm_nivel_atencion);
+    }
+
+    function CustomerSelect17(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#nivelcom").val(DataItem.id_ref_ffmm_nivel_complejidad);
+    }
+
+
+    function CustomerSelect18(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx1").val(DataItem.id_cie10);
+
+    }
+
+    function CustomerSelect19(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx1des").val(DataItem.des);
+
+    }
+
+    function CustomerSelect20(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx2").val(DataItem.id_cie10);
+
+    }
+
+    function CustomerSelect21(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx2des").val(DataItem.des);
+
+    }
+
+
+    function CustomerSelect22(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dxEgre").val(DataItem.id_cie10);
+
+    }
+    function CustomerSelect23(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dxEgredes").val(DataItem.des);
+
+    }
+    function CustomerSelect24(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dxEgre2").val(DataItem.id_cie10);
+
+    }
+    function CustomerSelect25(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dxEgredes2").val(DataItem.des);
+
+    }
+
+
+    function CustomerSelect26(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#idcups1").val(DataItem.id_cups);
+
+    }
+
+    function CustomerSelect27(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#descups1").val(DataItem.des);
+
+    }
+    function CustomerSelect28(e) {
+
+        var opcion = e.item[0].innerHTML;
+
+        if (opcion == "SI") {
+
+            $('#txtFechaHospitaliz').prop("required", true);
+            $("#txtFechaHospitalizEgre").prop("required", true);
+            $("#txtFechaIngresoUCI").prop("required", true);
+            $("#txtFechaEgresoUCI").prop("required", true);
+            $("#txtFechaIngresoInt").prop("required", true);
+            $("#txtFechaEgresoInt").prop("required", true);
+
+        } else {
+
+            $('#txtFechaHospitaliz').prop("required", false);
+            $("#txtFechaHospitalizEgre").prop("required", false);
+            $("#txtFechaIngresoUCI").prop("required", false);
+            $("#txtFechaEgresoUCI").prop("required", false);
+            $("#txtFechaIngresoInt").prop("required", false);
+            $("#txtFechaEgresoInt").prop("required", false);
+        }
+
+        var DataItem = this.dataItem(e.item.index());
+        $("#herido").val(DataItem.descripcion);
+
+    }
+
+    function CustomerSelect29(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_glosa").val(DataItem.id_glosa);
+
+    }
+
+    function CustomerSelect30(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#motivoG").val(DataItem.motivo);
+
+    }
+
+
+    function CustomerSelect31(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ident_glosa").val(DataItem.descripcion);
+
+    }
+
+
+
+
+
+    function calcularGrupoEtareo(age) {
+
+        var gEtareoCalculado = "";
+
+        if (age >= 60) {
+            gEtareoCalculado = "VEJEZ";
+        } else if (age >= 29) {
+            gEtareoCalculado = "ADULTEZ";
+        } else if (age >= 18) {
+            gEtareoCalculado = "JUVENTUD";
+        } else if (age >= 12) {
+            gEtareoCalculado = "ADOLESCENCIA";
+        } else if (age >= 6) {
+            gEtareoCalculado = "INFANCIA";
+        } else {
+            gEtareoCalculado = "PRIMERA INFANCIA";
+        }
+        return gEtareoCalculado;
+    }
+
+
+
+    function restaFechas(f1, f2) {
+        var fecha1 = new Date(f1);
+        var fecha2 = new Date(f2);
+        var diasDif = fecha2.getTime() - fecha1.getTime();
+        var dias = Math.round(diasDif / (1000 * 60 * 60 * 24));
+
+        return dias;
+    }
+
+
+
+    function onSelect(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            if (dataItem.id_ref_modalidad_pago == 1) {
+                document.getElementById('contrato').style.display = 'block';
+                document.querySelector('#NumCont').required = true;
+                document.querySelector('#vlrCont').required = true;
+                document.querySelector('#txtFechaInicioC').required = true;
+            }
+            else {
+                document.getElementById('contrato').style.display = 'none';
+                document.querySelector('#NumCont').required = false;
+                document.querySelector('#vlrCont').required = false;
+                document.querySelector('#txtFechaInicioC').required = false;
+            }
+        }
+
+    }
+
+    function onSelect2(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            if (dataItem.id_ref_ffmm_tipo_servicio == 6) {
+
+                document.getElementById('TipoImg').style.display = 'block';
+
+            }
+            else {
+                document.getElementById('TipoImg').style.display = 'none';
+
+
+            }
+        }
+
+    }
+
+    function onSelect3(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx1des").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect4(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx1").val(dataItem.id_cie10);
+
+        }
+
+    }
+
+    function onSelect5(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx2des").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect6(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx2").val(dataItem.id_cie10);
+
+        }
+
+    }
+
+    function onSelect7(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dxEgredes").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect8(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dxEgre").val(dataItem.id_cie10);
+
+        }
+
+    }
+
+    function onSelect9(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dxEgredes2").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect10(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dxEgre2").val(dataItem.id_cie10);
+
+        }
+
+    }
+
+    function onSelect11(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#descup1").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect12(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#idcup1").val(dataItem.id_cups);
+
+        }
+
+    }
+
+
+
+    function onSelect13(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            if (dataItem.id_ref_ffmm_sino == 1) {
+
+                document.getElementById('pnlGlosa').style.display = 'block';
+                document.getElementById("txtFechaGlosaInicial").attributes["required"] = true;
+                document.getElementById("txtFechaNotificaGlosa").attributes["required"] = true;
+                document.getElementById("id_glosa").attributes["required"] = true;
+                document.getElementById("motivoG").attributes["required"] = true;
+                document.getElementById("descrpcion_glosa_auditor").attributes["required"] = true;
+                $("#vlrPrimeraAud").val('');
+                $("#vlrglosainicial").val('');
+
+            }
+            else {
+                document.getElementById('pnlGlosa').style.display = 'block';
+                document.getElementById("txtFechaGlosaInicial").attributes["required"] = null;
+                document.getElementById("txtFechaNotificaGlosa").attributes["required"] = null;
+                document.getElementById("id_glosa").attributes["required"] = null;
+                document.getElementById("motivoG").attributes["required"] = null;
+                document.getElementById("descrpcion_glosa_auditor").attributes["required"] = null;
+
+                var valor = document.getElementById("vlrglosainicial").value;
+                var textBox1 = $('input:text[id$=vlr_atencion]').keyup();
+                var valor2 = textBox1.val();
+
+                $("#vlrPrimeraAud").val(valor2);
+
+                $("#vlrglosainicial").val('0');
+                $("#tblOtraGlosa tbody").empty();
+
+
+            }
+        }
+
+    }
+
+    function onSelect14(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#motivoG").val(dataItem.motivo);
+        }
+    }
+
+    function onSelect15(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#id_glosa").val(dataItem.id_glosa);
+        }
+    }
+
+
+    function onSelect16(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#descup2").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect17(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#idcup2").val(dataItem.id_cups);
+
+        }
+
+    }
+
+    function onSelect18(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#motivoGOtra").val(dataItem.motivo);
+        }
+    }
+
+    function onSelect19(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#id_glosaOtra").val(dataItem.id_glosa);
+        }
+    }
+
+    function GuardarCups() {
+
+        var formData = new FormData($("form")[0]);
+
+        var codigo = $("#idcup2").val();
+        var descripcion = $("#descup2").val();
+
+        if ((codigo == "" || codigo == null) || (descripcion == "" && descripcion == null)) {
+            alert("Complete los campos de cups");
+            return false;
+        }
+
+        formData.append("codigo", codigo);
+        formData.append("descripcion", descripcion);
+        formData.append("tipo", 1);
+
+        $.ajax({
+            url: "@Url.Action("AgregarOtraCup", "CuentasMedicas")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                $("#tblOtroCup tbody").empty();
+                $("#tblOtroCup tbody").html(data.tabla);
+                $("#conteoCups").val(data.conteoCups);
+
+                document.getElementById("idcup2").value = "";
+                document.getElementById("descup2").value = "";
+            }
+        })
+    }
+
+    function removerCups(idOtraCup) {
+
+        var mensaje;
+        mensaje = "¿Está seguro que desea eliminar ésta Cup?";
+
+        var opcion = confirm(mensaje);
+
+        if (opcion == true) {
+
+            $.ajax({
+                url: "@Url.Action("RemoverCups")",
+                type: "post",
+                data:
+                {
+                    idOtraCup: idOtraCup,
+                },
+                success: function (data) {
+                    $("#tblOtroCup tbody").empty();
+                    $("#tblOtroCup tbody").html(data.tabla);
+                    $("#tblOtroCup").val(data.conteoCups);
+
+                    document.getElementById("idcup2").value = "";
+                    document.getElementById("descup2").value = "";
+                }
+            })
+        }
+    }
+
+
+
+
+    function GuardarGlosas() {
+
+        var formData = new FormData($("form")[0]);
+
+
+        var val1 = $("#id_glosaOtra").val();
+        var val2 = $("#motivoGOtra").val();
+
+        if ((val1 == "" || val1 == null) || (val2 == "" && val2 == null)) {
+            alert("Complete los campos de Glosa.");
+            return false;
+        }
+
+        formData.append("codigoGlosaInicial", $("#id_glosaOtra").val());
+        formData.append("descripcionGlosaInicial", $("#motivoGOtra").val());
+
+        $.ajax({
+            url: "@Url.Action("AgregarOtraGlosa", "CuentasMedicas")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+                $("#tblOtraGlosa tbody").empty();
+                $("#tblOtraGlosa tbody").html(data.tabla);
+                $("#conteoGlosas").val(data.conteoGlosas);
+
+                document.getElementById("id_glosaOtra").value = "";
+                document.getElementById("motivoGOtra").value = "";
+            }
+        })
+    }
+
+    function removerGlosa(idOtraGlosa) {
+
+        var mensaje;
+        mensaje = "¿Está seguro que desea eliminar ésta Glosa?";
+
+        var opcion = confirm(mensaje);
+
+        if (opcion == true) {
+
+            $.ajax({
+                url: "@Url.Action("RemoverGlosa")",
+                type: "post",
+                data:
+                {
+                    idOtraGlosa: idOtraGlosa,
+                },
+                success: function (data) {
+                    $("#tblOtraGlosa tbody").empty();
+                    $("#tblOtraGlosa tbody").html(data.tabla);
+                    $("#conteoGlosas").val(data.conteoGlosas);
+
+                    document.getElementById("id_glosaOtra").value = "";
+                    document.getElementById("motivoGOtra").value = "";
+                }
+            })
+        }
+    }
+
+
+
+    function ObtenerGrado(idFuerza) {
+        $.ajax({
+            url: "@Url.Action("ObtenerGrado", "CuentasMedicas")",
+            type: "post",
+            data: {
+                idFuerza: idFuerza,
+            },
+            success: function (data) {
+                $("#grado").empty();
+                $("#grado").html(data);
+                $("#grado").val("").trigger("change");
+            }
+        })
+    }
+
+
+
+</script>
+
+
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 20px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 1.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 11px;
+    }
+
+    .control-label text-secondary_asalud {
+        font-size: 12px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

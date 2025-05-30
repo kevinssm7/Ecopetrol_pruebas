@@ -1,0 +1,301 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL LTE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = ViewBag.rta;
+    string msg = (string)ViewData["Msg"];
+}
+
+<br />
+
+
+@if (rta != 0)
+{
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">@msg</div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">@msg</div>
+    }
+}
+
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Consolidado LTE</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroConsolidadoLupe">
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Referencia de pago:</label>
+                    <select class="form-control select2" name="referenciaPago" id="referenciaPago" required>
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_referencia_pago item in ViewBag.referenciaPa)
+                        {
+                            <option value="@item.id_referencia_pago">@item.descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Prestador:</label>
+                    <select class="form-control select2" name="prestador" id="prestador" required>
+                        <option value="">- Seleccionar -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                        {
+                            if (item.id_ref_proveedor != 0)
+                            {
+                                <option value="@item.id_ref_proveedor">@item.nombre</option>
+                            }
+                        }
+                    </select>
+                </div>
+                @*<div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select class="form-control select2" id="regional" name="regional">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>*@
+                <br />
+                <div class="col-sm-3 form-group text-left">
+                    <button type="button" onclick="BuscarDatos()" class="button_Asalud_Guardar"> <i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-bordered table-condensed table-striped datatable">
+                            <thead>
+                                <tr>
+                                    <th>Ítem</th>
+                                    <th>Id cargue</th>
+                                    <th>Prestador</th>
+                                    <th>Nit</th>
+                                    <th>Vigencia desde</th>
+                                    <th>Vigencia hasta</th>
+                                    <th>Referente pago</th>
+                                    <th>Fecha cargue</th>
+                                    <th>Intermediaciones</th>
+
+                                    @if (ViewBag.rol == "1" || ViewBag.rol == "2" || ViewBag.rol == "14" || ViewBag.rol == "39")
+                                    {
+                                        <th>Eliminar</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int i = 0; }
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_lupe_carguesResult item in ViewBag.lista)
+                                {
+                                    i += 1;
+
+                                    <tr>
+
+                                        <td class="text-center">@i</td>
+                                        <td class="text-center">@item.id_lupe_cargue_base</td>
+                                        <td class="text-center">@item.Nombre</td>
+                                        <td class="text-center">@item.Nit</td>
+                                        <td class="text-center">@item.vigencia_desde</td>
+                                        <td class="text-center">@item.vigencia_hasta</td>
+                                        <td class="text-center">@item.descripcion</td>
+                                        <td class="text-center">@item.fecha_digita</td>
+
+                                        <td style="text-align:center;">
+                                            <a class="btn button_Asalud_Aceptar btn-xs" href="javascript:Intermedios(@item.id_lupe_cargue_base)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp;Ver</a>
+                                        </td>
+
+                                        @if (ViewBag.rol == "1" || ViewBag.rol == "2" || ViewBag.rol == "14" || ViewBag.rol == "39")
+                                        {
+                                            <td style="text-align:center;">
+                                                <a class="btn button_Asalud_Rechazar btn-xs" href="javascript:EliminarLte(@item.id_lupe_cargue_base)"><i class="glyphicon glyphicon-trash"></i>&nbsp;Eliminar Cargue</a>
+                                            </td>
+                                        }
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:60%;">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "language": {
+                "search": "Buscar",
+                //"lengthMenu": false,
+                "lengthMenu": "Ver _MENU_ resultados por página",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo página _PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+    /*----------*/
+    function Intermedios(idLupe) {
+
+        $.ajax({
+            url: "@Url.Action("_IntermediacionesLupe")",
+            type: "post",
+            data: { idLupe: idLupe },
+            success: function (data)
+            {
+                $("#resultado").empty();
+                $("#resultado").html(data);
+                $("#myModal").modal('show');
+            }
+        })
+    }
+    function EliminarLte(idLupe) {
+
+        var confirmar = confirm("¿Está seguro de eliminar este cargue?");
+
+        if (confirmar) {
+
+            $.ajax({
+                url: "@Url.Action("EliminarLupe")",
+                type: "post",
+                data: { idLupe: idLupe },
+                success: function (data) {
+
+                    if (data.success) {
+                        location.href = "@Url.Action("TableroConsolidadoLupe")?rta=" + data.rta;
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            });
+        }
+    }
+
+
+    function BuscarDatos() {
+        $("#formulario").submit();
+    }
+
+</script>
+
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #636363;
+            border-top: 2px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .reporte {
+        position: relative;
+        text-align: right;
+        margin-top: -20px;
+    }
+</style>
+

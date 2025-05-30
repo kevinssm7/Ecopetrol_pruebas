@@ -1,0 +1,469 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL PRESTADORES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string mensajerespuesta = (string)ViewBag.msg;
+}
+<br />
+
+<div class="container">
+    @if (!String.IsNullOrEmpty(mensajerespuesta))
+    {
+        if (mensajerespuesta.Contains("Error"))
+        {
+            <label class="danger"> @Html.Raw(mensajerespuesta)</label>
+        }
+        else
+        {
+            @Html.Raw(mensajerespuesta);
+        }
+    }
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">PRESTADORES</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario" method="post" action="TableroPrestadores">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Nit</label>
+                        <input type="text" id="nitBusqueda" name="nitBusqueda" class="form-control" maxlength="50" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">SAP</label>
+                        <input type="text" id="sapBusqueda" name="sapBusqueda" class="form-control" maxlength="50" />
+                    </div>
+                    <br />
+                    <div class="col-md-2">
+                        <button type="submit" class="button_Asalud_Aceptar">BUSCAR</button>
+                    </div>
+                </div>
+            </form>
+
+            @if (ViewBag.conteo > 0)
+            {
+                <div class="col-md-12 text-right">
+                    <button role="button" onclick="ExportarExcelPrestadores();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar</button>
+                </div>
+                <br />
+            }
+            <br />
+
+            <table id="tabla" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Id prestador</th>
+                        <th>Nit</th>
+                        <th>Tipo prestador</th>
+                        <th>Código SAP</th>
+                        <th>Razón social</th>
+                        <th>Ciudad</th>
+                        <th>Departamento</th>
+                        <th>Regional</th>
+                        <th>Código habilitación</th>
+                        <th>Estado</th>
+                        <th>Creador</th>
+                        <th>Archivos</th>
+                        <th>Gestión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 0;}
+
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_tableroControlResult item in ViewBag.listado)
+                    {
+                        i++;
+                        <tr>
+                            <td class="text-center">@i</td>
+                            <td class="text-center">@item.id_prestador</td>
+                            <td class="text-center">@item.nit</td>
+                            <td class="text-center">@item.tipoPrestador </td>
+                            <td class="text-center">@item.codigo_SAP</td>
+                            <td class="text-center">@item.razon_social</td>
+                            <td class="text-center">@item.nombreCiudad</td>
+                            <td class="text-center">@item.nombreDepartamento </td>
+                            <td class="text-center">@item.nombreRegional </td>
+                            <td class="text-center">@item.codigo_habilitacion </td>
+                            <td class="text-center">@item.estado </td>
+                            <td class="text-center">@item.nombreDigita </td>
+
+                            <td>
+                                <a class="btn btn-sm button_Asalud_Aceptar archivos" onclick="MirarRepositorio(@item.id_prestador);" data-toggle="modal" data-target="#myModalArchivos">
+                                    Ver <i class="glyphicon glyphicon-file" style="align-content:center;"></i>
+                                </a>
+                            </td>
+
+                            <td>
+                                <a class="btn btn-sm button_Asalud_Guardar" onclick="EditarPrestador(@item.id_prestador);">
+                                    Editar
+                                </a>
+                                &nbsp;
+                                <a class="btn btn-sm button_Asalud_Aceptar" onclick="AgregarNegociacion(@item.id_prestador);">
+                                    Negociación
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+
+    $("#nitBusqueda").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/FIS_RIPS/BuscarNitPrestador",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item.label,
+                                value: item.id
+                            };
+                        }));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+    });
+
+
+    $("#sapBusqueda").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 2) {
+                $.ajax({
+                    url: "/FIS_RIPS/BuscarSAPPrestador",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item.label,
+                                value: item.id
+                            };
+                        }));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        },
+    });
+
+    function EditarPrestador(idPrestador) {
+
+        var confirmar = confirm("¿Seguro(a) de editar este prestador?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("CrearPrestador","FIS_RIPS")?idPrestador=" + idPrestador;
+        }
+    }
+
+    function MirarRepositorio(idPrestador) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos", "FIS_RIPS")?idPrestador=' + idPrestador;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function ExportarExcelPrestadores() {
+        var URL2 = "@Url.Action("ExcelTableroControlPrestadores", "FIS_RIPS")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function AgregarNegociacion(idPrestador) {
+        var confirmar = confirm("¿Seguro(a) de agregarle una negociación a este prestador?");
+        if (confirmar == true) {
+            location.href = "@Url.Action("CrearNegociacion", "FIS_RIPS")?idPrestador=" + idPrestador;
+        }
+    }
+
+</script>
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

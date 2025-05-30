@@ -1,0 +1,265 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Medicamentos.ConsultaMed
+
+@{
+    ViewBag.Title = "CONSULTAS MEDICAMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">CONSULTAR</strong>
+            </div>
+            <div class="container">
+                <div class="panel-body">
+                    <form id="frm-alumno">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.opc)</span></h5>
+                                @Html.DropDownListFor(model => model.opc, new SelectList(Model.ListMDconsulta, "id_ref_consultas", "descripcion"), "Seleccione...", new { @class = "form-control select2" })
+                                @Html.ValidationMessageFor(u => u.opc, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_inicial)</span></h5>
+                                @(Html.Kendo().DateTimePickerFor(p => p.fecha_inicial)
+                         .Name("datepicker1")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change1");
+                         })
+                        .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+
+                        )
+                                @Html.ValidationMessageFor(u => u.fecha_inicial, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_final)</span></h5>
+                                @(Html.Kendo().DateTimePickerFor(p => p.fecha_final)
+                         .Name("datepicker2")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change2");
+                         })
+                        .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+
+                        )
+                                @Html.ValidationMessageFor(u => u.fecha_final, null, new { @class = "label label-danger" })
+                            </div>
+                            <div class="col-sm-4">
+
+                            </div>
+
+                        </div>
+                        <br />
+
+
+                        <div class="row">
+
+                            @*<button type="button" class="btn btn-primary" onclick="descargar2();" data-toggle="modal" data-target="#myModal">
+                                  GENERAR
+                                </button>*@
+
+                        </div>
+
+                        <div class="row">
+
+
+                            <div class="col-sm-4">
+                                <input id="BtnActualizar" type="submit" value="GENERAR" class="btn button_Asalud_Aceptar    " />
+                            </div>
+
+                            <div class="col-sm-4" style="display:none">
+                                @Html.TextBoxFor(u => u.fecha_inicialok)
+                                @Html.TextBoxFor(u => u.fecha_finalok)
+                            </div>
+                            <div class="col-sm-4">
+
+                            </div>
+
+                        </div>
+
+
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <br />
+    @*if (Model.ListaConsulta.Count > 0)
+        {
+
+            <form id="pnlPrincipal" class="General">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tabla" class="table table-striped">
+                            <thead>
+
+                                <tr>
+                                    <td style="">
+                                        <h5>Buscar</h5>
+                                    </td>
+                                    <td>
+                                        <input id="buscar" type="text" class="form-control" placeholder="Escriba algo para filtrar" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+
+                                    <th class="text-left th" style="font-family:Arial">DESCRIPCION</th>
+                                    <th class="text-left th" style="font-family:Arial">VALOR</th>
+
+
+
+                            </thead>
+                            <tbody id="myTable">
+                                @foreach (var order in Model.ListaConsulta)
+                                {
+                                    <tr>
+
+                                        <td>@order.descripcion</td>
+                                        <td>@order.valor</td>
+
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div>
+                            <ul class="pagination" id="myPager"></ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <div class="row">
+                    <div class="col-sm-4">
+
+                        <button type="button" class="btn btn-primary" onclick="descargar2();" data-toggle="modal" data-target="#myModal">
+                            DESCARGAR
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        }*@
+
+}
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_inicialok]').val(DataItem);
+
+    }
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_finalok]').val(DataItem);
+
+    }
+
+    function descargar2() {
+        var record = {
+
+            opc: $("#opc").val(),
+            fecha_inicial: $('#fecha_inicialok').val(),
+            fecha_final: $('#fecha_finalok').val(),
+
+        };
+        $.ajax({
+            url: '/medicamentos/DescargarMedicamentos',
+            data: record,
+            method: 'POST',
+            dataType: "json",
+
+        })
+            .done(function () {
+
+            })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+
+            });
+    }
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>
+
+

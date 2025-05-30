@@ -1,0 +1,350 @@
+﻿@{
+    ViewBag.Title = "TABLERO DE CONTROL - DISPENSANCIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" />
+<link rel="stylesheet" href="//cdn.datatables.net/plug-ins/1.12.1/sorting/date-uk.js" />
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de cargues realizados</strong>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered datatable table-hover">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Mes</th>
+                    <th>Año</th>
+                    <th>Cargue hecho por</th>
+                    <th>Fecha cargue</th>
+                    <th>Nro registros cargados</th>
+                    <th></th>
+                    @if (ViewBag.rol == "1")
+                    {
+                        <th></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{int i = 0;}
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_medicamentosDispen_listResult item in ViewBag.list)
+                {
+                    i++;
+                    <tr>
+                        <td>@item.id_cargue</td>
+                        <td>@item.descripcionMes</td>
+                        <td>@item.año</td>
+                        <td>@item.nombreDigita</td>
+                        <td>@item.fecha_cargue</td>
+                        <td>@item.total</td>
+                        <td>
+                            <a class="btn button_Asalud_Aceptar btn-xs" onclick="VerConsolidado(@item.id_cargue)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp;Consolidado</a>
+                        </td>
+
+                        @if (ViewBag.rol == "1" || ViewBag.rol == "40")
+                        {
+                            <td>
+                                <a class="btn button_Asalud_Rechazar btn-xs" onclick="EliminarCargue(@item.id_cargue)"><i class="glyphicon glyphicon-trash"></i>&nbsp;Eliminar Cargue</a>
+                            </td>
+                        }
+
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="Modal">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="Detalle"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_descargas" onclick="ExportarConsolidadoMed()"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Exportar</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+
+    $('.table').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+    function VerConsolidado(id)
+    {
+        LoadingShow();
+        $("#Detalle").empty();
+        $("#Detalle").load("@Url.Action("ConsolidadoMedicamentosDispen", "MedicamentosCalidad")?idCargueBase=" + id, function ()
+        {
+            $("#Modal").modal('show');
+            LoadingHide();
+        });
+    }
+
+    function EliminarCargue(id)
+    {
+        var txt = confirm("¿Está seguro/a de eliminar este cargue?");
+        if (txt)
+        {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarCargueBaseMedicamentosDispen")",
+                type: "POST",
+                data: { idCargue: id },
+                success: function (data) {
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        alertify.alert("¡Proceso Exitoso!", "<p style='text-align:justify'>" + data.mensaje + "</p>", function () {
+                            location.reload();
+                        }).set('label', 'Aceptar');
+                    }
+                    else {
+                        alertify.alert("¡Aviso!", "<p>" + data.mensaje + "</p>").set('label', 'Aceptar');
+                    }
+                }
+            })
+        }
+    }
+
+    function ExportarConsolidadoMed() {
+        var URL = "@Url.Action("ExcelConsolidadoMedicamentosDispensacion", "MedicamentosCalidad")";
+        window.open(URL, '', 'width =400,height =180,left =10,top =550,toolbar =yes');
+    }
+
+</script>
+
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

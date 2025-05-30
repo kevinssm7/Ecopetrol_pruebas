@@ -1,0 +1,317 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_consulta_gasto_por_servicio>
+
+@{
+    ViewBag.Title = "TABLERO CONSULTA GASTOS POR SERVICIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Consulta cargue gasto por servicio</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" name="formulario">
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Facturas</label>
+                    <input type="text" class="form-control" id="facturas" name="facturas" maxlength="1500" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Cédula</label>
+                    @*<input type="text" class="form-control" id="cedulas" name="cedulas" />*@
+                    <input type="text" class="form-control" id="cedulas" name="cedulas" maxlength="1700" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Servicio</label>
+                    <input type="text" class="form-control" id="servicios" name="servicios" maxlength="1500" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Tiga GSD</label>
+                    <input type="text" class="form-control" id="tigaGSD" name="tigaGSD" maxlength="1500" />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha inicio periodo</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaIni" id="fechaIni" required />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha final periodo</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaFin" id="fechaFin" required />
+                </div>
+
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha inicio prestación</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaIniPre" id="fechaIniPre" required />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Fecha final prestación</label>
+                    <input class="datepickerr" style="width: 100%" name="fechaFinPre" id="fechaFinPre" required />
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group text-center">
+                    <a class="btn button_Asalud_descargas" onclick="ExportarDatos()"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+    });
+
+    $("#servicios").autocomplete({
+        source: "/GastosxServicio/BuscarNombre_Servicio",
+        type: "POST",
+        dataType: "json",
+        minLenght: 0,
+        change: function (evento, ui) {
+            if (ui.item != null) {
+                $(this).val(ui.item.codigo);
+            }
+        }
+    })
+
+    function ExportarDatos() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form) {
+
+            var facturas = document.getElementById("facturas").value;
+            var cedulas = document.getElementById("cedulas").value;
+            var servicios = document.getElementById("servicios").value;
+            var tiga = document.getElementById("tigaGSD").value;
+
+            var fechaIni = $("#fechaIni").val();
+            var fechaFin = $("#fechaFin").val();
+
+            var fechaIniPre = $("#fechaIniPre").val();
+            var fechaFinPre = $("#fechaFinPre").val();
+
+            if ((fechaIni != null && fechaIni != "" && fechaFin != "" && fechaFin != "") || (fechaIniPre != null && fechaIniPre != "" && fechaFinPre != null && fechaFinPre != "")) {
+                if ((facturas.trim() != "" && facturas.trim() != null) || (cedulas.trim() != "" && cedulas.trim() != null) || (servicios.trim() != null && servicios.trim() != "")
+                    || (tiga != null && tiga != "") || (fechaIniPre != null && fechaIniPre != "") || (fechaFinPre != null && fechaFinPre != "")) {
+
+                    LoadingShow();
+
+                    var URL = "@Url.Action("ExcelConsultaGXS", "GastosxServicio")?factura=" + facturas + "&cedula=" + cedulas + "&servicio=" + servicios + "&fechaInicio="
+                        + fechaIni + "&fechaFin=" + fechaFin + "&fechaInicioPre=" + fechaIniPre + "&fechaFinPre=" + fechaFinPre + "&tigaGSD=" + tiga;
+
+                    var downloadWindow = window.open(URL, '', 'width=450,height=30,left=5,top=750,toolbar=yes');
+
+                    var checkWindowClosed = setInterval(function () {
+                        if (downloadWindow.closed) {
+                            clearInterval(checkWindowClosed);
+                            LoadingHide();  // Oculta el loading cuando se cierre la ventana emergente
+                        }
+                    }, 500);
+                }
+                else {
+                    alert("Aparte del periodo, llene una de las otras opciones.");
+                }
+            } else {
+                alert("Seleccione periodo");
+            }
+        }
+    }
+
+    function mostrarAlerta() {
+        alert("No hay datos");
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .dropdownlist {
+        width: 100%;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

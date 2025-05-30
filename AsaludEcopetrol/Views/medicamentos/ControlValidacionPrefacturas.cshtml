@@ -1,0 +1,873 @@
+﻿
+@{
+    ViewBag.Title = "VALIDACIÓN PRE-FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+    var j = 0;
+}
+
+<div class="breadcrumb">
+    <div class="row">
+        <label class="control-label col-sm-4">
+            <span class="text-secondary_asalud"> #Cargue: </span> @ViewBag.idFactura
+        </label>
+        <label class="control-label col-sm-4">
+            <span class="text-secondary_asalud"> Prestador: </span> @ViewBag.prestador
+            <input type="hidden" id="idPrestador" value="@ViewBag.prestador" />
+            <input type="hidden" id="idCarguePrefactura" value="@ViewBag.idFactura" />
+            <input type="hidden" id="abierta" value="@ViewBag.abierta" />
+        </label>
+    </div>
+</div>
+
+
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">APROBADAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">NO APROBADAS</a>
+        </li>
+    </ul>
+    <br />
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            @if (ViewBag.abierta == true)
+            {
+                <button class="button_Asalud_Aceptar" id="buttonDesaprobarSels" onclick="desaprobarSeleccionados();">Desaprobar seleccionados</button>
+                <button class="button_Asalud_Aceptar" id="btnaprobarfacturas2" onclick="mostrarCargueMasivoDesaprobar();">Desaprobar Facturas desde excel</button>
+
+                if (ViewBag.conteoCruzan > 0)
+                {
+                    <button class="button_Asalud_Guardar" onclick="notificaraOPL(2);">Notificar a OPLS</button>
+                    <button class="button_Asalud_Guardar" onclick="mostrarPdfOPLAprobadas();">Generar PDF aprobadas</button>
+                }
+            }
+            <br />
+            <div class="form-group text-right">
+                <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:ReporteAprobados()">
+                    <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                </a>
+            </div>
+            <div class="panel panel-default">
+                <form id="tableroControlCruzan">
+                    <div class="panel-body">
+                        <input type="hidden" id="conteoSi" name="conteoSi" value="@ViewBag.conteoCruzan" />
+                        <table class="tablero table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableroCruzan">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="chkSeleccionarCruzan" name="chkSeleccionarCruzan" />
+                                    </th>
+                                    <th>Código</th>
+                                    <th>Num tirilla</th>
+                                    <th>Código factura</th>
+                                    <th>Nit</th>
+                                    <th>CUM</th>
+                                    <th>Cod interno</th>
+                                    <th>Valor prefactura</th>
+                                    <th>Fecha despacho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoCruzan > 0)
+                                {
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_listadoPrefacturasCruzanResult item in ViewBag.listaCruzan)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td style="text-align:center;">
+                                                <input type="checkbox" id="chekSi_@i" class="chkFactura" />
+                                                <input type="hidden" id="idBaseSi_@i" value="@item.id_cargue_base" />
+                                                <input type="hidden" id="idSi_@i" value="@item.id_detalle_prefactura" />
+                                            </td>
+
+                                            <td>@item.id_detalle_prefactura</td>
+                                            <td>@item.num_tirilla</td>
+                                            <td>@item.remision_prefactura_fact</td>
+                                            <td>@item.nit</td>
+                                            <td>@item.cum</td>
+                                            <td>@item.cod_interno_medicamento</td>
+                                            <td>@item.valor_total</td>
+                                            <td>@item.fecha_despacho_formula.Value.ToString("dd/MM/yyyy")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="14" style="text-align:center; font-size:14px;">
+                                            SIN REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane" id="2a">
+
+            @if (ViewBag.abierta == true)
+            {
+                @*<button class="button_Asalud_Aceptar" id="showSelection" onclick="aprobarTodos();">Aprobar todos</button>*@
+                <button class="button_Asalud_Aceptar" id="showSelection2" onclick="aprobarSeleccionados();"> Aprobar seleccionados</button>
+                <button class="button_Asalud_Aceptar" id="btnaprobarfacturas2" onclick="mostrarCargueMasivo();">Aprobar Facturas desde excel</button>
+                if (ViewBag.conteoNoCruzan > 0)
+                {
+                    <button class="button_Asalud_Guardar" id="showSelection3" onclick="notificaraOPL(1);">Notificar a OPLS</button>
+                    <button class="button_Asalud_Guardar" id="showSelection4" onclick="mostrarPdfOPLNoAprobadas();">Generar PDF</button>
+                }
+            }
+            <br />
+            <div class="form-group text-right">
+                <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:ReporteNoAprobados()">
+                    <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                </a>
+            </div>
+            <div class="panel panel-default">
+                <form id="tableroControlNoCruzan">
+                    <div class="panel-body">
+                        <input type="hidden" id="conteoNo" name="conteoNo" value="@ViewBag.conteoNoCruzan" />
+                        <table class="tablero2 table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableroNoCruzan">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input class="text-center" type="checkbox" id="chkSeleccionarNoCruzan" name="chkSeleccionarNoCruzan" />
+                                    </th>
+
+                                    <th>Código</th>
+                                    <th>Num tirilla</th>
+                                    <th>Código factura</th>
+                                    <th>Nit</th>
+                                    <th>CUM</th>
+                                    <th>Cod interno</th>
+                                    <th>Valor prefactura</th>
+                                    <th>Fecha despacho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteoNoCruzan > 0)
+                                {
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_listadoPrefacturasNoCruzanResult item in ViewBag.listaNoCruzan)
+                                    {
+                                        j++;
+                                        <tr>
+                                            <td style="text-align:center;">
+                                                <input type="checkbox" id="chekNo_@j" class="chkFactura" />
+                                                <input type="hidden" id="idBaseNo_@j" value="@item.id_cargue_base" />
+                                                <input type="hidden" id="idNo_@j" value="@item.id_detalle_prefactura" />
+                                            </td>
+                                            <td>@item.id_detalle_prefactura</td>
+                                            <td>@item.num_tirilla</td>
+                                            <td>@item.remision_prefactura_fact</td>
+                                            <td>@item.nit</td>
+                                            <td>@item.cum</td>
+                                            <td>@item.cod_interno_medicamento</td>
+                                            <td>@item.valor_total</td>
+                                            <td>@item.fecha_despacho_formula.Value.ToString("dd/MM/yyyy")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="14" style="text-align:center; font-size:14px;">
+                                            SIN REGISTROS
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="Modal" data-keyboard="false">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Aprobar pre-facturas</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formaprobacion">
+                    <input type="hidden" id="id_detprefactura" name="id_detprefactura" />
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <div class="col-sm-6 row">
+                                <label class="text-secondary_asalud">Nuevo valor</label>
+                                <input type="text" class="form-control solo-numero" id="nuevovalor" name="nuevovalor" maxlength="9" required />
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <textarea class="form-control" rows="4" name="txtobservaciones" id="txtobservaciones" placeholder="- Observaciones -" maxlength="4999" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a id="btnval1" href="javascript:ValidarFormulario()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <a id="btnval2" href="javascript:ValidarFormulario2()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <a id="btnval3" href="javascript:ValidarFormulario3()" style="display:none;" class="button_Asalud_Guardar ButtonG" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar rechazadar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="Modal2" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Aprobar prefacturas desde excel</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formaprobacionmasiva">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Seleccionar documento prefacturas: *</label>
+                            <input type="file" class="form-control" name="txtdoc" id="txtdoc" onchange="ValidacionArchivo();" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required="required" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observaciones:</label>
+                            <textarea id="observacionArchivo" class="form-control" cols="4" rows="4" maxlength="3999" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario4()" class="button_Asalud_Guardar" type="submit">Guardar Cambios &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalDesaprobadas" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Desaprobar prefacturas desde excel</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formdesaprobacionmasiva">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Seleccionar documento prefacturas: *</label>
+                            <input type="file" class="form-control" name="txtdocDesa" id="txtdocDesa" onchange="ValidacionArchivo2();" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required="required" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observaciones:</label>
+                            <textarea id="observacionArchivoDesa" name="observacionArchivoDesa" class="form-control" cols="4" rows="4" maxlength="3999" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario5()" class="button_Asalud_Guardar" type="submit">Guardar&nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalDesaprobacion" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud">Desaprobar prefacturas</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formDesaprobacion">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Observación:</label>
+                            <textarea id="observacionDesaprobacion" class="form-control" cols="4" rows="4" maxlength="499" required></textarea>
+                            <input id="idCargue" name="idCargue" type="hidden" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarFormulaioDesa()" class="button_Asalud_Guardar" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var seleccionadosSi = [];
+    var seleccionadosNo = [];
+
+    $(document).ready(function () {
+
+        mostrarTabla();
+        mostrarTabla2();
+    });
+
+    function mostrarTabla() {
+
+        var conteoSi = $("#conteoSi").val();
+        if (conteoSi != 0) {
+            $('#tableroCruzan').DataTable().destroy();
+
+            $('#tableroCruzan').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function mostrarTabla2() {
+
+        var conteoNo = $("#conteoNo").val();
+        if (conteoNo != 0) {
+
+            $('#tableroNoCruzan').DataTable().destroy();
+
+            $('#tableroNoCruzan').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    $("#chkSeleccionarCruzan").change(function () {
+        if ($(this).is(':checked')) {
+
+            $("#tableroControlCruzan .chkFactura").each(function () {
+                $("#tableroControlCruzan .chkFactura").prop('checked', true);
+            })
+        }
+        else {
+
+            $("#tableroControlCruzan .chkFactura").each(function () {
+                $("#tableroControlCruzan .chkFactura").prop('checked', false);
+            })
+        }
+    });
+
+    function validacionCheckeoIdSi() {
+        var conteo = @i;
+        seleccionadosSi = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chekSi_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("idSi_" + i).value;
+                    seleccionadosSi.push(item);
+                }
+            }
+        }
+    }
+
+    function desaprobarSeleccionados() {
+        validacionCheckeoIdSi();
+
+        if (seleccionadosSi.length > 0 && seleccionadosSi != "undefined" && seleccionadosSi != undefined) {
+            var confirmar = confirm("¿Está seguro(a) de desaprobar estos ítems?")
+            if (confirmar == true) {
+
+                $("#observacionDesaprobacion").val("");
+                $("#ModalDesaprobacion").modal('show');
+            }
+        }
+        else {
+            alert("Debe seleccionar al menos uno de los ítems");
+        }
+    }
+
+    function validarFormulaioDesa() {
+
+        var observacion = $("#observacionDesaprobacion").val();
+        var idCargue = $("#idCarguePrefactura").val();
+
+        hasChangue = false;
+        var validator = $("#formDesaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("DesaprobarPrefacturas")",
+                type: "post",
+                data: {
+                    ListaIds: seleccionadosSi,
+                    observacion: observacion,
+                    idCargue: idCargue,
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    $("#chkSeleccionarNoCruzan").change(function () {
+        if ($(this).is(':checked')) {
+
+            $("#tableroControlNoCruzan .chkFactura").each(function () {
+                $("#tableroControlNoCruzan .chkFactura").prop('checked', true);
+            })
+        }
+        else {
+
+            $("#tableroControlNoCruzan .chkFactura").each(function () {
+                $("#tableroControlNoCruzan .chkFactura").prop('checked', false);
+            })
+        }
+    })
+
+    function validacionCheckeoIdNo() {
+        var conteo = @j;
+        seleccionadosNo = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chekNo_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("idNo_" + i).value;
+                    seleccionadosNo.push(item);
+                }
+            }
+        }
+    }
+
+    function aprobarTodos() {
+
+        $("#txtobservaciones").val("");
+        $("#nuevovalor").val("");
+        $("#btnval1").css('display', 'none');
+        $("#btnval2").css('display', 'none');
+        $("#btnval3").css('display', 'block');
+        $("#Modal").modal('show');
+    }
+
+    function aprobarSeleccionados() {
+
+        validacionCheckeoIdNo();
+
+        if (seleccionadosNo.length > 0 && seleccionadosNo != undefined) {
+            $("#txtobservaciones").val("");
+            $("#nuevovalor").val("");
+            $("#btnval1").css('display', 'none');
+            $("#btnval3").css('display', 'none');
+            $("#btnval2").css('display', 'block');
+            $("#Modal").modal('show');
+        }
+        else {
+            alert("Debe seleccionar al menos uno de los ítems");
+        }
+    }
+
+    function notificaraOPL(tipo) {
+
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        if (tipo == 1) {
+            var pasa = confirm('¿Seguro de notificar las prefacturas no aprobadas al OPL?');
+        }
+        else
+        {
+            var pasa = confirm('¿Seguro de notificar las prefacturas aprobadas al OPL?');
+        }
+
+        if (pasa) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EnviarCaso", "medicamentos")",
+                type: "post",
+                data: {
+                    idCargue: idCargue,
+                    tipo: tipo
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                }
+            })
+        }
+    }
+
+    function mostrarPdfOPLNoAprobadas() {
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        var url = "@Url.Action("MostrarNotificacionOPLNoAprobadas", "medicamentos")?idCargue=" + idCargue;
+        opupWindow = window.open(url, '', 'height=725,width=750,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function mostrarPdfOPLAprobadas() {
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        var url = "@Url.Action("MostrarNotificacionOPLAprobadas", "medicamentos")?idCargue=" + idCargue;
+        opupWindow = window.open(url, '', 'height=725,width=750,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function mostrarCargueMasivo() {
+        $("#Modal2").modal('show');
+    }
+
+    function mostrarCargueMasivoDesaprobar(){
+        $("#ModalDesaprobadas").modal('show');
+    }
+
+    function ReporteAprobados() {
+        var url = "@Url.Action("ExportarExcelAprobados", "medicamentos")";
+        opupWindow = window.open(url, '', 'height=125,width=450,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function ReporteNoAprobados() {
+        var url = "@Url.Action("ExportarExcelNoAprobados", "medicamentos")";
+        opupWindow = window.open(url, '', 'height=125,width=450,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function ValidarFormulario() {
+        hasChangue = false;
+        var validator = $("#formaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            $("#Modal").modal('hide');
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefactura")",
+                type: "post",
+                data: {
+                    id_detprefactura: $("#id_detprefactura").val(),
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor
+                },
+                success: function (data) {
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formaprobacion").validate();
+
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            var idCargue = $("#idCarguePrefactura").val();
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefacturaList")",
+                type: "post",
+                data: {
+                    ListaIds: seleccionadosNo,
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor,
+                    idCargue: idCargue
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario3() {
+        hasChangue = false;
+        var validator = $("#formaprobacion").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var idCargue = $('#idCarguePrefactura').val();
+            var observaciones = $("#txtobservaciones").val();
+            var nuevovalor = $("#nuevovalor").val();
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("UpdatedetPrefacturaListTotal")",
+                type: "post",
+                data: {
+                    idCargue: idCargue,
+                    observaciones: observaciones,
+                    nuevo_valor: nuevovalor
+                },
+                success: function (data) {
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function validarformulario4() {
+
+        hasChangue = false;
+        var validator = $("#formaprobacionmasiva").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            var formData = new FormData();
+            var archivos = $('#txtdoc')[0].files;
+
+            formData.append('file', $('#txtdoc')[0].files[0]);
+            formData.append('observaciones', $('#observacionArchivo').val());
+            formData.append('idPrefactura', $('#idCarguePrefactura').val());
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("AprobacionMasivaExcel")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+         /*       cache: false,*/
+                success: function (data) {
+
+                    alert(data.message);
+                    LoadingHide();
+                    $("#Modal2").modal('hide');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function validarformulario5() {
+
+        hasChangue = false;
+        var validator = $("#formdesaprobacionmasiva").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+            var formData = new FormData();
+            var archivos = $('#txtdocDesa')[0].files;
+
+            formData.append('file', $('#txtdocDesa')[0].files[0]);
+            formData.append('observaciones', $('#observacionArchivoDesa').val());
+            formData.append('idPrefactura', $('#idCarguePrefactura').val());
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("DesaprobacionMasivaExcel")",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                cache: false,
+                success: function (data) {
+
+                    alert(data.message);
+                    LoadingHide();
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('txtdoc');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos excel.");
+            $("#files").val("");
+        }
+    }
+
+    function ValidacionArchivo2() {
+        var data = document.getElementById('txtdocDesa');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos excel.");
+            $("#files").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    /*       .dataTables_length label html{
+            visibility: hidden;
+        }
+    */
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>

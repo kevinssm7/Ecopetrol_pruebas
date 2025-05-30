@@ -1,0 +1,253 @@
+﻿@using Kendo.Mvc.UI;
+@using Facede;
+@{
+    ViewBag.Title = "TABLERO CONTROL EGRESOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewBag.rta;
+    Facade model = new Facade();
+}
+
+<br />
+@if (rta != null)
+{
+    <div class="alert alert-success" role="alert">Categorización guardada correctamente</div>
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">TABLERO DE CONTROL EGRESOS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="tableroegresos" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="control-label text-secondary_asalud ">Fecha inicial</label>
+                    <input class="datepickerr" title="datepicker" value="@ViewBag.fechainicial" style="width: 100%" name="fechainicial" id="fechainicial" />
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="control-label text-secondary_asalud ">Fecha final</label>
+                    <input class="datepickerr" title="datepicker" value="@ViewBag.fechafinal" style="width: 100%" name="fechafinal" id="fechafinal" />
+                </div>
+                <div class="col-sm-4 text-right">
+                    <label class="text-secondary_asalud" style="visibility:hidden; width:100%">Fecha final</label>
+                    <button class="btn button_Asalud_Aceptar" type="submit">Buscar</button>
+                </div>
+            </div>
+        </form>
+
+        <table class="table table-bordered table-condensed table-striped datatable1" style="font-size:11px; width:98%;">
+            <thead>
+                <tr>
+                    <th>Egreso</th>
+                    <th>Fecha ingreso</th>
+                    <th>Fecha egreso</th>
+                    <th>Dx principal</th>
+                    <th>Condición del alta</th>
+                    <th>Regional</th>
+                    <th>Nombre beneficiario</th>
+                    <th>N° documento</th>
+                    <th>Ips</th>
+                    <th>Cantidad de días</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_ecop_egresos_hospitalariosResult item in ViewBag.egresos)
+                {
+                <tr>
+                    <td>@item.id_egreso_auditoria_Hospitalaria</td>
+
+                    @if (item.fecha_ingreso != null)
+                    {
+                        <td>@item.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                    }
+                    else
+                    {
+                        <td>@item.fecha_ingreso</td>
+                    }
+                    @if (item.fecha_egreso != null)
+                    {
+                        <td>@item.fecha_egreso.Value.ToString("dd/MM/yyyy")</td>
+                    }
+                    else
+                    {
+                        <td>@item.fecha_egreso</td>
+                    }
+
+                    <td>@item.DxprincipalEgreso</td>
+                    <td>@item.CondicionAlta</td>
+                    <td>@item.indice</td>
+                    <td>@item.nombre_beneficiario</td>
+                    <td>@item.documento_beneficiario</td>
+                    <td>@item.nom_ips</td>
+                    <td class="text-center">@item.candidad_dias</td>
+                    <td class="text-center"><a class="btn button_Asalud_Aceptar btn-sm" href="@Url.Action("categorizacionegresohosp", "Concurrencia", new {id_concurrencia = item.id_concurrencia })">Categorización</a></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        $('.datatable1').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            "order": [[3, "desc"]],
+            responsive: true,
+        });
+
+
+    })
+</script>
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

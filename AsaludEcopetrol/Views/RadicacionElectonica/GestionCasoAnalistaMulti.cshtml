@@ -1,0 +1,256 @@
+﻿@{
+    var regional = ViewBag.regional;
+    var prestador = ViewBag.prestador;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">INGRESO ANALISTAS ASIGNADOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row" style="text-align:center;">
+            <input type="hidden" id="regional" name="regional" value="@regional" />
+            <input type="hidden" id="prestador" name="prestador" value="@prestador" />
+            <div>
+             
+
+                <div id="gridMulti"></div>
+            </div>
+            <div style="display:none">
+                <input class="form-control" type="text" name="Lista_check" id="Lista_check" required />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12" style="text-align:center">
+                <button class="button_Asalud_Aceptar" id="showAsignacion">Asignar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var seleccionados = [];
+
+    $(document).ready(function () {
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+
+        $("#gridMulti").kendoGrid({
+            dataSource: {
+                pageSize: 30,
+                transport: {
+                    read: {
+
+                        url: "GetAnalistaMulti",
+                        dataType: "json",
+                        type: "POST",
+                        data: getRequestParametersMulti
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "id_usuario"
+                    }
+                }
+            },
+            toolbar: ["search"],
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            scrollable: false,
+            persistSelection: true,
+            sortable: false,
+            groupable: false,
+            filterable: false,
+            change: onChangeMulti,
+
+
+            columns: [
+
+                { selectable: true, width: "50px" },
+                { field: "id_usuario", title: "Id" },
+                { field: "nom_analista", title: "Analista" },
+            ]
+        });
+
+        function getRequestParametersMulti() {
+            return {
+                ID: $('#regional').val(),
+                ID2: $('#prestador').val(),
+                limit: 10
+            };
+        }
+
+        debugger
+        function onChangeMulti(arg) {
+            select_check = this.selectedKeyNames().join();
+            $("#Lista_check").val(select_check);
+        }
+
+        $("#showAsignacion").bind("click", function () {
+
+            var lista = $("#Lista_check").val();
+            if (lista != "") {
+                var str = $("#Lista_check").val();
+                let arr = str.split(',');
+                seleccionados = [];
+                seleccionados = arr;
+            } else {
+                var str = $("#Lista_check").val();
+                let arr = [];
+                seleccionados = [];
+                seleccionados = arr;
+            }
+
+            if (seleccionados.length > 0) {
+
+                var prestador = $("#prestador").val();
+                var regional = $("#regional").val();
+
+                $.ajax({
+                    url: "@Url.Action("IngresarAnalistas")",
+                    type: "post",
+                    data: {
+                        ListaIds: seleccionados,
+                        prestador: prestador,
+                        regional: regional
+                    },
+                    success: function (response) {
+
+                        if (response.success) {
+                            alert(response.mensaje);
+                            LoadingHide();
+                            location.reload();
+                        }
+                        else {
+                            LoadingHide();
+                            alert(response.mensaje);
+                        }
+
+                    }
+                })
+            }
+            else {
+                alert("Debe seleccionar almenos uno de los items");
+            }
+        });
+
+    });
+</script>
+
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .k-gridMultitbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-gridMulti.k-button {
+        margin: .16em;
+    }
+
+    .k-grid2 tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid2 .k-button {
+        margin: .16em;
+    }
+
+    .k-grouping-header {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #fff;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid2-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid2-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+</style>

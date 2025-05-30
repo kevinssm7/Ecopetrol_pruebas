@@ -1,0 +1,840 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Concurrencia.Concurrencia
+@{
+    ViewBag.Title = "CRITERIO DE INGRESO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="panel-default">
+        <table align="center" width="990" style="color:#ffffff; background: #2E64FE;">
+            <tr>
+                <td class="text-center" style="font-size:small">
+                    <Label>CRITERIO DE INGRESO</Label>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br />
+    <br />
+    <div id="pnlDatosBasicos" class="General">
+
+        <div class="container">
+
+            @if (Model != null && Model.ListBase != null && Model.ListBase.Count > 0)
+            {
+                foreach (var item in Model.ListBase)
+                {
+                    Model.afi_Dir = item.direccion;
+                    Model.afi_tel1 = item.telefono;
+                    Model.afi_cel = item.celular;
+                }
+            }
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_tipoDoc)</span></h5>
+                    @Html.DropDownListFor(model => model.afi_tipoDoc, new SelectList(Model.LstTipoDocumento, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.LstTipoDocumento, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(u => u.afi_NumDoc)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_NumDoc, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_NumDoc, null, new { @class = "label label-danger" })
+
+                </div>
+
+                <div class="col-sm-4">
+
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(u => u.afi_Nom)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_Nom, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_Nom, null, new { @class = "label label-danger" })
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_Edad)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_Edad, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_Edad, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.genero)</span></h5>
+                    @Html.RadioButtonFor(model => model.genero, "M", new { @readonly = "readonly" })@Html.Label("MASCULINO")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.genero, "F", new { @readonly = "readonly" })@Html.Label("FEMENINO")
+                    @Html.ValidationMessageFor(u => u.genero, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_Dir)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_Dir, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_Dir, null, new { @class = "label label-danger" })
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_tel1)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_tel1, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_tel1, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_cel)</span></h5>
+                    @Html.TextBoxFor(p => p.afi_cel, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.afi_cel, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.contacto_paciente)</span></h5>
+                    @Html.TextBoxFor(p => p.contacto_paciente, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.contacto_paciente, null, new { @class = "label label-danger" })
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.contacto_celular)</span></h5>
+                    @Html.TextBoxFor(p => p.contacto_celular, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.contacto_celular, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_censo)</span></h5>
+                    @Html.TextBoxFor(p => p.id_censo, new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.id_censo, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ips)</span></h5>
+                    @Html.DropDownListFor(model => model.id_ips, new SelectList(Model.ListIPS, "id_ref_ips", "NombreIPS"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.id_ips, null, new { @class = "label label-danger" })
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                @*<div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ciudad)</span></h5>
+                        @Html.DropDownListFor(model => model.id_ciudad, new SelectList(Model.ListCiudadAuditor, "id_ciudad", "nombre"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.id_ciudad, null, new { @class = "label label-danger" })
+                    </div>*@
+
+
+            </div>
+            <br />
+            <br />
+            <div>
+
+                <table align="center" width="990" style="color:#ffffff; background: #2E64FE;">
+                    <tr>
+                        <td class="text-center" style="font-size:small">
+                            <Label>INFORMACIÓN HOSPITALIZACION</Label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+
+
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_ingreso)</span></h5>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_ingreso)
+
+                       .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+                       .Enable(false)
+                    )
+
+                    @Html.ValidationMessageFor(u => u.fecha_ingreso, null, new { @class = "label label-danger" })
+
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.dias_hospitalizado)</span></h5>
+                    @Html.TextBoxFor(p => p.dias_hospitalizado, new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.dias_hospitalizado, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_servicio_tratante)</span></h5>
+                    @Html.DropDownListFor(model => model.id_servicio_tratante, new SelectList(Model.LstServicioTratante, "des", "des"), "Seleccione...", new { @class = "form-control select2" })
+                    @Html.ValidationMessageFor(u => u.id_servicio_tratante, null, new { @class = "label label-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.nombre_medico_tratante)</span></h5>
+                    @Html.TextBoxFor(p => p.nombre_medico_tratante, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.nombre_medico_tratante, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.lesiones_severas)</span></h5>
+
+                    @Html.RadioButtonFor(model => model.lesiones_severas, true, new { @onclick = "Habilitar()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.lesiones_severas, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.lesiones_severas, false, new { @onclick = "Habilitar1()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.lesiones_severas, null, new { @class = "label label-danger" })
+                </div>
+
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_lesiones_severas)</span></h5>
+                    @Html.DropDownListFor(model => model.id_lesiones_severas, new SelectList(Model.LstAltoCosto, "id_lesion_severa", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "calcula3()" })
+                    @Html.ValidationMessageFor(u => u.id_lesiones_severas, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.salud_publica)</span></h5>
+                    @Html.RadioButtonFor(model => model.salud_publica, true, new { @onclick = "Habilitar2()" })@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.salud_publica, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.salud_publica, false, new { @onclick = "Habilitar3()" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.salud_publica, null, new { @class = "label label-danger" })
+
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_salud_publica)</span></h5>
+                    @Html.DropDownListFor(model => model.id_salud_publica, new SelectList(Model.LstSaludPublica, "id_ref_salud_publica", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "calcula2()" })
+                    @Html.ValidationMessageFor(u => u.id_salud_publica, null, new { @class = "label label-danger" })
+                </div>
+
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_origen_hospitalizacion)</span></h5>
+                    @Html.DropDownListFor(model => model.id_origen_hospitalizacion, new SelectList(Model.LstOrigenHospitalizacion, "id_ref_origen_hospitalizacion", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "calcula2()" })
+                    @Html.ValidationMessageFor(u => u.id_origen_hospitalizacion, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <div id='pnlSaludOtro' style='display:none;' class="General">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.otroSalud)</span></h5>
+                        @Html.TextBoxFor(p => p.otroSalud, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.otroSalud, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+            </div>
+            @if (ViewBag.usuario == "14")
+            {
+
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-sm-8">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_cie10_1)</span></h5>
+
+                        @(Html.Kendo().AutoComplete()
+                                        .Name("dx1")
+                                        .Placeholder("Seleccione...")
+                                        .HtmlAttributes(new { style = "width:600px" })
+                                        .DataTextField("des")
+                                        .Events(events => events.Select("CustomerSelect"))
+                                        .Filter(FilterType.Contains)
+
+                                        .DataSource(source =>
+                                        {
+                                            source.Read(read =>
+                                            {
+                                                read.Action("GetCie10", "Concurrencia");
+                                            });
+
+                                        })
+
+                                        .Events(e =>
+                                             {
+
+
+                                                 e.Select("onSelect2");
+
+                                             })
+                        )
+                        @Html.HiddenFor(x => x.id_cie10_1)
+                        @*@Html.DropDownListFor(model => model.id_cie10_1, new SelectList(Model.LstCie10, "id_cie10", "des"), "Seleccione...", new { @class = "form-control" })*@
+                        @Html.ValidationMessageFor(u => u.id_cie10_1, null, new { @class = "label label-danger" })
+                    </div>
+
+                    <div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.reingreso)</span></h5>
+                        @Html.RadioButtonFor(model => model.reingreso, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.reingreso, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.reingreso, "NO", new { @onclick = "mostrar3()" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.reingreso, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+            }
+
+
+            <div class="row" id='pnlReingreso' style='display:none;'>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_ultima_hospitalizacion)</span></h5>
+                    @Html.TextBoxFor(p => p.fecha_ultima_hospitalizacion, new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.fecha_ultima_hospitalizacion, null, new { @class = "label label-danger" })
+                    @if (Model.dias <= 20)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>ALERTA..!</strong> Paciente con reingreso antes de 20 dias
+
+                        </div>
+                    }
+                    else
+                    {
+
+                    }
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="General">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_reingreso)</span></h5>
+                        @Html.DropDownListFor(model => model.id_reingreso, new SelectList(Model.ListMotivoReingreso, "id_ref_motivo_reingreso", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "calcula4()" })
+                        @Html.ValidationMessageFor(u => u.id_reingreso, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div id='pnlReingresoOtro' style='display:none;' class="General">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.otro_reingreso)</span></h5>
+                        @Html.TextBoxFor(p => p.otro_reingreso, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.otro_reingreso, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+
+            <div class="row">
+                @*<div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.hospitalizacion_prevenible)</span></h5>
+                        @Html.RadioButtonFor(model => model.hospitalizacion_prevenible, "SI", new { @onclick = "mostrar4()" })@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.hospitalizacion_prevenible, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.hospitalizacion_prevenible, "NO", new { @onclick = "mostrar5()" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.hospitalizacion_prevenible, null, new { @class = "label label-danger" })
+                    </div>*@
+
+                @foreach (var order in Model.GetListaTrabajador)
+                {
+                    if (order.genero == "M")
+                    {
+
+                    }
+                    else
+                    {
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Gestantes)</span></h5>
+                            @Html.RadioButtonFor(model => model.Gestantes, "SI", new { @readonly = "readonly" })@Html.Label("SI")
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.Gestantes, "NO", new { @readonly = "readonly" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.Gestantes, null, new { @class = "label label-danger" })
+
+                        </div>
+
+                    }
+
+                }
+
+
+
+                @foreach (var order in Model.GetListaTrabajador)
+                {
+                    if (order.id_base_beneficiarios == null)
+                    {
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Trabajador)</span></h5>
+                            @Html.RadioButtonFor(model => model.Trabajador, "SI", new { @onclick = "mostrar()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.Trabajador, "NO", new { @checked = "checked", @onclick = "mostrar1()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+
+                            <script>
+                                setTimeout("mostrar1()", 1000);
+                            </script>
+
+                        </div>
+                    }
+                    else
+                    {
+
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Trabajador)</span></h5>
+                            @Html.RadioButtonFor(model => model.Trabajador, "SI", new { @checked = "checked", @onclick = "mostrar()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.Trabajador, "NO", new { @onclick = "mostrar1()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+
+                            <script>
+                                setTimeout("mostrar()", 1000);
+                            </script>
+                        </div>
+                    }
+
+                }
+
+
+
+                @*<div class="col-sm-4">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Trabajador)</span></h5>
+                        @Html.RadioButtonFor(model => model.Trabajador, "SI", new { @onclick = "mostrar()" })@Html.Label("SI")
+                        @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.Trabajador, "NO", new { @onclick = "mostrar1()" })@Html.Label("NO")
+                        @Html.ValidationMessageFor(u => u.Trabajador, null, new { @class = "label label-danger" })
+                    </div>*@
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div id='pnlCiudadT' style='display:none;' class="General">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.ciudad_trabajador)</span></h5>
+                        @Html.DropDownListFor(model => model.ciudad_trabajador, new SelectList(Model.ListCiudades, "id_ref_ciudades", "nombre"), "Seleccione...", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.ciudad_trabajador, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.triage)</span></h5>
+                    @Html.RadioButtonFor(model => model.triage, "1", new { @readonly = "readonly" })@Html.Label("I")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.triage, "2", new { @readonly = "readonly" })@Html.Label("II")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.triage, "3", new { @readonly = "readonly" })@Html.Label("III")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.triage, "4", new { @readonly = "readonly" })@Html.Label("IV")
+
+                    @Html.ValidationMessageFor(u => u.triage, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.auditoria_telefonica)</span></h5>
+                    @Html.RadioButtonFor(model => model.auditoria_telefonica, "SI", new { @readonly = "readonly" })@Html.Label("SI")
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.auditoria_telefonica, "NO", new { @readonly = "readonly" })@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.auditoria_telefonica, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div id='pnlPrevenible' style='display:none;' class="General">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.descripcion_prevenible)</span></h5>
+                        @Html.TextAreaFor(p => p.descripcion_prevenible, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.descripcion_prevenible, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+
+                </div>
+
+                <div class="col-sm-4">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+
+
+    <div id="pnlGuardar" class="General">
+        <table align="center">
+
+
+            @if (Model.egreso == "SI")
+            {
+                <div class="alert alert-danger">
+                    <strong>ALERTA...!</strong> Caso con egreso.
+                </div>
+            }
+            else
+            {
+                if (Model.modificado == "SI")
+                {
+                    <tr>
+                        <td></td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            @if (ViewBag.usuario == "14")
+                            {
+
+                            }
+                            else
+                            {
+                                <input id="BtnActualizar" type="submit" value="ACTUALIZAR" class="btn btn-success" />
+                            }
+
+                        </td>
+                    </tr>
+                }
+
+            }
+
+            <tr>
+                <td class="Error">
+                    @Html.ValidationSummary(true, "")
+                </td>
+            </tr>
+
+            <tr>
+                <td style="display:none">
+                    @Html.TextBoxFor(u => u.id_concurrencia)
+                    @Html.TextBoxFor(u => u.DesAlto)
+                    @Html.TextBoxFor(u => u.Desips)
+                    @Html.TextBoxFor(u => u.id_ciudadIPS)
+                </td>
+            </tr>
+        </table>
+
+    </div>
+}
+
+<script>
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cie10_1").val(DataItem.id_cie10);
+    }
+
+    $(document).ready(function () {
+
+        _DiferenciaDias()
+        $('#id_lesiones_severas').attr('disabled', 'disabled');
+        $('#id_salud_publica').attr('disabled', 'disabled');
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+
+    });
+
+    $("#id_ips")
+    var mivalor2 = $("#id_ips").val()
+    var mitexto2 = $("#id_ips option:selected").text()
+    $('input:text[id$=Desips]').val(mitexto2);
+
+    function parseDate(str) {
+        var mdy = str.split('/')
+        return new Date(mdy[2], mdy[0] - 1, mdy[1]);
+
+    }
+    function daydiff(first, second) {
+        return (second - first) / (1000 * 60 * 60 * 24);
+    }
+    function _DiferenciaDias() {
+        var _DateEnd;
+        if (!_DateEnd) {
+            var today = new Date();
+            var month = today.getMonth() + 1;
+            var year = today.getYear();
+            var day = today.getDate();
+            if (day < 10) day = "0" + day
+            if (month < 10) month = "0" + month
+            if (year < 1000) year += 1900
+            var dias = month + '/' + day + '/' + year;
+            _DateEnd = dias;
+        }
+        $('#dias_hospitalizado').val(Math.abs(daydiff(parseDate($('#fecha_ingreso').val()), parseDate(_DateEnd))));
+
+        var error = 0;
+        if ($('#fecha_ingreso').val() == '') {
+            error = 1;
+        }
+    }
+
+
+    function mostrar() {
+
+        document.getElementById('pnlCiudadT').style.display = 'block';
+
+    };
+    function mostrar1() {
+        document.getElementById('pnlCiudadT').style.display = 'none';
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlReingreso').style.display = 'block';
+
+    };
+    function mostrar3() {
+        document.getElementById('pnlReingreso').style.display = 'none';
+    };
+
+
+    function mostrar4() {
+
+        document.getElementById('pnlPrevenible').style.display = 'block';
+
+    };
+    function mostrar5() {
+        document.getElementById('pnlPrevenible').style.display = 'none';
+    };
+
+
+    function calcula2() {
+
+        var mivalor = $("#id_salud_publica").val()
+        var mitexto = $("#id_salud_publica option:selected").text()
+        if (mivalor == 10) {
+
+            document.getElementById('pnlSaludOtro').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlSaludOtro').style.display = 'none';
+        }
+
+
+    };
+
+
+    function calcula3() {
+
+        var mivalor = $("#id_lesiones_severas").val()
+        var mitexto = $("#id_lesiones_severas option:selected").text()
+
+        var mivalor2 = $("#id_ips").val()
+        var mitexto2 = $("#id_ips option:selected").text()
+
+        $('input:text[id$=DesAlto]').val(mitexto);
+        $('input:text[id$=Desips]').val(mitexto2);
+
+    };
+
+
+    function calcula4() {
+
+        var mivalor = $("#id_reingreso").val()
+        var mitexto = $("#id_reingreso option:selected").text()
+        if (mivalor == 9) {
+
+            document.getElementById('pnlReingresoOtro').style.display = 'block';
+
+        } else {
+            document.getElementById('pnlReingresoOtro').style.display = 'none';
+        }
+
+
+    };
+
+
+    function Habilitar() {
+        $('#id_lesiones_severas').removeAttr('disabled');
+    };
+
+    function Habilitar1() {
+        $('#id_lesiones_severas').attr('disabled', 'disabled');
+    };
+
+    function Habilitar2() {
+        $('#id_salud_publica').removeAttr('disabled');
+    };
+
+    function Habilitar3() {
+        $('#id_salud_publica').attr('disabled', 'disabled');
+    };
+
+
+    function onSelect2(e) {
+
+        if (e.item) {
+            var dataItem = this.dataItem(e.item.index());
+            var value1 = dataItem.id_cie10;
+            $("#id_cie10_1").val(value1);
+
+            var textBox1 = $('input:text[id$=id_concurrencia]').keyup();
+            var value2 = textBox1.val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder")/' + value1 + "?idconcu=" + value2,
+                dataType: "json",
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                data: {},
+                success: function (data) {
+
+                    if (data.success) {
+                        // alert(data.message);
+                        var opcion = confirm("El diagnostico esta asociado a" + ' ' + data.message + '\n' + 'CIE10:' + ' ' + value1 + '\n' + '\n' + 'SI DESEA CONFIRMA ALERTA POR FAVOR ACEPTAR DE LO CONTRARIO CANCELAR:');
+
+                        if (opcion == true) {
+                            //alert("OK2");
+
+                            $.ajax({
+                                url: '@Url.Action("UpdateOrder2")/' + value1 + "?concurrencia=" + value2,
+
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                cache: false,
+                                data: {},
+                                success: function (data) {
+
+                                    if (data.success) {
+                                        alert(data.message);
+
+                                        if (data.evento != 0) {
+                                            alert(data.msgEvento);
+                                            if (data.evento == 1) {
+                                                window.open('@Url.Action("CreateAnalisisCasoSaludP", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            } else {
+                                                window.open('@Url.Action("CreateAnalisisCaso", "AnalisisCaso", new { id_concurrencia = Model.id_concurrencia})', '', 'width =700,height =500,left =50,top =50,toolbar =yes');
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+
+                        } else {
+                            alert("NO SE INGRESA  ALERTA....");
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function (xhr) {
+                    alert('error');
+                }
+            });
+
+        } else {
+            mensaje = "";
+        }
+
+    }
+
+
+</script>
+<style>
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 90px;
+    }
+
+    .tdGrande {
+        Width: 180px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+

@@ -1,0 +1,435 @@
+﻿
+@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Medicamentos.GestionTablero
+@{
+    ViewBag.Title = "GESTIóN";
+
+}
+
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso Gestión</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario" action="Gestion" method="post" class="row" >
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4><span class="text-secondary_asalud">ITEMS QUE INCUMPLEN</span></h4>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+
+                                        <th class="text-center th" style='display:none;'>ID CENSO</th>
+                                        <th class="text-center th">ITEMS</th>
+                                        <th class="text-center th">OBSERVACION</th>
+
+                                    </tr>
+
+                                    @foreach (var order in Model.ListaIndicadorDetalle)
+                                    {
+
+                                        <tr>
+
+                                            <td style='display:none;'>@order.id_md_ref_indicador</td>
+                                            <td>@order.descripcion</td>
+                                            <td>@order.observaciones</td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label class="text-secondary_asalud">TIPO HALLAZGO</label>
+                            @Html.DropDownListFor(model => model.tipo_hallazgo, new SelectList(Model.GETTipoHallazgo, "id_tipo_hallazgo", "tipo"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.tipo_hallazgo, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-secondary_asalud">SOPORTE</label>
+                            @Html.TextAreaFor(p => p.soporte, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.soporte, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <label class="text-secondary_asalud">FECHA LIMITE RESPUESTA</label>
+                            @Html.EditorFor(model => model.fecha_limite_respuesta, new { htmlAttributes = new { @class = "form-control datepicker", @type = "date" } })
+                            @Html.ValidationMessageFor(u => u.fecha_limite_respuesta, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-secondary_asalud">PLAN MEJORA</label>
+                            @Html.TextAreaFor(p => p.plan_mejora, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.plan_mejora, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+                  
+                    <div style="display:none">
+                        @Html.TextBoxFor(u => u.id_indicadores_medicamentos)
+                    </div>
+
+
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                        </div>
+                        <div class="col-sm-4">
+
+                        </div>
+                    </div>
+
+
+                </form>
+
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+          $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+        $("#optaRespuesta").change(function () {
+
+
+            var mivalor = $("#optaRespuesta").val()
+              var mitexto = $("#optaRespuesta option:selected").text()
+
+              if (mivalor == "1") {
+                  $("#vlrsustentado").val(@ViewBag.vlrglosa);
+                   $("#vlrsustentado").attr('readonly', true);
+              }
+              else if (mivalor == "3") {
+                  $("#vlrsustentado").val(0);
+                  $("#vlrsustentado").attr('readonly', true);
+              } else {
+                   $("#vlrsustentado").val('');
+                  $("#vlrsustentado").attr('readonly', false);
+              }
+          })
+    })
+
+     function finalizar() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+
+
+    function ratificada() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            RatificarDatos();
+        }
+    }
+
+
+    function FinalizarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("id_md_glosa_detalle", $("#id_md_glosa_detalle").val());
+        formData.append("resultado_conciliacion", $("#optaRespuesta").val());
+        formData.append("valor_sustentado", $("#vlrsustentado").val());
+        formData.append("observaciones", $("#Observaciones").val());
+        formData.append("estado", 1);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveConciliacion", "MDConciliacion")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else
+                 {
+                     alert(response.message);
+                     LoadingHide();
+                }
+
+            }
+        })
+    }
+
+    function RatificarDatos() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_md_glosa_detalle", $("#id_md_glosa_detalle").val());
+        formData.append("resultado_conciliacion", $("#resultado").val());
+        formData.append("valor_sustentado", $("#vlrsustentado").val());
+        formData.append("observaciones", $("#Observaciones").val());
+        formData.append("estado", 2);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveConciliacion", "MDConciliacion")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else
+                 {
+                     alert(response.message);
+                     LoadingHide();
+                }
+
+            }
+        })
+    }
+
+
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+

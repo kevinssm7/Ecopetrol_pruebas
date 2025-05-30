@@ -1,0 +1,865 @@
+﻿
+@{
+    ViewBag.Title = "CARACTERIZACIÓN PLAN DE MEJORA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">PLAN DE MEJORA</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <input type="hidden" id="id_visitas" name="id_visitas" value="@ViewBag.idCronograma" />
+                                <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="cbxregional">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                    {
+                                        <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                    }
+
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Unis</label>
+                                <select class="form-control select2" required id="cbxunis" name="cbxunis" onchange="ObtenerCiudades($(this).val())">
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Localidad</label>
+                                <select class="form-control select2" id="ciudad" name="ciudad" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <select class="form-control select2" id="cbxprestador" required name="cbxprestador">
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Fecha creación</label>
+                                <input class="form-control" id="fecha_creacion" name="fecha_creacion" style="width:100%" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Proceso auditado</label>
+                                <select class="form-control select2" required id="cbxproceso" name="cbxproceso" autocomplete="off">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_proceso_auditado item in ViewBag.proceso)
+                                    {
+                                        <option value="@item.id_ref_proceso_auditado">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Medición del riesgo</label>
+                                <select class="form-control select2" required id="id_medicion" name="id_medicion" autocomplete="off" onchange="calculoTipoRiesgo();">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_medicion_riesgo item in ViewBag.medicionRiesgo)
+                                    {
+                                        <option value="@item.id_riesgo">@item.puntaje - @item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Costos de no calidad</label>
+                                <select class="form-control select2" required id="id_noCalidad" name="id_noCalidad" autocomplete="off" onchange="calculoTipoRiesgo();">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_costos_noCalidad item in ViewBag.costosNoCalidad)
+                                    {
+                                        <option value="@item.id_costo">@item.puntaje - @item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Cobertura</label>
+                                <select class="form-control select2" required id="id_cobertura" name="id_cobertura" autocomplete="off" onchange="calculoTipoRiesgo();">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cobertura item in ViewBag.mejoraCobertura)
+                                    {
+                                        <option value="@item.id_cobertura">@item.puntaje - @item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+                        <br />
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <label id="lblPuntaje" class="text-secondary_asalud"></label>
+                                <input id="puntajeFinal" name="puntajeFinal" type="hidden" />
+                                <input id="tipo_prioridad" name="tipo_prioridad" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" align="center">
+                            <button class="button_Asalud_Guardar" id="btn1" type="button" onclick="ValidarFormulario()">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div style="display:none" id="pnlhallazgo">
+        <div class="tab-pane active" id="1c">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">HALLAZGO</strong>
+                </div>
+                <div class="panel-body" id="panel_formulario">
+                    <form class="animated fadeInDown" id="formulario2">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Categoría</label>
+                                <select class="form-control select2" required id="cbxcategoria" name="cbxcategoria" autocomplete="off">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_plan_mejora_categoria item in ViewBag.categoria)
+                                    {
+                                        <option value="@item.id_ref_plan_mejora_categoria">@item.descrpcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="text-secondary_asalud">Foco de gestión</label>
+                                <select class="form-control select2" required id="cbxfoco" name="cbxfoco" autocomplete="off">
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_plan_mejora_foco item in ViewBag.foco)
+                                    {
+                                        <option value="@item.id_ref_plan_mejora_foco">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-4" id="divCausaRaiz" style="display:none;">
+                                <label class="text-secondary_asalud">Causa raiz</label>
+                                <textarea class="form-control" placeholder="" id="hallazgo" name="hallazgo" required rows="3" cols="20" maxlength="5000"></textarea>
+                            </div>
+                            <br />
+                            <div class="col-md-4 text-center">
+                                <a class="btn btn-sm button_Asalud_Aceptar" onclick="AgregarPorques();">Analizar causa raíz</a>
+                            </div>
+
+                        </div>
+                        <br />
+
+                        <div style="display:none">
+                            <input class="form-control" type="text" name="id_plan_de_mejora" id="id_plan_de_mejora" value="@ViewBag.id_plan_de_mejora" />
+                        </div>
+
+                        <div id="panelotrosi">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblotroSi">
+                                    <thead>
+                                        <tr style="background-color:#636363;color:white; font-weight:bold">
+                                            <th class="text-center">#</th>
+                                            <th class="text-center">Id plan</th>
+                                            <th class="text-center">Categoría</th>
+                                            <th class="text-center">Foco</th>
+                                            <th class="text-center">Causa Raíz</th>
+                                            <th class="text-center">Editar análisis</th>
+                                            <th class="text-center">Eliminar acción de mejora</th>
+                                            <th class="text-center">Ingresar/editar acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.management_planmejora_focoResult item in ViewBag.Lista)
+                                        {
+
+                                            <tr>
+                                                <td></td>
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.categoria</td>
+                                                <td>@item.foco</td>
+                                                <td>@item.hallazgo</td>
+                                                <td> </td>
+                                                <th></th>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="panel-body" id="panel_formulario">
+                    <form class="animated fadeInDown" id="formulario3">
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12" align="center">
+                                <button class="button_Asalud_Aceptar" id="btn2" type="button" onclick="ValidarFormulario3()">Cerrar Gestión</button>
+                            </div>
+                        </div>
+                        <div style="display:none">
+                            <input class="form-control" type="text" name="id_plan_de_mejora" id="id_plan_de_mejora" value="@ViewBag.id_plan_de_mejora" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="ModalPorques">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud" id="CatFoco"></strong>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong class="text-primary_asalud">5 PORQUES</strong>
+                    </div>
+                    <div class="panel panel-body">
+                        <form id="formPorques">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label class="text-secondary_asalud">Descripción del problema</label>
+                                    <textarea id="descripcion_problema" name="descripcion_problema" maxlength="5000" cols="5" rows="3" class="form-control char-count" required></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <input type="hidden" id="idFoco" name="idFoco" />
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">¿Por qué ocurrió esta causa?</label>
+                                    <textarea id="porque1" name="porque1" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">¿Por qué ocurrió esta segunda causa?</label>
+                                    <textarea id="porque2" name="porque2" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">¿Por qué ocurrió esta tercera causa?</label>
+                                    <textarea id="porque3" name="porque3" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">¿Por qué ocurrió esta cuarta causa?</label>
+                                    <textarea id="porque4" name="porque4" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="text-secondary_asalud">¿Por qué ocurrió esta quinta causa?</label>
+                                    <textarea id="porque5" name="porque5" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                                </div>
+                            </div>
+                            <br />
+
+                            <div class="row">
+                                <div class="col-sm-12" align="center">
+                                    <button class="button_Asalud_Guardar" id="btn2" type="button" onclick="ValidarFormulario2()">Guardar análisis</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+         $("#fecha_creacion").kendoDatePicker({
+           max: new Date(),
+        });
+
+        // $("#fecha_creacion").kendoDatePicker();
+        $("#fecha_creacion").prop('readonly', true);
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+
+    });
+
+    function calculoTipoRiesgo() {
+        var medicion = $("#id_medicion").val();
+        var noCalidad = $("#id_noCalidad").val();
+        var cobertura = $("#id_cobertura").val();
+
+        var puntaje = 0;
+        var porcentaje = 0;
+
+
+        if (medicion != null && medicion != "" && noCalidad != null && noCalidad != "" && cobertura != null && cobertura != "") {
+            puntaje = parseFloat(medicion) + parseFloat(noCalidad) + parseFloat(cobertura);
+
+            porcentaje = (puntaje / parseFloat("@ViewBag.sumaPuntajes") * 100);
+
+            if (porcentaje <= 59) {
+                $("#lblPuntaje").text("Prioridad BAJA");
+                $("#tipo_prioridad").val(3);
+            }
+            else if (porcentaje >= 60 && porcentaje <= 79) {
+                $("#lblPuntaje").text("Prioridad MEDIA");
+                $("#tipo_prioridad").val(2);
+            }
+            else if (porcentaje >= 80) {
+                $("#lblPuntaje").text("Prioridad ALTA");
+                $("#tipo_prioridad").val(1);
+            }
+
+            $("#puntajeFinal").val(puntaje);
+        }
+    }
+
+
+    function CargarUnis(a) {
+        if (a != "") {
+            $("#ciudad").empty();
+            $("#cbxunis").empty();
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis").html(data);
+                    $("#cbxunis").val("").trigger("change");
+                }
+            })
+        }
+        CargarEspecialista(a);
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                    var ciudad = "@ViewBag.filtrociudad";
+                    if (ciudad != "") {
+                        $("#ciudad").val(ciudad).trigger("change");
+                        ObtenerPrestadores(ciudad);
+
+                    }
+                }
+            })
+        }
+    }
+
+    @*function CargarTrimestre(a) {
+        var mes = a;
+        if (mes != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadetrimestre", "PlanMejora")",
+                type: "post",
+                data: { mes: mes },
+                success: function (data) {
+                    $("#cbxtrimestre").empty();
+                    $("#cbxtrimestre").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxtrimestre").append("<option value='" + b.id_ref_trimeste + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }*@
+
+    function CargarEspecialista(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadePrestadores", "PlanMejora")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprestador").empty();
+                    $("#cbxprestador").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprestador").append("<option value='" + b.id_ref_ips_cuentas + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+     function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("id_visitas", $("#id_visitas").val());
+        formData.append("id_regional", $("#cbxregional").val());
+        formData.append("id_unis", $("#cbxunis").val());
+        formData.append("id_localidad", $("#ciudad").val());
+        formData.append("fecha_creacion", $("#fecha_creacion").val());
+        formData.append("id_prestador", $("#cbxprestador").val());
+        formData.append("id_mes", $("#cbxmes").val());
+
+        formData.append("id_trimestre", $("#cbxtrimestre").val());
+        formData.append("año", $("#ano").val());
+        formData.append("id_proceso", $("#cbxproceso").val());
+        //formData.append("id_prioridad", $("#id_prioridad").val());
+
+        formData.append("id_medicion", $("#id_medicion").val());
+        formData.append("id_noCalidad", $("#id_noCalidad").val());
+        formData.append("id_cobertura", $("#id_cobertura").val());
+        formData.append("puntajeFinal", $("#puntajeFinal").val());
+        formData.append("tipo_prioridad", $("#tipo_prioridad").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveplanMejora", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                 {
+                     LoadingHide();
+
+                     $("#id_plan_de_mejora").val(response.id);
+
+                     document.getElementById('pnlhallazgo').style.display = 'block';
+                     document.getElementById("cbxregional").disabled = true;
+                     document.getElementById("cbxunis").disabled = true;
+                     document.getElementById("cbxprestador").disabled = true;
+                     //document.getElementById("cbxmes").disabled = true;
+
+
+                     //document.getElementById("id_prioridad").disabled = true;
+
+
+                     //document.getElementById("cbxtrimestre").disabled = true;
+                     //document.getElementById("ano").disabled = true;
+                     document.getElementById("cbxproceso").disabled = true;
+                     document.getElementById("fecha_creacion").disabled = true;
+                     document.getElementById('btn1').style.display = 'none';
+                     document.getElementById('cbxcategoria').focus();
+                 }
+
+                else
+                 {
+                     LoadingHide();
+                     alert(response.message);
+                 }
+            }
+        })
+    }
+
+    //function ValidarFormulario2() {
+    //    var validator = $("#formPorques").validate();
+
+    //    if (validator.form()) {
+    //        GuardarDatos2();
+    //    }
+    //}
+
+    function ValidarFormulario2() {
+        var validator = $("#formPorques").validate();
+        var esValido = true;
+
+        // Validar que cada textarea tenga al menos 20 caracteres
+        $("#formPorques textarea").each(function () {
+            var texto = $(this).val();
+            if (texto.length < 20) {
+                esValido = false;
+                alert(`El campo "${$(this).prev("label").text()}" debe tener al menos 20 caracteres.`);
+                return false; // Detiene el bucle si hay un error
+            }
+        });
+
+        if (esValido && validator.form()) {
+            GuardarDatos2();
+        }
+    }
+
+    function GuardarDatos2() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("id_categoria", $("#cbxcategoria").val());
+        formData.append("id_foco_gestion", $("#cbxfoco").val());
+        formData.append("hallazgo", $("#hallazgo").val());
+        formData.append("id_plan_de_mejora", $("#id_plan_de_mejora").val());
+
+        formData.append("tipo_prioridad", $("#tipo_prioridad").val());
+        formData.append("porque1", $("#porque1").val());
+        formData.append("porque2", $("#porque2").val());
+        formData.append("porque3", $("#porque3").val());
+        formData.append("porque4", $("#porque4").val());
+        formData.append("porque5", $("#porque5").val());
+        formData.append("idFoco", $("#idFoco").val());
+        formData.append("descripcion_problema", $("#descripcion_problema").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveplanMejorafoco", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+
+                $("#ModalPorques").modal("hide");
+                LoadingHide();
+                $("#tblotroSi tbody").empty();
+                $("#tblotroSi tbody").html(data.tabla);
+                $("#id_categoria").val("").trigger("change");
+                $("#id_foco_gestion").val("").trigger("change");
+                $("#hallazgo").val("").trigger("change");
+
+                $("#cbxcategoria").val("").trigger("change");
+                $("#cbxfoco").val("").trigger("change");
+            }
+        })
+    }
+
+    function removerotroProducto(A,B) {
+
+
+        var mensaje = "¿Está seguro(a) que desea eliminar este registro?";
+        var opcion = confirm(mensaje);
+        if (opcion == true) {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("id_categoria", $("#cbxcategoria").val());
+            formData.append("id_foco_gestion", $("#cbxfoco").val());
+            formData.append("hallazgo", $("#hallazgo").val());
+            formData.append("id_plan_de_mejora", B);
+            formData.append("id_plan_mejora_foco_intervencion", A);
+
+            formData.append("tipo_prioridad", $("#tipo_prioridad").val());
+            formData.append("porque1", $("#porque1").val());
+            formData.append("porque2", $("#porque2").val());
+            formData.append("porque3", $("#porque3").val());
+            formData.append("porque4", $("#porque4").val());
+            formData.append("porque5", $("#porque5").val());
+            formData.append("idFoco", $("#idFoco").val());
+
+            $.ajax({
+                url: "@Url.Action("RemoverOtroProducto")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $("#tblotroSi tbody").empty();
+                    $("#tblotroSi tbody").html(data.tabla);
+
+                }
+            })
+        }
+        else {
+
+        }
+    }
+
+    function CargarTarea(a,b, c)
+    {
+        var url = "@Url.Action("GestionarTareas", "PlanMejora")?ID=" + a + '&ID2=' + b + "&tipoPrioridad=" + c;
+        popupWindow = window.open(url, '', 'height=500,width=800,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function ValidarFormulario3() {
+        var validator = $("#formulario3").validate();
+        if (validator.form()) {
+
+            GuardarDatos3();
+        }
+    }
+
+    function GuardarDatos3() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_plan_de_mejora", $("#id_plan_de_mejora").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("CerrarplanMejora", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    ReporteIngresoPM(response.id)
+                    location.reload();
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+
+            }
+
+        })
+    }
+
+    function ReporteIngresoPM(idPlan) {
+        var URL2 = "@Url.Action("CrearReporteCreacionPM", "PlanMejora")?idPlan=" + idPlan;
+        window.open(URL2, '', 'width =450,height =540,left =10,top =150,toolbar =yes');
+    }
+
+    function AgregarPorques() {
+
+        var foc = $("#cbxfoco").val();
+        var cat = $("#cbxcategoria").val();
+
+        $("#idFoco").val("");
+
+        if (foc && cat) {
+
+            const cbxfoco = document.getElementById("cbxfoco");
+            const focoSeleccionado = cbxfoco.options[cbxfoco.selectedIndex].text;
+            const cbxcategoria = document.getElementById("cbxcategoria");
+            const categoriaSeleccionada = cbxcategoria.options[cbxcategoria.selectedIndex].text;
+
+            $("#CatFoco").text("Categoría: " + categoriaSeleccionada + " - Foco de gestión: " + focoSeleccionado);
+
+            $("#ModalPorques").modal("show");
+            $('#formPorques')[0].reset();
+            $('.charCount').text('Te quedan 5000 caracteres.');
+        }
+        else {
+            alert("Seleccione la categoría y el foco de gestión");
+        }
+    }
+
+
+    function EditarPorques(idPlan, idfoco) {
+
+
+        var porque = $("#porque1_" + idfoco).val();
+        var porque2 = $("#porque2_" + idfoco).val();
+        var porque3 = $("#porque3_" + idfoco).val();
+        var porque4 = $("#porque4_" + idfoco).val();
+        var porque5 = $("#porque5_" + idfoco).val();
+        var problema = $("#desProblema_" + idfoco).val();
+
+        $("#descripcion_problema").val(problema).trigger("change");
+
+        $("#porque1").val(porque).trigger("change");
+        $("#porque2").val(porque2).trigger("change");
+        $("#porque3").val(porque3).trigger("change");
+        $("#porque4").val(porque4).trigger("change");
+        $("#porque5").val(porque5).trigger("change");
+        $("#idFoco").val(idfoco);
+
+        var focoSel = $("#idFoco_" + idfoco).val();
+        var cateSel = $("#idcategoria_" + idfoco).val();
+
+        const categoriaSeleccionada = $("#desCategoria_" + idfoco).val();
+        const focoSeleccionado = $("#desFoco_"+idfoco).val();
+
+        $("#cbxfoco").val(focoSel).trigger("change");
+        $("#cbxcategoria").val(cateSel).trigger("change");
+
+        $("#CatFoco").text("Categoría: " + categoriaSeleccionada + " - Foco de gestión: " + focoSeleccionado);
+        $("#ModalPorques").modal("show");
+    }
+</script>
+
+
+
+<style>
+
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+
+    .TamañoImag {
+        background-image: url('../../Resources/SAMII BANNER.jpg');
+        background-repeat: no-repeat;
+        background-position: top;
+        background-size: contain;
+        height: 150px;
+        position: center;
+    }
+
+    .carousel-caption {
+        right: 10%;
+        left: 8%;
+        z-index: 1;
+        text-align: center;
+    }
+
+
+    .TamañoDiv {
+        position: page;
+        width: 1100px;
+    }
+
+    .dj-banner {
+        margin: 30px 0;
+        position: relative;
+    }
+
+        .dj-banner .dj-bg {
+            background-image: url('../../Resources/SAMII BANNER.jpg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            height: 150px;
+        }
+
+            .dj-banner .dj-bg img {
+                display: block;
+                margin: 20px auto;
+                padding: 20px 0;
+            }
+
+        .dj-banner .dj-text {
+            text-align: center;
+        }
+</style>
+
+

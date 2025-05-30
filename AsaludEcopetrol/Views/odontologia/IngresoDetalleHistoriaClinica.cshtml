@@ -1,0 +1,448 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Odontologia.HistoriaClinica
+@{
+    ViewBag.Title = "PACIENTE HISTORIA CLÍNICA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+<div class="container-full">
+
+    <div class="row">
+        <div class="col-xs-8">
+
+        </div>
+        <div class="col-xs-4">
+            <a href="@Url.Action("IngresoPacienteHC", "odontologia", new {id =Model.id_odont_historia_clinica})" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-chevron-right"></span> INGRESAR PACIENTE</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <label class="text-secondary_asalud">PACIENTES CARGADOS</label>
+            <table id="grid"></table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <label class="text-secondary_asalud">CALIFICACIÓN TOTAL POR PACIENTE</label>
+            <table id="gridP"></table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <label class="text-secondary_asalud"> CALIFICACIÓN TOTAL DE LA CALIDAD  DE HISTORIA CLÍNICA</label>
+            <table id="gridT"></table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <table id="grid2"></table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <table id="grid3"></table>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+<div style="display:none">
+
+    @Html.TextBoxFor(u => u.id_odont_historia_clinica_paciente)
+    @Html.TextBoxFor(u => u.id_odont_historia_clinica)
+
+</div>
+
+
+<script>
+
+    var grid, dialog;
+
+    function Save() {
+        var record = {
+            ID: $('#ID').val(),
+            Name: $('#Name').val(),
+            PlaceOfBirth: $('#PlaceOfBirth').val()
+        };
+        $.ajax({ url: '/odontologia/Save', data: { record: record }, method: 'POST' })
+            .done(function () {
+                dialog.close();
+                grid.reload();
+            })
+            .fail(function () {
+                alert('Failed to save.');
+                dialog.close();
+            });
+    }
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_unis").val(DataItem.id_ref_unis);
+    }
+
+    $(document).ready(function () {
+
+        var textBox1 = $('input:text[id$=id_odont_historia_clinica]').keyup();
+        var value2 = textBox1.val();
+
+        var grid = $('#grid').grid({
+
+            locale: 'es-es',
+            primaryKey: 'id_odont_historia_clinica_paciente',
+            uiLibrary: 'bootstrap4',
+
+            dataSource: '/odontologia/GetHCPaciente/' + value2,
+            columns: [
+                { field: 'id_odont_historia_clinica_paciente', title: 'ID', width: 50 },
+                { field: 'fecha_atencion', title: 'FECHA ATENCIÓN', type: 'date' },
+                { field: 'numero_hc', width: 400, title: 'DOCUMENTO PACIENTE' },
+                { field: 'paciente', width: 400, title: 'PACIENTE' },
+                { title: 'Ver detalle', width: 60, tmpl: '<span class="material-icons gj-cursor-pointer">arrow_drop_down_circle</span>' }
+
+            ],
+
+        });
+
+        var gridP = $('#gridP').grid({
+
+            locale: 'es-es',
+            primaryKey: 'id_odont_historia_clinica',
+            uiLibrary: 'bootstrap4',
+
+            dataSource: '/odontologia/GetHCPacienteTotalesPaciente/' + value2,
+            columns: [
+                { field: 'id_odont_historia_clinica_paciente', title: 'ID PACIENTE'},
+                { field: 'tcalidad', title: 'TOTAL CALIDAD'},
+                { field: 'porcentajecal', title: 'PORCENTAJE CALIDAD' },
+                { field: 'total_calculadocal', title: 'TOTAL PORCENTAJE CALIDAD' },
+                { field: 'tcontenido', title: 'TOTAL CONTENIDO' },
+                { field: 'porcentajecon', title: 'PORCENTAJE CONTENIDO' },
+                { field: 'total_calculadocon', title: 'TOTAL PORCENTAJE CONTENIDO' },
+                { field: 'sumatotal', title: 'TOTAL GENERAL' },
+            ],
+
+        });
+
+        var gridT = $('#gridT').grid({
+
+            locale: 'es-es',
+            primaryKey: 'id_odont_historia_clinica',
+            uiLibrary: 'bootstrap4',
+
+            dataSource: '/odontologia/GetHCPacienteTotales/' + value2,
+            columns: [
+                { field: 'TOTAL_CALIDAD', title: 'TOTAL CALIDAD'},
+                { field: 'PORCENTAJE_CALID', title: 'PORCENTAJE CALIDAD' },
+                { field: 'TOTAL_CALIDAD_PORCENTAJECal', title: 'TOTAL PORCENTAJE CALIDAD' },
+                { field: 'TOTAL_CONTENIDO', title: 'TOTAL CONTENIDO' },
+                { field: 'PORCENTAJE_CONT', title: 'PORCENTAJE CONTENIDO' },
+                { field: 'TOTAL_CALIDAD_PORCENTAJECon', title: 'TOTAL PORCENTAJE CONTENIDO' },
+                { field: 'TOTAL', title: 'TOTAL GENERAL' },
+                
+
+            ],
+
+        });
+
+        grid2 = $('#grid2').grid({
+            primaryKey: 'id_odont_historia_clinica_paciente',
+            dataSource: '/odontologia/GetHCDetalle',
+            autoLoad: false,
+            columns: [
+                { field: 'descripcion', width: 500, title: 'PARÁMETRO CALIDAD FORMAL' },
+                { field: 'calificacionf', title: 'CALIFICACIÓN' },
+                { field: 'ponderacionf', title: 'PONDERACIÓN' },
+                { field: 'calificacion_ponderadaf', title: 'CALIFICACIÓN PONDERADA' },
+
+            ],
+
+        });
+        grid.on('rowSelect', function (e, $row, id, record) {
+            grid2.reload({ Id: id, page: 1 });
+        });
+
+        grid3 = $('#grid3').grid({
+            primaryKey: 'id_odont_historia_clinica_paciente',
+            dataSource: '/odontologia/GetHCDetalle2',
+            autoLoad: false,
+            columns: [
+                { field: 'descripcion', width: 500, title: 'PARÁMETRO CALIDAD CONTENIDO' },
+                { field: 'calificacionc', title: 'CALIFICACIÓN' },
+                { field: 'ponderacionc', title: 'PONDERACIÓN' },
+                { field: 'calificacion_ponderadac', title: 'CALIFICACIÓN PONDERADA' },
+            ],
+
+        });
+        grid.on('rowSelect', function (e, $row, id, record) {
+            grid3.reload({ Id: id, page: 1 });
+        });
+
+        dialog = $('#dialog').dialog({
+            uiLibrary: 'bootstrap',
+            autoOpen: false,
+            resizable: false,
+            modal: true,
+            width: 1200
+        });
+        $('#btnAdd').on('click', function () {
+            $('#ID').val('');
+            $('#Nombre').val('');
+            $('#Numero').val('');
+            $('#fecha_atencion').val('');
+            dialog.open('AGREGAR PACIENTE');
+        });
+        $('#btnSave').on('click', Save);
+        $('#btnCancel').on('click', function () {
+            dialog.close();
+        });
+
+    });
+
+    function CargarDetalle1(e) {
+
+        $('#id_odont_historia_clinica_paciente').val(e.data.id);
+        var textBox2 = $('input:text[id$=id_odont_historia_clinica_paciente]').keyup();
+        var value3 = textBox2.val();
+        var grid;
+
+
+        grid = $('#grid2').grid({
+
+            locale: 'es-es',
+            dataSource: '/odontologia/GetHCDetalle/' + value3,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_odont_historia_clinica_detalle',
+
+            columns: [
+
+                { field: 'PARAMETRO_CALIDAD_CONTENIDO', title: 'PARÁMETRO CALIDAD CONTENIDO' },
+                { field: 'CALIFICACION2', title: 'CALIFICACIÓN' },
+                { field: 'PONDERACION2', title: 'PONDERACIÓN' },
+                { field: 'CALIFICACION_PONDERADA2', title: 'CALIFICACIÓN PONDERADA' },
+
+
+            ],
+
+        });
+        grid.reload();
+
+
+    }
+</script>
+
+
+<style>
+.big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #D0CECE;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #524e4e;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #000000;
+        border-top: 1px solid transparent;
+    }
+</style>

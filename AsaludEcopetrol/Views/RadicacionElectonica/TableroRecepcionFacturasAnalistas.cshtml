@@ -1,0 +1,215 @@
+﻿@*@model List<ECOPETROL_COMMON.ENTIDADES.managementFacturasanalistas_lotesResult>*@
+@{
+    ViewBag.Title = "TABLERO DE RECEPCIÓN DE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<!DOCTYPE html>
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud"> Listado de facturas radicadas</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="text-left form-group">
+                    @if (ViewBag.idUsuario == 396)
+                    {
+                        <a class="button_Asalud_Aceptar" onclick="CargueMasivoDetalles()">Validar masivo</a>
+                    }
+
+                    <button title="Eliminar cache, y recargar datos" type="button" onclick="refrescarTableroControl()" class="btn btn-xs button_Asalud_Aceptar">Refrescar tablero de control&nbsp;<i class="glyphicon glyphicon-refresh"></i></button>
+                </div>
+                <table class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Días Trascurridos</th>
+                            <th>Prestador</th>
+                            <th>Fecha Recepción Factura</th>
+                            <th>Versión</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Lista)
+                        {
+                            <tr>
+                                @if (item.dias_trascurridos > 1 && item.dias_trascurridos <= 2)
+                                {
+                                    <td class="text-center" style="background-color:#F6D0B5">@item.id_cargue_base</td>
+                                    <td class="text-center" style="background-color:#F6D0B5">@item.dias_trascurridos Días</td>
+                                    <td class="text-center" style="background-color:#F6D0B5">@item.Nombre</td>
+                                    <td class="text-center" style="background-color:#F6D0B5">@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                }
+                                else if (item.dias_trascurridos > 2)
+                                {
+                                    <td class="text-center" style="background-color:#FFEDED">@item.id_cargue_base</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.dias_trascurridos Días</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.Nombre</td>
+                                    <td class="text-center" style="background-color:#FFEDED">@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                }
+
+                                else
+                                {
+                                    <td class="text-center">@item.id_cargue_base</td>
+                                    <td class="text-center">@item.dias_trascurridos Días</td>
+                                    <td class="text-center">@item.Nombre</td>
+                                    <td class="text-center">@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                                }
+                                @if (item.version == 1)
+                                {
+                                    <td class="text-center" style="background-color: #F6D0B5">@item.descripcionVersion</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center" style="background-color:#FFEDED">@item.descripcionVersion</td>
+                                }
+
+                                <td>
+                                    <a href="javascript:VerFacturas(@item.id_cargue_base)" role="button" class="button_Asalud_Aceptar">Ver Facturas</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            "order": [[3, "desc"]],
+            "language": {
+                "search": "Buscar",
+                "lengthMenu": "Ver _MENU_ resultados por pagina",
+                "zeroRecords": "Ningún resultado encontrado",
+                "info": "Viendo pagina_PAGE_ de _PAGES_",
+                "infoEmpty": "Ningún resultado disponible",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            }
+        });
+    });
+
+    function refrescarTableroControl()
+    {
+        LoadingShow();
+        var url = "@Url.Action("RefrescarTableroRecepcionFacturasAnalista", "RadicacionElectonica")";
+        location.href = url
+    }
+
+    function VerFacturas(id)
+    {
+        LoadingShow();
+        location.href =  "@Url.Action("TableroFacturasAnalista","RadicacionElectonica")?idcargue=" + id;
+    }
+
+    function CargueMasivoDetalles() {
+
+        var confirmar = confirm("¿Seguro de validar los detalles en tabla masiva?");
+        if (confirmar == true) {
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("CargarMasivoDetalles")",
+                type: "post",
+                data: {},
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

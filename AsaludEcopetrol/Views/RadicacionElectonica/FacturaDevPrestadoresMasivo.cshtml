@@ -1,0 +1,537 @@
+﻿@{
+    Layout = null;
+    string html = (string)ViewBag.Html;
+}
+
+<div class="tab-content">
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso Devolución</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarCiudad($(this).val())" required id="id_regional" name="id_regional" disabled>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.listaRegional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Ciudad</label>
+                            <select class="form-control select2" onchange="CargarPrestador($(this).val())" required id="id_ciudad" name="id_ciudad" disabled>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ciudades item in ViewBag.listaCiudad)
+                                {
+                                    <option value="@item.id_ref_ciudades">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <select class="form-control select2" required id="id_prestador" name="id_prestador" disabled>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips_cuentas item in ViewBag.ips)
+                                {
+                                    <option value="@item.id_ref_ips_cuentas">@item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Fecha Devolución</label>
+                            <input class="datepickerr" required title="Este campo es obligatorio*" style="width:100%" name="fecha_dev" id="fecha_dev" />
+                        </div>
+                    </div>
+                    <br />
+                    <div>
+                        @Html.Raw(html)
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <button data-bind="click: agregarDetalle" class="btn btn-primary">Agregar Detalle</button>
+                        </div>
+                    </div>
+                    <div>
+                        <em data-bind="validationMessage: detalle"></em>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <table class="table table-bordered">
+
+                                <thead>
+                                    <tr>
+                                        <th class="text-center th">Valor Glosa</th>
+                                        <th class="text-center th">Motivo</th>
+                                        <th class="text-center th">Observaciones</th>
+                                        <th class="text-center th"></th>
+
+                                    </tr>
+                                </thead>
+
+                                <tbody data-bind="foreach: detalle">
+                                    <tr>
+                                        <td>
+
+                                            <div class="form-group">
+                                                <input class="form-control input-lg" id="number" type="number" style="font-size:10pt;width:150px;" required="required" min="0" max="999999999" data-bind="value: valorGlosa, attr: { name: 'Detalle[' + $index() + '].ValorGlosa' }">
+                                                <em data-bind="validationMessage: valorGlosa"></em>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <select class="form-control" id="exampleFormControlSelect1" style="font-size:10pt;width:200px;" required="required" data-bind="value: id_motivo, options: window.productos, optionsText: 'des', optionsValue: 'id_ref_cuentas_glosa', attr: { name: 'Detalle[' + $index() + '].Id_motivo' }"></select>
+                                                <em data-bind="validationMessage: id_motivo"></em>
+
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="form-group">
+                                                <textarea class="form-control" rows="5" id="comment" style="font-size:10pt;width:250px;" required="required" data-bind="value: observaciones, attr: { name: 'Detalle[' + $index() + '].Observaciones' }"></textarea>
+                                                <em data-bind="validationMessage: observaciones"></em>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger" data-bind="click: $root.eliminarDetalle">Eliminar</button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" align="center">
+                            <button class="button_Asalud_Guardar" type="button" onclick="finalizar()">Guardar</button>
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_cargue_dtll" id="id_cargue_dtll" value="@ViewBag.id_af" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<script src="~/Scripts/knockout-2.2.1.js"></script>
+<script src="~/Scripts/knockout.validation.js"></script>
+<script src="~/Scripts/ViewModels/FacturaCreateViewModel.js"></script>
+
+<script>
+    debugger
+    var productos = JSON.parse('@Html.Raw(Json.Encode(Model.Productos2))');
+    var viewModel = new facturaViewModel();
+    ko.validation.init({ insertMessages: false, parseInputAttributes: true });
+    ko.applyBindings(viewModel);
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+        $('.solo-numero').keyup(function () {
+                this.value = (this.value + '').replace(/[^0-9.]/g, '');
+            });
+
+
+        $('.solo-numero2').keydown(function () {
+                this.value = (this.value + '').replace(/[^0-9.]/g, '');
+            });
+
+
+        $('.solo-numero3').focusout(function () {
+                this.value = (this.value + '').replace(/[^0-9.]/g, '');
+
+        }); 
+    })
+
+    function finalizar() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+
+    function FinalizarDatos() {
+
+        var SelectedList = new Array();
+        var SelectedList = [];
+        $.each($("input[name='Detalle']:checked"), function(){
+                SelectedList.push($(this).val());
+            });
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("Prestador", $("#id_prestador").val());
+        formData.append("fecha_dev", $("#fecha_dev").val());
+        formData.append("id_regional", $("#id_regional").val());
+        formData.append("NumeroFactura", $("#NumeroFactura").val());
+        formData.append("ValorFactura", $("#ValorFactura").val());
+        formData.append("ciudad", $("#id_ciudad").val());
+
+        for (var i = 0; i < SelectedList.length; i++)
+        {
+            formData.append('Detalle', SelectedList[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveFacturaDevPrestadoresMasivo", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                  alert(response.message);
+                   var URL2 = "@Url.Action("CrearPdfCartaDevolucionFac", "RadicacionElectonica")?id=" + response.id;
+                   window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+                   $.ajax({
+                    url: "@Url.Action("ActualizaDevolucion", "RadicacionElectonica")",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                       id_af: ID},
+                       success: function (response)
+                       {
+                        if (response.success)
+                        {
+                         location.reload();
+                        }
+                        else
+                        {
+                          alert(response.message);
+                          LoadingHide();
+                        }
+
+                      }
+                   })
+                   location.reload();
+
+              }
+              else
+              {
+                     alert(response.message);
+                     LoadingHide();
+              }
+
+            }
+        })
+    }
+
+
+    function Habilitar(a) {
+        var Valor = a;
+        if (Valor == "NO") {
+             document.getElementById('pnldx').style.display = 'block';
+        } else {
+             document.getElementById('pnldx').style.display = 'none';
+        }
+
+
+    }
+
+    function ValidarFirma(a) {
+         var usuario = a;
+         var regional = $("#regional").val();
+        if (usuario != "") {
+            $.ajax({
+                url: "@Url.Action("ValidarFirma", "RadicacionElectonica")",
+                type: "post",
+                data: { usuario: usuario,regional:regional },
+                success: function (data) {
+                    //if (data.message != 1) {
+                    //  alert('ERROR... Auditor no puede ser asignado porque no tiene firma digital en SAMI. ');
+
+                    //   $("#idAuditor").empty();
+                    //   $("#idAuditor").append("<option value=''> - Seleccionar - </option>");
+                    //     data.forEach(function (b) {
+                    //       $("#idAuditor").append("<option value='" + b.id_usuario + "'>" + b.nombre + "</option>");
+                    //     });
+                    //}
+
+                }
+            })
+        }
+
+    }
+
+    function HabilitarAuditor(a) {
+        var Valor = a;
+        if (Valor == "SI") {
+             document.getElementById('pnlAuditor').style.display = 'block';
+        } else {
+             document.getElementById('pnlAuditor').style.display = 'none';
+        }
+
+
+    }
+
+    function CargarCiudad(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeCiudades", "Facturas")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#ciudad").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+    debugger
+    function CargarPrestador(a) {
+        var Ciudad = a;
+        if (Ciudad != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeIPS", "Facturas")",
+                type: "post",
+                data: { Ciudad: Ciudad },
+                success: function (data) {
+                    $("#Prestador").empty();
+                    $("#Prestador").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxunis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        }
+
+    }
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+
+
+
+
+
+

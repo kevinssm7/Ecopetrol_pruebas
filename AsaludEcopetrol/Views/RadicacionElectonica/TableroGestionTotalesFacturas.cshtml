@@ -1,0 +1,465 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO GESTIÓN FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+
+        <div class="panel-body">
+            <form id="formulario_obligados" action="TableroGestionTotalesFacturas" method="post" enctype="multipart/form-data">
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud"> Regional</label>
+                            <select class="form-control select" id="regional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Rango Fechas</label>
+                            <select class="form-control select" id="rango" name="rango" onchange="CargarPrestador($(this).val())">
+                                <option value="">- Seleccionar -</option>
+                                <option value="1">-Entre 1 y 3 días -</option>
+                                <option value="5">-Entre 4 y 6 días -</option>
+                                <option value="2">-Entre 7 y 15 días -</option>
+                                <option value="3">-Entre 15 y 30 días -</option>
+                                <option value="4">- Mayor a 30 días -</option>
+
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 text-left">
+                        <div class="form-group">
+                            <button type="button" onclick="validarformulario()" class="button_Asalud_Aceptar"><i class="glyphicon glyphicon-upload" s></i> Buscar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed table-striped datatable1">
+            <thead>
+                <tr>
+                    @if (ViewBag.opc == 1)
+                    {
+                        <th>Regional</th>
+                        <th>Estado</th>
+                        <th>Total Facturas</th>
+                        <th>Descargar</th>
+                    }
+                    @if (ViewBag.opc == 2)
+                    {
+                        <th>Id_Regional</th>
+                        <th>Regional</th>
+                        <th>Total Facturas</th>
+                        <th>Descargar</th>
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.opc == 1)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.managmentprestadores_estados_factura_totalResult order in ViewBag.Lista)
+                    {
+                        <tr>
+                            <td>@order.nombre_regional</td>
+                            <td>@order.estado</td>
+                            <td>@order.total</td>
+                            <td>
+                                <a role="button" href="@Url.Action("ExportarFacturasTotales","RadicacionElectonica" , new {estado = order.estado_factura ,id_regional = order.id_ref_regional})" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                            </td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.vw_ref_estado_factura_total_rango order in ViewBag.Lista)
+                    {
+                        <tr>
+                            <td>@order.id_ref_regional</td>
+                            <td>@order.nombre_regional</td>
+                            <td>@order.Total</td>
+                            <td>
+                                <a role="button" href="@Url.Action("ExportarFacturasTotalesRango","RadicacionElectonica" , new {rango = order.RangoDias ,id_regional = order.id_ref_regional})" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                            </td>
+
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Soportes Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script src="~/Scripts/validate.js"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script>
+    $(window).load(function () {
+        $("#loader").fadeOut("slow");
+    });
+
+    $(document).ready(function () {
+
+        $("#btnbuscar").click(function () {
+            LoadingShow();
+            $("#formulariobuscar").submit();
+        })
+
+        $('.datatable1').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $("#prestador").autocomplete({
+            source: function (request, response) {
+
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarPrestador",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                        tipofiltro: 1
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#nit").val(ui.item.nit);
+                    $("#prestador").val(ui.item.nombre);
+                }
+            },
+        });
+
+    })
+
+   function CargarPrestador(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadePrestador", "RadicacionElectonica")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#prestador").empty();
+
+                    $("#prestador").append("<option value=''> - Seleccionar - </option>");
+
+                    data.forEach(function (b) {
+                        $("#prestador").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+
+                    });
+                    CargarEspecialista(regional);
+                    CargarOdontologos(regional);
+                }
+            })
+        }
+
+    }
+
+    function versoportes(a, b)
+    {
+        $.ajax({
+            url: "@Url.Action("tablasoportesclinicos")",
+            type: "post",
+        data: {
+            idcargue: a,
+            iddetalle:b
+        },
+        success: function (data)
+        {
+            $("#tblsoportes tbody").empty();
+            $("#tblsoportes tbody").html(data);
+            $("#ModalSoportes").modal('show');
+        }
+        })
+
+    }
+
+
+    function AbrirSoporteClinico(a)
+    {
+        var url = "@Url.Action("versoporteclinico", "RadicacionElectonica")?idsoporteclinico=" + a;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+     function VerRechazo(AI, BI) {
+        var laURLDeLaVista = '@Url.Action("VerRechazo")'
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {
+                ID: AI,
+                IDBASE: BI
+            },
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+     function VerDevolucion(AI) {
+        var laURLDeLaVista = '@Url.Action("VerDevolucion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+    function llamarVistaParcial(AI) {
+        var laURLDeLaVista = '@Url.Action("GestionarObservacion")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    //function validarformulario() {
+    //    var validator = $("#formulariobuscar").validate();
+    //    if (validator.form()) {
+    //        if (ValidacionArchivo()) {
+    //            LoadingShow()
+    //            $("#formulariobuscar").submit();
+    //        }
+
+    //    }
+    //}
+
+    function validarformulario() {
+        LoadingShow()
+        $("#formulario_obligados").submit();
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+

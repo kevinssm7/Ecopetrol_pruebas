@@ -1,0 +1,284 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.Management_seguimiento_entregables_gestionResult>
+@{
+    ViewBag.Title = "GESTIÓN Y SEGUIMIENTO ENTREGABLES ";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? idPeriodicidad = (int?)ViewBag.idPeriodicidad;
+    int? idTipoEntregable = (int?)ViewBag.idTipoEntregable;
+}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form>
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Periodicidad:</label>
+                    <select class="form-control select2" id="selectPeriodicidadEntregable" name="selectPeriodicidadEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="0" selected>Todos</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_periodicidad_entregables item in ViewBag.PeriodicidadEntregable)
+                        {
+                            <option value="@item.id_periodicidad_entregables">@item.nom_periodicidad_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Estado entregables:</label>
+                    <select class="form-control select2" id="selectEstadoEntregable" name="selectEstadoEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="0" selected>Todos</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_estado_entregable item in ViewBag.estadoEntregable)
+                        {
+                            <option value="@item.id_ref_estado_entregable">@item.nom_estado_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Tipo entregable:</label>
+                    <select class="form-control" id="selectTipoEntregable" name="selectTipoEntregable" onchange="FiltrarTableroEntregables()">
+                        <option value="">Todos</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_seguimiento_entregables_tipo_entregable item in ViewBag.tipoEntregable)
+                        {
+                            <option value="@item.id_tipo_entregable">@item.nom_tipo_entregable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha entrega pactada:</label>
+                    <input class="datepickerII" style="width: 100%" name="periodoFechaLimite" id="periodoFechaLimite" onchange="FiltrarTableroEntregables()" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3 form-group hidden" id="divPeriofoFechaEntregaReal">
+                    <label class="text-secondary_asalud">Periodo fecha  entrega real:</label>
+                    <input class="datepickerII" style="width: 100%" name="periodoFechaEntrega" id="periodoFechaEntrega" onchange="FiltrarTableroEntregables()" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">TABLERO DE GESTIÓN Y SEGUIMIENTO DE ENTREGABLES</strong>
+    </div>
+    <div class="panel-body">
+        <div id="divFiltrosColoresGestionEntregables">
+            @Html.Action("_PintarFiltrosColoresGestionEntregables", "SeguimientoEntregables")
+        </div>
+        <div id="divTableroControlGestionEntregables">
+            @Html.Action("VerEntregasGestionSeguimientoEntregables", "SeguimientoEntregables")
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        var estado = $("#selectEstadoEntregable").val();
+        /*Si no se ha seleccionado el estado, por defecto trae los pendientes*/
+        if (estado == "")
+        {
+            estado = 1;
+            $("#selectEstadoEntregable").val(estado);
+        }
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".datepickerII").kendoDatePicker({
+            format: "MM/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#selectEstadoEntregable").change(function () {
+            var estado = $("#selectEstadoEntregable").val();
+
+            $("#periodoFechaEntrega").val("");
+            if (estado != "1") {
+                $("#divPeriofoFechaEntregaReal").removeClass('hidden');
+            }
+            else {
+                $("#divPeriofoFechaEntregaReal").addClass('hidden');
+            }
+        });
+
+    })
+
+
+     /*Metodo para filtrar en el tablero de entregables */
+    function FiltrarTableroEntregables()
+    {
+        var periodicidad = $("#selectPeriodicidadEntregable").val();
+        var estado = $("#selectEstadoEntregable").val();
+        var tipoEntregable = $("#selectTipoEntregable").val();
+        var periodoFechaLimite = $("#periodoFechaLimite").val();
+        var periodoFechaEntrega = $("#periodoFechaEntrega").val();
+
+        LoadingShow();
+        $('#divFiltrosColoresGestionEntregables').empty();
+        $('#divFiltrosColoresGestionEntregables').load('@Url.Action("_PintarFiltrosColoresGestionEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega, function () {
+            //mostrarTabla();
+        });
+
+        $('#divTableroControlGestionEntregables').empty();
+        $('#divTableroControlGestionEntregables').load('@Url.Action("VerEntregasGestionSeguimientoEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega, function () {
+            LoadingHide();
+            mostrarTabla();
+        });
+    }
+
+      function FiltrarPorColor(filtro)
+    {
+          var periodicidad = $("#selectPeriodicidadEntregable").val();
+          var estado = $("#selectEstadoEntregable").val();
+          var tipoEntregable = $("#selectTipoEntregable").val();
+          var periodoFechaLimite = $("#periodoFechaLimite").val();
+          var periodoFechaEntrega = $("#periodoFechaEntrega").val();
+
+        LoadingShow();
+          $('#divTableroControlGestionEntregables').empty();
+          $('#divTableroControlGestionEntregables').load('@Url.Action("VerEntregasGestionSeguimientoEntregables", "SeguimientoEntregables")?periodicidad=' + periodicidad + "&estado=" + estado + "&tipoEntregable=" + tipoEntregable + "&periodoFechaLimite=" + periodoFechaLimite + "&periodoFechaEntrega=" + periodoFechaEntrega + "&colorFiltro=" + filtro, function () {
+              LoadingHide();
+              mostrarTabla();
+        });
+    }
+</script>
+
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .pagination > .active > a {
+        background-color: #333333 !important;
+        border-color: white !important;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .notice {
+        margin: 0.2%;
+        padding: 10px;
+        border-left: 6px solid #7f7f84;
+        margin-bottom: 10px;
+        -webkit-box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+        -moz-box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+        box-shadow: 0 5px 8px -6px rgba(0,0,0,.2);
+    }
+
+    .notice-sm {
+        padding: 10px;
+        font-size: 80%;
+    }
+
+    .notice-lg {
+        padding: 35px;
+        font-size: large;
+    }
+
+    .notice-success {
+        border-color: #80D651;
+    }
+
+        .notice-success > strong {
+            color: #80D651;
+        }
+
+    .notice-info {
+        border-color: #45ABCD;
+    }
+
+        .notice-info > strong {
+            color: #45ABCD;
+        }
+
+    .notice-warning {
+        border-color: #FEAF20;
+    }
+
+        .notice-warning > strong {
+            color: #FEAF20;
+        }
+
+    .notice-danger {
+        border-color: #d73814;
+    }
+
+        .notice-danger > strong {
+            color: #d73814;
+        }
+
+    .notice-danger-pro {
+        border-color: #5086c1;
+    }
+
+        .notice-danger-pro > strong {
+            color: #5086c1;
+        }
+
+    .alert-observaciones {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab !important;
+    }
+
+        .alert-observaciones > strong {
+            color: #8f7193 !important;
+        }
+
+    .alert-plazoAmpliado {
+        color: #8f7193;
+        background-color: #dfcae1;
+        border-color: #a788ab;
+    }
+
+    .notice-gestionar > strong {
+        color: #c06500;
+    }
+
+    .alert-gestionar {
+        color: #c06500;
+        background-color: #f9d99a;
+        border-color: #c06500;
+    }
+</style>

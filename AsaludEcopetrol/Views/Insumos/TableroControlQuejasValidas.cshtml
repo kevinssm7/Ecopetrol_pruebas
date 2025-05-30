@@ -1,0 +1,338 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_calidad_quejas_validas>
+@{
+    ViewBag.Title = "TABLERO DE CONTROL QUEJAS VALIDAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int conteoResultados = ViewBag.countresultados;
+    int resultado = ViewBag.resultado;
+
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE QUEJAS VALIDAS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroControlQuejasValidas">
+            <div class="row">
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                    <input class="datepickerr" style="width: 100%" name="FechaInicialfiltro" id="FechaInicialfiltro" />
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Periodo fecha final</label>
+                    <input class="datepickerr" style="width: 100%" name="FechaFinalfiltro" id="FechaFinalfiltro" />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Prestador</label>
+                    <input type="text" autocomplete="off" class="form-control" name="Prestador" id="Prestador" maxlength="100" />
+                </div>
+
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" style="width:100%" name="regional" id="regional" onchange="ObtenerUnis($(this).val())">
+                        <option value="">- Seleccione -</option>
+                        @{ string reg = (string)ViewBag.reg;}
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+
+                            if (!string.IsNullOrEmpty(reg))
+                            {
+                                if (reg == item.indice)
+                                {
+                                    <option selected value="@item.indice">@item.indice</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.indice">@item.indice</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.indice">@item.indice</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Unis:</label>
+                    <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())">
+                        <option value="">- Seleccionar -</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 form-group">
+                    <label class="text-secondary_asalud">Localidad:</label>
+                    <select class="form-control select2" id="ciudad" name="ciudad">
+                        <option value="">- Seleccionar -</option>
+                    </select>
+                </div>
+            </div>
+            @if (resultado == 2)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos en el periodo filtrado")</p>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Registros encontrados: @ViewBag.cantidadresultados</label>
+                </div>
+                <div class="col-sm-4">
+                    <label class="text-secondary_asalud">Numero total de quejas validas: @ViewBag.countresultados</label>
+                </div>
+                <div class="col-sm-12 form-group text-right">
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (Model.Count > 0)
+                    {
+                        <a class="btn button_Asalud_descargas" href="@Url.Action("DescargarResultadosQuejasValidas","Insumos")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte completo</a>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <br />
+        <table id="tabla" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Prestador</th>
+                    <th>periodo</th>
+                    <th>Mes/año</th>
+                    <th>Regional</th>
+                    <th>Unis</th>
+                    <th>Localidad </th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_calidad_quejas_validas item in Model)
+                {
+                    <tr>
+                        <td>@item.prestador</td>
+                        <td>@item.periodo.Value.ToString("dd/MM/yyyy")</td>
+                        <td>@item.mes/@item.año</td>
+                        <td>@item.regional</td>
+                        <td>@item.unis</td>
+                        <td>@item.localidad</td>
+                        <td>@item.total</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#FechaInicialfiltro").change(function () {
+            var values = $(this).val();
+            if (values != "") {
+                $("#FechaFinalfiltro").prop('required', true);
+            }
+            else {
+                $("#FechaFinalfiltro").prop('required', false);
+            }
+        })
+
+        $("#FechaFinalfiltro").change(function () {
+            var values = $(this).val();
+            if (values != "") {
+                $("#FechaInicialfiltro").prop('required', true);
+            }
+            else {
+                $("#FechaInicialfiltro").prop('required', false);
+            }
+        })
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#Prestador").autocomplete({
+            source: "/Insumos/Buscar_Prestador_Quejas_Validas",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+    })
+
+    function ObtenerUnis(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").html(data);
+                    $("#unis").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                }
+            })
+        }
+    }
+
+    function ObtenerIps(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerIPS")",
+                type: "post",
+                data: { Ciudad: a },
+                success: function (data) {
+                    $("#ips").empty();
+                    $("#ips").html(data);
+                    $("#ips").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

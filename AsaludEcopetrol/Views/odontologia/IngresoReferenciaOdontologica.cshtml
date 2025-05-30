@@ -1,0 +1,1023 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "INGRESO DE REFERENCIAS ODONTOLOGICAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<ul class="nav nav-pills">
+    <li class="active">
+        <a href="#1b" id="tab1" data-toggle="tab">Referencia y contrareferencia</a>
+    </li>
+    <li>
+        <a href="#2b" id="tab2" data-toggle="tab">Remisiones por e-salud</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <br />
+        <div class="panel panel-default" id="panelremisiones">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Historial de remisiones añadidas</strong>
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-success alert-dismissible" role="alert" style="display:none" id="alerta">
+                    <button type="button" class="close" id="cerraralerta" aria-label="Close"><span aria-hidden="true" style="margin-left:-50px">&times;</span></button>
+                    <strong>Exito!</strong> Los datos han sido guardados exitosamente.
+                </div>
+                <div class="row">
+                    <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar" style="margin:0.5%">
+                        <table class="table table-bordered table-condensed table-striped" style="font-size:9px">
+                            <thead>
+                                <tr>
+                                    <th>Odontólogo PPE</th>
+                                    <th>Localidad</th>
+                                    <th>Ortodoncia primera vez</th>
+                                    <th>Ortodoncia otras cuentas</th>
+                                    <th>Rehabilitación oral</th>
+                                    <th>Periodoncia</th>
+                                    <th>Endodoncia</th>
+                                    <th>Cirugía oral y maxilofacial</th>
+                                    <th>Ayudas diagnósticas</th>
+                                    <th>Odontopediatría</th>
+                                    <th>Fonoaudiología otras terapias</th>
+                                    <th>Periodo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodytbl">
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_odont_remisiones_especialidades item in ViewBag.historico)
+                                {
+                                    <tr>
+                                        <td>@item.Razón_Social</td>
+                                        <td>@item.nom_localidad </td>
+                                        <td>@item.ortodoncia_primera_vez</td>
+                                        <td>@item.ortodoncia_otras_cuentas</td>
+                                        <td>@item.rehabilitacion_oral</td>
+                                        <td>@item.periodoncia</td>
+                                        <td>@item.endodoncia</td>
+                                        <td>@item.cirugia_oral_maxilofacial</td>
+                                        <td>@item.ayudas_diagnosticas</td>
+                                        <td>@item.odontopediatria</td>
+                                        <td>@item.fonoaudiologia</td>
+                                        <td>@item.mes_ingresado/@item.año</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <div class="col-sm-12 text-right">
+                        <div class="form-group">
+                            <button type="button" class="btn button_Asalud_Aceptar btn-sm" data-toggle="modal" data-target="#modalreferencias"><i class="glyphicon glyphicon-print"></i>&nbsp; Consolidado</button>
+                            @*<a class="btn btn-success btn-sm" role="button" href="@Url.Action("CrearConsolidadoRemisiones")"><i class="glyphicon glyphicon-print"></i>&nbsp; Consolidado</a>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Número de remisiones a especialidades de odontología por odontologo puerta de entrada</strong>
+            </div>
+            <div class="panel-body">
+                <div class="text-right">
+                    <button class="btn btn-default" type="button" id="cancelremision" style="display:none">Cancelar</button>
+                    <button class="btn button_Asalud_Aceptar" id="addremision" type="button">Agregar Remisión</button>
+                </div>
+            </div>
+            <div class="panel-body" id="panel_formulario" style="display:none">
+                <form class="animated fadeInDown" id="formulario">
+                    <div class="row">
+                        <div class="col-sm-12 row">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Periodo</label>
+                                <div class="row">
+                                    <div class="col-sm-6 form-group">
+                                        <select class="form-control select2" required id="mes1" name="mes">
+                                            <option value="">- Mes -</option>
+                                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                            {
+                                                <option value="@item.id_mes">@item.descripcion</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <input required autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" placeholder="Año" id="año1" name="año" maxlength="4" style="height:30px" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidades($(this).val())" required id="cbxunis" name="unis">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="cbxlocalidad" name="localidad">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Odontólogo ppe</label>
+                            <select class="form-control select2" id="cbxprofesional" required name="profesional">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        <hr />
+                        <div class="col-sm-12 form-group">&nbsp;</div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Ortodoncia primera vez</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " maxlength="11" required name="ortodoncia_una_vez" id="ortodoncia_una_vez" />
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Ortodoncia otras cuentas</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="o_otras_cuentas" maxlength="11" id="o_otras_cuentas" />
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Rehabilitacion oral</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="rehabilitacion_oral" maxlength="11" id="rehabilitacion_oral" />
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Periodoncia</label>
+                            <input type="text" class="form-control solo-numero" required name="periodoncia" maxlength="11" id="periodoncia" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Endodoncia</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="endodoncia" id="endodoncia" maxlength="11" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Cirugía oral y maxilofacial</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="cirugia_oral" id="cirugia_oral" maxlength="11" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Ayudas diagnosticas</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="ayudas_diagnosticas" id="ayudas_diagnosticas" maxlength="11" />
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Odontopediatría</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="odontopediatria" id="odontopediatria" maxlength="11" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Fonoaudiología y otras terapias</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="fonoaudiologia" id="fonoaudiologia" maxlength="11" />
+                        </div>
+                        <div class="col-sm-12 form-group text-right">
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <div class="tab-pane" id="2b">
+        <br />
+        <div class="panel panel-default" id="panelremisionesdos">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Historial de remisiones añadidas</strong>
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-success alert-dismissible" role="alert" style="display:none" id="alerta2">
+                    <button type="button" class="close" id="cerraralerta2" aria-label="Close"><span aria-hidden="true" style="margin-left:-50px">&times;</span></button>
+                    <strong>Exito!</strong> Los datos han sido guardados exitosamente.
+                </div>
+                <div class="row">
+                    <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar" style="margin:0.5%">
+                        <table class="table table-bordered table-condensed table-striped" style="font-size:9px">
+                            <thead>
+                                <tr>
+                                    <th>Regional</th>
+                                    <th>Unis</th>
+                                    <th>Localidad</th>
+                                    <th>Odontologo ppe</th>
+                                    <th>% Remisiones manuales</th>
+                                    <th>% Remisiones e-salud</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodytbl2">
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_odont_remisiones_verificadas item in ViewBag.historico2)
+                                {
+                                    <tr>
+                                        <td>@item.nom_regional</td>
+                                        <td>@item.nom_unis</td>
+                                        <td>@item.nom_localidad</td>
+                                        <td>@item.nom_odontologo</td>
+                                        <td>@item.Porcentaje_remisiones_Manuales%</td>
+                                        <td>@item.Porcentaje_remisiones_esalud%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <div class="col-sm-12 text-right">
+                        <div class="form-group">
+                            <button type="button" class="btn button_Asalud_Aceptar btn-sm" data-toggle="modal" data-target="#modal"><i class="glyphicon glyphicon-print"></i>&nbsp; Consolidado</button>
+                            @*<a class="btn btn-success btn-sm" role="button" href="@Url.Action("CrearConsolidadoRemisionesVerificadas")"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Generar Consolidado</a>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Remisiones por e-salud y manuales</strong>
+            </div>
+            <div class="panel-body">
+                <div class="text-right">
+                    <button class="btn btn-default" type="button" id="cancelremision" style="display:none">Cancelar</button>
+                    <button class="btn button_Asalud_Aceptar" id="addremision2" type="button">Agregar Remisión</button>
+                </div>
+            </div>
+            <div class="panel-body" id="panel_formulario2" style="display:none">
+                <form class="animated fadeInDown" id="formulario2">
+                    <div class="row">
+                        <div class="col-sm-12 row">
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Periodo</label>
+                                <div class="row">
+                                    <div class="col-sm-6 form-group">
+                                        <select class="form-control select2" id="mes2" name="mes" required>
+                                            <option value="">- Mes -</option>
+                                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                            {
+                                                <option value="@item.id_mes">@item.descripcion</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" placeholder="Año" maxlength="4" id="año2" name="año" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional2" name="regional2">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidades($(this).val())" required id="cbxunis2" name="unis2">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="cbxlocalidad2" name="localidad2">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Odontólogo ppe</label>
+                            <select class="form-control select2" id="cbxprofesional2" required name="profesional2">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Porcentaje remisiones manuales</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="porcenmanuales" id="porcenmanuales" maxlength="11" />
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Porcentaje remisiones en e-salud</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="porcenesalud" id="porcenesalud" maxlength="11" />
+                        </div>
+
+                        <div class="col-sm-12 form-group text-right">
+                            <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario2()">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalreferencias">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Generar consolidado de referencias y contrareferencias</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" action="CrearConsolidadoRemisiones" id="formconsolidadoreferencias">
+                    <div class="row" style="margin:5px">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" id="regional" name="regional" onchange="CargarUnisFiltros($(this).val())">
+                                <option value="">-Todas las regionales -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidadesFiltros($(this).val())" required id="unixfiltros" name="unis">
+                                <option value="">- Todas las unis -</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="localidadfiltros" name="localidad">
+                                <option value="">- Todas las localidades -</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Periodo</label>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <select class="form-control select2" name="mesinicial">
+                                        <option value="">-Mes Inicial-</option>
+                                        @foreach (var item in ViewBag.meses)
+                                        {
+                                            <option value="@item.id_mes">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añoinicial" maxlength="4" placeholder="Año Inicial" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <select class="form-control select2" name="mesfinal">
+                                        <option value="">-Mes Final-</option>
+                                        @foreach (var item in ViewBag.meses)
+                                        {
+                                            <option value="@item.id_mes">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" name="añofinal" maxlength="4" placeholder="Año Final" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <a class="btn button_Asalud_Aceptar" role="button" href="javascript:void(0)" id="btnconsolidados"><i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar Consolidado</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Generar consolidado de remisiones por e-salud o manuales</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" action="CrearConsolidadoRemisionesVerificadas" id="formconsolidadoreferencias_dos">
+                    <div class="row" style="margin:5px">
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" id="regional_dos" name="regional" onchange="CargarUnisFiltros($(this).val())">
+                                <option value="">-Todas las regionales -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidadesFiltros($(this).val())" required id="unixfiltrosdos" name="unis">
+                                <option value="">- Todas las unis -</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="localidadfiltrosdos" name="localidad">
+                                <option value="">- Todas las localidades -</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Periodo</label>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <select class="form-control select2" name="mesinicial">
+                                        <option value="">-Mes Inicial-</option>
+                                        @foreach (var item in ViewBag.meses)
+                                        {
+                                            <option value="@item.id_mes">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="4" name="añoinicial" placeholder="Año Inicial" />
+                                </div>
+                                <div class="col-sm-3">
+                                    <select class="form-control select2" name="mesfinal">
+                                        <option value="">-Mes Final-</option>
+                                        @foreach (var item in ViewBag.meses)
+                                        {
+                                            <option value="@item.id_mes">@item.descripcion</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="4" name="añofinal" placeholder="Año Final" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <a class="btn button_Asalud_Aceptar" role="button" href="javascript:void(0)" id="btnconsolidado_dos"><i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar Consolidado</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function ()
+    {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            messages: {
+                custom: function (input) {
+                    return $(input).parents().find('label').text();
+                }
+            }
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+        $("#addremision").click(function () {
+            $("#panel_formulario").removeAttr('style');
+            $("#cancelremision").removeAttr('style');
+        })
+
+        $("#addremision2").click(function () {
+            $("#panel_formulario2").removeAttr('style');
+        })
+
+        $("#cancelremision").click(function () {
+            $("#panel_formulario").css('display', 'none');
+            $("#cancelremision").css('display', 'none');
+        });
+
+        $("#porcenmanuales").keyup(function () {
+            var value = $(this).val();
+            if (value != "") {
+                if (value > 100) {
+                    alert('Este valor no puede ser mayor al 100%');
+                    $("#porcenmanuales").val(0);
+                    $("#porcenesalud").val(0);
+                }
+                else {
+                    var valor = (100 - parseFloat(value));
+                    if (valor < 0) {
+                        valor = (valor * -1)
+                    }
+                    $("#porcenesalud").val(valor);
+                }
+            }
+        })
+
+        $("#porcenesalud").keyup(function () {
+            var value = $(this).val();
+            if (value != "") {
+                if (value > 100) {
+                    alert('Este valor no puede ser mayor al 100%');
+                    $("#porcenesalud").val(0);
+                    $("#porcenmanuales").val(0);
+                }
+                else {
+                    var valor = (100 - parseFloat(value));
+                    if (valor < 0) {
+                        valor = (valor * -1)
+                    }
+                    $("#porcenmanuales").val(valor);
+                }
+            }
+        })
+
+        $("#tab1").click(function () {
+            $("#panel_formulario2").css('display', 'none');
+            LimpiarFormulario();
+        })
+
+        $("#tab2").click(function () {
+            $("#panel_formulario").css('display', 'none');
+            LimpiarFormulariodos();
+        })
+
+
+        $("#btnconsolidados").click(function () {
+            $("#formconsolidadoreferencias").submit();
+        })
+
+        $("#btnconsolidado_dos").click(function () {
+            $("#formconsolidadoreferencias_dos").submit();
+        })
+        $("#cerraralerta").click(function () {
+            $("#alerta").css('display', 'none');
+        })
+
+        $("#cerraralerta2").click(function () {
+            $("#alerta2").css('display', 'none');
+        })
+    })
+
+    function CargarUnis(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis", "odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis2").empty();
+                    $("#cbxunis").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxunis2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxunis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                        $("#cbxunis2").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                    CargarProfesionales(regional);
+                }
+            })
+        }
+
+    }
+
+    function CargarLocalidades(a) {
+        var unis = a;
+        if (unis != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeLocalidades", "odontologia")",
+                type: "post",
+                data: { unis: unis },
+                success: function (data) {
+                    $("#cbxlocalidad").empty();
+                    $("#cbxlocalidad").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxlocalidad2").empty();
+                    $("#cbxlocalidad2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxlocalidad").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                        $("#cbxlocalidad2").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+    function CargarProfesionales(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasTotal","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesional").empty();
+                    $("#cbxprofesional2").empty();
+                    $("#cbxprofesional").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxprofesional2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesional").append("<option value='" + b.id_ref_odont_prestadores + "'>" + b.Razón_Social + "</option>");
+                        $("#cbxprofesional2").append("<option value='" + b.id_ref_odont_prestadores + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            GuardarDatos2();
+        }
+    }
+
+    function GuardarDatos() {
+        $.ajax({
+            url: "@Url.Action("GuardarRemisionesEspecialidades", "odontologia")",
+            type: "post",
+            data: {
+                mes: $("#mes1").val(),
+                año: $("#año1").val(),
+                regional: $("#cbxregional").val(),
+                profesional: $("#cbxprofesional").val(),
+                unis: $("#cbxunis").val(),
+                localidad: $("#cbxlocalidad").val(),
+                ortodoncia_una_vez: $("#ortodoncia_una_vez").val(),
+                o_otras_cuentas: $("#o_otras_cuentas").val(),
+                rehabilitacion_oral: $("#rehabilitacion_oral").val(),
+                periodoncia: $("#periodoncia").val(),
+                endodoncia: $("#endodoncia").val(),
+                cirugia_oral: $("#cirugia_oral").val(),
+                ayudas_diagnosticas: $("#ayudas_diagnosticas").val(),
+                odontopediatria: $("#odontopediatria").val(),
+                fonoaudiologia: $("#fonoaudiologia").val(),
+            },
+            success: function (data)
+            {
+                $("#alerta").removeAttr('style');
+                goToId("myCarousel");
+                LimpiarFormulario();
+                $("#tbodytbl").empty();
+                $("#tbodytbl").html(data);
+            }
+        })
+    }
+
+    function LimpiarFormulario() {
+        $("#ortodoncia_una_vez").val("");
+        $("#o_otras_cuentas").val("");
+        $("#rehabilitacion_oral").val("");
+        $("#periodoncia").val("");
+        $("#endodoncia").val("");
+        $("#cirugia_oral").val("");
+        $("#ayudas_diagnosticas").val("");
+        $("#odontopediatria").val("");
+        $("#fonoaudiologia").val("");
+
+        $("#localidadfiltros").empty();
+        $("#unixfiltros").empty();
+        $("#localidadfiltros").append("<option value=''> - Todas las localidades - </option>");
+        $("#unixfiltros").append("<option value=''> - Todas las unis - </option>");
+        $("input[name='mesinicial']").val("");
+        $("input[name='añoinicial']").val("");
+        $("input[name='mesfinal']").val("");
+        $("input[name='añofinal']").val("");
+    }
+
+    function GuardarDatos2() {
+        $.ajax({
+            url: "@Url.Action("GuardarRemisionesVerificacion", "odontologia")",
+            type: "post",
+            data: {
+                mes: $("#mes2").val(),
+                año: $("#año2").val(),
+                unis: $("#cbxunis2").val(),
+                odontologo: $("#cbxprofesional2").val(),
+                localidad: $("#cbxlocalidad2").val(),
+                regional: $("#cbxregional2").val(),
+                porManuales: $("#porcenmanuales").val(),
+                porEsalud: $("#porcenesalud").val(),
+            },
+            success: function (data) {
+                $("#alerta2").removeAttr('style');
+                goToId("myCarousel");
+                LimpiarFormulariodos();
+                $("#tbodytbl2").empty();
+                $("#tbodytbl2").html(data);
+            }
+        })
+    }
+
+    function LimpiarFormulariodos() {
+        $("#fechainicial2").val("");
+        $("#fechafinal2").val("");
+        $("#cbxregional2").val("").trigger("change");
+        $("#cbxprofesional2").val("").trigger("change");
+        $("#cbxlocalidad2").val("").trigger("change");
+        $("#cbxregional2").val("").trigger("change");
+        $("#porcenmanuales").val("");
+        $("#porcenesalud").val("");
+
+        $("#localidadfiltrosdos").empty();
+        $("#unixfiltrosdos").empty();
+        $("#localidadfiltrosdos").append("<option value=''> - Todas las localidades - </option>");
+        $("#unixfiltrosdos").append("<option value=''> - Todas las unis - </option>");
+        $("input[name='mesinicial']").val("");
+        $("input[name='añoinicial']").val("");
+        $("input[name='mesfinal']").val("");
+        $("input[name='añofinal']").val("");
+    }
+
+    function goToId(idName) {
+        if ($("#" + idName).length) {
+            var target_offset = $("#" + idName).offset();
+            var target_top = target_offset.top;
+            $('html,body').animate({ scrollTop: target_top }, { duration: "slow" });
+        }
+    }
+
+    function CargarUnisFiltros(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis", "odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#unixfiltros").empty();
+                    $("#unixfiltrosdos").empty();
+                    $("#unixfiltros").append("<option value=''> - Todas las unis - </option>");
+                    $("#unixfiltrosdos").append("<option value=''> - Todas las unis - </option>");
+                    data.forEach(function (b) {
+                        $("#unixfiltros").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                        $("#unixfiltrosdos").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                }
+            })
+        } else {
+            $("#unixfiltros").empty();
+            $("#unixfiltrosdos").empty();
+            $("#unixfiltros").append("<option value=''> - Todas las unis - </option>");
+            $("#unixfiltrosdos").append("<option value=''> - Todas las unis - </option>");
+            $("#localidadfiltros").empty();
+            $("#localidadfiltrosdos").empty();
+            $("#localidadfiltros").append("<option value=''> - Todas las localidades - </option>");
+            $("#localidadfiltrosdos").append("<option value=''> - Todas las localidades - </option>");
+        }
+
+    }
+
+
+    function CargarLocalidadesFiltros(a) {
+        var unis = a;
+        if (unis != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeLocalidades", "odontologia")",
+                type: "post",
+                data: { unis: unis },
+                success: function (data) {
+                    $("#localidadfiltros").empty();
+                    $("#localidadfiltrosdos").empty();
+                    $("#localidadfiltros").append("<option value=''> - Todas las localidades - </option>");
+                    $("#localidadfiltrosdos").append("<option value=''> - Todas las localidades - </option>");
+                    data.forEach(function (b) {
+                        $("#localidadfiltros").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                        $("#localidadfiltrosdos").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                    })
+                }
+            })
+        } else {
+            $("#localidadfiltros").empty();
+            $("#localidadfiltrosdos").empty();
+            $("#localidadfiltros").append("<option value=''> - Todas las localidades - </option>");
+            $("#localidadfiltrosdos").append("<option value=''> - Todas las localidades - </option>");
+        }
+    }
+
+</script>
+
+<style>
+
+
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    .my-custom-scrollbar {
+        position: relative;
+        height: 250px;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+
+</style>

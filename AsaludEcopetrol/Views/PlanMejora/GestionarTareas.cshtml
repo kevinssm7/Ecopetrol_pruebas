@@ -1,0 +1,328 @@
+﻿
+@{
+    ViewBag.Title = "GESTIONAR ACCIONES DE MEJORA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <strong class="text-primary_asalud">
+                CATEGORÍA:
+                <label class="text-secondary_asalud">
+                    @ViewBag.categoria
+                </label>
+            </strong>
+        </div>
+
+        <br />
+        <div class="row">
+            <strong class="text-primary_asalud">
+                FOCO GESTIÓN:
+                <label class="text-secondary_asalud">
+                    @ViewBag.foco
+                </label>
+            </strong>
+        </div>
+        <br />
+        <div class="row">
+            <strong class="text-primary_asalud">
+                DESCRIPCIÓN PROBLEMA:
+                <label class="text-secondary_asalud">
+                    @ViewBag.desProblema
+                </label>
+            </strong>
+        </div>
+        <br />
+        <div class="row">
+            <strong class="text-primary_asalud">
+                CAUSA RAIZ:
+                <label class="text-secondary_asalud">
+                    @ViewBag.hallazgo
+                </label>
+            </strong>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">ACCIONES DE MEJORA</strong>
+    </div>
+    <div class="panel-body">
+        <form class="animated fadeInDown" id="formulario2">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblotroSi">
+                            <thead>
+                                <tr style="background-color:#636363;color:white; font-weight:bold">
+                                    <th>#</th>
+                                    <th>Id foco</th>
+                                    <th>Acción de mejora</th>
+                                    <th>Fecha plazo</th>
+                                    <th>Responsable</th>
+                                    <th>Estado</th>
+                                    <th>Fecha seguimiento</th>
+                                    <th></th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_planmejora_tareaResult item in ViewBag.Lista)
+                                {
+
+                                    <tr>
+                                        <td></td>
+                                        <td>@item.id_plan_mejora_foco_intervencion</td>
+                                        <td>@item.tarea</td>
+                                        @if (item.fecha_plazo != null)
+                                        {
+                                            <td>@item.fecha_plazo.Value.ToString("dd/MM/yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.fecha_plazo</td>
+                                        }
+
+                                        <td>@item.responsable</td>
+                                        <td>@item.descripcionEstadoTarea</td>
+                                        <td>@item.fecha_seguimiento</td>
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <label class="text-secondary_asalud">Fecha plazo cierre</label>
+                    <input class="form-control" id="fecha_plazo" name="fecha_plazo" required />
+                    <input type="hidden" id="fecha_creacionDato" name="fecha_creacionDato" value="@ViewBag.fechaCreacion" />
+                    <input type="hidden" id="fecha_limite" name="fecha_limite" value="@ViewBag.fechaLimite" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <label class="text-secondary_asalud">Responsable</label>
+                    <input type="text" class="form-control" name="responsable" id="responsable" maxlength="2000" required />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <label class="text-secondary_asalud">Acción</label>
+                    <textarea class="form-control" id="tarea" name="tarea" rows="4" placeholder="Escriba el texto" maxlength="2000" required></textarea>
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-sm-12" align="center">
+                    <button class="button_Asalud_Guardar" type="button" onclick="finalizar2()">Agregar Observación</button>
+                </div>
+            </div>
+            <div style="display:none">
+                <input class="form-control" type="text" name="id_plan_mejora_foco_intervencion" id="id_plan_mejora_foco_intervencion" value="@ViewBag.id_plan_mejora_foco_intervencion" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        Buscar();
+
+        var fechaCreacion = $("#fecha_creacionDato").val();
+        var fecha_limite = $("#fecha_limite").val();
+        $("#fecha_plazo").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            min: fechaCreacion,
+            max: fecha_limite,
+        });
+
+        $("#fecha_plazo").prop('readonly', true);
+    });
+
+    function Buscar() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_plan_mejora_foco_intervencion", $("#id_plan_mejora_foco_intervencion").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GestionarTareasBuscar", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+
+                LoadingHide();
+                $("#tblotroSi tbody").empty();
+                $("#tblotroSi tbody").html(data.tabla);
+                $("#id_categoria").val("").trigger("change");
+                $("#id_foco_gestion").val("").trigger("change");
+                $("#hallazgo").val("").trigger("change");
+            }
+        })
+    }
+    function finalizar2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+
+            FinalizarDatos2();
+        }
+    }
+
+    function FinalizarDatos2() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("fecha_plazo", $("#fecha_plazo").val());
+        formData.append("tarea", $("#tarea").val());
+        formData.append("responsable", $("#responsable").val());
+        formData.append("id_plan_mejora_foco_intervencion", $("#id_plan_mejora_foco_intervencion").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveplanMejoraTarea", "PlanMejora")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+
+                LoadingHide();
+                $("#tblotroSi tbody").empty();
+                $("#tblotroSi tbody").html(data.tabla);
+                $("#tarea").val("").trigger("change");
+                $("#responsable").val("").trigger("change");
+
+            }
+        })
+    }
+
+    function removerotroProductoTarea(A, B) {
+
+
+        var mensaje = "¿Está seguro(a) que desea eliminar este registro?";
+        var opcion = confirm(mensaje);
+        if (opcion == true) {
+
+            $.ajax({
+                url: "@Url.Action("RemoverOtroProductoTarea")",
+                type: "post",
+                data:
+                {
+                    ID: A,
+                    ID2: B,
+                },
+                success: function (data) {
+                    $("#tblotroSi tbody").empty();
+                    $("#tblotroSi tbody").html(data.tabla);
+
+                }
+            })
+        }
+    }
+
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .navbar navbar-inverse navbar-static-top{
+        visibility:hidden !important;
+    }
+</style>
+
+

@@ -1,0 +1,239 @@
+﻿
+
+@{
+    ViewBag.Title = "TABLERO CENSO DETALLADO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE CENSO DETALLADO</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formularioFiltro" action="TableroCensoDetallado" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input class="form-control datepickerr" id="fechaInicio" name="fechaInicio" style="width:100%" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha fin</label>
+                    <input class="form-control datepickerr" id="fechaFin" name="fechaFin" style="width:100%" />
+                </div>
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">Documento paciente</label>
+                    <input class="form-control" id="documento" name="documento" style="width:100%" maxlength="50" />
+                </div>
+                <br />
+
+                <div class="col-md-2">
+                    <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                </div>
+            </div>
+            <br />
+            
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    @if (ViewBag.conteoD > 0)
+                    {
+                        <a class="button_Asalud_descargas" onclick="ExportarReporte();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte completo</a>
+                    }
+                </div>
+            </div>
+        </form>
+        <br />
+        <table id="tablaCD" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">&nbsp; Ítem</th>
+                    <th class="text-center">Id censo</th>
+                    <th class="text-center">Fecha recepción</th>
+                    <th class="text-center">Identificación paciente</th>
+                    <th class="text-center">Nombre paciente</th>
+                    <th class="text-center">Edad</th>
+                    <th class="text-center">Fecha ingreso</th>
+                    <th class="text-center">Fecha egreso</th>
+                    <th class="text-center">Habitación</th>
+                    <th class="text-center">Diagnóstico actual</th>
+                    <th class="text-center">Fecha egreso censo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+
+                @if (ViewBag.conteoD > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_censo_tableroDetalladoResult item in ViewBag.listadoD)
+                    {
+                        i++;
+                        <tr>
+                            <td class="text-center">@item.id_censo_hist</td>
+                            <td class="text-center">@item.id_censo</td>
+                            <td class="text-center">@item.fecha_recepcion_censo</td>
+                            <td class="text-center">@item.tipo_identifi_afiliado @item.num_identifi_afil</td>
+                            <td class="text-center">@item.primer_nombre @item.segundo_nombre @item.primer_apellido @item.segundo_apellido</td>
+                            <td class="text-center">@item.edad</td>
+                            <td class="text-center">@item.fecha_ingreso</td>
+                            <td class="text-center">@item.fecha_egreso</td>
+                            <td class="text-center">@item.descripcionHabitacion</td>
+                            <td class="text-center">@item.dx_actual</td>
+                            <td class="text-center">@item.fecha_egreso_censo</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="11" style="text-align:center">
+                            SIN DATOS
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+    });
+
+    function MostrarTabla() {
+        var conteo = "@ViewBag.conteoD";
+        if (conteo > 0) {
+            $('#tablaCD').DataTable().destroy();
+            $('#tablaCD').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+
+    function ValidarFormulario() {
+        var validator = $("#formularioFiltro").validate();
+        if (validator.form()) {
+            $("#formularioFiltro").submit();
+        }
+    }
+
+    function ExportarReporte() {
+        var url = "@Url.Action("ReporteCensoDetallado", "Censo")";
+        popupWindow = window.open(url, '', 'height=120,width=350,left=10,top=650,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tablaCD {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 11px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tablaCD th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tablaCD td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tablaCD tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+</style>

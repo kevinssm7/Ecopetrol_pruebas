@@ -1,0 +1,703 @@
+﻿@{
+    ViewBag.Title = "TABLERO FACTURAS (FIS)";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div style="display:none">
+                <input class="form-control" type="text" name="rol" id="rol" value="@ViewBag.ROL" />
+            </div>
+
+            <form class="display-inline" id="formulariobuscar" method="post" action="TableroFacturasTraza">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Id detalle</label>
+                        <input class="form-control solo-numero" type="text" style="width:100%" name="idDetalle" id="idDetalle" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha de Recepción Inicial</label>
+                        <input class="datepickerr" title="datepicker" style="width:100%" name="fechainicial" id="fechainicial" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha de Recepción Final</label>
+                        <input class="datepickerr" title="datepicker" style="width:100%" name="fechafinal" id="fechafinal" />
+                    </div>
+                </div>
+
+                <br />
+                <div class="row">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Estado del caso</label>
+                        <select class="form-control select2" id="estado" name="estado">
+                            <option value="">- Seleccionar -</option>
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.view_ref_estado_facturas item in ViewBag.ref_estado)
+                            {
+                                <option value="@item.id_estado_factura">@item.nom_estado</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select class="form-control select2" id="regional" name="regional">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud"> Prestador</label>
+                        <input type="text" class="form-control" name="prestador" id="prestador" />
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nit Prestador</label>
+                        <input type="text" class="form-control" name="nit" id="nit" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Numero Factura</label>
+                        <input type="text" class="form-control" name="numFac" id="numFac" autocomplete="off" />
+                    </div>
+                    <br />
+                    <div class="col-sm-2">
+                        <button onclick="BuscarFacturas();" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                        <button onclick="LimpiarSolucion()" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="text-secondary_asalud">SE MUESTRAN FACTURAS DESDE ENERO DEL 2023. PARA PERIODOS ANTERIORES, CONSULTAR TABLERO <a href="https://analitica.aplicativoasalud.co/sense/app/f18eddd1-411a-4a2e-a660-699dc2023e7b" target="_blank">ANALÍTICA E50</a></label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">
+                LISTADO FACTURAS
+            </strong>
+        </div>
+        <div class="panel-body table-responsive">
+            <div align="right">
+                <button id="btnDescarga1" type="button" onclick="DescargarResultados();" class="button_Asalud_descargas">Descargar Resultados</button>
+                @if (ViewBag.opcion != 3)
+                {
+                    <button id="btnDescarga2" type="button" onclick="DescargarFacturas();" class="button_Asalud_descargas">Descargar Facturas</button>
+                }
+            </div>
+            <br />
+
+            <div class="table-responsive" style="margin-right: 1px; font-size: 11px; width: 98%;">
+                <table class="tablaFacturas  table table-bordered table-condensed" style="width:97%;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Id factura</th>
+                            <th class="text-center">Fecha de factura</th>
+                            <th class="text-center">Regional</th>
+                            <th class="text-center">Unis</th>
+                            <th class="text-center">Ciudad</th>
+                            <th class="text-center">Número factura</th>
+                            <th class="text-center">Estado factura</th>
+                            <th class="text-center">Valor factura</th>
+                            <th class="text-center">Número contrato</th>
+                            <th class="text-center">Nit prestador</th>
+                            <th class="text-center">SAP prestador</th>
+                            <th class="text-center">Nombre prestador</th>
+                            <th class="text-center">Fecha de recepción</th>
+                            <th class="text-center">Fecha de asignación analista</th>
+                            <th class="text-center">Nombre analista</th>
+                            <th class="text-center">Fecha asignación auditor</th>
+                            <th class="text-center">Fecha auditoria auditor</th>
+                            <th class="text-center">fecha de aprobación auditor</th>
+                            <th class="text-center">Nombre auditor</th>
+                            <th class="text-center">Tigas factura</th>
+                            <th class="text-center">Valor glosa total</th>
+                            <th class="text-center">Valor aprobado</th>
+                            <th class="text-center">Documento contable</th>
+                            <th class="text-center">Fecha de contabilización</th>
+                            <th class="text-center">Documentos</th>
+                            <th class="text-center">Aprobación</th>
+                            <th class="text-center">Motivo</th>
+                            <th class="text-center">Observación</th>
+                            <th class="text-center">Devolución</th>
+                            <th class="text-center">Radicación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteo > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_prestadoresFacturasGestionadas_fisResult item in ViewBag.listado)
+                            {
+                                <tr>
+                                    <td class="text-center">@item.id_af </td>
+                                    <td class="text-center">@item.fecha_factura </td>
+                                    <td class="text-center">@item.nombre_regional </td>
+                                    <td class="text-center">@item.nom_departamento</td>
+                                    <td class="text-center">@item.nom_ciudad</td>
+                                    <td class="text-center">@item.num_factura</td>
+                                    <td class="text-center">@item.nom_estado</td>
+                                    <td class="text-center">@item.valor_neto</td>
+                                    <td class="text-center">@item.num_contrato</td>
+                                    <td class="text-center">@item.nit</td>
+                                    <td class="text-center">@item.codigo_SAP</td>
+                                    <td class="text-center">@item.razon_social</td>
+
+                                    @if (item.fecha_recepcion_fac != null)
+                                    {
+                                        <td class="text-center">@item.fecha_recepcion_fac.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_recepcion_fac</td>
+                                    }
+
+
+                                    @if (item.fecha_asignacion_analista != null)
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_analista.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_analista</td>
+                                    }
+
+                                    <td class="text-center">@item.nombreAnalistaAsignado</td>
+
+                                    @if (item.fecha_asignacion_auditor != null)
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_auditor.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_auditor</td>
+                                    }
+
+
+                                    @if (item.fecha_asignacion_auditor != null)
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_auditor.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_asignacion_auditor</td>
+                                    }
+
+
+
+                                    @if (item.fecha_aprobacion_auditor != null)
+                                    {
+                                        <td class="text-center">@item.fecha_aprobacion_auditor.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_aprobacion_auditor</td>
+                                    }
+
+
+                                    <td class="text-center">@item.nombreAuditorAsignado</td>
+                                    <td class="text-center">@item.tigas_factura</td>
+                                    <td class="text-center">@item.valor_total_glosas</td>
+                                    <td class="text-center">@item.valor_aprobado</td>
+                                    <td class="text-center">@item.documento_contable</td>
+
+
+                                    @if (item.fecha_contabilizacion != null)
+                                    {
+                                        <td class="text-center">@item.fecha_contabilizacion.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_contabilizacion</td>
+                                    }
+
+                                    <td class="text-center">
+                                        <a class="btn-sm " onclick="TraerDocumento(@item.id_af, @item.id_recep_facturas_cargue_base);" data-toggle="modal" data-target="#ModalSoportes">
+                                            <span style="cursor:pointer" class="material-icons">crop_original</span>
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        <a class="btn-sm " onclick="MostrarAprobacion(@item.id_af,@item.estado_factura, @item.estado_aprobada);">
+                                            <span style="cursor:pointer" class="material-icons">picture_as_pdf</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn-sm " onclick="MostrarMotivos(@item.id_af, @item.id_recep_facturas_cargue_base, @item.estado_factura);">
+                                            <span style="cursor:pointer" class="material-icons">visibility</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn-sm " onclick="MostrarObservaciones(@item.id_af, @item.estado_factura);">
+                                            <span style="cursor:pointer" class="material-icons">add_circle</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn-sm " onclick="MostrarDevolucion(@item.id_af, @item.estado_factura);">
+                                            <span style="cursor:pointer" class="material-icons">picture_as_pdf</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn-sm " onclick="MostrarCartaRadi(@item.id_recep_facturas_cargue_base);">
+                                            <span style="cursor:pointer" class="material-icons">picture_as_pdf</span>
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="29" style="width:100%; text-align:center"> SIN DATOS </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="ModalRechazos">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado5"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalObservaciones">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado6"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+
+
+        $("#prestador").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nombre",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nit").autocomplete({
+            source: "/RadicacionElectonica/Buscar_Prestador_Nit",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+    });
+
+    function MostrarTabla() {
+
+        var conteo = "@ViewBag.conteo";
+        if (conteo > 0) {
+            $('.tablaFacturas').DataTable().destroy();
+            $('.tablaFacturas').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function BuscarFacturas() {
+        $("#formulariobuscar").submit();
+    }
+
+    function LimpiarSolucion() {
+        $('#fechainicial').val('');
+        $('#fechafinal').val('');
+        $('#prestador').val('');
+        $('#estado').val('');
+        $('#regional').val('');
+        $('#nit').val('');
+        $('#numFac').val('');
+        $("#formulariobuscar").submit();
+    }
+
+    function TraerDocumento(id, idBase) {
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+            data: {
+                idcargue: idBase,
+                iddetalle: id
+            },
+            success: function (data) {
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a)
+    {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        location.href = url;
+    }
+
+    function MostrarAprobacion(id, estApro, estFac) {
+        var id_rol = $("#rol").val();
+        if (id_rol != 21) {
+            var a = id;
+            var b = estApro;
+            var C = estFac;
+
+            if ((C == 6 || C >= 11) && (C != 13 && C != 14)) {
+                var url = "@Url.Action("PdfFacturasAprobadas", "RadicacionElectonica")?ID=" + a + '&ID2=' + b;
+                popupWindow = window.open(url, '', 'height=200,width=450,left=50,top=750,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+            }
+            else {
+                alert("Factura no esta aprobada...");
+            }
+        }
+    }
+
+    function MostrarMotivos(idDet, idCar, estado) {
+
+        if (estado == 3)
+        {
+            var laURLDeLaVista = '@Url.Action("VerRechazo")'
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {
+                    ID: idDet,
+                    IDBASE: idCar
+                },
+                success: function (response) {
+
+                    $("#ModalRechazos").show();
+                    $('#resultado5').html('');
+                    $('#resultado5').html(response);
+                }
+            });
+        }
+        else if (estado == 5)
+        {
+            var laURLDeLaVista = '@Url.Action("VerDevolucion")?ID=' + idDet
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $("#ModalRechazos").show();
+                    $('#resultado5').html('');
+                    $('#resultado5').html(response);
+                }
+            });
+        }
+        else
+        {
+            alert("Estado de la factura no visualiza motivo de rechazo o devolución");
+        }
+    }
+
+    function MostrarObservaciones(idDet, estado) {
+        var id_rol = $("#rol").val();
+
+        if (id_rol == "1" || id_rol == "20") {
+            if (estado == 3 || estado == 5) {
+                var laURLDeLaVista = '@Url.Action("GestionarObservacion")?ID=' + idDet
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "GET",
+                    url: laURLDeLaVista,
+                    data: {},
+                    success: function (response) {
+                        $("#modalObservaciones").show();
+                        $('#resultado6').html('');
+                        $('#resultado6').html(response);
+                    }
+                });
+            }
+            else {
+                alert("Estado de la factura no permite generar Observaciones");
+            }
+        }
+        else {
+            alert("Sin permisos para esta acción...");
+        }
+    }
+
+    function MostrarDevolucion(idDet, estado) {
+
+        if (estado == 5 || estado == 14) {
+            $.ajax({
+                url: "@Url.Action("ObtenerIdDevolucion")",
+                type: "post",
+                data: { id: idDet },
+                success: function (data) {  
+
+                    var URL2 = "@Url.Action("CrearPdfCartaDevolucionFac2", "RadicacionElectonica")?id=" + data.IdDevolcion + "&idAf=" + idDet;
+                    window.open(URL2, '', 'width =450,height =230,left=50,top =550,toolbar =yes');
+
+                    @*var url = "@Url.Action("CrearPdfCartaDevolucionFac", "Facturas")?fileName=CartaDevolucion_" + data.IdDevolcion + "&ID=" + data.IdDevolcion;
+                    popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')*@
+                }
+            })
+        }
+    }
+
+    function MostrarCartaRadi(idBas) {
+
+        var url = "@Url.Action("ExportarCarta", "RadicacionElectonica")?idcargue=" + idBas;
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+
+    }
+
+    function DescargarFacturas() {
+
+        var url = "@Url.Action("ExportarFacturasMasivamenteFis", "RadicacionElectonica")";
+        window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+    }
+
+    function DescargarResultados() {
+
+        var url = "@Url.Action("ExportarDatosFacturas", "RadicacionElectonica")";
+        window.open(url, "_self", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+    }
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+
+    .formulariobuscar {
+        background-color: #F5F5F5;
+    }
+
+    .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+        color: black;
+    }
+</style>
