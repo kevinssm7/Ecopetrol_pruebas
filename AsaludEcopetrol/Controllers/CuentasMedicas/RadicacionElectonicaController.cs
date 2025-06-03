@@ -12457,7 +12457,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             List<management_fis_facturasCuv_conBeneficiariosResult> listadoCups = new List<management_fis_facturasCuv_conBeneficiariosResult>();
             management_fis_traerFechas_cuvResult fechas = new management_fis_traerFechas_cuvResult();
             List<management_fisFacturas_glosaResult> listadoGlosas = new List<management_fisFacturas_glosaResult>();
-            
+
             //var listadoUsuarios = "";
 
             try
@@ -13482,7 +13482,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             return PartialView();
         }
 
-        //public JsonResult GuardarFacturaFis(Models.FIS.Facturacion_FIS modelo, List<string> listaValores, string listausuarios)
         public JsonResult GuardarFacturaFis(Models.FIS.Facturacion_FIS modelo, List<string> listaValores)
         {
             //tipo ingreso 1 = ingreso analista; tipo ingreso 2 = ingreso auditor
@@ -13591,44 +13590,55 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     var mensajeErradoTigas = "";
                     var contenidoMensajeTigas = "";
 
+                    var glosa = BusClass.ListadoGlosaSinLevantar(modelo.idDetalle);
+                    estadoNuevo = glosa == null ? 6 : 5;
+
                     if (factura.gasto_integral == 2)
                     {
-                        List<management_fis_rips_usuariosSinTigaResult> sinTigas = BusClass.TraerUsuariosSinTiga(modelo.idDetalle);
-
-                        if (sinTigas.Count() > 0)
+                        if (glosa == null)
                         {
-                            mensajeErrado = "\n No tienen tigas ingresados los usuarios con identificaciones: ";
-                            mensajeErrado += "\n";
+                            List<management_fis_rips_usuariosSinTigaResult> sinTigas = BusClass.TraerUsuariosSinTiga(modelo.idDetalle);
 
-                            foreach (var item in sinTigas)
+                            if (sinTigas.Count() > 0)
                             {
-                                contenidoMensaje += contenidoMensaje != "" ? "," + item.numDocumentoIdentificacion : item.numDocumentoIdentificacion;
+                                mensajeErrado = "\n No tienen tigas ingresados los usuarios con identificaciones: ";
+                                mensajeErrado += "\n";
+
+                                foreach (var item in sinTigas)
+                                {
+                                    contenidoMensaje += contenidoMensaje != "" ? "," + item.numDocumentoIdentificacion : item.numDocumentoIdentificacion;
+                                }
+
+                                mensajeErrado += "\n";
+                                mensajeErrado += contenidoMensaje;
+                                throw new Exception(mensajeErrado);
                             }
+                            //else
+                            //{
+                            //    List<management_fis_validacionExistentesTigasdetalles_contratoResult> listaTigas = BusClass.ListaTigasSinContrato(modelo.idDetalle);
+                            //    if (listaTigas.Count() > 0)
+                            //    {
+                            //        mensajeErradoTigas = "\n En los siguientes registros no existe el tiga en contrato del prestador: ";
+                            //        mensajeErradoTigas += "\n";
 
-                            mensajeErrado += "\n";
-                            mensajeErrado += contenidoMensaje;
-                            throw new Exception(mensajeErrado);
+                            //        foreach (var item in listaTigas)
+                            //        {
+                            //            contenidoMensajeTigas += contenidoMensajeTigas != "" ? "," + $"Registro {item.id_registro} - TIGA: {item.codigo_tiga} - {item.descripcion_tiga}" : $"Registro {item.id_registro} - TIGA: {item.codigo_tiga} - {item.descripcion_tiga}";
+                            //            contenidoMensajeTigas += "\n";
+                            //        }
+
+                            //        mensajeErradoTigas += "\n";
+                            //        mensajeErradoTigas += contenidoMensajeTigas;
+                            //        throw new Exception(mensajeErradoTigas);
+                            //    }
+                            //}
                         }
-                        //else
-                        //{
-                        //    List<management_fis_validacionExistentesTigasdetalles_contratoResult> listaTigas = BusClass.ListaTigasSinContrato(modelo.idDetalle);
-                        //    if (listaTigas.Count() > 0)
-                        //    {
-                        //        mensajeErradoTigas = "\n En los siguientes registros no existe el tiga en contrato del prestador: ";
-                        //        mensajeErradoTigas += "\n";
-
-                        //        foreach (var item in listaTigas)
-                        //        {
-                        //            contenidoMensajeTigas += contenidoMensajeTigas != "" ? "," + $"Registro {item.id_registro} - TIGA: {item.codigo_tiga} - {item.descripcion_tiga}" : $"Registro {item.id_registro} - TIGA: {item.codigo_tiga} - {item.descripcion_tiga}";
-                        //            contenidoMensajeTigas += "\n";
-                        //        }
-
-                        //        mensajeErradoTigas += "\n";
-                        //        mensajeErradoTigas += contenidoMensajeTigas;
-                        //        throw new Exception(mensajeErradoTigas);
-                        //    }
-                        //}
                     }
+
+
+
+
+
                     //else
                     //{
                     //    var contrato = BusClass.TraerFacturaIdAfAnalista(modelo.idDetalle);
@@ -13648,21 +13658,24 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     var mensajeRreadoBeneficiario = "";
                     var contenidoMensajeBeneficiario = "";
 
-                    List<management_fis_inexistenciaBeneficiarioIdFacturaResult> listaSinBeneficisario = BusClass.TraerInextistenciaBeneficiarioFIS(modelo.idDetalle);
-
-                    if (listaSinBeneficisario.Count() > 0)
+                    if (glosa == null)
                     {
-                        mensajeRreadoBeneficiario = "\n No tienen beneficiarios en los usuarios con identificaciones: ";
-                        mensajeRreadoBeneficiario += "\n";
+                        List<management_fis_inexistenciaBeneficiarioIdFacturaResult> listaSinBeneficisario = BusClass.TraerInextistenciaBeneficiarioFIS(modelo.idDetalle);
 
-                        foreach (var item in listaSinBeneficisario)
+                        if (listaSinBeneficisario.Count() > 0)
                         {
-                            contenidoMensajeBeneficiario += contenidoMensaje != "" ? "," + item.numDocumentoIdentificacion : item.numDocumentoIdentificacion;
-                        }
+                            mensajeRreadoBeneficiario = "\n No tienen beneficiarios en los usuarios con identificaciones: ";
+                            mensajeRreadoBeneficiario += "\n";
 
-                        mensajeRreadoBeneficiario += "\n";
-                        mensajeRreadoBeneficiario += contenidoMensaje;
-                        throw new Exception(mensajeRreadoBeneficiario);
+                            foreach (var item in listaSinBeneficisario)
+                            {
+                                contenidoMensajeBeneficiario += contenidoMensaje != "" ? "," + item.numDocumentoIdentificacion : item.numDocumentoIdentificacion;
+                            }
+
+                            mensajeRreadoBeneficiario += "\n";
+                            mensajeRreadoBeneficiario += contenidoMensaje;
+                            throw new Exception(mensajeRreadoBeneficiario);
+                        }
                     }
 
                     if (modelo.glosaCompleta == 1)
@@ -13670,9 +13683,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         factura.glosa_integral = 1;
                         var insertaGlosaMasivo = BusClass.InsertarDatosGlosaCompleta(modelo.idDetalle, modelo.concepto_general, modelo.concepto_especifico, modelo.concepto_aplicacion, modelo.observacionGlosaCompleta, SesionVar.UserName);
                     }
-
-                    var glosa = BusClass.ListadoGlosaSinLevantar(modelo.idDetalle);
-                    estadoNuevo = glosa == null ? 6 : 5;
                 }
 
                 factura.tipo_ingreso = modelo.tipoIngreso;
