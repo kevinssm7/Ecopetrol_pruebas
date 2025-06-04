@@ -425,23 +425,30 @@
     $(document).ready(function () {
 
         const label = document.getElementById("tipoBeneficiarioLabel");
-        const alerta = document.querySelector(".alerta-beneficiario");
+        const alerta = document.querySelector("alerta-beneficiario");
+
 
         // Añade los eventos de mouseover y mouseout al label
-        label.addEventListener("mouseover", function () {
-            alerta.style.display = "inline";
-        });
 
-        label.addEventListener("mouseout", function () {
-            alerta.style.display = "none";
-        });
+        if (label && alerta) {
+            label.addEventListener("mouseover", function () {
+                alerta.style.display = "inline";
+            });
+
+            label.addEventListener("mouseout", function () {
+                alerta.style.display = "none";
+            });
+        }
+
+
+
 
         $(".datepickerr").kendoDatePicker({
-            format: "MM/dd/yyyy",
+            format: "dd/MM/yyyy",
         });
 
         $(".datepickerrHoy").kendoDatePicker({
-            format: "MM/dd/yyyy",
+            format: "dd/MM/yyyy",
             max: new Date(),
         });
 
@@ -449,7 +456,7 @@
         var fechaFinCon = "@gestion.fechaEgresoConcu";
 
         $(".datepickerrFiltrada").kendoDatePicker({
-            format: "MM/dd/yyyy",
+            format: "dd/MM/yyyy",
             min: convertirFecha(fechainicioCon),
             max: convertirFecha(fechaFinCon),
         });
@@ -477,7 +484,7 @@
 
 
         var id = "@ViewBag.id_gestionAnalisis";
-        if (id != "" && id != 0) {
+        if (id != "" || id != 0) {
             PintarDatos();
         }
 
@@ -487,36 +494,43 @@
 
     function PintarDatos() {
 
-        $("#fecha_analisis").val("@datosGestion.fecha_analisis").trigger("change");
-        $("#nombres_beneficiario").val("@datosGestion.nombres_beneficiario").trigger("change");
-        $("#tipo_beneficiario").val("@datosGestion.tipo_beneficiario").trigger("change");
-        $("#identificacion_beneficiario").val("@datosGestion.identificacion_beneficiario").trigger("change");
-        $("#fecha_inicio_servicio").val("@datosGestion.fecha_inicio_servicio").trigger("change");
-        $("#edad_momento_evento").val("@datosGestion.edad_momento_evento").trigger("change");
-        $("#tipo_evento").val("@datosGestion.tipo_evento").trigger("change");
-        $("#fecha_ocurrencia_evento").val("@datosGestion.fecha_ocurrencia_evento").trigger("change");
-        $("#fecha_fin_evento").val("@datosGestion.fecha_fin_evento").trigger("change");
-        $("#fuente_reporte").val("@datosGestion.fuente_reporte").trigger("change");
-        $("#nombre_reportante").val("@datosGestion.nombre_reportante").trigger("change");
-        $("#nombre_prestador_ocurre_evento").val("@datosGestion.nombre_prestador_ocurre_evento").trigger("change");
-        $("#nit_prestador").val("@datosGestion.nit_prestador").trigger("change");
-        $("#profesionales_entidadesresponsables_nivel1").val("@datosGestion.profesionales_entidadesresponsables_nivel1").trigger("change");
-        @*$("#diagnosticos").val("@datosGestion.diagnosticos").trigger("change");*@
-        $("#objetivo_auditoria").val("@datosGestion.objetivo_auditoria").trigger("change");
-        $("#descripcion_evento").val("@datosGestion.descripcion_evento").trigger("change");
-        $("#ambito_sucedio_evento").val("@datosGestion.ambito_sucedio_evento").trigger("change");
-        $("#analisis_critico_caso").val("@datosGestion.analisis_critico_caso").trigger("change");
-        $("#concepto_resolutividad_primer_nivel").val("@datosGestion.concepto_resolutividad_primer_nivel").trigger("change");
-        $("#aplicacion_guias_terapeuticas").val("@datosGestion.aplicacion_guias_terapeuticas").trigger("change");
-        $("#periodicidad_controles_medicos").val("@datosGestion.periodicidad_controles_medicos").trigger("change");
-        $("#aplicacion_pruebas_diagnosticos_monitoreo").val("@datosGestion.aplicacion_pruebas_diagnosticos_monitoreo").trigger("change");
-        $("#informacion_paciente_cuidadores_plan_terapeutico").val("@datosGestion.informacion_paciente_cuidadores_plan_terapeutico").trigger("change");
-        $("#descripcion_eventuales_Causasmuerte_relacionadas").val("@datosGestion.descripcion_eventuales_Causasmuerte_relacionadas").trigger("change");
-        $("#conclusiones_analisis_caso").val("@datosGestion.conclusiones_analisis_caso").trigger("change");
-        $("#concepto_auditoria_evento_prevenible").val("@datosGestion.concepto_auditoria_evento_prevenible").trigger("change");
-        $("#propuesta_acciones_mejora").val("@datosGestion.propuesta_acciones_mejora").trigger("change");
+       
 
+        $("#fecha_analisis").val("@datosGestion.fecha_analisis".substring(0, 10)).trigger("change");
+
+        $("#nombres_beneficiario").val(@Html.Raw(Json.Encode(datosGestion.nombres_beneficiario))).trigger("change");
+        $("#tipo_beneficiario").val(@Html.Raw(Json.Encode(datosGestion.tipo_beneficiario))).trigger("change");
+        $("#identificacion_beneficiario").val(@Html.Raw(Json.Encode(datosGestion.identificacion_beneficiario))).trigger("change");
+
+        $("#fecha_inicio_servicio").val("@datosGestion.fecha_inicio_servicio".substring(0, 10)).trigger("change");
+
+        $("#edad_momento_evento").val(@Html.Raw(Json.Encode(datosGestion.edad_momento_evento))).trigger("change");
+        $("#tipo_evento").val(@Html.Raw(Json.Encode(datosGestion.tipo_evento))).trigger("change");
+
+        $("#fecha_ocurrencia_evento").val("@datosGestion.fecha_ocurrencia_evento".substring(0, 10)).trigger("change");
+        $("#fecha_fin_evento").val("@datosGestion.fecha_fin_evento".substring(0, 10)).trigger("change");
+
+        $("#fuente_reporte").val(@Html.Raw(Json.Encode(datosGestion.fuente_reporte))).trigger("change");
+        $("#nombre_reportante").val(@Html.Raw(Json.Encode(datosGestion.nombre_reportante))).trigger("change");
+        $("#nombre_prestador_ocurre_evento").val(@Html.Raw(Json.Encode(datosGestion.nombre_prestador_ocurre_evento))).trigger("change");
+        $("#nit_prestador").val(@Html.Raw(Json.Encode(datosGestion.nit_prestador))).trigger("change");
+        $("#profesionales_entidadesresponsables_nivel1").val(@Html.Raw(Json.Encode(datosGestion.profesionales_entidadesresponsables_nivel1))).trigger("change");
+        $("#objetivo_auditoria").val(@Html.Raw(Json.Encode(datosGestion.objetivo_auditoria))).trigger("change");
+
+        $("#descripcion_evento").val(@Html.Raw(Json.Encode(datosGestion.descripcion_evento))).trigger("change");
+        $("#ambito_sucedio_evento").val(@Html.Raw(Json.Encode(datosGestion.ambito_sucedio_evento))).trigger("change");
+        $("#analisis_critico_caso").val(@Html.Raw(Json.Encode(datosGestion.analisis_critico_caso))).trigger("change");
+        $("#concepto_resolutividad_primer_nivel").val(@Html.Raw(Json.Encode(datosGestion.concepto_resolutividad_primer_nivel))).trigger("change");
+        $("#aplicacion_guias_terapeuticas").val(@Html.Raw(Json.Encode(datosGestion.aplicacion_guias_terapeuticas))).trigger("change");
+        $("#periodicidad_controles_medicos").val(@Html.Raw(Json.Encode(datosGestion.periodicidad_controles_medicos))).trigger("change");
+        $("#aplicacion_pruebas_diagnosticos_monitoreo").val(@Html.Raw(Json.Encode(datosGestion.aplicacion_pruebas_diagnosticos_monitoreo))).trigger("change");
+        $("#informacion_paciente_cuidadores_plan_terapeutico").val(@Html.Raw(Json.Encode(datosGestion.informacion_paciente_cuidadores_plan_terapeutico))).trigger("change");
+        $("#descripcion_eventuales_Causasmuerte_relacionadas").val(@Html.Raw(Json.Encode(datosGestion.descripcion_eventuales_Causasmuerte_relacionadas))).trigger("change");
+        $("#conclusiones_analisis_caso").val(@Html.Raw(Json.Encode(datosGestion.conclusiones_analisis_caso))).trigger("change");
+        $("#concepto_auditoria_evento_prevenible").val(@Html.Raw(Json.Encode(datosGestion.concepto_auditoria_evento_prevenible))).trigger("change");
+        $("#propuesta_acciones_mejora").val(@Html.Raw(Json.Encode(datosGestion.propuesta_acciones_mejora))).trigger("change");
     }
+
 
     function convertirFecha(fechaStr) {
         // Si la fecha es válida, convierte a un objeto Date

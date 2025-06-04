@@ -6278,6 +6278,56 @@ namespace DATA_ACCESS
             }
         }
 
+
+
+
+        public alertas_epidemiologicas ActualizarEstadoAlertaEpedi(int? id_alertas_generadas_concurrencia)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    alertas_epidemiologicas a = db.alertas_epidemiologicas
+                        .FirstOrDefault(x => x.id_alertas_generadas_concurrencia == id_alertas_generadas_concurrencia);
+
+                    if (a != null)
+                    {
+
+                        a.estado = 2;
+                        db.SubmitChanges();
+
+                        return a;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return null;
+            }
+        }
+
+
+
+        public void ActualizarDatosAlertaEpide(alertas_epidemiologicas obj, ref MessageResponseOBJ MsgRes)
+        {
+            ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext();
+            alertas_epidemiologicas obj2 = db.alertas_epidemiologicas.Where(l => l.id_alertas_generadas_concurrencia == obj.id_alertas_generadas_concurrencia).FirstOrDefault();
+            obj2.descripcion = obj.descripcion;
+            obj2.tipo_alerta = obj.tipo_alerta;
+            obj2.grupo_diagnostico = obj.grupo_diagnostico;
+            obj2.Tipo_Evento = obj.Tipo_Evento;
+            obj2.Nombre_De_Alerta = obj.Nombre_De_Alerta;
+            obj2.Descripcion_Alerta = obj.Descripcion_Alerta;
+
+            db.SubmitChanges();
+        }
+
+
         #endregion ALERTAS EPIDEMIOLOGICAS
 
         #region CENSO_AH

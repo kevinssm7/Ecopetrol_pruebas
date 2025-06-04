@@ -26,6 +26,7 @@ using OfficeOpenXml.Style;
 using Microsoft.Reporting.WebForms;
 
 using static AsaludEcopetrol.Controllers.InicioSesion.UsuarioController;
+using ClosedXML.Excel;
 
 namespace AsaludEcopetrol.Controllers.Censo
 {
@@ -1308,10 +1309,8 @@ namespace AsaludEcopetrol.Controllers.Censo
             return result;
         }
 
-        public PartialViewResult ModalDetallesAseguramiento(int? Lot, int? det, string nombre, int? idDet, int? tipo)
+        public PartialViewResult ModalDetallesAseguramiento(int? Lot, int? det, string nombre)
         {
-            //tipo 1: ingreso / edición - tipo 2: solo ver
-
             ViewBag.idLote = Lot;
             ViewBag.idDetalle = det;
             ViewBag.nombre = nombre;
@@ -1324,17 +1323,9 @@ namespace AsaludEcopetrol.Controllers.Censo
             List<management_censo_aseguramientoTableroControl_idResult> listado = new List<management_censo_aseguramientoTableroControl_idResult>();
             listado.Add(dato);
 
-            cargue_censo_ah_registros_detalle detalle = new cargue_censo_ah_registros_detalle();
-            if (idDet != null)
-            {
-                detalle = BusClass.TraerRegistroAHDetalle(idDet);
-            }
-
             ViewBag.listado = listado;
 
-            ViewBag.tipo = tipo;
-
-            return PartialView(detalle);
+            return PartialView();
         }
 
         public JsonResult BuscarCie10()
@@ -1377,74 +1368,23 @@ namespace AsaludEcopetrol.Controllers.Censo
             var rta = 0;
             try
             {
-
-                var estadoRegistro = 0;
-
-                cargue_censo_ah_registros_detalle det = new cargue_censo_ah_registros_detalle();
-
-                det.id_registro = (int)Modelo.idDetalle;
-                det.hospitalizacion = Modelo.hospitalizacion;
-
-                if (Modelo.id_det != null && Modelo.id_det != 0)
+                cargue_censo_ah_registros_detalle det = new cargue_censo_ah_registros_detalle
                 {
-                    det.corte_facturacion = Modelo.corte_facturacion;
-                    det.tipo_habitacion = Modelo.tipoHabitacion;
-                    det.medico_auditor = SesionVar.UserName;
-                    det.linea_pago = Modelo.lineaPago;
-                    det.cie10 = Modelo.cie10;
-                    det.descripcion_cie10 = Modelo.cie10Des;
-                    det.caso_inferior_72horas = Modelo.caso_inferior_72horas;
-                    det.nota_auditoria = Modelo.notas;
-                    estadoRegistro = 2;
-                }
-                else
+                    id_registro = (int)Modelo.idDetalle,
+                    tipo_habitacion = Modelo.tipoHabitacion,
+                    medico_auditor = SesionVar.UserName,
+                    linea_pago = Modelo.lineaPago,
+                    cie10 = Modelo.cie10,
+                    descripcion_cie10 = Modelo.cie10Des,
+                    caso_inferior_72horas = Modelo.caso_inferior_72horas,
+                    nota_auditoria = Modelo.notas,
+                    fecha_digita = DateTime.Now,
+                    usuario_digita = SesionVar.UserName
+                };
+
+                var inserta = BusClass.InsertarDetalleRegistroAH(det, ref MsgRes);
+                if (inserta != 0)
                 {
-                    if (Modelo.hospitalizacion == 0)
-                    {
-                        estadoRegistro = 2;
-                        det.hospitalizacion_no_observacion = Modelo.hospitalizacion_no_observacion;
-                    }
-                    else
-                    {
-                        if (Modelo.corte_facturacion == 1)
-                        {
-                            estadoRegistro = 3;
-                        }
-                        else
-                        {
-                            det.corte_facturacion = Modelo.corte_facturacion;
-                            det.tipo_habitacion = Modelo.tipoHabitacion;
-                            det.medico_auditor = SesionVar.UserName;
-                            det.linea_pago = Modelo.lineaPago;
-                            det.cie10 = Modelo.cie10;
-                            det.descripcion_cie10 = Modelo.cie10Des;
-                            det.caso_inferior_72horas = Modelo.caso_inferior_72horas;
-                            det.nota_auditoria = Modelo.notas;
-                            estadoRegistro = 2;
-                        }
-                    }
-                }
-
-                det.fecha_digita = DateTime.Now;
-                det.usuario_digita = SesionVar.UserName;
-
-                var gestionDato = 0;
-
-                if (Modelo.id_det != null && Modelo.id_det != 0)
-                {
-                    det.id_detalle = (int)Modelo.id_det;
-                    estadoRegistro = 2;
-                    gestionDato = BusClass.ActualizarDetalleAHGestion(det);
-                }
-                else
-                {
-                    gestionDato = BusClass.InsertarDetalleRegistroAH(det, ref MsgRes);
-                }
-
-                if (gestionDato != 0)
-                {
-                    var actualiza = BusClass.ActualizarEstadoRegistroAH(det.id_registro, estadoRegistro);
-
                     mensaje = "REGISTRO INGRESADO CORRECTAMENTE";
                     rta = 1;
                 }
@@ -1490,6 +1430,7 @@ namespace AsaludEcopetrol.Controllers.Censo
             return Json(new { mensaje = mensaje, rta = rta });
         }
 
+
         public ActionResult TableroAlertasEpidemiologicas()
         {
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listado = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
@@ -1498,8 +1439,8 @@ namespace AsaludEcopetrol.Controllers.Censo
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoInformativa = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoInmediata = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoAGestion = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
-
-
+            
+            
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoCerradas = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoEnGestion = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
             List<management_alertas_epidemiologicas_tableroControl_gestionadasResult> listadoGestionadas = new List<management_alertas_epidemiologicas_tableroControl_gestionadasResult>();
@@ -1513,17 +1454,32 @@ namespace AsaludEcopetrol.Controllers.Censo
                 listadoInformativa = listadoAbiertas.Where(x => x.tipo_alerta == "Alerta informativa").ToList();
                 listadoInmediata = listadoAbiertas.Where(x => x.tipo_alerta == "Alerta para gestión inmediata").ToList();
                 listadoAGestion = listadoAbiertas.Where(x => x.tipo_alerta == "Alerta que requiere alguna gestión").ToList();
-
+                
                 listadoCerradas = listado.Where(x => x.id_registro != null).ToList();
 
                 listadoGestionadas = listadoCerradas.Where(x => x.cerrada == 1).ToList();
                 listadoEnGestion = listadoCerradas.Where(x => x.cerrada != 1).ToList();
+
+
+
+
             }
 
             catch (Exception ex)
             {
                 var error = ex.Message;
             }
+
+            var idsConcurrenciaRepetidos = new HashSet<int?>(
+                     listadoEnGestion
+                         .Where(x => x.id_concurrencia != null)
+                         .GroupBy(x => x.id_concurrencia)
+                         .Where(g => g.Count() > 1)
+                         .Select(g => g.Key)
+                 );
+
+
+            ViewBag.idsConcurrenciaRepetidos = idsConcurrenciaRepetidos;
 
             ViewBag.listadoInformativa = listadoInformativa;
             ViewBag.listadoInmediata = listadoInmediata;
@@ -1536,6 +1492,9 @@ namespace AsaludEcopetrol.Controllers.Censo
             ViewBag.conteoGestion = listadoAGestion.Count();
             ViewBag.conteoEnGestion = listadoEnGestion.Count();
             ViewBag.conteoGestionadas = listadoGestionadas.Count();
+
+
+
 
             return View();
         }
@@ -1561,53 +1520,70 @@ namespace AsaludEcopetrol.Controllers.Censo
                 ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("ReporteCensoDetallado");
 
                 Color colFromHex = Color.FromArgb(22, 54, 92);
-                Sheet.Cells["A1:AB1"].Style.Font.Bold = true;
-                Sheet.Cells["A1:AB1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                Sheet.Cells["A1:AB1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
-                Sheet.Cells["A1:AB1"].Style.Font.Color.SetColor(Color.White);
-                Sheet.Cells["A1:AB1"].Style.Font.Name = "Century Gothic";
+                Sheet.Cells["A1:AL1"].Style.Font.Bold = true;
+                Sheet.Cells["A1:AL1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                Sheet.Cells["A1:AL1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
+                Sheet.Cells["A1:AL1"].Style.Font.Color.SetColor(Color.White);
+                Sheet.Cells["A1:AL1"].Style.Font.Name = "Century Gothic";
 
-                Sheet.Cells["A1"].Value = "Id censo";
-                Sheet.Cells["B1"].Value = "Id concurrencia";
-                Sheet.Cells["C1"].Value = "Id alertas generadas concurrencia";
+
+                Sheet.Cells["A1"].Value = "Id alertas generadas concurrencia";
+                Sheet.Cells["B1"].Value = "Id censo";
+                Sheet.Cells["C1"].Value = "Id concurrencia";
+
                 Sheet.Cells["D1"].Value = "Afi tipo doc";
                 Sheet.Cells["E1"].Value = "Documento afiliado";
                 Sheet.Cells["F1"].Value = "Afi nom";
                 Sheet.Cells["G1"].Value = "Edad";
-                Sheet.Cells["H1"].Value = "Ciudad IPs";
+                Sheet.Cells["H1"].Value = "Regional Beneficiario";
+
+
                 Sheet.Cells["I1"].Value = "Nit Ips";
                 Sheet.Cells["J1"].Value = "Nombre Ips";
-                Sheet.Cells["K1"].Value = "Fecha ingreso";
-                Sheet.Cells["L1"].Value = "Diagnostico censo";
-                Sheet.Cells["M1"].Value = "Nombre diagnostico censo";
-                Sheet.Cells["N1"].Value = "Fecha egreso";
-                Sheet.Cells["O1"].Value = "Diagnostico egreso";
-                Sheet.Cells["P1"].Value = "Nombre diagnostico egreso";
-                Sheet.Cells["Q1"].Value = "Incapacidad";
-                Sheet.Cells["R1"].Value = "Fecha inicial incapacidad";
-                Sheet.Cells["S1"].Value = "Fecha final incapacidad";
-                Sheet.Cells["T1"].Value = "Nombre auditor";
-                Sheet.Cells["U1"].Value = "Diagnostico genero alerta";
-                Sheet.Cells["V1"].Value = "Nombre diagnostico que genero alerta";
-                Sheet.Cells["W1"].Value = "Grupo diagnostico";
-                Sheet.Cells["X1"].Value = "Tipo evento";
-                Sheet.Cells["Y1"].Value = "Nombre de alerta";
-                Sheet.Cells["Z1"].Value = "Descripcion alerta";
-                Sheet.Cells["AA1"].Value = "Tipo alerta";
-                Sheet.Cells["AB1"].Value = "Alerta confirmada";
+                Sheet.Cells["K1"].Value = "Ciudad IPs";
+                Sheet.Cells["L1"].Value = "Regional Atención";
+
+
+                Sheet.Cells["M1"].Value = "Fecha ingreso";
+                Sheet.Cells["N1"].Value = "Diagnostico censo";
+                Sheet.Cells["O1"].Value = "Nombre diagnostico censo";
+                Sheet.Cells["P1"].Value = "Fecha egreso";
+                Sheet.Cells["Q1"].Value = "Diagnostico egreso";
+                Sheet.Cells["R1"].Value = "Nombre diagnostico egreso";
+                Sheet.Cells["S1"].Value = "Incapacidad";
+                Sheet.Cells["T1"].Value = "Fecha inicial incapacidad";
+                Sheet.Cells["U1"].Value = "Fecha final incapacidad";
+                Sheet.Cells["V1"].Value = "Nombre auditor";
+
+                Sheet.Cells["W1"].Value = "Diagnostico genero alerta";
+                Sheet.Cells["X1"].Value = "Nombre diagnostico que genero alerta";
+                Sheet.Cells["Y1"].Value = "Grupo diagnostico";
+                Sheet.Cells["Z1"].Value = "Tipo evento";
+                Sheet.Cells["AA1"].Value = "Nombre de alerta";
+                Sheet.Cells["AB1"].Value = "Descripcion alerta";
+                Sheet.Cells["AC1"].Value = "Tipo alerta";
+
+
+                Sheet.Cells["AD1"].Value = "Confirmacion alerta";
+                Sheet.Cells["AE1"].Value = "Estado final paciente";
+                Sheet.Cells["AF1"].Value = "Requiere analisis";
+                Sheet.Cells["AG1"].Value = "Requiere cargue soportes";
+                Sheet.Cells["AH1"].Value = "Requiere verificacion Sivigilia";
+                Sheet.Cells["AI1"].Value = "Observaciones";
+                Sheet.Cells["AJ1"].Value = "Motivo descarte";
+                Sheet.Cells["AK1"].Value = "Fecha digita gestion";
+                Sheet.Cells["AL1"].Value = "Estado Gestión";
+
+
+
+
+
+                //(Sheet.Cells["AB1"].Value = "Alerta confirmada";
                 //Sheet.Cells["AC1"].Value = "Id registro";
                 //Sheet.Cells["AD1"].Value = "Id concurrencia gestion";
                 //Sheet.Cells["AE1"].Value = "Id censo gestion";
                 //Sheet.Cells["AF1"].Value = "Id tipo CIE10";
                 //Sheet.Cells["AG1"].Value = "Alerta";
-                //Sheet.Cells["AH1"].Value = "Confirmacion alerta";
-                //Sheet.Cells["AI1"].Value = "Estado final paciente";
-                //Sheet.Cells["AJ1"].Value = "Requiere analisis";
-                //Sheet.Cells["AK1"].Value = "Requiere cargue soportes";
-                //Sheet.Cells["AL1"].Value = "Requiere verificacion Sivigilia";
-                //Sheet.Cells["AM1"].Value = "Observaciones";
-                //Sheet.Cells["AN1"].Value = "Motivo descarte";
-                //Sheet.Cells["AO1"].Value = "Fecha digita gestion";
                 //Sheet.Cells["AP1"].Value = "Id gestion analisis";
                 //Sheet.Cells["AQ1"].Value = "Id gestion";
                 //Sheet.Cells["AR1"].Value = "Fecha analisis";
@@ -1656,36 +1632,57 @@ namespace AsaludEcopetrol.Controllers.Censo
                 foreach (vw_reporte_alertas_epidemiologia item in listado)
                 {
 
-                    Sheet.Cells["A" + row + ":AB1" + row].Style.Font.Name = "Century Gothic";
+                    Sheet.Cells["A" + row + ":AL1" + row].Style.Font.Name = "Century Gothic";
 
-                    Sheet.Cells[string.Format("A{0}", row)].Value = item.id_censo;
-                    Sheet.Cells[string.Format("B{0}", row)].Value = item.id_concurrencia;
-                    Sheet.Cells[string.Format("C{0}", row)].Value = item.id_alertas_generadas_concurrencia;
+                    Sheet.Cells[string.Format("A{0}", row)].Value = item.id_alertas_generadas_concurrencia;
+                    Sheet.Cells[string.Format("B{0}", row)].Value = item.id_censo;
+                    Sheet.Cells[string.Format("C{0}", row)].Value = item.id_concurrencia;
+
                     Sheet.Cells[string.Format("D{0}", row)].Value = item.afi_tipo_doc;
                     Sheet.Cells[string.Format("E{0}", row)].Value = item.Documento_Afiliado;
                     Sheet.Cells[string.Format("F{0}", row)].Value = item.afi_nom;
                     Sheet.Cells[string.Format("G{0}", row)].Value = item.edad;
-                    Sheet.Cells[string.Format("H{0}", row)].Value = item.CiudadIPs;
-                    Sheet.Cells[string.Format("I{0}", row)].Value = item.Nit_Ips;
-                    Sheet.Cells[string.Format("J{0}", row)].Value = item.Nombre_Ips;
-                    Sheet.Cells[string.Format("K{0}", row)].Value = item.fecha_ingreso;
-                    Sheet.Cells[string.Format("L{0}", row)].Value = item.Diagnostico_Censo;
-                    Sheet.Cells[string.Format("M{0}", row)].Value = item.Nombre_Diagnostico_Censo;
-                    Sheet.Cells[string.Format("N{0}", row)].Value = item.fecha_egreso;
-                    Sheet.Cells[string.Format("O{0}", row)].Value = item.Diagnostico_Egreso;
-                    Sheet.Cells[string.Format("P{0}", row)].Value = item.Nombre_Diagnostico_Egreso;
-                    Sheet.Cells[string.Format("Q{0}", row)].Value = item.Incapacidad;
-                    Sheet.Cells[string.Format("R{0}", row)].Value = item.Fecha_Inicial_Incapacidad;
-                    Sheet.Cells[string.Format("S{0}", row)].Value = item.Fecha_final_Incapacidad;
-                    Sheet.Cells[string.Format("T{0}", row)].Value = item.Nombre_auditor;
-                    Sheet.Cells[string.Format("U{0}", row)].Value = item.Diagnostico_genero_alerta;
-                    Sheet.Cells[string.Format("V{0}", row)].Value = item.Nombre_Diagnostico_que_genero_alerta;
-                    Sheet.Cells[string.Format("W{0}", row)].Value = item.grupo_diagnostico;
-                    Sheet.Cells[string.Format("X{0}", row)].Value = item.Tipo_Evento;
-                    Sheet.Cells[string.Format("Y{0}", row)].Value = item.Nombre_De_Alerta;
-                    Sheet.Cells[string.Format("Z{0}", row)].Value = item.Descripcion_Alerta;
-                    Sheet.Cells[string.Format("AA{0}", row)].Value = item.tipo_alerta;
-                    Sheet.Cells[string.Format("AB{0}", row)].Value = item.Alerta_Confirmada;
+                    Sheet.Cells[string.Format("H{0}", row)].Value = item.regional_beneficiario;
+
+                    Sheet.Cells[string.Format("I{0}", row)].Value = item.Nombre_Ips;
+                    Sheet.Cells[string.Format("J{0}", row)].Value = item.Nit_Ips;
+                    Sheet.Cells[string.Format("K{0}", row)].Value = item.CiudadIPs;
+                    Sheet.Cells[string.Format("L{0}", row)].Value = item.regional_atencion;
+
+                    Sheet.Cells[string.Format("M{0}", row)].Value = item.fecha_ingreso;
+                    Sheet.Cells[string.Format("N{0}", row)].Value = item.Diagnostico_Censo;
+                    Sheet.Cells[string.Format("O{0}", row)].Value = item.Nombre_Diagnostico_Censo;
+                    Sheet.Cells[string.Format("P{0}", row)].Value = item.fecha_egreso;
+                    Sheet.Cells[string.Format("Q{0}", row)].Value = item.Diagnostico_Egreso;
+                    Sheet.Cells[string.Format("R{0}", row)].Value = item.Nombre_Diagnostico_Egreso;
+                    Sheet.Cells[string.Format("S{0}", row)].Value = item.Incapacidad;
+                    Sheet.Cells[string.Format("T{0}", row)].Value = item.Fecha_Inicial_Incapacidad;
+                    Sheet.Cells[string.Format("U{0}", row)].Value = item.Fecha_final_Incapacidad;
+                    Sheet.Cells[string.Format("V{0}", row)].Value = item.Nombre_auditor;
+
+                    Sheet.Cells[string.Format("W{0}", row)].Value = item.Diagnostico_genero_alerta;
+                    Sheet.Cells[string.Format("X{0}", row)].Value = item.Nombre_Diagnostico_que_genero_alerta;
+                    Sheet.Cells[string.Format("Y{0}", row)].Value = item.grupo_diagnostico;
+
+                    Sheet.Cells[string.Format("Z{0}", row)].Value = item.Tipo_Evento;
+                    Sheet.Cells[string.Format("AA{0}", row)].Value = item.Nombre_De_Alerta;
+                    Sheet.Cells[string.Format("AB{0}", row)].Value = item.Descripcion_Alerta;
+                    Sheet.Cells[string.Format("AC{0}", row)].Value = item.tipo_alerta;
+                    Sheet.Cells[string.Format("AD{0}", row)].Value = item.confirmacion_alerta;
+
+                    Sheet.Cells[string.Format("AE{0}", row)].Value = item.estado_final_paciente;
+                    Sheet.Cells[string.Format("AF{0}", row)].Value = item.requiere_analisis;
+                    Sheet.Cells[string.Format("AG{0}", row)].Value = item.requiere_cargue_soportes;
+                    Sheet.Cells[string.Format("AH{0}", row)].Value = item.requiere_verificacion_sivigilia;
+
+                    Sheet.Cells[string.Format("AI{0}", row)].Value = item.observaciones;
+                    Sheet.Cells[string.Format("AJ{0}", row)].Value = item.motivo_descarte;
+                    Sheet.Cells[string.Format("AK{0}", row)].Value = item.fecha_digita_gestion;
+                    Sheet.Cells[string.Format("AL{0}", row)].Value = item.gestion;
+
+
+
+
 
                     //Sheet.Cells[string.Format("AC{0}", row)].Value = item.id_registro;
                     //Sheet.Cells[string.Format("AD{0}", row)].Value = item.id_concurrencia_gestion;
@@ -1741,14 +1738,16 @@ namespace AsaludEcopetrol.Controllers.Censo
                     //Sheet.Cells[string.Format("CB{0}", row)].Value = item.observaciones_demoras;
                     //Sheet.Cells[string.Format("CC{0}", row)].Value = item.fecha_digita_demoras;
 
-                    Sheet.Cells[string.Format("K{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                    Sheet.Cells[string.Format("R{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                    Sheet.Cells[string.Format("S{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                    Sheet.Cells[string.Format("M{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("P{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("T{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("U{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("AK{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
 
                     row++;
                 }
 
-                Sheet.Cells["A:AB"].AutoFitColumns();
+                Sheet.Cells["A:AL"].AutoFitColumns();
 
                 var nombre = "ReporteAlertasEpidemiologicas_" + DateTime.Now + ".xlsx";
                 Response.Clear();
@@ -1789,83 +1788,121 @@ namespace AsaludEcopetrol.Controllers.Censo
                 ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("ReporteCensoDetallado");
 
                 Color colFromHex = Color.FromArgb(22, 54, 92);
-                Sheet.Cells["A1:AB1"].Style.Font.Bold = true;
-                Sheet.Cells["A1:AB1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                Sheet.Cells["A1:AB1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
-                Sheet.Cells["A1:AB1"].Style.Font.Color.SetColor(Color.White);
-                Sheet.Cells["A1:AB1"].Style.Font.Name = "Century Gothic";
+                Sheet.Cells["A1:AI1"].Style.Font.Bold = true;
+                Sheet.Cells["A1:AI1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                Sheet.Cells["A1:AI1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
+                Sheet.Cells["A1:AI1"].Style.Font.Color.SetColor(Color.White);
+                Sheet.Cells["A1:AI1"].Style.Font.Name = "Century Gothic";
 
-                Sheet.Cells["A1"].Value = "Id censo";
-                Sheet.Cells["B1"].Value = "Id concurrencia";
-                Sheet.Cells["C1"].Value = "Id alertas generadas concurrencia";
+                Sheet.Cells["A1"].Value = "Id alertas generadas concurrencia";
+                Sheet.Cells["B1"].Value = "Id censo";
+                Sheet.Cells["C1"].Value = "Id concurrencia";
+
                 Sheet.Cells["D1"].Value = "Afi tipo doc";
                 Sheet.Cells["E1"].Value = "Documento afiliado";
                 Sheet.Cells["F1"].Value = "Afi nom";
                 Sheet.Cells["G1"].Value = "Edad";
-                Sheet.Cells["H1"].Value = "Ciudad IPs";
+                Sheet.Cells["H1"].Value = "Regional Beneficiario";
+
+
                 Sheet.Cells["I1"].Value = "Nit Ips";
                 Sheet.Cells["J1"].Value = "Nombre Ips";
-                Sheet.Cells["K1"].Value = "Fecha ingreso";
-                Sheet.Cells["L1"].Value = "Diagnostico censo";
-                Sheet.Cells["M1"].Value = "Nombre diagnostico censo";
-                Sheet.Cells["N1"].Value = "Fecha egreso";
-                Sheet.Cells["O1"].Value = "Diagnostico egreso";
-                Sheet.Cells["P1"].Value = "Nombre diagnostico egreso";
-                Sheet.Cells["Q1"].Value = "Incapacidad";
-                Sheet.Cells["R1"].Value = "Fecha inicial incapacidad";
-                Sheet.Cells["S1"].Value = "Fecha final incapacidad";
-                Sheet.Cells["T1"].Value = "Nombre auditor";
-                Sheet.Cells["U1"].Value = "Diagnostico genero alerta";
-                Sheet.Cells["V1"].Value = "Nombre diagnostico que genero alerta";
-                Sheet.Cells["W1"].Value = "Grupo diagnostico";
-                Sheet.Cells["X1"].Value = "Tipo evento";
-                Sheet.Cells["Y1"].Value = "Nombre de alerta";
-                Sheet.Cells["Z1"].Value = "Descripcion alerta";
-                Sheet.Cells["AA1"].Value = "Tipo alerta";
-                Sheet.Cells["AB1"].Value = "Alerta confirmada";
+                Sheet.Cells["K1"].Value = "Ciudad IPs";
+                Sheet.Cells["L1"].Value = "Regional Atención";
+
+
+                Sheet.Cells["M1"].Value = "Fecha ingreso";
+                Sheet.Cells["N1"].Value = "Diagnostico censo";
+                Sheet.Cells["O1"].Value = "Nombre diagnostico censo";
+                Sheet.Cells["P1"].Value = "Fecha egreso";
+                Sheet.Cells["Q1"].Value = "Diagnostico egreso";
+                Sheet.Cells["R1"].Value = "Nombre diagnostico egreso";
+                Sheet.Cells["S1"].Value = "Incapacidad";
+                Sheet.Cells["T1"].Value = "Fecha inicial incapacidad";
+                Sheet.Cells["U1"].Value = "Fecha final incapacidad";
+                Sheet.Cells["V1"].Value = "Nombre auditor";
+
+                Sheet.Cells["W1"].Value = "Diagnostico genero alerta";
+                Sheet.Cells["X1"].Value = "Nombre diagnostico que genero alerta";
+                Sheet.Cells["Y1"].Value = "Grupo diagnostico";
+                Sheet.Cells["Z1"].Value = "Tipo evento";
+                Sheet.Cells["AA1"].Value = "Nombre de alerta";
+                Sheet.Cells["AB1"].Value = "Descripcion alerta";
+                Sheet.Cells["AC1"].Value = "Tipo alerta";
+
+                Sheet.Cells["AD1"].Value = "Confirmación alerta";
+                Sheet.Cells["AE1"].Value = "Motivo descarte";
+                Sheet.Cells["AF1"].Value = "Estado final paciente";
+
+                Sheet.Cells["AG1"].Value = "Requiere Sivigila";
+                Sheet.Cells["AH1"].Value = "Requiere analisis";
+                Sheet.Cells["AI1"].Value = "Requiere soportes";
+                
+
+
+
 
                 int row = 2;
                 foreach (vw_reporte_alertas_epidemiologia_gestiones item in listado)
                 {
 
-                    Sheet.Cells["A" + row + ":AB1" + row].Style.Font.Name = "Century Gothic";
+                    Sheet.Cells["A" + row + ":AI1" + row].Style.Font.Name = "Century Gothic";
 
-                    Sheet.Cells[string.Format("A{0}", row)].Value = item.id_censo;
-                    Sheet.Cells[string.Format("B{0}", row)].Value = item.id_concurrencia;
-                    Sheet.Cells[string.Format("C{0}", row)].Value = item.id_alertas_generadas_concurrencia;
+                    Sheet.Cells[string.Format("A{0}", row)].Value = item.id_alertas_generadas_concurrencia;
+                    Sheet.Cells[string.Format("B{0}", row)].Value = item.id_censo;
+                    Sheet.Cells[string.Format("C{0}", row)].Value = item.id_concurrencia;
+
+
                     Sheet.Cells[string.Format("D{0}", row)].Value = item.afi_tipo_doc;
                     Sheet.Cells[string.Format("E{0}", row)].Value = item.Documento_Afiliado;
                     Sheet.Cells[string.Format("F{0}", row)].Value = item.afi_nom;
                     Sheet.Cells[string.Format("G{0}", row)].Value = item.edad;
-                    Sheet.Cells[string.Format("H{0}", row)].Value = item.CiudadIPs;
-                    Sheet.Cells[string.Format("I{0}", row)].Value = item.Nit_Ips;
-                    Sheet.Cells[string.Format("J{0}", row)].Value = item.Nombre_Ips;
-                    Sheet.Cells[string.Format("K{0}", row)].Value = item.fecha_ingreso;
-                    Sheet.Cells[string.Format("L{0}", row)].Value = item.Diagnostico_Censo;
-                    Sheet.Cells[string.Format("M{0}", row)].Value = item.Nombre_Diagnostico_Censo;
-                    Sheet.Cells[string.Format("N{0}", row)].Value = item.fecha_egreso;
-                    Sheet.Cells[string.Format("O{0}", row)].Value = item.Diagnostico_Egreso;
-                    Sheet.Cells[string.Format("P{0}", row)].Value = item.Nombre_Diagnostico_Egreso;
-                    Sheet.Cells[string.Format("Q{0}", row)].Value = item.Incapacidad;
-                    Sheet.Cells[string.Format("R{0}", row)].Value = item.Fecha_Inicial_Incapacidad;
-                    Sheet.Cells[string.Format("S{0}", row)].Value = item.Fecha_final_Incapacidad;
-                    Sheet.Cells[string.Format("T{0}", row)].Value = item.Nombre_auditor;
-                    Sheet.Cells[string.Format("U{0}", row)].Value = item.Diagnostico_genero_alerta;
-                    Sheet.Cells[string.Format("V{0}", row)].Value = item.Nombre_Diagnostico_que_genero_alerta;
-                    Sheet.Cells[string.Format("W{0}", row)].Value = item.grupo_diagnostico;
-                    Sheet.Cells[string.Format("X{0}", row)].Value = item.Tipo_Evento;
-                    Sheet.Cells[string.Format("Y{0}", row)].Value = item.Nombre_De_Alerta;
-                    Sheet.Cells[string.Format("Z{0}", row)].Value = item.Descripcion_Alerta;
-                    Sheet.Cells[string.Format("AA{0}", row)].Value = item.tipo_alerta;
-                    Sheet.Cells[string.Format("AB{0}", row)].Value = item.Alerta_Confirmada;
-                    Sheet.Cells[string.Format("K{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                    Sheet.Cells[string.Format("R{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                    Sheet.Cells[string.Format("S{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                    Sheet.Cells[string.Format("H{0}", row)].Value = item.regional_beneficiario;
+
+                    Sheet.Cells[string.Format("I{0}", row)].Value = item.Nombre_Ips;
+                    Sheet.Cells[string.Format("J{0}", row)].Value = item.Nit_Ips;
+                    Sheet.Cells[string.Format("K{0}", row)].Value = item.CiudadIPs;
+                    Sheet.Cells[string.Format("L{0}", row)].Value = item.regional_atencion;
+
+
+                    Sheet.Cells[string.Format("M{0}", row)].Value = item.fecha_ingreso;
+                    Sheet.Cells[string.Format("N{0}", row)].Value = item.Diagnostico_Censo;
+                    Sheet.Cells[string.Format("O{0}", row)].Value = item.Nombre_Diagnostico_Censo;
+                    Sheet.Cells[string.Format("P{0}", row)].Value = item.fecha_egreso;
+                    Sheet.Cells[string.Format("Q{0}", row)].Value = item.Diagnostico_Egreso;
+                    Sheet.Cells[string.Format("R{0}", row)].Value = item.Nombre_Diagnostico_Egreso;
+                    Sheet.Cells[string.Format("S{0}", row)].Value = item.Incapacidad;
+                    Sheet.Cells[string.Format("T{0}", row)].Value = item.Fecha_Inicial_Incapacidad;
+                    Sheet.Cells[string.Format("U{0}", row)].Value = item.Fecha_final_Incapacidad;
+                    Sheet.Cells[string.Format("V{0}", row)].Value = item.Nombre_auditor;
+
+
+                    Sheet.Cells[string.Format("W{0}", row)].Value = item.Diagnostico_genero_alerta;
+                    Sheet.Cells[string.Format("X{0}", row)].Value = item.Nombre_Diagnostico_que_genero_alerta;
+                    Sheet.Cells[string.Format("Y{0}", row)].Value = item.grupo_diagnostico;
+                    Sheet.Cells[string.Format("Z{0}", row)].Value = item.Tipo_Evento;
+                    Sheet.Cells[string.Format("AA{0}", row)].Value = item.Nombre_De_Alerta;
+                    Sheet.Cells[string.Format("AB{0}", row)].Value = item.Descripcion_Alerta;
+                    Sheet.Cells[string.Format("AC{0}", row)].Value = item.tipo_alerta;
+
+                    Sheet.Cells[string.Format("AD{0}", row)].Value = item.confirmacion_alerta;
+                    Sheet.Cells[string.Format("AE{0}", row)].Value = item.motivo_descarte;
+
+                    Sheet.Cells[string.Format("AF{0}", row)].Value = item.estado_final_paciente;
+                    Sheet.Cells[string.Format("AG{0}", row)].Value = item.requiere_analisis;
+                    Sheet.Cells[string.Format("AH{0}", row)].Value = item.requiere_cargue_soportes;
+                    Sheet.Cells[string.Format("AI{0}", row)].Value = item.requiere_verificacion_sivigilia;
+
+
+                    Sheet.Cells[string.Format("M{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("P{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("T{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
+                    Sheet.Cells[string.Format("U{0}", row)].Style.Numberformat.Format = "dd/MM/yyyy";
 
                     row++;
                 }
 
-                Sheet.Cells["A:AB"].AutoFitColumns();
+                Sheet.Cells["A:AI"].AutoFitColumns();
 
                 var nombre = "ReporteAlertasEpidemiologicasGestiones_" + DateTime.Now + ".xlsx";
                 Response.Clear();
@@ -1893,6 +1930,7 @@ namespace AsaludEcopetrol.Controllers.Censo
 
             return PartialView();
         }
+
 
         public JsonResult GuardarGestionEpidemiologica(int? idConcu, int? idCenso, int? idRef, string confirmacion, string estado_paciente, string requiere_analisis, string requiere_soportes
             , string requiere_sivigila, string observaciones, string motivo_descarte)
@@ -2976,5 +3014,208 @@ namespace AsaludEcopetrol.Controllers.Censo
                 });
             }
         }
+
+
+        public PartialViewResult ModalEditarAlerta(int? id_alertas_generadas_concurrencia)
+        {
+            var filtro = new Models.Censo.AlertasEpidemiologicas().GetAlertaEpideById(id_alertas_generadas_concurrencia);
+
+            var modelo = new Models.Censo.AlertasEpidemiologicas
+            {
+                id_alertas_generadas_concurrencia = filtro.id_alertas_generadas_concurrencia,
+                descripcion = filtro.descripcion,
+                tipo_alerta = filtro.tipo_alerta,
+                grupo_diagnostico = filtro.grupo_diagnostico,
+                Tipo_Evento = filtro.Tipo_Evento,
+                Nombre_De_Alerta = filtro.Nombre_De_Alerta, 
+                Descripcion_Alerta = filtro.Descripcion_Alerta
+            };
+
+            return PartialView(modelo);
+        }
+
+
+
+
+        public JsonResult GuardarEdicionEpidemiologica(Models.Censo.AlertasEpidemiologicas Modelo)
+        {
+
+            var mensaje = "";
+
+            try
+            {
+
+                alertas_epidemiologicas obj = new alertas_epidemiologicas();
+                obj.id_alertas_generadas_concurrencia = Modelo.id_alertas_generadas_concurrencia;
+                obj.descripcion = Modelo.descripcion;
+                obj.tipo_alerta = Modelo.tipo_alerta;
+                obj.grupo_diagnostico = Modelo.grupo_diagnostico;
+                obj.Tipo_Evento = Modelo.Tipo_Evento;
+                obj.Nombre_De_Alerta = Modelo.Nombre_De_Alerta;
+                obj.Descripcion_Alerta = Modelo.Descripcion_Alerta;
+
+                if (Modelo != null)
+                {
+                    Modelo.ActualizarDatosAlertaEpide(obj, ref MsgRes);
+                    mensaje = "DATOS ACTUALIZADOS CORRECTAMENTE";
+                    
+                }
+     
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = error;
+            }
+
+            return Json(new { mensaje = mensaje, rta = 1 });
+
+
+        }
+
+
+        public JsonResult EliminarAlertaEpide(int id_alertas_generadas_concurrencia)
+        {
+            var mensaje = "";
+
+            try
+            {
+
+                alertas_epidemiologicas obj = new alertas_epidemiologicas();
+
+                obj.id_alertas_generadas_concurrencia = id_alertas_generadas_concurrencia;
+
+                if(obj.id_alertas_generadas_concurrencia != null)
+                {
+                    BusClass.ActualizarEstadoAlertaEpedi(id_alertas_generadas_concurrencia);
+                    mensaje = "ALERTA ELIMINADA CORRECTAMENTE";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = error;
+            }
+
+            return Json(new { mensaje = mensaje, rta = 1 });
+        }
+
+
+
+
+
+        public ActionResult TableroCargueAlertas()
+        {
+            ViewBag.regional = BusClass.GetRefRegion();
+            return View();
+        }
+
+
+        public ActionResult DescargarPLantillaAlertasEpide()
+        {
+            try
+            {
+                //var ruta = "../Resources/CargueMasivoDetalles.xlsx";
+                //string dirpath = Path.Combine(Request.PhysicalApplicationPath, ruta);
+
+                var rutaRelativa = "Resources/CargueMasivoDetalles.xlsx";
+                string dirpath = Path.Combine(Server.MapPath("~"), rutaRelativa);
+                var ruta = Path.GetFullPath(dirpath);
+
+                string filename = ruta;
+                string extension = "";
+
+                string[] nombrePartido = new string[0];
+                nombrePartido = ruta.Split('\\');
+                var nombreFinal = "CargueMasivoAlertasEpide.xlsx";
+
+                extension = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                return File(dirpath, extension, nombreFinal);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Ha ocurrido un error al momento de visualizar el archivo: " + ex.Message });
+            }
+        }
+
+
+        //public JsonResult GuardarAlertaEpide(HttpPostedFileBase archivo)
+        //{
+        //    var mensaje = "";
+        //    var respuesta = "";
+        //    var rta = 0;
+        //    Models.Censo.AlertaEpidemiologica Modelo = new Models.Censo.AlertaEpidemiologica();
+
+        //    try
+        //    {
+        //        if (archivo.ContentLength > 0)
+        //        {
+        //            using (var workbook = new XLWorkbook(archivo.InputStream))
+        //            {
+        //                var worksheet = workbook.Worksheet(1); // Asume que el archivo tiene al menos una hoja
+        //                var range = worksheet.RangeUsed(); // Obtiene el rango de celdas con datos
+
+        //                // Convertir el rango a DataTable
+        //                DataTable dataTable = new DataTable();
+        //                bool firstRow = true;
+
+        //                foreach (var row in range.Rows())
+        //                {
+        //                    if (firstRow)
+        //                    {
+        //                        // Crear columnas a partir de la primera fila
+        //                        foreach (var cell in row.Cells())
+        //                        {
+        //                            dataTable.Columns.Add(cell.GetValue<string>());
+        //                        }
+        //                        firstRow = false;
+        //                    }
+        //                    else
+        //                    {
+        //                        // Agregar filas al DataTable
+        //                        var newRow = dataTable.NewRow();
+        //                        for (int i = 0; i < row.Cells().Count(); i++)
+        //                        {
+        //                            newRow[i] = row.Cell(i + 1).GetValue<string>();
+        //                        }
+        //                        dataTable.Rows.Add(newRow);
+        //                    }
+        //                }
+
+
+        //                fis_rips_sinJson_lote lote = new fis_rips_sinJson_lote();
+        //                lote.fecha_digita = DateTime.Now;
+        //                lote.usuario_digita = SesionVar.UserName;
+        //                respuesta = Modelo.ExcelMasivoDetalles(dataTable, lote, ref MsgRes);
+
+        //                if (Modelo.rtaIngresoFacturasDetalle == 1)
+        //                {
+        //                    mensaje = Modelo.mensajeIngresoFacturasDetalle;
+        //                    rta = 1;
+        //                }
+        //                else
+        //                {
+        //                    mensaje = "ERROR AL INGRESAR CARGUE: " + archivo.FileName + " - " + Modelo.mensajeIngresoFacturasDetalle;
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            mensaje = "ARCHIVO SIN DATOS";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var error = ex.Message;
+        //        mensaje = "ERROR AL CARGAR MASIVO: " + error;
+        //    }
+
+        //    return Json(new { mensaje = mensaje, rta = rta });
+        //}
+
+
     }
 }

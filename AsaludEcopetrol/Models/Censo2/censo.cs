@@ -72,6 +72,7 @@ namespace AsaludEcopetrol.Models.Censo
             }
         }
 
+       
 
         private List<vw_datos_censo> _ListCensoFac;
         public List<vw_datos_censo> ListCensoDFac
@@ -811,18 +812,17 @@ namespace AsaludEcopetrol.Models.Censo
         public int id_registro { get; set; }
 
 
+
         public int? idLote { get; set; }
         public int? idDetalle { get; set; }
-        public int? id_det { get; set; }
-        public int? hospitalizacion { get; set; }
-        public string hospitalizacion_no_observacion { get; set; }
-        public int? corte_facturacion { get; set; }
         public int? tipoHabitacion { get; set; }
         public int? lineaPago { get; set; }
         public string cie10 { get; set; }
         public string cie10Des { get; set; }
         public int? caso_inferior_72horas { get; set; }
         public string notas { get; set; }
+
+
 
 
         #endregion
@@ -997,54 +997,14 @@ namespace AsaludEcopetrol.Models.Censo
                         cargue_censo_ah_registros obj = new cargue_censo_ah_registros();
 
                         fila++;
-                        columna = "Número de la factura";
+                        columna = "Tipo de documento";
 
-                        if (!string.IsNullOrEmpty(item["Número de la factura"].ToString()))
+                        if (!string.IsNullOrEmpty(item["Tipo de documento"].ToString()))
                         {
                             var texto = "";
                             var numero = 0;
                             DateTime fechas = new DateTime();
                             decimal decima = new decimal();
-
-
-                            columna = "Número de la factura";
-                            try
-                            {
-                                texto = Convert.ToString(item["Número de la factura"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.numero_factura = Convert.ToString(item["Número de la factura"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Código del prestador de servicios de salud";
-                            try
-                            {
-                                texto = Convert.ToString(item["Código del prestador de servicios de salud"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.codigo_prestador = Convert.ToString(item["Código del prestador de servicios de salud"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
 
                             columna = "Tipo de documento";
                             try
@@ -1056,7 +1016,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.tipo_documento = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1075,7 +1035,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.numero_documento = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1084,7 +1044,24 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-
+                            columna = "Genero";
+                            try
+                            {
+                                texto = Convert.ToString(item["Genero"]);
+                                if (!string.IsNullOrEmpty(texto))
+                                {
+                                    obj.genero = Convert.ToString(item["Genero"]);
+                                }
+                                else
+                                {
+                                    obj.genero = "";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var error = ex.Message;
+                                throw new Exception(error);
+                            }
 
                             columna = "Primer apellido";
                             try
@@ -1096,7 +1073,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.primer_apellido = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1115,7 +1092,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.segundo_apellido = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1134,7 +1111,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.primer_nombre = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1154,7 +1131,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.segundo_nombre = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1163,24 +1140,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-                            columna = "Genero";
-                            try
-                            {
-                                texto = Convert.ToString(item["Genero"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.genero = Convert.ToString(item["Genero"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
 
                             columna = "Fecha de nacimiento";
                             try
@@ -1197,7 +1156,6 @@ namespace AsaludEcopetrol.Models.Censo
                                         // Incluir más formatos de fecha con y sin hora, y con AM/PM
                                         string[] formatos = {
                                         "dd/MM/yyyy",
-                                        "d/MM/yyyy",
                                         //"MM/dd/yyyy"
                                         };
 
@@ -1239,6 +1197,82 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(ex.Message);
                             }
 
+                            columna = "Regional";
+                            try
+                            {
+                                texto = Convert.ToString(item["Regional"]);
+                                if (!string.IsNullOrEmpty(texto))
+                                {
+                                    obj.regional = Convert.ToString(item["Regional"]);
+                                }
+                                else
+                                {
+                                    obj.regional = "";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var error = ex.Message;
+                                throw new Exception(error);
+                            }
+
+                            columna = "UNIS";
+                            try
+                            {
+                                texto = Convert.ToString(item["UNIS"]);
+                                if (!string.IsNullOrEmpty(texto))
+                                {
+                                    obj.unis = Convert.ToString(item["UNIS"]);
+                                }
+                                else
+                                {
+                                    obj.unis = "";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var error = ex.Message;
+                                throw new Exception(error);
+                            }
+
+                            columna = "Municipio";
+                            try
+                            {
+                                texto = Convert.ToString(item["Municipio"]);
+                                if (!string.IsNullOrEmpty(texto))
+                                {
+                                    obj.municipio = Convert.ToString(item["Municipio"]);
+                                }
+                                else
+                                {
+                                    obj.municipio = "";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var error = ex.Message;
+                                throw new Exception(error);
+                            }
+
+                            columna = "IPS";
+                            try
+                            {
+                                texto = Convert.ToString(item["IPS"]);
+                                if (!string.IsNullOrEmpty(texto))
+                                {
+                                    obj.ips = Convert.ToString(item["IPS"]);
+                                }
+                                else
+                                {
+                                    obj.ips = "";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var error = ex.Message;
+                                throw new Exception(error);
+                            }
+
                             columna = "Edad";
                             try
                             {
@@ -1249,7 +1283,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    textError = columna + ", no puede ir vacío";
+                                    obj.edad = null;
                                 }
                             }
                             catch (Exception ex)
@@ -1257,27 +1291,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 var error = ex.Message;
                                 throw new Exception(error);
                             }
-
-
-                            columna = "Vía de ingreso a la institución";
-                            try
-                            {
-                                texto = Convert.ToString(item["Vía de ingreso a la institución"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.via_ingreso_institucion = Convert.ToInt32(item["Vía de ingreso a la institución"]);
-                                }
-                                else
-                                {
-                                    obj.via_ingreso_institucion = null;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
 
                             columna = "Fecha de ingreso";
                             try
@@ -1294,8 +1307,6 @@ namespace AsaludEcopetrol.Models.Censo
                                         // Incluir más formatos de fecha con y sin hora, y con AM/PM
                                         string[] formatos = {
                                         "dd/MM/yyyy",
-                                        "d/MM/yyyy",
-
                                         };
 
                                         DateTime fechaEspecial;
@@ -1336,215 +1347,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(ex.Message);
                             }
 
-                            columna = "Hora de ingreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Hora de ingreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.hora_ingreso = Convert.ToString(item["Hora de ingreso"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Número de autorización";
-                            try
-                            {
-                                texto = Convert.ToString(item["Número de autorización"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.numero_autorizacion = Convert.ToString(item["Número de autorización"]);
-                                }
-                                else
-                                {
-                                    obj.numero_autorizacion = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Causa externa";
-                            try
-                            {
-                                texto = Convert.ToString(item["Causa externa"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.causa_externa = Convert.ToInt32(item["Causa externa"]);
-                                }
-                                else
-                                {
-                                    obj.causa_externa = null;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico principal de ingreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico principal de ingreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_principal_ingreso = Convert.ToString(item["Diagnóstico principal de ingreso"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico principal de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico principal de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.cie10 = Convert.ToString(item["Diagnóstico principal de egreso"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-
-                            columna = "Diagnóstico relacionado No. 1 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico relacionado No. 1 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_relacionado_1 = Convert.ToString(item["Diagnóstico relacionado No. 1 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.diagnostico_relacionado_1 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico relacionado No. 2 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico relacionado No. 2 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_relacionado_2 = Convert.ToString(item["Diagnóstico relacionado No. 2 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.diagnostico_relacionado_2 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico relacionado No. 3 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico relacionado No. 3 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_relacionado_3 = Convert.ToString(item["Diagnóstico relacionado No. 3 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.diagnostico_relacionado_3 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico de la complicación";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico de la complicación"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_complicacion = Convert.ToString(item["Diagnóstico de la complicación"]);
-                                }
-                                else
-                                {
-                                    obj.diagnostico_complicacion = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Estado a la salida";
-                            try
-                            {
-                                texto = Convert.ToString(item["Estado a la salida"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.estado_a_salida = Convert.ToString(item["Estado a la salida"]);
-                                }
-                                else
-                                {
-                                    obj.estado_a_salida = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Diagnóstico de la causa básica de muerte";
-                            try
-                            {
-                                texto = Convert.ToString(item["Diagnóstico de la causa básica de muerte"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.diagnostico_causa_basica_muerte = Convert.ToString(item["Diagnóstico de la causa básica de muerte"]);
-                                }
-                                else
-                                {
-                                    obj.diagnostico_causa_basica_muerte = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
 
                             columna = "Fecha de egreso";
                             try
@@ -1561,8 +1363,6 @@ namespace AsaludEcopetrol.Models.Censo
                                         // Incluir más formatos de fecha con y sin hora, y con AM/PM
                                         string[] formatos = {
                                         "dd/MM/yyyy",
-                                        "d/MM/yyyy",
-
                                         };
 
                                         DateTime fechaEspecial;
@@ -1603,63 +1403,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(ex.Message);
                             }
 
-                            columna = "Hora de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Hora de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.hora_egreso = Convert.ToString(item["Hora de egreso"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "NIT";
-                            try
-                            {
-                                texto = Convert.ToString(item["NIT"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.nit = Convert.ToString(item["NIT"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "IPS";
-                            try
-                            {
-                                texto = Convert.ToString(item["IPS"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.ips = Convert.ToString(item["IPS"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
 
                             columna = "Tipo de ingreso";
                             try
@@ -1680,254 +1423,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-                            columna = "Descripción causa externa";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción causa externa"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_causa_externa = Convert.ToString(item["Descripción causa externa"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_causa_externa = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción estado de la salida";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción estado de la salida"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_estado_salida = Convert.ToString(item["Descripción estado de la salida"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_estado_salida = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico principal de ingreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico principal de ingreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnostico_principal_ingreso = Convert.ToString(item["Descripción diagnóstico principal de ingreso"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico relacionado No. 1 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico relacionado No. 1 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_1 = Convert.ToString(item["Descripción diagnóstico relacionado No. 1 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_1 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico relacionado No. 2 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico relacionado No. 2 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_2 = Convert.ToString(item["Descripción diagnóstico relacionado No. 2 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_2 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico relacionado No. 3 de egreso";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico relacionado No. 3 de egreso"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_3 = Convert.ToString(item["Descripción diagnóstico relacionado No. 3 de egreso"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_diagnosticoRleacionado_egreso_3 = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico de la complicación";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico de la complicación"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnostico_complicacion = Convert.ToString(item["Descripción diagnóstico de la complicación"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_diagnostico_complicacion = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Descripción diagnóstico de la causa básica de muerte";
-                            try
-                            {
-                                texto = Convert.ToString(item["Descripción diagnóstico de la causa básica de muerte"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.descripcion_diagnostico_causaBasica_muerte = Convert.ToString(item["Descripción diagnóstico de la causa básica de muerte"]);
-                                }
-                                else
-                                {
-                                    obj.descripcion_diagnostico_causaBasica_muerte = "";
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Grupo Dx";
-                            try
-                            {
-                                texto = Convert.ToString(item["Grupo Dx"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.grupo_dx = Convert.ToString(item["Grupo Dx"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Código DIVIPOLA";
-                            try
-                            {
-                                texto = Convert.ToString(item["Código DIVIPOLA"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.codigo_divipola = Convert.ToString(item["Código DIVIPOLA"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Regional";
-                            try
-                            {
-                                texto = Convert.ToString(item["Regional"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.regional = Convert.ToString(item["Regional"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "UNIS";
-                            try
-                            {
-                                texto = Convert.ToString(item["UNIS"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.unis = Convert.ToString(item["UNIS"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Municipio";
-                            try
-                            {
-                                texto = Convert.ToString(item["Municipio"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.municipio = Convert.ToString(item["Municipio"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-
                             columna = "Origen del evento";
                             try
                             {
@@ -1938,7 +1433,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.origen_evento = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1957,7 +1452,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.caso_especial = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1976,7 +1471,7 @@ namespace AsaludEcopetrol.Models.Censo
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.tipo_caso = "";
                                 }
                             }
                             catch (Exception ex)
@@ -1985,17 +1480,17 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-                            columna = "Está en base concurrencia (Sí / No)";
+                            columna = "Diagnostico CIE10";
                             try
                             {
-                                texto = Convert.ToString(item["Está en base concurrencia (Sí / No)"]);
+                                texto = Convert.ToString(item["Diagnostico CIE10"]);
                                 if (!string.IsNullOrEmpty(texto))
                                 {
-                                    obj.estaBase_concurrencia = Convert.ToString(item["Está en base concurrencia (Sí / No)"]);
+                                    obj.cie10 = Convert.ToString(item["Diagnostico CIE10"]);
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.cie10 = "";
                                 }
                             }
                             catch (Exception ex)
@@ -2004,17 +1499,18 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-                            columna = "Está en base Urgencias (AU) (Sí / No)";
+
+                            columna = "Diagnostico descripción";
                             try
                             {
-                                texto = Convert.ToString(item["Está en base Urgencias (AU) (Sí / No)"]);
+                                texto = Convert.ToString(item["Diagnostico descripción"]);
                                 if (!string.IsNullOrEmpty(texto))
                                 {
-                                    obj.estaBase_urgencias = Convert.ToString(item["Está en base Urgencias (AU) (Sí / No)"]);
+                                    obj.decripcion_cie10 = Convert.ToString(item["Diagnostico descripción"]);
                                 }
                                 else
                                 {
-                                    throw new Exception($"{columna} no puede ir vacio");
+                                    obj.decripcion_cie10 = "";
                                 }
                             }
                             catch (Exception ex)
@@ -2023,45 +1519,6 @@ namespace AsaludEcopetrol.Models.Censo
                                 throw new Exception(error);
                             }
 
-                            columna = "Días de estancia";
-                            try
-                            {
-                                texto = Convert.ToString(item["Días de estancia"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.dias_estancia = Convert.ToInt32(item["Días de estancia"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            columna = "Hospitalizaciones menores o iguales a 72 horas";
-                            try
-                            {
-                                texto = Convert.ToString(item["Hospitalizaciones menores o iguales a 72 horas"]);
-                                if (!string.IsNullOrEmpty(texto))
-                                {
-                                    obj.hospitalizacion_menores_72_horas = Convert.ToString(item["Hospitalizaciones menores o iguales a 72 horas"]);
-                                }
-                                else
-                                {
-                                    throw new Exception($"{columna} no puede ir vacio");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                var error = ex.Message;
-                                throw new Exception(error);
-                            }
-
-                            obj.estado = 1;
                             obj.fecha_digita = DateTime.Now;
                             obj.usuario_digita = SesionVar.UserName;
 
@@ -2070,7 +1527,7 @@ namespace AsaludEcopetrol.Models.Censo
                         }
                         else
                         {
-                            throw new Exception("Número de la factura no puede ir vacio");
+                            throw new Exception("ID detalle no puede ir vacio");
                         }
                     }
 
@@ -2145,7 +1602,43 @@ namespace AsaludEcopetrol.Models.Censo
 
 
     public class AlertaEpidemiologica : BaseModelo
+
     {
+
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+
         #region PROPIEDADES
         public int id_gestionAnalisis { get; set; }
         public int id_gestion { get; set; }
@@ -2179,9 +1672,16 @@ namespace AsaludEcopetrol.Models.Censo
         public string propuesta_acciones_mejora { get; set; }
         public string problemasGestionDemoras { get; set; }
 
+
+
         #endregion PROPIEDADES
 
+
         #region FUNCIONES
+
+
+
+
 
         public List<alerta_epidemiologica_gestion_gestionAnalisis_demoras> ArreglarListadoDemoras(int? idGestionAnalisis, string gestionDemoras, string usuario, int? tipoIngreso)
         {
@@ -2239,8 +1739,144 @@ namespace AsaludEcopetrol.Models.Censo
             return listado;
         }
 
+
+
+        //public alertas_epidemiologicas GetAlertaEpideById(int? id_alertas_generadas_concurrencia)
+        //{
+        //    var datosBD = BusClass.GetAlertaEpideById(id_alertas_generadas_concurrencia);
+
+        //    if (datosBD == null)
+        //        return null;
+
+        //    var alerta = new alertas_epidemiologicas
+        //    {
+        //        // Aquí haces el mapeo campo por campo
+        //        id_alertas_generadas_concurrencia = datosBD.id_alertas_generadas_concurrencia,
+        //        id_concurrencia = datosBD.id_concurrencia,
+        //        id_censo = datosBD.id_censo,
+        //        Documento_Afiliado = datosBD.Documento_Afiliado,
+        //        descripcion = datosBD.descripcion,
+        //        grupo_diagnostico = datosBD.grupo_diagnostico,
+        //        tipo_alerta = datosBD.tipo_alerta
+
+        //    };
+
+        //    return alerta;
+        //}
+
+
+
+
         #endregion FUNCIONES
 
     }
+    public class AlertasEpidemiologicas : BaseModelo
+    {
+
+
+        #region PROPIEDADES 
+
+
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+
+        public int id_alertas_generadas_concurrencia { get; set; }
+        public int? id_censo { get; set; }
+        public int? id_concurrencia { get; set; }
+        public int? edad { get; set; }
+        public string afi_tipo_doc { get; set; }
+        public string Documento_Afiliado { get; set; }
+        public string afi_nom { get; set; }
+        public string Diagnostico_Censo { get; set; }
+        public string Nombre_Diagnostico_Censo { get; set; }
+        public string Nombre_auditor { get; set; }
+        public string Nit_Ips { get; set; }
+        public string Nombre_Ips { get; set; }
+        public string CiudadIPs { get; set; }
+        public int? id_ref_regional { get; set; }
+        public string Diagnostico_1_Evolu { get; set; }
+        public string Diagnostico_2_Evolu { get; set; }
+        public string Diagnostico_3_Evolu { get; set; }
+        public string Diagnostico_4_Evolu { get; set; }
+        public DateTime? fecha_digita { get; set; }
+        public DateTime? fecha_ingreso { get; set; }
+        public DateTime? fecha_egreso { get; set; }
+        public string Diagnostico_Egreso { get; set; }
+        public string Nombre_Diagnostico_Egreso { get; set; }
+        public string Incapacidad { get; set; }
+        public DateTime? Fecha_Inicial_Incapacidad { get; set; }
+        public DateTime? Fecha_final_Incapacidad { get; set; }
+        public string Alerta_Confirmada { get; set; }
+        public string tipo_salud { get; set; }
+        public string CondicionAlta { get; set; }
+        public int? id_ref { get; set; }
+        public string codigo { get; set; }
+        public string descripcion { get; set; }
+        public string grupo_diagnostico { get; set; }
+        public string Tipo_Evento { get; set; }
+        public string Nombre_De_Alerta { get; set; }
+        public string Descripcion_Alerta { get; set; }
+        public string tipo_alerta { get; set; }
+        public string rango_edad { get; set; }
+        public int? estado_alerta { get; set; }
+        public string regional_beneficiario { get; set; }
+        public int? estado { get; set; }
+
+        #endregion
+
+
+
+
+        #region FUNCIONES 
+
+
+        public alertas_epidemiologicas GetAlertaEpideById(int? id_alertas_generadas_concurrencia)
+        {
+            return BusClass.GetAlertaEpideById(id_alertas_generadas_concurrencia);
+
+        }
+
+
+        public void ActualizarDatosAlertaEpide(alertas_epidemiologicas obj, ref MessageResponseOBJ MsgRes)
+        {
+            BusClass.ActualizarDatosAlertaEpide(obj, ref MsgRes);
+        }
+
+
+        #endregion
+
+    }
+
 
 }

@@ -1372,6 +1372,26 @@ namespace Facede
             return DACActualiza.ActualizarDetalleAHGestion(det);
         }
 
+        public alertas_epidemiologicas ActualizarEstadoAlertaEpedi(int? id_alertas_generadas_concurrencia)
+        {
+            return DACActualiza.ActualizarEstadoAlertaEpedi(id_alertas_generadas_concurrencia);
+        }
+
+
+        public void ActualizarDatosAlertaEpide(alertas_epidemiologicas obj, ref MessageResponseOBJ MsgRes)
+        {
+            DACActualiza.ActualizarDatosAlertaEpide(obj, ref MsgRes);
+        }
+
+
+
+        public alertas_epidemiologicas GetAlertaEpideById(int? id_alertas_generadas_concurrencia)
+        {
+            return DACConsulta.GetAlertaEpideById(id_alertas_generadas_concurrencia);
+        }
+
+
+
         #endregion
 
         #region CONCURRENCIA    

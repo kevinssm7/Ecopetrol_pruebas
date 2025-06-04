@@ -1157,6 +1157,25 @@ namespace DATA_ACCESS
         }
 
 
+
+        public alertas_epidemiologicas GetAlertaEpideById(int? id_alertas_generadas_concurrencia)
+        {
+            try
+            {
+                using (var db = new ECOPETROL_DataContexDataContext())
+                {
+                    return db.alertas_epidemiologicas
+                             .FirstOrDefault(x => x.id_alertas_generadas_concurrencia == id_alertas_generadas_concurrencia);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Aquí puedes registrar el error en logs
+                throw new Exception("Error al obtener la alerta epidemiológica: " + ex.Message, ex);
+            }
+        }
+
+
         #endregion
 
         #region CONCURRENCIA
