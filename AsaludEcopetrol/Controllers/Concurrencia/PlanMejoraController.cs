@@ -2236,4 +2236,5 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
         }
 
     }
+
 }
