@@ -1,0 +1,162 @@
+﻿@model AsaludEcopetrol.Models.Menu.Menu
+
+<div class="collapse navbar-collapse navbar-ex1-collapse text-primary_asalud">
+    <ul class="nav navbar-nav navbar-right">
+        @foreach (var item in Model.Items)
+        {
+            <li id="portfolio" class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">@item.MenuItemName <b class="caret"></b></a>
+                @if (item.ChildMenuItems.Any())
+                {
+                    <ul class="menu-item dropdown dropdown-menu">
+                        @foreach (var subitem in item.ChildMenuItems)
+
+                        {
+                            if (subitem.ChildMenuItems.Any())
+                            {
+                                <li class="dropdown-submenu">
+                                    <a class="test" tabindex="-1" href="#">@subitem.MenuItemName &nbsp;</a>
+                                    <ul class="dropdown-menu" id="submenu" style="width:65%">
+                                        @foreach (var item3 in subitem.ChildMenuItems)
+                                        {
+                                            if (item3.ChildMenuItems.Any())
+                                            {
+                                                <li class="dropdown-submenu">
+                                                    <a class="test" tabindex="-1" href="#">@item3.MenuItemName &nbsp;</a>
+                                                    <ul class="dropdown-menu listRight" id="submenu" style="width:65%">
+                                                        @foreach (var item4 in item3.ChildMenuItems)
+                                                        {
+                                                            <li>
+                                                                @Html.ActionLink(item4.MenuItemName, item4.MenuItemAccion, item4.MenuItemControl)
+                                                            </li>
+                                                        }
+
+                                                    </ul>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    @Html.ActionLink(item3.MenuItemName, item3.MenuItemAccion, item3.MenuItemControl)
+                                                </li>
+
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    @Html.ActionLink(@subitem.MenuItemName, @subitem.MenuItemAccion, @subitem.MenuItemControl)
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+            </li>
+        }
+
+    </ul>
+
+</div>
+
+<div class="text-primary_Saludo text-right">
+
+    @try
+    {
+        <label class="text-primary_Saludo">Bienvenido: @this.Session["nombre"].ToString() </label>
+    }
+    catch
+    {
+        <script> window.location.href = '@Url.Action("Login", "Usuario")'; </script>
+    }
+
+</div>
+
+<style>
+    .TextIni {
+        text-align: right;
+        color: #012f51;
+        position: absolute;
+        font-weight: bold;
+    }
+
+    .dropdown-submenu {
+        position: relative;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #636363;
+    }
+
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: 2px;
+            margin-left: -1px;
+            -webkit-border-radius: 0 6px 6px 6px;
+            -moz-border-radius: 0 6px 6px 6px;
+            border-radius: 0 6px 6px 6px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            color: #636363;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: inline-table;
+        }
+
+        .dropdown-submenu > a:after {
+            display: block;
+            content: " ";
+            float: right;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 0 5px 5px;
+            border-left-color: #cccccc;
+            margin-top: 5px;
+            margin-right: -10px;
+        }
+
+        .dropdown-submenu:hover > a:after {
+            border-left-color: #ffffff;
+        }
+
+        .dropdown-submenu.pull-left {
+            float: none;
+        }
+
+
+            .dropdown-submenu.pull-left > .dropdown-menu {
+                left: -100%;
+                margin-left: 10px;
+                -webkit-border-radius: 6px 0 6px 6px;
+                -moz-border-radius: 6px 0 6px 6px;
+                border-radius: 6px 0 6px 6px;
+            }
+
+    .text-primary_Saludo {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #ffffff;
+    }
+
+    .listRight {
+        left: -50% !important;
+        right: 0 !important;
+    }
+</style>
+
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                $(this).parent().siblings().removeClass('open');
+                $(this).parent().toggleClass('open');
+            });
+        });
+    })(jQuery);
+</script>
+

@@ -1,0 +1,163 @@
+﻿<div class="tab-pane" id="2a">
+    <br />
+    <div class="panel panel-default">
+        <form id="tableroControl">
+            @if (ViewBag.abierta == true)
+            {
+                <button class="button_Asalud_Aceptar" id="showSelection" onclick="aprobarTodos();">Aprobar todos</button>
+                <button class="button_Asalud_Aceptar" id="showSelection2" onclick="aprobarSeleccionador();"> Aprobar seleccionados</button>
+                <button href="javascript:void(0)" id="btnaprobarfacturas2" onclick ="aprobarFacturasExcel();" class="button_Asalud_Aceptar">Aprobar Facturas desde excel</button>
+                <button class="button_Asalud_Guardar" id="showSelection3" onclick="NotificarOPL();">Notificar a OPLS</button>
+                <button class="button_Asalud_Guardar" id="showSelection4" onclick="mostrarPdfOPL();">Generar PDF</button>
+            }
+
+            <div class="panel-body">
+                <table class="tablero table-bordered table-condensed table-striped" style="width: 98%; font-size: 12px;" id="tableroNoCruzan">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Num tirilla</th>
+                            <th>Código factura</th>
+                            <th>Nit</th>
+                            <th>CUM</th>
+                            <th>Cod interno</th>
+                            <th>Valor prefactura</th>
+                            <th>Fecha despacho</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.conteoNoCruzan > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_listadoPrefacturasNoCruzanResult item in ViewBag.listaNoCruzan)
+                            {
+                                <tr>
+                                    <td>@item.id_detalle_prefactura</td>
+                                    <td>@item.num_tirilla</td>
+                                    <td>@item.remision_prefactura_fact</td>
+                                    <td>@item.nit</td>
+                                    <td>@item.cum</td>
+                                    <td>@item.cod_interno_medicamento</td>
+                                    <td>@item.valor_total</td>
+                                    <td>@item.fecha_despacho_formula.Value.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="14" style="text-align:center; font-size:14px;">
+                                    SIN REGISTROS
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#tableroNoCruzan').DataTable({
+            "searching": true,
+            "idisplaylength": 10,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+    });
+
+    function aprobarTodos() {
+
+        $("#txtobservaciones").val("");
+        $("#nuevovalor").val("");
+        $("#btnval1").css('display', 'none');
+        $("#btnval2").css('display', 'none');
+        $("#btnval3").css('display', 'block');
+        $("#Modal").modal('show');
+    }
+
+    function aprobarSeleccionador() {
+        var lista = $("#Lista_check2").val();
+        if (lista != "") {
+            var str = $("#Lista_check2").val();
+            let arr = str.split(',');
+            seleccionados = [];
+            seleccionados = arr;
+        } else {
+            var str = $("#Lista_check2").val();
+            let arr = [];
+            seleccionados = [];
+            seleccionados = arr;
+        }
+
+        if (seleccionados.length > 0) {
+            $("#txtobservaciones").val("");
+            $("#nuevovalor").val("");
+            $("#btnval1").css('display', 'none');
+            $("#btnval3").css('display', 'none');
+            $("#btnval2").css('display', 'block');
+            $("#Modal").modal('show');
+        }
+        else {
+            alert("Debe seleccionar al menos uno de los ítems");
+        }
+    }
+
+    function aprobarFacturasExcel(){
+        $("#Modal2").modal('show');
+    }
+
+
+    function NotificarOPL() {
+
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        var pasa = confirm('¿Seguro de notificar las prefacturas no aprobada al OPL?');
+        if (pasa) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EnviarCaso", "medicamentos")",
+                type:"post",
+                data: {
+                    idCargue: idCargue
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                }
+            })
+        }
+    }
+
+    $("#showSelection4").click(function () {
+
+
+        var idCargue = document.getElementById("idCarguePrefactura").value;
+        alert(idCargue);
+    });
+
+      
+
+</script>

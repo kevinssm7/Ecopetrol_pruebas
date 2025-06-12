@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO ELIMINAR PEDIDO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">FILTRO</strong>
+        </div>
+        <br />
+        <form id="formVal">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Id visita</label>
+                        <input type="text" id="idVisita" name="idVisita" class="form-control" required maxlength="10" />
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">¿Acta?</label>
+                        <select id="acta" name="acta" class="form-control" required>
+                            <option value=""></option>
+                            <option value="1">SI</option>
+                            <option value="2">NO</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">¿Informe?</label>
+                        <select id="informe" name="informe" class="form-control" required>
+                            <option value=""></option>
+                            <option value="1">SI</option>
+                            <option value="2">NO</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <a class="button_Asalud_Rechazar" onclick="EditarRegistros();">Eliminar</a>
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Observación devolución</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function EditarRegistros() {
+        var valida = $("#formVal").validate();
+        if (valida == true) {
+            var idVisita = $("#idVisita").val();
+            var acta = $("#acta").val();
+            var informe = $("#informe").val();
+
+            $.ajax({
+                url: "@Url.Action("EliminarActaInforme", "RadicacionElectonica")",
+                data: {
+                    idVisita: idVisita,
+                    acta: acta,
+                    informe: informe
+                },
+                method: "post",
+                type: "post",
+                success: function (data) {
+
+                    alert(data.mensaje);
+                }
+            });
+        }
+    }
+
+</script>
+
+

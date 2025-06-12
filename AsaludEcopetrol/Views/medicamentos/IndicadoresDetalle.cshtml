@@ -1,0 +1,389 @@
+﻿
+@model  AsaludEcopetrol.Models.Medicamentos.GestionIndicadores
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "INDICADORES DETALLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.js" type="text/javascript"></script>
+
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css" />
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.css" rel="stylesheet" type="text/css" />
+
+<br>
+
+@using (Html.BeginForm())
+{
+    <table align="center">
+
+        <tr>
+            <td class="Error">
+                @Html.ValidationSummary(true, "")
+            </td>
+        </tr>
+
+    </table>
+
+    <fieldset>
+        <div class="container">
+            <form id="frm-alumno">
+
+                <div class="gj-clear-both"></div>
+                <div class="gj-margin-top-10">
+                    <table id="grid"></table>
+                </div>
+
+                <br />
+
+                <div class="row">
+
+                    <div class="col-sm-12">
+                        <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.hallazgos)</span></h4>
+                        @Html.TextAreaFor(p => p.hallazgos, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.hallazgos, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <br />
+
+
+                <div id="pnlGuardar" class="General">
+                    <table align="center">
+
+                        <tr>
+                            <td>
+                                <input id="BtnActualizar" type="submit" value="SIGUIENTE" class="btn btn-success" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="display:none">
+                                @Html.TextBoxFor(u => u.id_indicadores_medicamentos)
+                                @Html.TextBoxFor(u => u.nombre_auditado)
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </form>
+        </div>
+    </fieldset>
+
+    <div id="dialog" class="gj-display-none">
+        <div data-role="body">
+            <input type="hidden" id="ID" />
+            <div style="display:none" class="">
+                <input type="text" class="gj-textbox-md" id="id_md_ref_indicador" placeholder="id_md_ref_indicador...">
+            </div>
+            <div style="display:none" class="">
+                <input type="text" class="gj-textbox-md" id="peso" placeholder="peso...">
+            </div>
+            <div class="">
+
+                <select class="form-control" id="valor" required="required">
+                    <option>0</option>
+                    <option>1</option>
+
+                </select>
+            </div>
+            <br />
+            <div class="">
+                <div class="form-group">
+                    <textarea class="form-control" rows="5" id="observaciones" placeholder="observaciones..." style="font-size:10pt;width:250px;" required="required"></textarea>
+                </div>
+            </div>
+
+
+        </div>
+        <div data-role="footer">
+            <button type="button" id="btnSave" class="gj-button-md">GUARDAR</button>
+            <button type="button" id="btnCancel" class="gj-button-md">CANCELAR</button>
+        </div>
+    </div>
+
+
+    <div id="dialog2" class="gj-display-none">
+
+        <div data-role="body">
+            <input type="hidden" id="ID" />
+            <div style="display:none" class="">
+                <input type="text" class="gj-textbox-md" id="id_md_ref_indicador2">
+            </div>
+
+            <div class="">
+                <div>
+                    <textarea class="form-control" rows="5" id="observaciones2" placeholder="observaciones..." style="font-size:10pt;width:250px;" required="required"></textarea>
+                </div>
+            </div>
+            <br />
+            <div class="">
+
+                <label class="text-secondary_asalud"> Seleccione los archivos *</label>
+                <input type="file" name="file" id="file" class="form-control" multiple />
+
+            </div>
+        </div>
+        <br />
+
+        <div data-role="footer">
+            <button type="submit" id="btnSave2" class="btn btn-primary">GUARDAR</button>
+            <button type="button" id="btnCancel2" class="btn btn-danger">CANCELAR</button>
+        </div>
+
+    </div>
+
+
+}
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.js" type="text/javascript"></script>
+
+<script>
+
+
+    var grid, dialog, dialog2;
+    function Edit(e) {
+
+        $('#id_md_ref_indicador').val(e.data.id);
+        $('#peso').val(e.data.record.peso);
+        $('#valor').val(e.data.record.valor);
+        $('#observaciones').val(e.data.record.observaciones);
+
+        dialog.open('CALCULAR');
+    }
+    function Edit2(e) {
+
+        $('#id_md_ref_indicador2').val(e.data.id);
+        $('#file').val(e.data.file);
+
+        dialog2.open('CARGAR IMAGEN');
+    }
+
+    function Edit2(e) {
+
+        $('#id_md_ref_indicador2').val(e.data.id);
+
+
+        dialog2.open('CARGAR IMAGEN');
+    }
+
+    function Save() {
+        var record = {
+
+            id_md_ref_indicador: $('#id_md_ref_indicador').val(),
+            peso: $('#peso').val(),
+            valor: $('#valor').val(),
+            observaciones: $('#observaciones').val(),
+            id_indicadores_medicamentos: $('#id_indicadores_medicamentos').val(),
+
+        };
+        $.ajax({
+            url: '/medicamentos/Save',
+            data: record,
+            method: 'POST',
+            dataType: "json",
+
+        })
+            .done(function () {
+                dialog.close();
+                grid.reload();
+            })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                dialog.close();
+            });
+    }
+
+
+    function Save2() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("file", $("input[type=file]")[0].files[0]);
+        formData.append("id_md_ref_indicador", $("#id_md_ref_indicador2").val());
+        formData.append("id_indicadores_medicamentos", $("#id_indicadores_medicamentos").val());
+        formData.append("nombre_auditado", $("#nombre_auditado").val());
+        formData.append("observaciones", $("#observaciones2").val());
+
+        $.ajax({
+
+            url: "/medicamentos/Save2",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+        })
+            .done(function () {
+                dialog2.close();
+                grid.reload();
+            })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                dialog2.close();
+            });
+
+    }
+
+
+    $(document).ready(function () {
+
+        var textBox1 = $('input:text[id$=id_indicadores_medicamentos]').keyup();
+        var value2 = textBox1.val();
+
+        grid = $('#grid').grid({
+
+            dataSource: '/medicamentos/Get/' + value2,
+            primaryKey: 'id_md_ref_indicador',
+            inlineEditing: { mode: 'command' },
+            columns: [
+
+                { field: 'id_md_ref_indicador', title: 'Id', width: 70, sortable: true },
+                { field: 'descripcion', title: 'Descripcion', width: 450, sortable: true },
+                { field: 'peso', title: 'Peso', width: 100 },
+                { field: 'valor', title: 'Valor', width: 100, editor: true },
+                { field: 'resultado', title: 'Resultado', width: 100, sortable: true },
+                { field: 'observaciones', title: 'Observaciones', width: 200, editor: true },
+                //{ title: 'Editar', width: 100, tmpl: '<span class="material-icons camera_enhance">edit</span>', align: 'center', events: { 'click': Edit } },
+
+                {
+                    title: 'Cargar Img', width: 100,
+                    tmpl: '<span class="material-icons gj-cursor-pointer">add_a_photo</span>',
+                    events: {
+                        'click': function (e) {
+                            var tiene = e.data.record.TIENE_DOCUMENTO;
+                            if (tiene == "SI") {
+                                alert('ERROR....YA TIENE UNA IMAGEN CARGADA');
+                            } else {
+                                Edit2(e);
+                            }
+                        }
+                    }
+                },
+            ],
+
+        });
+
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+            $.ajax({ url: '/medicamentos/Save3', data: { record: data }, method: 'POST' })
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+        });
+
+        //dialog = $('#dialog').dialog({
+        //    autoOpen: false,
+        //    resizable: false,
+        //    modal: true,
+        //    width: 360
+        //});
+
+        $('#btnSave').on('click', Save);
+        $('#btnCancel').on('click', function () {
+            dialog.close();
+        });
+
+        dialog2 = $('#dialog2').dialog({
+            autoOpen: false,
+            resizable: false,
+            modal: true,
+            width: 360
+        });
+
+        $('#btnSave2').on('click', Save2);
+        $('#btnCancel2').on('click', function () {
+            dialog2.close();
+        });
+
+    });
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 700px;
+        text-align: left;
+        border-collapse: separate;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #ffffff;
+        border-top: 4px solid #302f2f;
+        border-bottom: 1px solid #fff;
+        color: #dbdbdb;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #281eb2;
+    }
+</style>

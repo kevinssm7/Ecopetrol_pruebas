@@ -1,0 +1,889 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.Management_sis_actividad_recienteResult>
+@{
+    ViewBag.Title = "ASALUD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" rel="stylesheet" />
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.print.css" rel="stylesheet" media="print" />
+<script src="~/Content/moment/moment.js"></script>
+<script src="~/Content/fullcalendar/fullcalendar/fullcalendar.min.js"></script>
+
+<div class="section ">
+
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">PROGRAMACIÓN ENTREGABLES</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row" style="margin:1%; font-family:'Century Gothic'">
+                        <div class="col-sm-6 text-center form-group" style="background-color:#428BCA; color:white"><span>Contractuales</span></div>
+                        <div class="col-sm-6 text-center form-group" style="background-color:#d9dbde"><span>Servicio al cliente</span></div>
+                    </div>
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-sm-4 col-xs-12 col-sm-offset-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <strong class="text-primary_asalud">ACTIVIDAD RECIENTE</strong>
+                            </div>
+                            <div class="col-sm-2">
+                                @if (ViewBag.rol == "1")
+                                {
+                                    <a id="btnAddActividad" title="Añadir actividad" href="javascript:agregarActividad()" role="button"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="">
+                        <div class="dashboard-widget-content" style="max-height:44rem; overflow-y:scroll">
+                            <ul class="list-unstyled timeline widget">
+                                @if (Model.Count > 0)
+                                {
+                                    foreach (var item in Model.OrderByDescending(l => l.id_sis_actividad_reciente))
+                                    {
+                                        <li>
+                                            <div class="block">
+                                                <div class="block_content">
+                                                    <p> <h4 class="title text-secondary_asalud">@item.titulo&nbsp;</h4></p>
+                                                    <div class="byline">
+                                                        @if (item.minutos < 60)
+                                                        {
+                                                            <p> <span>Hace @item.minutos minutos</span> por <a>@item.usuario_digita</a></p>
+                                                        }
+                                                        else if (item.horas == 1)
+                                                        {
+                                                            <p> <span>Hace 1 hora</span> por <a>@item.usuario_digita</a></p>
+                                                        }
+                                                        else if (item.horas >= 1 && item.horas <= 24)
+                                                        {
+                                                            <p><span>Hace @item.horas horas</span> por <a>@item.usuario_digita</a></p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p><span>Hace @item.dias días</span> por <a>@item.usuario_digita</a></p>
+                                                        }
+                                                    </div>
+                                                    <p class="excerpt" style="text-align:justify">
+                                                        @item.descripcion
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li><p class="excerpt text-secondary_asalud" style="text-align:justify">No se han añadido actividades recientemente.</p></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" data-keyboard="false" data-backdrop="static" id="Modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="text-primary_asalud">AÑADIR ACTIVIDAD</h4>
+                </div>
+                <div class="modal-body" style="margin:10px">
+                    <form id="formulario">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="text-secondary_asalud control-label">Titulo:</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" maxlength="100" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="text-secondary_asalud control-label">Descripción:</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" maxlength="200" rows="4" required></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class=" btn button_Asalud_Guardar" onclick="validarFormulario()">GUARDAR CAMBIOS</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<body id="bodyChat">
+    <button id="mostrarButton"><span class="text-secondary_asalud">samIT</span> &nbsp; <img class="imgButton" src="~/Resources/Chatbot.ico" /></button>
+    <div id="chat-container">
+        <button id="ocultarButton"><span class="text-secondary_asalud">samIT</span>&nbsp; <img class="imgButton" src="~/Resources/Chatbot.ico" /></button>
+        <div id="chat-header">
+            samIT
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-container">
+
+            <input type="hidden" id="idProyecto" name="idProyecto" />
+            <input type="hidden" id="idProceso" name="idProceso" />
+            <input type="hidden" id="idSubProceso" name="idSubProceso" />
+            <input type="hidden" id="idPregunta" name="idPregunta" />
+            <input type="hidden" id="idRespuesta" name="idRespuesta" />
+
+            <div class="col-md-12 text-center" id="mensajeInicial">
+                <div class="col-md-12">
+                    <label class="text-primary_asalud">Te damos la bienvenida a samIT</label>
+                </div>
+                <br />
+                <br />
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Estamos encantados de recibirte y guiarte para que encuentres las respuestas a tus necesidades en TI</label>
+                </div>
+                <br />
+                <br />
+                <div class="col-md-12 form-group">
+                    <label class="text-secondary_asalud">Si estás listo para comenzar selecciona SI</label>
+                </div>
+                <br />
+                <br />
+                <div class="col-md-12 text-center">
+                    <input type="button" onclick="MostrarConsultar(1)" class="btn btn-sm button_Asalud_Aceptar" value="SI" />
+                    <input type="button" onclick="MostrarConsultar(2)" class="btn btn-sm button_Asalud_Rechazar" value="NO" />
+                </div>
+                <br />
+            </div>
+
+            <div id="contenidoChat" style="max-width: 400px; max-height:100%; display:none;">
+                <label class="text-secondary_asalud">Selecciona el proyecto</label>
+                <input type="hidden" id="tipoPreguntaAnterior" name="tipoPreguntaAnterior" value="0" />
+                <input type="hidden" id="respuestaAnterior" name="respuestaAnterior" value="0" />
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.Management_chatbot_ref_proyectosResult item in ViewBag.proyectos)
+                {
+                    <div class="col-md-12 text-center">
+                        <a class="btn botonChat" onclick="LlenarOpcionesMensaje(1, @item.id_chatbot_ref_proyecto, 1)">@item.descripcion</a>
+                    </div>
+                    <br />
+                    <br />
+                }
+                <br />
+            </div>
+        </div>
+    </div>
+</body>
+
+<div class="modal fade" id="Modalentregables" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="text-primary_asalud" id="titlemodal">PRESENTAR ENTREGABLES</h4>
+            </div>
+            <form id="formentregables" method="post" action="@Url.Action("PresentarEntregable2","SeguimientoEntregables") " enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="txtidentregable" name="txtidentregable" />
+                    <input type="hidden" id="txtsegperiodo" name="txtsegperiodo" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Cargar documento:</label>
+                            <input type="file" class="form-control" name="documento" id="documento" multiple required />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Cargar evidencias:</label>
+                            <input type="file" onchange="ValidacionArchivo()" class="form-control" accept="image/*" name="soporte" id="soporte" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn button_Asalud_Guardar" onclick="ValidarForm()">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    const floatButton = document.getElementById('mostrarButton');
+    const chatContainer = document.getElementById('chat-container');
+    const minimizeButton = document.getElementById('ocultarButton');
+
+    floatButton.addEventListener('click', () => {
+        chatContainer.style.display = chatContainer.style.display === 'none' ? 'flex' : 'none';
+    });
+
+    minimizeButton.addEventListener('click', () => {
+        chatContainer.style.display = 'none';
+        MostrarConsultar(2);
+    });
+
+    $(document).ready(function () {
+        var events = [];
+        var selectedEvent = null;
+        FetchEventAndRenderCalendar();
+        function FetchEventAndRenderCalendar() {
+            events = [];
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("ObtenerEntregablesPendientes", "Usuario")",
+                success: function (data) {
+                    $.each(data, function (i, v) {
+                        events.push({
+                            eventID: v.EventID,
+                            subEventId: v.SubEventID,
+                            title: v.Subject,
+                            description: v.Description,
+                            start: moment(v.Start),
+                            end: v.End != null ? moment(v.End) : null,
+                            color: v.ThemeColor,
+                            textColor: v.TextColor,
+                            borderColor: v.BorderColor,
+                            allDay: v.IsFullDay
+                        });
+                    })
+
+                    GenerateCalender(events);
+                },
+                error: function (error) {
+                    alert('failed');
+                }
+            })
+        }
+    });
+
+    function AgrandarImagen(id) {
+
+        var imgImagen = $("#imgAbierta_" + id).val();
+        if (imgImagen == 1) {
+            $("#DivImagen_" + id).removeClass("expandido");
+            $("#imgAbierta_" + id).val(0);
+
+        } else {
+            $("#DivImagen_" + id).addClass("expandido");
+            $("#imgAbierta_" + id).val(1);
+        }
+    }
+
+    function OcultarImagen(id) {
+    }
+
+    function DescargarArchivo(idArchivo) {
+        var url = "@Url.Action("DescargarArchivoChatBot", "LecturaPDF")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function MostrarConsultar(opcion) {
+
+        document.getElementById("mensajeInicial").style.display = "block";
+        document.getElementById("contenidoChat").style.display = "none";
+
+        if (opcion == 1) {
+            LlenarOpcionesMensaje(1, 1, 1)
+        } else {
+
+            document.getElementById("mensajeInicial").style.display = "block";
+            document.getElementById("contenidoChat").style.display = "none";
+            chatContainer.style.display = 'none';
+        }
+    }
+
+    function LlenarOpcionesMensaje(tipo, respuesta, opcion) {
+
+        $("#idnivel").val(tipo);
+
+        if (opcion == 1) {
+
+            if (tipo == 1) {
+                $("#idProyecto").val(respuesta);
+            }
+
+            else if (tipo == 2) {
+                $("#idProceso").val(respuesta);
+            }
+
+            else if (tipo == 3) {
+                $("#idSubProceso").val(respuesta);
+            }
+
+            else if (tipo == 4) {
+                $("#idPregunta").val(respuesta);
+            }
+
+            else if (tipo == 5) {
+                $("#idRespuesta").val(respuesta);
+            }
+        }
+
+        $.ajax({
+            url: "@Url.Action("ObtenerOpciones")",
+            type: "POST",
+            data: {
+                tipo: tipo,
+                idProyecto: $("#idProyecto").val(),
+                idProceso: $("#idProceso").val(),
+                idsubProceso: $("#idSubProceso").val(),
+                idPregunta: $("#idPregunta").val()
+            },
+            success: function (data) {
+                if (data != "") {
+                    document.getElementById("mensajeInicial").style.display = "none";
+                    document.getElementById("contenidoChat").style.display = "block";
+
+                    $("#contenidoChat").empty();
+                    $("#contenidoChat").html(data);
+                }
+            }
+        })
+    }
+
+    function GenerateCalender(events) {
+        var date = new Date();
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+
+        $('#calendar').fullCalendar({
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                day: 'Dia',
+            },
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            editable: true,
+            droppable: true, // this allows things to be dropped onto the calendar
+            drop: function () {
+                // is the "remove after drop" checkbox checked?
+                if ($('#drop-remove').is(':checked')) {
+                    // if so, remove the element from the "Draggable Events" list
+                    $(this).remove();
+                }
+            },
+            events: events,
+            eventRender: function (eventObj, $el) {
+                $el.popover({
+                    title: eventObj.description,
+                    content: eventObj.title,
+                    trigger: 'hover',
+                    placement: 'top',
+                    container: 'body'
+                });
+            },
+            eventClick: function (calEvent, jsEvent, view) {
+                $("#txtidentregable").val(calEvent.eventID);
+                $("#txtsegperiodo").val(calEvent.subEventId);
+                $("#Modalentregables").modal('show');
+            },
+        });
+    }
+
+    function agregarActividad() {
+        $("#titulo").val("");
+        $("#descripcion").val("");
+        $("#Modal").modal('show');
+    }
+
+    function validarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarActividadReciente();
+        }
+    }
+
+    function GuardarActividadReciente() {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarActividadReciente","Usuario" )",
+            type: "POST",
+            data: {
+                titulo: $("#titulo").val(),
+                descripcion: $("#descripcion").val()
+            },
+            success: function (data) {
+                LoadingHide();
+                if (data.success) {
+                    alertify.alert("¡Proceso exitoso!", "<p style='text-align:justify'>" + data.message + "</p>", function () {
+                        location.reload();
+                    });
+                }
+                else {
+                    alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + data.message + "</p>")
+                }
+            }
+        })
+    }
+
+    function ValidarForm() {
+        var validator = $("#formentregables").validate();
+        if (validator.form()) {
+            $("#formentregables").submit();
+        }
+    }
+
+    function EnviarCorreoaSAMI(idRespuesta) {
+
+        var correo = $("#RespuestaCerradaCorreo_" + idRespuesta).val().trim();
+
+        if (!correo) { // Si correo está vacío (incluyendo espacios en blanco)
+            alert("No se puede enviar sin información");
+            $("#RespuestaCerradaCorreo_" + idRespuesta).val(""); // Limpiar el campo de correo
+            return false;
+        }
+
+        else {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EnviarCorreoSoporte", "LecturaPdf")",
+                data: {
+                    correo: correo,
+                    idRespuesta: idRespuesta,
+                },
+                method: "POST",
+                //processData: false,
+                //contentType: false,
+
+                success: function (data) {
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        alertify.alert("¡Proceso exitoso!", "<p style='text-align:justify'>" + data.mensaje + "</p>", function () {
+                            MostrarConsultar(2);
+                        });
+                    }
+                    else {
+                        alertify.alert("¡Aviso!", "<p style='text-align:justify'>" + data.mensaje + "</p>")
+                    }
+                }
+            })
+        }
+    }
+
+</script>
+
+<style>
+    .TablePrin {
+        border-color: #357ebd;
+        background-color: #428bca;
+        font-weight: bold;
+        font-size: small;
+        color: #ffffff;
+    }
+
+    .TableSec {
+        border-color: #357ebd;
+        background-color: #4d4d4d;
+        font-size: smaller;
+        color: #ffffff;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        width: 100%;
+        position: center;
+    }
+
+    img.pequeña {
+        width: 100%;
+        height: 200px;
+        position: center;
+    }
+
+    #calendar {
+        max-width: 900px;
+        display: inline-block;
+        padding: 2px 4px;
+        font-family: century gothic;
+    }
+
+    .fc-unthemed td.fc-today {
+        background: #d9edf7 !important;
+    }
+
+    .fc-state-active, .fc-state-disabled, .fc-state-down, .fc-state-hover {
+        color: #ffffff;
+        background-color: #428bca;
+    }
+
+    .dashboard-widget-content {
+        font-family: 'Century Gothic';
+        padding-top: 9px
+    }
+
+        .dashboard-widget-content .sidebar-widget {
+            width: 50%;
+            display: inline-block;
+            vertical-align: top;
+            background: #fff;
+            border: 1px solid #abd9ea;
+            border-radius: 5px;
+            text-align: center;
+            float: right;
+            padding: 2px;
+            margin-top: 10px
+        }
+
+    ul.timeline li {
+        position: relative;
+        border-bottom: 1px solid #e8e8e8;
+        clear: both
+    }
+
+    .timeline .block {
+        margin: 0;
+        border-left: 3px solid #e8e8e8;
+        overflow: visible;
+        padding: 10px 15px;
+        margin-left: 105px
+    }
+
+    .timeline.widget {
+        min-width: 0;
+        max-width: inherit
+    }
+
+        .timeline.widget .block {
+            margin-left: 5px
+        }
+
+    .timeline .tags {
+        position: absolute;
+        top: 15px;
+        left: 0;
+        width: 84px
+    }
+
+    .timeline .tag {
+        display: block;
+        height: 30px;
+        font-size: 13px;
+        padding: 8px
+    }
+
+        .timeline .tag span {
+            display: block;
+            overflow: hidden;
+            width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis
+        }
+
+    .widget {
+        min-width: 250px;
+        max-width: 310px
+    }
+
+
+
+    .timeline h4.title {
+        position: relative;
+        font-size: 16px;
+        margin: 0
+    }
+
+        .timeline h4.title:before {
+            content: "";
+            position: absolute;
+            left: -23px;
+            top: 3px;
+            display: block;
+            width: 14px;
+            height: 14px;
+            border: 3px solid #d2d3d2;
+            border-radius: 14px;
+            background: #f9f9f9;
+        }
+
+    .timeline .byline {
+        padding: .25em 0
+    }
+
+    .byline {
+        -webkit-font-smoothing: antialiased;
+        font-style: italic;
+        font-size: .9375em;
+        line-height: 1.3;
+        color: #aab6aa
+    }
+
+    #btnAddActividad {
+        color: black;
+        text-decoration: none !important;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #bodyChat {
+        position: relative;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    #chat-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        height: 500px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: none;
+        flex-direction: column;
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+
+    #chat-header {
+        padding: 10px;
+        background-color: #556da2;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px 5px 0 0;
+        height: 50px;
+    }
+    /*
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 5px;
+        }
+    */
+    #chat-input-container {
+        flex-grow: 1;
+        padding: 10px;
+        justify-content: space-between;
+        text-align: left;
+        overflow: hidden; /* Evita el desbordamiento del contenido */
+    }
+
+    #chat-input {
+        flex-grow: 1;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    #chat-send-button {
+        background-color: #556da2;
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #mostrarButton {
+        height: 30px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f5f5f5;
+        color: #fff;
+        padding: 10px;
+        border: 1px solid #fff !important;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        width: 150px;
+        font-size: 15px;
+    }
+
+        #mostrarButton:hover {
+            transform: translateY(-5px);
+        }
+
+    #ocultarButton {
+        height: 50px;
+        position: absolute;
+        background-color: #f5f5f5;
+        border: 1px solid #fff !important;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: transform 0.6s ease;
+        width: 100%;
+    }
+
+        #ocultarButton:hover {
+            color: #fff;
+        }
+
+        #ocultarButton .imgButton {
+            width: 10%;
+            /*margin-left: 40%;*/
+        }
+
+    .imgButton {
+        width: 25%;
+    }
+
+    #contenidoChat {
+        margin-top: 5%;
+        max-height: 100%;
+        overflow-y: auto;
+        font-size: 12px;
+        color: #556da2;
+        font-weight: bold;
+        font-family: "Century Gothic", "Century Gothic";
+    }
+
+        #contenidoChat a {
+            margin-top: 5%;
+            max-height: 100%;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #556da2;
+            font-family: "Century Gothic", "Century Gothic";
+        }
+
+        #contenidoChat .botonChat {
+            display: inline-block;
+            border: 1px solid #f5f5f5 !important;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color: #f5f5f5;
+            text-align: left !important;
+            max-height: 100%;
+            overflow: auto; /* Evita que el texto se desborde del botón */
+            white-space: normal; /* Evita el salto de línea del texto */
+            width: 100%;
+            font-family: "Century Gothic", "Century Gothic";
+        }
+
+        #contenidoChat .botonEnviar {
+            display: inline-block;
+            border: 1px solid #f5f5f5 !important;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            background-color: #80ab97;
+            text-align: left !important;
+            max-height: 100%;
+            overflow: auto; /* Evita que el texto se desborde del botón */
+            white-space: normal; /* Evita el salto de línea del texto */
+            font-family: "Century Gothic", "Century Gothic";
+        }
+
+        #contenidoChat .respuestasChat {
+            display: flex; /* Utilizar flexbox */
+            align-items: center; /* Centrar verticalmente */
+            justify-content: flex-start; /* Alinear el texto a la izquierda */
+            border: 1px solid #dddddd !important;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            background-color: #f5f5f5;
+            max-height: 100%;
+            max-width: 100%;
+            overflow: auto; /* Evita que el texto se desborde del botón */
+            white-space: normal; /* Evita el salto de línea del texto */
+            width: 92%;
+            height: auto;
+            font-family: "Century Gothic", "Century Gothic";
+            margin-left: 15px;
+        }
+
+            #contenidoChat .respuestasChat span {
+                margin-left: 1px;
+                font-family: "Century Gothic", "Century Gothic";
+            }
+
+        #contenidoChat .botonAnterior {
+            display: inline-block;
+            border: 1px solid #f5f5f5 !important;
+            margin-bottom: 5px;
+            background-color: #f7dddd;
+            text-align: left !important;
+            max-height: 100%;
+            overflow: auto; /* Evita que el texto se desborde del botón */
+            white-space: normal; /* Evita el salto de línea del texto */
+            width: 100%;
+        }
+
+    #mensajeInicial .text-secondary_asalud {
+        font-weight: normal !important;
+    }
+
+    #mensajeInicial input {
+        width: 100px;
+    }
+
+    .contenidoImagen {
+        width: 200px; /* Ancho de la imagen */
+        height: 150px; /* Alto de la imagen */
+        /*overflow: hidden;*/ /* Ocultar el desbordamiento */
+        cursor: pointer; /* Cambiar el cursor a mano para indicar que es clickeable */
+    }
+
+        .contenidoImagen img {
+            position: center;
+            width: 100%; /* Ajustar la imagen al ancho del contenedor */
+            height: auto; /* Mantener la proporción de aspecto */
+            transition: transform 0.6s; /* Agregar una transición suave */
+            transform-origin: 0 0; /* Establecer el origen de la transformación en la esquina superior izquierda */
+        }
+
+    .expandido {
+        transform: scale(4);
+        overflow: visible;
+        position: fixed; /* Posición absoluta */
+        top: 50%; /* Posicionar en el centro verticalmente */
+        left: 50%; /* Posicionar en el centro horizontalmente */
+        transform: translate(-50%, -50%); /* Centrar vertical y horizontalmente */
+        width: 30%;
+        height: 30%;
+        z-index: 9999 !important; /* Establecer un valor alto para que se superponga sobre todo */
+    }
+
+    .botonDescargar {
+        border-color: #ccc;
+        color: #fff;
+        background-color: #556da2;
+    }
+</style>
+
+
+
+
+
+

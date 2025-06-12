@@ -1,0 +1,426 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Facturacion.FacturasinCenso
+@{
+    ViewBag.Title = "FACTURAS SIN CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingresar</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_factura)</span></h5>
+                            @Html.TextBoxFor(p => p.numero_factura, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.numero_factura, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_factura)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_factura)
+                         .Name("datepicker1")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change1");
+                         })
+                        .HtmlAttributes(new { style = "width: 98%", title = "Vigencia desde" })
+
+
+                    )
+                            @Html.ValidationMessageFor(u => u.fecha_factura, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_recepcion)</span></h5>
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_recepcion)
+                         .Name("datepicker2")
+                        .Format("dd/MM/yyyy")
+                         .Events(e =>
+                         {
+                             e.Change("change2");
+                         })
+                        .HtmlAttributes(new { style = "width: 98%", title = "Vigencia desde" })
+                    )
+                            @Html.ValidationMessageFor(u => u.fecha_recepcion, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.valor_factura)</span></h5>
+                            @Html.TextBoxFor(p => p.valor_factura, "{0:#.#}", new { @class = "form-control", @onclick = "format(this)", @onchange = "format(this)" })
+                            @Html.ValidationMessageFor(u => u.valor_factura, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_factura)</span></h5>
+                            @Html.RadioButtonFor(model => model.tipo_factura, "FACTURA")@Html.Label("FACTURA")
+                            @Html.ValidationMessageFor(u => u.tipo_factura, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.tipo_factura, "PREFACTURA")@Html.Label("PREFACTURA")
+                            @Html.ValidationMessageFor(u => u.tipo_factura, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo)</span></h5>
+                            @Html.RadioButtonFor(model => model.tipo, "MULTIUSUARIO", new { @readonly = "readonly", @onclick = "seleccion(1)" })@Html.Label("SI")
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.tipo, "NA", new { @readonly = "readonly", @onclick = "seleccion(2)" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(model => model.tipo, "", new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row" style="display:none" id="docmultiusuario">
+                        <div class="col-sm-8">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.multiusuario)</span></h5>
+                                    @Html.TextBoxFor(p => p.multiusuario, null, new { @class = "form-control multiusuario" })
+                                    @Html.ValidationMessageFor(u => u.multiusuario, null, new { @class = "label label-danger" })
+                                </div>
+                            </div>
+                            @Html.HiddenFor(p => p.numdocumento_multiusuario)
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_regional)</span></h5>
+                            @Html.HiddenFor(x => x.id_regional)
+                            @(Html.Kendo().DropDownListFor(m => m.id_regional)
+                          .Name("regional")
+                          .HtmlAttributes(new { style = "width:98%" })
+                          .DataTextField("nombre_regional")
+                          .DataValueField("id_ref_regional")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect3"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeRegional", "Facturas");
+                               });
+                           })
+                    )
+
+                            @Html.ValidationMessageFor(u => u.id_regional)
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.ciudad)</span></h5>
+
+                            @(Html.Kendo().DropDownListFor(m => m.ciudad)
+                          .Name("ciudad")
+                          .HtmlAttributes(new { style = "width:98%" })
+                          .DataTextField("nombre")
+                          .DataValueField("id_ref_ciudades")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect4"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeCiudades", "Facturas")
+                                  .Data("filterProducts");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("regional")
+                    )
+                            <script>
+                                function filterProducts() {
+                                    return {
+                                        regional: $("#regional").val()
+                                    };
+
+                                }
+                            </script>
+                            @Html.ValidationMessageFor(u => u.ciudad, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.Prestador)</span></h5>
+                            @(Html.Kendo().DropDownListFor(m => m.Prestador)
+                          .Name("prestador")
+                          .HtmlAttributes(new { style = "width:98%" })
+                          .DataTextField("Nombre")
+                          .DataValueField("id_ref_ips_cuentas")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect5"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeIPS", "Facturas")
+                                  .Data("filterProducts2");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("ciudad")
+                    )
+                            <script>
+                                function filterProducts2() {
+                                    return {
+                                        Ciudad: $("#ciudad").val()
+
+                                    };
+
+                                }
+                            </script>
+                            @Html.ValidationMessageFor(u => u.Prestador, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+
+                    <div class="hidden">
+                        @Html.TextBoxFor(u => u.fecha_facturaOK)
+                        @Html.TextBoxFor(u => u.fecha_recepcionOK)
+                    </div>
+
+
+                    @*<div id="pnlGuardar" class="General">
+            <table align="left">
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Error">
+                        @Html.ValidationSummary(true, "")
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="display:none">
+
+
+                    </td>
+                </tr>
+            </table>
+        </div>*@
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+
+        $(".multiusuario").autocomplete({
+            source: "/Adherencia/Buscar_Beneficiario",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item == null) {
+                    var value = $(this).val();
+                    alert("No existe ningún beneficiario con el número de identificación " + value);
+                    $("#numdocumento_multiusuario").val("");
+                } else {
+                    $("#numdocumento_multiusuario").val(ui.item.nit);
+                }
+            },
+            select: function (evento, ui) {
+                if (ui.item != null) {
+                    $("#numdocumento_multiusuario").val(ui.item.nit);
+                }
+            }
+        })
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_facturaOK]').val(DataItem);
+
+    }
+
+    function seleccion(a) {
+        if (a == 2) {
+            $("#docmultiusuario").css('display', 'block');
+        }
+        else {
+            $("#docmultiusuario").css('display', 'none');
+            $("#numdocumento_multiusuario").val("");
+            $("#multiusuario").val("");
+        }
+    }
+
+    $(document).ready(function () {
+
+        $('#datepicker2').attr('disabled', 'disabled');
+
+    });
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_recepcionOK]').val(DataItem);
+
+    }
+
+
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_cups").val(DataItem.id_cups);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ciudad").val(DataItem.id_ref_ciudades);
+    }
+
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#Prestador").val(DataItem.id_ref_ips_cuentas);
+    }
+
+    function mostrar1() {
+
+        document.getElementById('pnlCostoEvitado').style.display = 'block';
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlCostoEvitado').style.display = 'none';
+    };
+
+
+
+    function format(input) {
+
+        var textBox1 = $('input:text[id$=valor_factura]').keyup();
+        var n = textBox1.val();
+
+        var num = n.replace(/\./g, '');
+        if (!isNaN(num)) {
+            num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+            num = num.split('').reverse().join('').replace(/^[\.]/, '');
+            input.value = num;
+        }
+
+        else {
+            alert('Solo se permiten numeros');
+            input.value = input.value.replace(/[^\d\.]*/g, '');
+        }
+    }
+
+
+
+</script>
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

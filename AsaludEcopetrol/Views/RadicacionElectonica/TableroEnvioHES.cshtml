@@ -1,0 +1,420 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int i = 0;
+}
+
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Filtrado</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formBusqueda" method="post" action="TableroEnvioHES">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicio</label>
+                    <input type="text" id="fechaIni" name="fechaIni" class="form-control datepickerr" style="width:100%;" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha fin</label>
+                    <input type="text" id="fechaFin" name="fechaFin" class="form-control datepickerr" style="width:100%;" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select id="regional" name="regional" class="form-control select2">
+                        <option value="">-Seleccione-</option>
+
+                        <option value="Coordinacion Salud Sur (CUR)">Coordinacion Salud Sur (CUR)</option>
+                        <option value="Coordinacion Salud Caribe (CUI)">Coordinacion Salud Caribe (CUI)</option>
+                        <option value="Coordinacion Salud Santanderes (CUS)">Coordinacion Salud Santanderes (CUS)</option>
+                        <option value="Coordinacion Salud Orinoquia (CUQ)">Coordinacion Salud Orinoquia (CUQ)</option>
+                        <option value="Coordinacion Salud Bogota (CUB)">Coordinacion Salud Bogota (CUB)</option>
+                        <option value="Departamento de Salud MM (PSM)">Departamento de Salud MM (PSM)</option>
+                    </select>
+                </div>
+
+                <br />
+                <div class="col-md-2">
+                    <a class="btn button_Asalud_Aceptar" onclick="BuscaDatos()">BUSCAR</a>
+                </div>
+
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Listado de facturas</strong>
+    </div>
+    <div class="col-md-12">
+
+        @if (ViewBag.conteo > 0)
+        {
+            <div class="col-md-2">
+                <a class="btn  btnDescargarALL" onclick="DescargarResultados();" title="Descargar todos los datos">DESCARGAR</a>
+            </div>
+
+            <div class="col-md-3">
+                <a class="btnEnvioHes" onclick="EnviarDatosHES();" title="Envio de facturas a petición de pedidos">ENVIAR SELECCIONADOS</a>
+            </div>
+        }
+    </div>
+    <br />
+
+    <div class="panel-body">
+        <div class="img-responsive">
+            <table id="TablaFacturas" class="table table-striped table-bordered table-condensed table-responsive">
+                <thead>
+                    <tr>    
+                        <th></th>
+                        <th><input type="checkbox" id="chkSeleccionarTodos" name="chkSeleccionarTodos" onchange="MarcarTodos(this.value);"/></th>
+                        <th>Id factura</th>
+                        <th>Número factura</th>
+                        <th>Proveedor</th>
+                        <th>Número pedido</th>
+                        <th>Grupo de compras</th>
+                        <th>Texto breve</th>
+                        <th>Centro logistico</th>
+                        <th>Contrato marco</th>
+                        <th>Posición contrato</th>
+                        <th>Centro de coste </th>
+                        <th>Cuenta mayor</th>
+                        <th>Número servicio</th>
+                        <th>Txt breve</th>
+                        <th>Municipio</th>
+                        <th>Nombre prestador</th>
+                        <th>Regional</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (ViewBag.conteo > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_reporteHesResult item in ViewBag.listado)
+                        {
+                            i++;
+                            <tr>
+                                <td>@i</td>
+                                <td>
+                                    <input type="checkbox" id="chkFactura_@i" name="chkFactura_@(item.ID_FACTURA)" value="@item.ID_FACTURA" class="chkFactura" onchange="MarcarIdFactura(@item.ID_FACTURA)" />
+                                </td>
+                                <td>@item.ID_FACTURA</td>
+                                <td>@item.B</td>
+                                <td>@item.Proveedor</td>
+                                <td>@item.Número</td>
+                                <td>@item.Grupo_de_compras</td>
+                                <td>@item.Texto_breve</td>
+                                <td>@item.Centro</td>
+                                <td>@item.Contrato_marco</td>
+                                <td>@item.Poscontrato_OJOCAMBIAR_BV</td>
+                                <td>@item.Centro_de_coste</td>
+                                <td>@item.Cta_mayor</td>
+                                <td>@item.Nro_Servicio</td>
+                                <td>@item.Txt_brv</td>
+                                <td>@item.munipio_de_prestaccion</td>
+                                <td>@item.NOMBRE_PRESTADOR</td>
+                                <td>@item.nomRegionalFactura</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="24" style="text-align:center">SIN REGISTROS</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+@*<script src="~/Scripts/jquery.redirect.js"></script>*@
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+    });
+
+    function MarcarTodos() {
+
+        var marcado = $("#chkSeleccionarTodos").is(':checked');
+
+        if (marcado) {
+            $("#TablaFacturas tbody tr td .chkFactura").each(function () {
+                $("#TablaFacturas  tbody tr td .chkFactura").prop('checked', true);
+            })
+        }
+        else {
+            $("#TablaFacturas  tbody tr td .chkFactura").each(function () {
+                $("#TablaFacturas  tbody tr td .chkFactura").prop('checked', false);
+            })
+        }
+    }
+
+    function MarcarIdFactura(id) {
+        debugger
+        const checkboxes = document.querySelectorAll(`.chkFactura_${id}']`);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !checkbox.checked;
+        });
+    }
+
+
+    function MostrarTabla() {
+          var conteo = '@ViewBag.conteo';
+        if (conteo > 0) {
+
+            $('#TablaFacturas').DataTable().destroy();
+            $('#TablaFacturas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": -1,
+                "lengthchange": true,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function BuscaDatos() {
+        $("#formBusqueda").submit();
+    }
+
+    function ObtenerFacturasSeleccionadas() {
+        var seleccionada = [];
+        var numregistros = parseInt("@i");
+
+        for (var i = 1; i <= numregistros; i++) {
+            var value = $("#chkFactura_" + i).val();
+            if ($("#chkFactura_" + i).is(':checked')) {
+                seleccionada.push(value);
+            }
+
+        }
+        return seleccionada;
+    }
+
+    function EnviarDatosHES() {
+
+        debugger
+
+        var seleccionadas = ObtenerFacturasSeleccionadas();
+
+        if (seleccionadas.length === 0) {
+            alert("Seleccione facturas para enviar");
+        } else {
+
+            console.log(seleccionadas);
+
+            var confirmar = confirm("¿Seguro(a) de enviar estos datos a pedido?");
+            if (confirmar) {
+
+                LoadingShow();
+
+                $.ajax({
+                    url: "@Url.Action("EnvioPeticionHES", "RadicacionElectonica")",
+                    method: "post",
+                    data: { listado: seleccionadas },
+                    type: "post",
+                    success: function (data) {
+                        alert(data.mensaje);
+                        LoadingHide();
+
+                        if (data.rta == 1) {
+
+                            DescargarResultadosFiltrados();
+
+                            location.reload();
+                        }
+                    },
+                });
+            }
+        }
+    }
+
+    function DescargarResultados() {
+        var url = "@Url.Action("DescargarReporteHESEnvio", "RadicacionElectonica")";
+        popupWindow = window.open(url, '', 'height=200,width=500,left=20,top=400,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+    function DescargarResultadosFiltrados() {
+        var url = "@Url.Action("DescargarReporteHESEnvioFiltrado", "RadicacionElectonica")";
+        popupWindow = window.open(url, '', 'height=200,width=500,left=20,top=400,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .text_titulos_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #EEEDED;
+    }
+
+
+    .positivo {
+        background-color: #91ffb9;
+    }
+
+    .negativo {
+        background-color: #ff6d6d;
+    }
+
+
+    .btnEnvioHes {
+        position: fixed; /* Hace que el botón esté en una posición fija */
+        bottom: 330px; /* Distancia desde la parte inferior de la ventana */
+        left: 20px; /* Distancia desde la parte derecha de la ventana */
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        background-color: #80ab97; /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 4px 8px; /* Espaciado interno */
+        border-radius: 3px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
+        text-align: center;
+        cursor: pointer;
+    }
+
+
+    .btnDescargarALL {
+        position: fixed; /* Hace que el botón esté en una posición fija */
+        bottom: 360px; /* Distancia desde la parte inferior de la ventana */
+        left: 20px; /* Distancia desde la parte derecha de la ventana */
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        background-color: #6E7584; /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 4px 8px; /* Espaciado interno */
+        border-radius: 3px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
+        text-align: center;
+        cursor: pointer;
+    }
+</style>

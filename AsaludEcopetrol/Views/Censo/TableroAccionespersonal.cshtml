@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL ACIVIDADES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">GENERACIÓN DE INFORME DE ACTIVIDADES</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Documento:</label>
+                        <input type="text" id="documento" name="documento" maxlength="50" class="form-control" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" maxlength="50" class="form-control" />
+                    </div>
+
+                    <br />
+                    <div class="col-sm-2">
+                        <button type="button" onclick="validarformulario()" id="botonbuscar" class="btn btn-sm button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp; BUSCAR RESULTADOS</button>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <a class="btn btn-sm button_Asalud_descargas" onclick="DescargarReporte();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br />
+        <div class="panel-group" id="DivResultadosBusqueda">
+            @*<center><h4 class="text-secondary_asalud">Debe seleccionar un periodo para consultar el informe de presupuesto</h4></center>*@
+        </div>
+    </div>
+</div>
+<input type="hidden" id="valorAprobadoParaPago" name="valorAprobadoParaPago" value="0" />
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    var arrayBidimensionalFacturas = [];
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".yearDos").datepicker({
+            format: "yyyy",
+            viewMode: "years",
+            minViewMode: "years",
+            autoclose: true,
+            startDate: new Date('2010'),
+            endDate: new Date(),
+            orientation: "bottom"
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        var nombre = $("#nombre").val();
+        var documento = $("#documento").val();
+        CargarInformacionFacturas(nombre, documento);
+
+    });
+
+    function validarformulario()
+    {
+        var nombre = $("#nombre").val();
+        var documento = $("#documento").val();
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            CargarInformacionFacturas(nombre, documento);
+        }
+    }
+
+    @*function CargarInformacionFacturas(nombre)
+    {
+        $("#DivResultadosBusqueda").empty();
+        $("#DivResultadosBusqueda").load("@Url.Action("_GeneracionCreacionReporte", "Censo")?nombre" + nombre);
+    }*@
+
+    function CargarInformacionFacturas(nombre, documento) {
+        $("#DivResultadosBusqueda").empty();
+        var url = "@Url.Action("_GeneracionCreacionReporte", "Censo")?nombre=" + nombre + "&documento=" + documento;
+        $("#DivResultadosBusqueda").load(url);
+    }
+
+
+    function DescargarReporte() {
+            var url = "@Url.Action("ReporteControlActividades", "Censo")";
+        popupWindow = window.open(url, '', 'height=120,width=350,left=10,top=650,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+</script>
+
+<style>
+    .panel-heading .accordion-toggle:after {
+        font-family: 'Glyphicons Halflings';
+        content: "\e114";
+        float: right;
+    }
+
+    .panel-heading .accordion-toggle.collapsed:after {
+        content: "\e080";
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .solo-numero:read-only {
+        background-color: #f5f5f5;
+    }
+
+    .datepicker .prev:hover {
+        background-color: #556da2;
+    }
+
+    .datepicker .next:hover {
+        background-color: #556da2;
+    }
+</style>

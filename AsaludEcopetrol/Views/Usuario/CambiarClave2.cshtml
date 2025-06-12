@@ -1,0 +1,217 @@
+﻿
+@{
+    ViewBag.Title = "CambiarClave2";
+
+}
+
+<script language="javascript" type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.10.0/jquery.validate.min.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.10.0/localization/messages_es.js"></script>
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Validación</strong>
+    </div>
+    <div class="panel-body">
+
+        <div class="panel-body" id="panel_formulario">
+            <form class="animated fadeInDown" id="formulario">  
+
+                <div class="row">
+
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Documento</label>
+                        <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="txtDocumento" id="txtDocumento" maxlength="16" required autocomplete="off" />
+                    </div>
+                    <div class="col-sm-12 form-group">
+                        <label class="text-secondary_asalud">Usuario</label>
+                        <input rows="4" cols="100" type="text" class="form-control" name="txtusuario" id="txtusuario" required maxlength="50" autocomplete="off" />
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button class="button_Asalud_Aceptar" type="button" onclick="ValidarFormulario()">Buscar</button>
+
+                    </div>
+                </div>
+                <div style="display:none">
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="loader"></div>
+<div id="dialog"></div>
+<div id="container" style="min-height: 1px">
+    <div id="content" style="min-height: 1px">
+        <div id="DivLoadingPage"></div>
+        <div class="modal fade" data-backdrop="static" data-keyboard="false" id="SpinnerCarga">
+            <img id="imgloader" src="~/Resources/cargando.gif" alt="Loading">
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+      $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $('.solo-numero2').keydown(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $('.solo-numero3').focusout(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+
+        });
+
+    })
+
+    function LoadingShow() {
+        $("#SpinnerCarga").modal();
+        $("#SpinnerCarga").modal({ backdrop: 'static', keyboard: false });
+        $("#SpinnerCarga").modal('show');
+    }
+
+    function LoadingHide() {
+        $("#SpinnerCarga").modal('hide');
+    }
+
+
+     function ValidarFormulario() {
+         var validator = $("#formulario").validate(
+             {
+                 rules: {
+                     txtDocumento: {
+                         required: true,
+                     }
+                 }
+
+             }
+
+         );
+        if (validator.form()) {
+
+            GuardarDatos();
+        }
+     }
+
+
+    function GuardarDatos() {
+
+        var ff = $("#txtusuario").val();
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("usuarioClave", $("#txtusuario").val());
+        formData.append("numero_documento", $("#txtDocumento").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveValidarUsuario", "Usuario")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    if (response.opc == 1) {
+                        var laURLDeLaVista = '@Url.Action("GestionCambiodeclave")?ID=' + response.id + "&codigo=" + response.codigo;
+
+                        $.ajax({
+                            cache: false,
+                            async: true,
+                            type: "GET",
+                            url: laURLDeLaVista,
+                            data: {},
+                            success: function (response) {
+                                $("#myModal1").modal('show');
+                                $('#resultado1').html('');
+                                $('#resultado1').html(response);
+                                LoadingHide();
+
+                            }
+                        });
+                    }
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+                }
+            }
+
+        })
+    }
+
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

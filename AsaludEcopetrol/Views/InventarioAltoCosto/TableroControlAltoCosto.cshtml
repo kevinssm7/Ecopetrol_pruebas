@@ -1,0 +1,408 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL ALTO COSTO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+}
+
+
+<div class="container">
+    <ul class="nav nav-pills col-md-4" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">PENDIENTES</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#2a" id="tab2" data-toggle="tab">ABIERTAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#3a" id="tab3" data-toggle="tab">CERRADAS</a>
+        </li>
+    </ul>
+    <div>
+        <a class="button_Asalud_descargas" onclick="MostrarReporte();">
+            <i class="glyphicon glyphicon-save-file"></i>&nbsp; DESCARGAR REPORTE
+        </a>
+    </div>
+    @*    <br />*@
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active row" id="1a">
+            <div class="panel panel-default">
+                <input type="hidden" id="conteoPendientes" name="conteoPendientes" value="@ViewBag.conteoPendientes" />
+                <div class="panel-heading">
+                    <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%; font-size:10px;" id="tablePendientes">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cc agrupador</th>
+                                <th>Tipo caso</th>
+                                <th>Coordinación</th>
+                                <th>Nombre usuario</th>
+                                <th>Identificación usuario</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Teléfono paciente</th>
+                                <th>Fecha afiliación EAPB</th>
+                                <th>Cie10 neoplasia</th>
+                                <th>Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteoPendientes > 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_inventario_altoCosto_tableroResult item in ViewBag.listaGestionPendiente)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td>@item.id_detalle</td>
+                                        <td>@item.ccagrupador</td>
+                                        <td>@item.tipo_caso</td>
+                                        <td>@item.coordinacion</td>
+                                        <td>@item.nombreUsuario</td>
+                                        <td>@item.identificacionUsuario</td>
+                                        @*@if (item.fecha_nacimiento != null)
+                                            {
+                                                <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {*@
+                                        <td>@item.fecha_nacimiento</td>
+                                        @*}*@
+                                        <td>@item.numero_telefonico_paciente</td>
+
+                                        @*@if (item.fecha_afiliacion_EAPB != null)
+                                            {
+                                                <td>@item.fecha_afiliacion_EAPB.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                            }*@
+                                        <td>@item.fecha_afiliacion_EAPB</td>
+
+                                        <td>@item.cod_cie10_neoplasia</td>
+                                        <td>
+                                            <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("GestionInventario", "InventarioAltoCosto", new { idDetalle = item.id_detalle, idInventario = item.id_inventario, tipo = item.tipoRegistro})">
+                                                Gestionar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="text-align: center; font-size: 14px">SIN DATOS</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="2a">
+            <div class="panel panel-default">
+                <input type="hidden" id="conteoAbiertas" name="conteoAbiertas" value="@ViewBag.conteoAbiertas" />
+                <div class="panel-heading">
+                    <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%; font-size:10px;" id="tableAbiertas">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cc agrupador</th>
+                                <th>Tipo caso</th>
+                                <th>Coordinación</th>
+                                <th>Nombre usuario</th>
+                                <th>Identificación usuario</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Teléfono paciente</th>
+                                <th>Fecha afiliación EAPB</th>
+                                <th>Cie10 neoplasia</th>
+                                <th>Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteoAbiertas > 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_inventario_altoCosto_tableroResult item in ViewBag.listaGestioAbierta)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td>@item.id_detalle</td>
+                                        <td>@item.ccagrupador</td>
+                                        <td>@item.tipo_caso</td>
+                                        <td>@item.coordinacion</td>
+                                        <td>@item.nombreUsuario</td>
+                                        <td>@item.identificacionUsuario</td>
+                                        @*@if (item.fecha_nacimiento != null)
+                                            {
+                                                <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {*@
+                                        <td>@item.fecha_nacimiento</td>
+                                        @*}*@
+                                        <td>@item.numero_telefonico_paciente</td>
+
+                                        @*@if (item.fecha_afiliacion_EAPB != null)
+                                            {
+                                                <td>@item.fecha_afiliacion_EAPB.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                            }*@
+                                        <td>@item.fecha_afiliacion_EAPB</td>
+                                        <td>@item.cod_cie10_neoplasia</td>
+
+                                        <td>
+                                            <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("GestionInventario", "InventarioAltoCosto", new { idDetalle = item.id_detalle, idInventario = item.id_inventario, tipo = item.tipoRegistro})">
+                                                Gestionar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="text-align: center; font-size: 14px">SIN DATOS</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="3a">
+            <div class="panel panel-default">
+                <input type="hidden" id="conteoCerradas" name="conteoCerradas" value="@ViewBag.conteoCerradas" />
+                <div class="panel-heading">
+                    <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%; font-size:10px;" id="tableCerradas">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cc agrupador</th>
+                                <th>Tipo caso</th>
+                                <th>Coordinación</th>
+                                <th>Nombre usuario</th>
+                                <th>Identificación usuario</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Teléfono paciente</th>
+                                <th>Fecha afiliación EAPB</th>
+                                <th>Cie10 neoplasia</th>
+                                <th>Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.conteoCerradas > 0)
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_inventario_altoCosto_tableroResult item in ViewBag.listaGestioCerrada)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td>@item.id_detalle</td>
+                                        <td>@item.ccagrupador</td>
+                                        <td>@item.tipo_caso</td>
+                                        <td>@item.coordinacion</td>
+                                        <td>@item.nombreUsuario</td>
+                                        <td>@item.identificacionUsuario</td>
+                                        @*@if (item.fecha_nacimiento != null)
+                                            {
+                                                <td>@item.fecha_nacimiento.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {*@
+                                        <td>@item.fecha_nacimiento</td>
+                                        @*}*@
+                                        <td>@item.numero_telefonico_paciente</td>
+
+                                        @*@if (item.fecha_afiliacion_EAPB != null)
+                                            {
+                                                <td>@item.fecha_afiliacion_EAPB.Value.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                            }*@
+                                        <td>@item.fecha_afiliacion_EAPB</td>
+                                        <td>@item.cod_cie10_neoplasia</td>
+
+                                        <td>
+                                            <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("GestionInventario", "InventarioAltoCosto", new { idDetalle = item.id_detalle, idInventario = item.id_inventario})">
+                                                Gestionar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" style="text-align: center; font-size: 14px">SIN DATOS</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        mostrarTablaPendientes();
+        mostrarTablaAbiertas();
+        mostrarTablaCerradas();
+    });
+
+    function mostrarTablaPendientes() {
+
+        var conteoPendientes = $("#conteoPendientes").val();
+        if (conteoPendientes != 0) {
+            $('#tablePendientes').DataTable().destroy();
+            $('#tablePendientes').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function mostrarTablaAbiertas() {
+
+        var conteoAbiertas = $("#conteoAbiertas").val();
+        if (conteoAbiertas != 0) {
+            $('#tableAbiertas').DataTable().destroy();
+            $('#tableAbiertas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function mostrarTablaCerradas() {
+
+        var conteoCerradas = $("#conteoCerradas").val();
+        if (conteoCerradas != 0) {
+            $('#tableCerradas').DataTable().destroy();
+            $('#tableCerradas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarReporte() {
+        var URL2 = "@Url.Action("ExportarDatosTableroControlAC", "InventarioAltoCosto")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>

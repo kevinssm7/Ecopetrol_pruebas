@@ -1,0 +1,471 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.MorNatSinConcurrencia.MorNatSinConcurrencia
+@{
+    ViewBag.Title = "NATALIDAD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br>
+
+@using (Html.BeginForm())
+{
+
+    <div class="container">
+
+        <div class="General">
+            <table border="1" align="center" width="600">
+
+                @if (Model != null && Model.ListBase != null && Model.ListBase.Count > 0)
+                {
+
+                    foreach (var item in Model.ListBase)
+                    {
+                        Model.afi_Nom = Convert.ToString(item.Nombre + ' ' + item.Apellidos);
+                    }
+
+                }
+
+            </table>
+        </div>
+
+        <form id="frm-alumno">
+
+
+            <div class="row">
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_tipoDoc)</span></h4>
+                    @Html.DropDownListFor(model => model.afi_tipoDoc, new SelectList(Model.ListTipoDocumento, "id_ref_tipo_documental", "descripcion"), "Seleccione...", new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.afi_tipoDoc, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_NumDoc)</span></h4>
+                    @Html.TextBoxFor(p => p.afi_NumDoc, new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.afi_NumDoc, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.afi_Nom)</span></h4>
+                    @Html.TextBoxFor(p => p.afi_Nom, new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(u => u.afi_Nom, null, new { @class = "label label-danger" })
+                </div>
+
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_nacimiento)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_nacimiento)
+                     .Name("datepicker3")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change3");
+                     })
+                    .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_nacimiento, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.edad_gestacional)</span></h4>
+                    @Html.TextBoxFor(p => p.edad_gestacional, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.edad_gestacional, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.peso)</span></h4>
+                    @Html.TextBoxFor(p => p.peso, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.peso, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_via_parto)</span></h4>
+                    @Html.RadioButtonFor(model => model.id_via_parto, "CESAREA")@Html.Label("CESAREA")
+                    @Html.ValidationMessageFor(u => u.id_via_parto, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.id_via_parto, "VAGINAL")@Html.Label("VAGINAL")
+                    @Html.ValidationMessageFor(u => u.id_via_parto, null, new { @class = "label label-danger" })
+
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.talla)</span></h4>
+                    @Html.TextBoxFor(p => p.talla, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.talla, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.sexo)</span></h4>
+                    @Html.RadioButtonFor(model => model.sexo, "MASCULINO")@Html.Label("MASCULINO")
+                    @Html.ValidationMessageFor(u => u.sexo, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.sexo, "FEMENINO")@Html.Label("FEMENINO")
+                    @Html.ValidationMessageFor(u => u.sexo, null, new { @class = "label label-danger" })
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.apgar)</span></h4>
+                    @Html.TextBoxFor(p => p.apgar, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.apgar, null, new { @class = "label label-danger" })
+
+                </div>
+
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.control_prenatal)</span></h4>
+                    @Html.RadioButtonFor(model => model.control_prenatal, "SI")@Html.Label("SI")
+                    @Html.ValidationMessageFor(u => u.control_prenatal, null, new { @class = "label label-danger" })
+                    &nbsp;
+                    @Html.RadioButtonFor(model => model.control_prenatal, "NO")@Html.Label("NO")
+                    @Html.ValidationMessageFor(u => u.control_prenatal, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_BCG)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_BCG)
+                             .Name("datepicker5")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change5");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_BCG, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_vitaminaK)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_vitaminaK)
+                             .Name("datepicker6")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change6");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_vitaminaK, null, new { @class = "label label-danger" })
+                </div>
+
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_consenjeria_lactancia)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_consenjeria_lactancia)
+                             .Name("datepicker7")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change7");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_consenjeria_lactancia, null, new { @class = "label label-danger" })
+
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.resultadoTCH)</span></h4>
+                    @Html.TextAreaFor(p => p.resultadoTCH, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.resultadoTCH, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fechaTCH)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fechaTCH)
+                             .Name("datepicker8")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change8");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fechaTCH, null, new { @class = "label label-danger" })
+
+                </div>
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_consulta_pediatria)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_consulta_pediatria)
+                             .Name("datepicker9")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change9");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_consulta_pediatria, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_hepatitisB)</span></h4>
+                    @(Html.Kendo().DateTimePickerFor(p => p.fecha_hepatitisB)
+                             .Name("datepicker10")
+                             .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change10");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+                    )
+                    @Html.ValidationMessageFor(u => u.fecha_hepatitisB, null, new { @class = "label label-danger" })
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.nom_ips)</span></h4>
+                    @Html.TextBoxFor(p => p.nom_ips, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(u => u.nom_ips, null, new { @class = "label label-danger" })
+                </div>
+                <div class="col-sm-4">
+                    <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ciudad)</span></h4>
+
+                    @(Html.Kendo().AutoComplete()
+                                    .Name("dx1")
+                                    .Placeholder("Seleccione...")
+                                    .HtmlAttributes(new { style = "width:300px" })
+                                    .DataTextField("nom")
+                                    .Events(events => events.Select("CustomerSelect1"))
+                                    .Filter(FilterType.Contains)
+
+                                    .DataSource(source =>
+                                    {
+                                        source.Read(read =>
+                                        {
+                                            read.Action("GetCiudadesTotal", "MorNatSinCon");
+                                        });
+
+                                    })
+                    )
+                    @Html.HiddenFor(x => x.id_ciudad)
+                    @Html.ValidationMessageFor(u => u.id_ciudad, null, new { @class = "label label-danger" })
+                </div>
+
+                <div class="col-sm-4">
+
+                </div>
+
+            </div>
+
+
+            <div id="pnlGuardar" class="General">
+                <table align="left">
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="display:none">
+                            @Html.TextBoxFor(u => u.afi_NumDoc)
+                            @Html.TextBoxFor(u => u.fecha_nacimientook)
+                        
+                            @Html.TextBoxFor(u => u.fecha_BCGok)
+                            @Html.TextBoxFor(u => u.fecha_vitaminaKok)
+                            @Html.TextBoxFor(u => u.fecha_consenjeria_lactanciaok)
+                            @Html.TextBoxFor(u => u.fechaTCHok)
+                            @Html.TextBoxFor(u => u.fecha_consulta_pediatriaok)
+                            @Html.TextBoxFor(u => u.fecha_hepatitisBok)
+
+                        </td>
+                        <td></td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+        </form>
+    </div>
+
+}
+
+
+<script type="text/javascript">
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_ciudad").val(DataItem.id_ciu);
+    }
+
+    $(document).ready(function () {
+
+        $('#datepicker3').attr('disabled', 'disabled');
+
+    });
+
+
+    function change3() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_nacimientook]').val(DataItem);
+
+    }
+
+    $(document).ready(function () {
+
+        $('#datepicker5').attr('disabled', 'disabled');
+
+    });
+
+
+    function change5() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_BCGok]').val(DataItem);
+
+    }
+    $(document).ready(function () {
+
+        $('#datepicker6').attr('disabled', 'disabled');
+
+    });
+
+
+    function change6() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_vitaminaKok]').val(DataItem);
+
+    }
+    $(document).ready(function () {
+
+        $('#datepicker7').attr('disabled', 'disabled');
+
+    });
+
+
+    function change7() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_consenjeria_lactanciaok]').val(DataItem);
+
+    }
+    $(document).ready(function () {
+
+        $('#datepicker8').attr('disabled', 'disabled');
+
+    });
+
+
+    function change8() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fechaTCHok]').val(DataItem);
+
+    }
+    $(document).ready(function () {
+
+        $('#datepicker9').attr('disabled', 'disabled');
+
+    });
+
+
+    function change9() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_consulta_pediatriaok]').val(DataItem);
+
+    }
+    $(document).ready(function () {
+
+        $('#datepicker10').attr('disabled', 'disabled');
+
+    });
+
+
+    function change10() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_hepatitisBok]').val(DataItem);
+
+    }
+
+
+
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+
+
+
+

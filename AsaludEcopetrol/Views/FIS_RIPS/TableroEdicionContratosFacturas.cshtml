@@ -1,0 +1,373 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTRATOS FACTURAS GESTIONADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">GESTIONES</strong>
+        </div>
+        <div class="panel-body">
+
+            @if (ViewBag.conteo > 0)
+            {
+                <div class="col-md-12 text-right">
+                    <button role="button" onclick="ExportarExcelContratos();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar</button>
+                </div>
+                <br />
+            }
+            <br />
+            <div class="table-responsive">
+
+                <table id="tabla" class="table table-bordered" style="width:98%;">
+                    <thead>
+                        <tr>
+                            <th>Id gestión</th>
+                            <th>Id factura</th>
+                            <th>Nro factura</th>
+                            <th>Id contrato</th>
+                            <th>Nro contrato</th>
+                            <th>Centro logistico</th>
+                            <th>Grupo compras</th>
+                            <th>Posición contrato</th>
+                            <th>Nro contrato operativo</th>
+                            <th>Valor gestión</th>
+                            <th>Prestador</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (ViewBag.conteo > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_tableroActualizarContratos_gestionAnalistaResult item in ViewBag.listado)
+                            {
+
+                                <tr>
+                                    <td>@item.id_fis_factura</td>
+                                    <td>@item.id_factura</td>
+                                    <td>@item.numero_factura</td>
+                                    <td>@item.idContrato</td>
+                                    <td>@item.numero_contrato</td>
+                                    <td>@item.centro_logistico</td>
+                                    <td>@item.grupo_compras</td>
+                                    <td>@item.posicion_contrato</td>
+                                    <td>@item.numero_contrato_operativo</td>
+                                    <td>@item.valor_total_factura</td>
+                                    <td>@item.codigo_prestador - @item.prestador</td>
+                                    <td>
+                                        <a class="btn-sm button_Asalud_Aceptar" onclick="EditarRegistro(@item.id_fis_factura, @item.id_factura, @item.idContrato, '@item.codigo_prestador');">Editar</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center"> SIN DATOS</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false"  id="ModalEdicion">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="rsl"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+
+    });
+
+    function MostrarTabla() {
+
+        $('#tabla').DataTable().destroy();
+        $('#tabla').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+    }
+
+    function EditarRegistro(idGestion, idFac, idContra, codPresta) {
+        var laURLDeLaVista = '@Url.Action("EditarContratoFactura", "FIS_RIPS")?idGestion=' + idGestion + "&idFac=" + idFac + "&idContra=" + idContra + "&codPresta=" + codPresta;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $("#ModalEdicion").modal("show");
+                $('#rsl').html('');
+                $('#rsl').html(response);
+            }
+        });
+    }
+
+
+    function ExportarExcelContratos() {
+        var URL2 = "@Url.Action("ExcelContratosFacturas", "FIS_RIPS")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+
+</script>
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

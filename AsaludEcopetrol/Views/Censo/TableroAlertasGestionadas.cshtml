@@ -1,0 +1,828 @@
+﻿@{
+    ViewBag.Title = "Tablero Gestión de alertas: Auditoría";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">ALERTAS EN SALUD</strong>
+        </div>
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Gestión inmediata @ViewBag.conteoInmediata</a></li>
+                <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab"> Requiere alguna gestión @ViewBag.conteoGestion</a></li>
+                <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab"> Informativa @ViewBag.conteoInformativa</a></li>
+                <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab"> Gestionadas @ViewBag.conteoGestionadas</a></li>
+            </ul>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-11 form-group text-right">
+                <a class="button_Asalud_descargas" onclick="ExportarReporte();"><i class="glyphicon glyphicon-download"></i>&nbsp;Descargar datos</a>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab0">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaInmediata table table-bordered table-condensed table-responsive" style="font-size:10px; width:99%;">
+                            <thead>
+                                <tr>
+                                    <th>Id concurrencia</th>
+                                    <th>Id censo</th>
+                                    <th>Documento afiliado</th>
+                                    <th>Nombre afiliado</th>
+                                    <th>Edad</th>
+                                    <th>Diagnostico censo</th>
+                                    <th>Auditor</th>
+                                    <th>Ciudad IPS</th>
+                                    <th>Nit IPS</th>
+                                    <th>Nombre IPS</th>
+                                    <th>Fecha ingreso</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Diagnostico egreso</th>
+                                    <th>Incapacidad</th>
+                                    <th>fecha inicial incapacidad</th>
+                                    <th>fecha final incapacidad</th>
+                                    <th>Alerta confirmada</th>
+                                    <th>Tipo evento</th>
+                                    <th>Nombre de alerta</th>
+                                    <th>Código alerta</th>
+                                    <th>Descripción alerta</th>
+                                    <th>Grupo diagnostico</th>
+                                    <th>Nombre alerta detallado</th>
+                                    <th>Descripción alerta detallada</th>
+                                    <th>Tipo evento detallado</th>
+                                    <th>Tipo alerta detallada</th>
+                                    <th>Opciones</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoInmediata != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_tableroControl_gestionadasResult item in ViewBag.listadoInmediata)
+                                        {
+                                            i++;
+                                            <tr>
+
+                                                <td class="text-center">@item.id_concurrencia</td>
+                                                <td class="text-center">@item.id_censo</td>
+                                                <td class="text-center">@item.afi_tipo_doc @item.Documento_Afiliado</td>
+                                                <td class="text-center">@item.afi_nom</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.Diagnostico_Censo - @item.Nombre_Diagnostico_Censo</td>
+                                                <td class="text-center">@item.Nombre_auditor</td>
+                                                <td class="text-center">@item.CiudadIPs</td>
+                                                <td class="text-center">@item.Nit_Ips</td>
+                                                <td class="text-center">@item.Nombre_Ips</td>
+                                                <td class="text-center">@item.fecha_ingreso</td>
+                                                <td class="text-center">@item.fecha_egreso</td>
+                                                <td class="text-center">@item.Diagnostico_Egreso - @item.Nombre_Diagnostico_Egreso</td>
+                                                <td class="text-center">@item.Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_Inicial_Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_final_Incapacidad</td>
+                                                <td class="text-center">@item.Alerta_Confirmada</td>
+                                                <td class="text-center">@item.Tipo_Evento</td>
+                                                <td class="text-center">@item.Nombre_De_Alerta - @item.Descripcion_Alerta</td>
+                                                <td class="text-center">@item.codigo</td>
+                                                <td class="text-center">@item.descripcion</td>
+                                                <td class="text-center">@item.grupo_diagnostico</td>
+                                                <td class="text-center">@item.nombre_alerta</td>
+                                                <td class="text-center">@item.descripcion_alerta1</td>
+                                                <td class="text-center">@item.tipo_evento1</td>
+                                                <td class="text-center">@item.tipo_alerta</td>
+
+                                                <td>
+                                                    <button type="button" onclick="AgregarGestion(@item.id_registro, @item.cerrada)" class="btn btn-sm button_Asalud_Aceptar" data-toggle="modal" data-target="#modalGestion">
+                                                        <i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="31" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab1">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaGestion table table-bordered table-condensed table-responsive" style="font-size:10px; width:96%;">
+                            <thead>
+                                <tr>
+                                    <th>Id concurrencia</th>
+                                    <th>Id censo</th>
+                                    <th>Documento afiliado</th>
+                                    <th>Nombre afiliado</th>
+                                    <th>Edad</th>
+                                    <th>Diagnostico censo</th>
+                                    <th>Auditor</th>
+                                    <th>Ciudad IPS</th>
+                                    <th>Nit IPS</th>
+                                    <th>Nombre IPS</th>
+                                    <th>Fecha ingreso</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Diagnostico egreso</th>
+                                    <th>Incapacidad</th>
+                                    <th>fecha inicial incapacidad</th>
+                                    <th>fecha final incapacidad</th>
+                                    <th>Alerta confirmada</th>
+                                    <th>Tipo evento</th>
+                                    <th>Nombre de alerta</th>
+                                    <th>Código alerta</th>
+                                    <th>Descripción alerta</th>
+                                    <th>Grupo diagnostico</th>
+                                    <th>Nombre alerta detallado</th>
+                                    <th>Descripción alerta detallada</th>
+                                    <th>Tipo evento detallado</th>
+                                    <th>Tipo alerta detallada</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoGestion != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_tableroControl_gestionadasResult item in ViewBag.listadoAGestion)
+                                        {
+                                            i++;
+                                            <tr>
+                                                <td class="text-center">@item.id_concurrencia</td>
+                                                <td class="text-center">@item.id_censo</td>
+                                                <td class="text-center">@item.afi_tipo_doc @item.Documento_Afiliado</td>
+                                                <td class="text-center">@item.afi_nom</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.Diagnostico_Censo - @item.Nombre_Diagnostico_Censo</td>
+                                                <td class="text-center">@item.Nombre_auditor</td>
+                                                <td class="text-center">@item.CiudadIPs</td>
+                                                <td class="text-center">@item.Nit_Ips</td>
+                                                <td class="text-center">@item.Nombre_Ips</td>
+                                                <td class="text-center">@item.fecha_ingreso</td>
+                                                <td class="text-center">@item.fecha_egreso</td>
+                                                <td class="text-center">@item.Diagnostico_Egreso - @item.Nombre_Diagnostico_Egreso</td>
+                                                <td class="text-center">@item.Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_Inicial_Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_final_Incapacidad</td>
+                                                <td class="text-center">@item.Alerta_Confirmada</td>
+                                                <td class="text-center">@item.Tipo_Evento</td>
+                                                <td class="text-center">@item.Nombre_De_Alerta - @item.Descripcion_Alerta</td>
+                                                <td class="text-center">@item.codigo</td>
+                                                <td class="text-center">@item.descripcion</td>
+                                                <td class="text-center">@item.grupo_diagnostico</td>
+                                                <td class="text-center">@item.nombre_alerta</td>
+                                                <td class="text-center">@item.descripcion_alerta1</td>
+                                                <td class="text-center">@item.tipo_evento1</td>
+                                                <td class="text-center">@item.tipo_alerta</td>
+
+                                                <td>
+                                                    <button type="button" onclick="AgregarGestion(@item.id_registro, @item.cerrada)" class="btn btn-sm button_Asalud_Aceptar" data-toggle="modal" data-target="#modalGestion">
+                                                        <i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="31" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaInformativa table table-bordered table-condensed table-responsive" style="font-size:10px; width:99%;">
+                            <thead>
+                                <tr>
+                                    <th>Id concurrencia</th>
+                                    <th>Id censo</th>
+                                    <th>Documento afiliado</th>
+                                    <th>Nombre afiliado</th>
+                                    <th>Edad</th>
+                                    <th>Diagnostico censo</th>
+                                    <th>Auditor</th>
+                                    <th>Ciudad IPS</th>
+                                    <th>Nit IPS</th>
+                                    <th>Nombre IPS</th>
+                                    <th>Fecha ingreso</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Diagnostico egreso</th>
+                                    <th>Incapacidad</th>
+                                    <th>fecha inicial incapacidad</th>
+                                    <th>fecha final incapacidad</th>
+                                    <th>Alerta confirmada</th>
+                                    <th>Tipo evento</th>
+                                    <th>Nombre de alerta</th>
+                                    <th>Código alerta</th>
+                                    <th>Descripción alerta</th>
+                                    <th>Grupo diagnostico</th>
+                                    <th>Nombre alerta detallado</th>
+                                    <th>Descripción alerta detallada</th>
+                                    <th>Tipo evento detallado</th>
+                                    <th>Tipo alerta detallada</th>
+                                    <th>Opciones</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoInformativa != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_tableroControl_gestionadasResult item in ViewBag.listadoInformativa)
+                                        {
+                                            i++;
+                                            <tr>
+
+                                                <td class="text-center">@item.id_concurrencia</td>
+                                                <td class="text-center">@item.id_censo</td>
+                                                <td class="text-center">@item.afi_tipo_doc @item.Documento_Afiliado</td>
+                                                <td class="text-center">@item.afi_nom</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.Diagnostico_Censo - @item.Nombre_Diagnostico_Censo</td>
+                                                <td class="text-center">@item.Nombre_auditor</td>
+                                                <td class="text-center">@item.CiudadIPs</td>
+                                                <td class="text-center">@item.Nit_Ips</td>
+                                                <td class="text-center">@item.Nombre_Ips</td>
+                                                <td class="text-center">@item.fecha_ingreso</td>
+                                                <td class="text-center">@item.fecha_egreso</td>
+                                                <td class="text-center">@item.Diagnostico_Egreso - @item.Nombre_Diagnostico_Egreso</td>
+                                                <td class="text-center">@item.Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_Inicial_Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_final_Incapacidad</td>
+                                                <td class="text-center">@item.Alerta_Confirmada</td>
+                                                <td class="text-center">@item.Tipo_Evento</td>
+                                                <td class="text-center">@item.Nombre_De_Alerta - @item.Descripcion_Alerta</td>
+                                                <td class="text-center">@item.codigo</td>
+                                                <td class="text-center">@item.descripcion</td>
+                                                <td class="text-center">@item.grupo_diagnostico</td>
+                                                <td class="text-center">@item.nombre_alerta</td>
+                                                <td class="text-center">@item.descripcion_alerta1</td>
+                                                <td class="text-center">@item.tipo_evento1</td>
+                                                <td class="text-center">@item.tipo_alerta</td>
+
+                                                <td>
+                                                    <button type="button" onclick="AgregarGestion(@item.id_registro, @item.cerrada)" class="btn btn-sm button_Asalud_Aceptar" data-toggle="modal" data-target="#modalGestion">
+                                                        <i class="glyphicon glyphicon-plus"></i>&nbsp; Añadir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="31" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tablaGestionadas table table-bordered table-condensed table-responsive" style="font-size:10px; width:99%;">
+                            <thead>
+                                <tr>
+                                    <th>Id concurrencia</th>
+                                    <th>Id censo</th>
+                                    <th>Documento afiliado</th>
+                                    <th>Nombre afiliado</th>
+                                    <th>Edad</th>
+                                    <th>Diagnostico censo</th>
+                                    <th>Auditor</th>
+                                    <th>Ciudad IPS</th>
+                                    <th>Nit IPS</th>
+                                    <th>Nombre IPS</th>
+                                    <th>Fecha ingreso</th>
+                                    <th>Fecha egreso</th>
+                                    <th>Diagnostico egreso</th>
+                                    <th>Incapacidad</th>
+                                    <th>fecha inicial incapacidad</th>
+                                    <th>fecha final incapacidad</th>
+                                    <th>Alerta confirmada</th>
+                                    <th>Tipo evento</th>
+                                    <th>Nombre de alerta</th>
+                                    <th>Código alerta</th>
+                                    <th>Descripción alerta</th>
+                                    <th>Grupo diagnostico</th>
+                                    <th>Nombre alerta detallado</th>
+                                    <th>Descripción alerta detallada</th>
+                                    <th>Tipo evento detallado</th>
+                                    <th>Tipo alerta detallada</th>
+                                    <th>Opciones</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.conteoGestionadas != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_tableroControl_gestionadasResult item in ViewBag.listadoGestionadas)
+                                        {
+                                            i++;
+                                            <tr>
+
+                                                <td class="text-center">@item.id_concurrencia</td>
+                                                <td class="text-center">@item.id_censo</td>
+                                                <td class="text-center">@item.afi_tipo_doc @item.Documento_Afiliado</td>
+                                                <td class="text-center">@item.afi_nom</td>
+                                                <td class="text-center">@item.edad</td>
+                                                <td class="text-center">@item.Diagnostico_Censo - @item.Nombre_Diagnostico_Censo</td>
+                                                <td class="text-center">@item.Nombre_auditor</td>
+                                                <td class="text-center">@item.CiudadIPs</td>
+                                                <td class="text-center">@item.Nit_Ips</td>
+                                                <td class="text-center">@item.Nombre_Ips</td>
+                                                <td class="text-center">@item.fecha_ingreso</td>
+                                                <td class="text-center">@item.fecha_egreso</td>
+                                                <td class="text-center">@item.Diagnostico_Egreso - @item.Nombre_Diagnostico_Egreso</td>
+                                                <td class="text-center">@item.Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_Inicial_Incapacidad</td>
+                                                <td class="text-center">@item.Fecha_final_Incapacidad</td>
+                                                <td class="text-center">@item.Alerta_Confirmada</td>
+                                                <td class="text-center">@item.Tipo_Evento</td>
+                                                <td class="text-center">@item.Nombre_De_Alerta - @item.Descripcion_Alerta</td>
+                                                <td class="text-center">@item.codigo</td>
+                                                <td class="text-center">@item.descripcion</td>
+                                                <td class="text-center">@item.grupo_diagnostico</td>
+                                                <td class="text-center">@item.nombre_alerta</td>
+                                                <td class="text-center">@item.descripcion_alerta1</td>
+                                                <td class="text-center">@item.tipo_evento1</td>
+                                                <td class="text-center">@item.tipo_alerta</td>
+
+                                                <td>
+                                                    <button type="button" onclick="AgregarGestion(@item.id_registro, @item.cerrada)" class="btn btn-sm button_Asalud_Aceptar" data-toggle="modal" data-target="#modalGestion">
+                                                        <i class="glyphicon glyphicon-plus"></i>&nbsp; Ver
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="31" style="text-align:center; font-size:15px;">
+                                                <label>No hay registros.</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalGestion">
+    <div class="modal-dialog modal-lg" style="width: 90%; height: 100%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <input type="hidden" id="idGestion" name="idGestion" />
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="true" data-backdrop="static" id="modalSoportes">
+    <div class="modal-dialog modal-lg" style="width:60%; height:100%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <input type="hidden" id="idGestionSop" name="idGestionSop" />
+                <input type="hidden" id="cerradaSop" name="cerradaSop" />
+                <div id="resultadoSo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrarSoportes()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="modal fade" data-keyboard="true" data-backdrop="static" id="modalGestionAnalisis">
+    <div class="modal-dialog modal-lg" style="width:75%; height:100%;">
+        <div class="modal-content">
+            <div class="modal-footer">
+                <input type="hidden" id="idGestionAna" name="idGestionAna" />
+                <input type="hidden" id="cerradaAna" name="cerradaAna" />
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrarGA()">CERRAR</button>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoGA"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        MostrarTablaInmediata();
+        MostrarTablaGestion();
+        MostrarTablaInformativa();
+        MostrarTablaGestionadas();
+
+        $.validator.messages.required = 'Este campo es obligatorio';
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+
+
+                if (tab0) {
+                    MostrarTablaInmediata();
+                }
+
+                if (tab1) {
+                    MostrarTablaGestion();
+                }
+
+                if (tab2) {
+                    MostrarTablaInformativa();
+                }
+
+                if (tab3) {
+                    MostrarTablaGestionadas();
+                }
+            }, 100);
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "dd/MM/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+    });
+
+    function MostrarTablaInformativa() {
+        var conteo = '@ViewBag.conteoInformativa';
+        if (conteo > 0) {
+            $('.tablaInformativa').DataTable().destroy();
+            $('.tablaInformativa').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaInmediata() {
+        var conteo = '@ViewBag.conteoInmediata';
+        if (conteo > 0) {
+
+            $('.tablaInmediata').DataTable().destroy();
+            $('.tablaInmediata').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaGestion() {
+        var conteo = '@ViewBag.conteoGestion';
+        if (conteo > 0) {
+
+            $('.tablaGestion').DataTable().destroy();
+            $('.tablaGestion').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaGestionadas() {
+        var conteo = '@ViewBag.conteoGestionadas';
+        if (conteo > 0) {
+
+            $('.tablaGestionadas').DataTable().destroy();
+            $('.tablaGestionadas').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 100,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function AgregarGestion(idRegistro, cerrada) {
+
+        $.ajax({
+            url: "@Url.Action("ModalGestionesRealizadas")",
+            type: "post",
+            data: {
+                idRegistro: idRegistro,
+                cerrada: cerrada,
+                tipoIngreso : 2
+            },
+            success: function (data) {
+                $("#resultado").empty();
+                $("#resultado").html(data);
+                $("#idGestion").val(idRegistro);
+            }
+        })
+    }
+
+    function GestionCerrar() {
+
+        $("#modalGestion").modal('hide');
+    }
+
+    function GestionCerrarGA() {
+        var idRegistro = $("#idGestionAna").val();
+        var cerrada = $("#cerradaAna").val();
+
+        debugger
+        var existe = $("#id_gestionAnalisis").val();
+        if (existe == "") {
+            var confirmar = confirm("No se han guardado datos de la gestión actual, ¿Guarda los datos de forma parcial antes de salir?");
+            if (confirmar == true) {
+                GuardadoAutomatico();
+            }
+        }
+
+        $("#modalGestionAnalisis").modal('hide');
+        AgregarGestion(idRegistro, cerrada);
+    }
+
+    function GestionCerrarSoportes() {
+        var idRegistro = $("#idGestionSop").val();
+        var cerrada = $("#cerradaSop").val();
+        $("#modalSoportes").modal('hide');
+        AgregarGestion(idRegistro, cerrada);
+    }
+
+    function PDFResultado(idGestion) {
+
+        var url = "@Url.Action("PdfReporteAnalisis", "censo")?idGestion=" + idGestion;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+    function ExportarReporte() {
+        var url = "@Url.Action("ReporteAlertasEpidemiologicasGestionadas", "Censo")";
+        popupWindow = window.open(url, '', 'height=120,width=350,left=10,top=650,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #636363;
+            border-top: 2px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .reporte {
+        position: relative;
+        text-align: right;
+        margin-top: -20px;
+    }
+
+
+
+</style>
+
+

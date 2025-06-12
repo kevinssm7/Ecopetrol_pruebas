@@ -1,0 +1,276 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.ver_criterio>
+
+@{
+    ViewBag.Title = "CONFIGURACIÓN DE CRITERIOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        @if (ViewBag.respuesta != 0)
+        {
+            if (ViewBag.respuesta == 1)
+            {
+                <div class="row alert alert-success">
+                    <strong>Carga Terminada! </strong>@ViewData["mensajeRespuesta"]<br />
+                </div>
+
+            }
+            else
+            {
+                <div class="row alert alert-danger">
+                    <strong>Carga Terminada! </strong>@ViewData["mensajeRespuesta"]<br />
+                </div>
+            }
+        }
+        <div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-xs-12 form-group">
+                    <ul class="list-group">
+                        <li class="list-group-item">Verificación: <strong>@ViewBag.nombre</strong></li>
+                        <li class="list-group-item">Tipo de criterio: <strong>@ViewBag.tipocriterio</strong></li>
+                    </ul>
+                </div>
+                <div class="col-sm-6 col-md-6 col-xs-12 form-group text-right">
+                    <label style="width:100% !important; visibility:hidden">boton</label>
+                    <a class="btn button_Asalud_Aceptar btn-sm" onclick="añadircriterio()" href='javascript:void(0)'><i class="glyphicon glyphicon-cog"></i>&nbsp; Configurar Criterio</a>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Atributo</th>
+                                <th>Aspectos</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Count <= 0)
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center">No se ha encontrado ningún criterio configurado.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (ECOPETROL_COMMON.ENTIDADES.ver_criterio item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.atributo</td>
+                                        <td>@item.descripcion</td>
+                                        <td>
+                                            <a class="btn btn-sm button_Asalud_Aceptar" title="Editar" href="javascript:GetInfoCiterio(@item.id_ver_criterio)">
+                                                <i class="glyphicon glyphicon-pencil"></i>&nbsp; Editar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer text-center">
+                    <a role="button" href="@Url.Action("VerificaciontipoCriterio","Verificacion", new {idTipoVer = ViewBag.tipoVer })" class="btn button_Asalud_Rechazar">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="Modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="form-criterio" name="form-criterio" method="post" enctype="multipart/form-data" action="CriteriosVerificacion">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-primary_asalud" id="titlemodal">Añadir Criterio</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" name="idtipoverificacion" id="idtipoverificacion" value="@ViewBag.tipoVer" />
+                        <input type="hidden" name="tipocriterio" id="cbxtipocriterio" value="@ViewBag.idtipocriterio" />
+                        <input type="hidden" name="idcriterio" id="idcriterio" value="0" />
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Atributo</label>
+                            <textarea class="form-control" rows="2" required name="atributo" id="atributo" maxlength="5000"></textarea>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Aspectos</label>
+                            <textarea class="form-control" rows="3" required name="nomcriterio" id="nomcriterio" maxlength="5000"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.,]/g, '');
+        });
+    })
+
+    debugger
+    function ValidarFormulario()
+    {
+        var idtipoverificacion = "@ViewBag.tipoVer";
+        var idtipocriterio = $("#cbxtipocriterio").val();
+        var idcriterio = $("#idcriterio").val();
+        var validator = $("#form-criterio").validate();
+        if (validator.form())
+        {
+            $("#form-criterio").submit();
+        }
+    }
+
+    function añadircriterio()
+    {
+        $("#titlemodal").text("Añadir criterio");
+        $("#nomcriterio").val("");
+        $("#atributo").val("");
+        $("#puntaje").val("");
+        $("#idcriterio").val(0);
+        $("#Modal").modal('show');
+    }
+
+
+    function añadirtipocriterio() {
+        $(".modal-title").text("Añadir tipo criterio");
+        $("#ModalAdd").modal('show');
+    }
+
+    function EliminarCriterio(i) {
+        Swal.fire({
+            title: 'Estas Seguro?',
+            text: "El criterio se eliminará permanentemente",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                var idTipoVer = "@ViewBag.idTipoVer";
+                var idcohorte = i;
+                var url = "@Url.Action("EliminarCriterioVer", "Verificacion")?idTipoVer=" + idTipoVer + "&idcriterio=" + idcohorte
+                location.href = url;
+            }
+        })
+    }
+
+    function GetInfoCiterio(i)
+    {
+        var idcriterio = i;
+        $.ajax({
+            url: "@Url.Action("GetInfoCriterio")",
+            type: "post",
+            data: { idcriterio: idcriterio },
+            success: function (data) {
+                $("#titlemodal").text("Editar criterio");
+                $("#cbxtipocriterio").val(data.idtipocriterio);
+                $("#nomcriterio").val(data.descripcion);
+                $("#atributo").val(data.atributo);
+                //$("#puntaje").val(data.puntaje);
+                $("#idcriterio").val(data.idcriterio);
+                $("#Modal").modal('show');
+            }
+        })
+    }
+
+</script>
+
+<style>
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+</style>
+

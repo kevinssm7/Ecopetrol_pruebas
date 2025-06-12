@@ -1,0 +1,107 @@
+﻿
+@{
+    ViewBag.Title = "CREACIÓN CIE10";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<div class="container">
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CREACIÓN CIE10</strong>
+        </div>
+        <br />
+        <form id="formCie">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="text-secondary_asalud">Codigo</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" value="@ViewBag.codigo" required maxlength="50" />
+                    </div>
+
+                    <div class="col-md-7">
+                        <label class="text-secondary_asalud">Descripción</label>
+                        <input type="text" class="form-control" id="descripcion" name="descripcion" value="@ViewBag.descripcion" required maxlength="599" />
+                    </div>
+                    <br />
+
+                    <div class="COL-MD-2">
+                        <a class="btn button_Asalud_Guardar" onclick="ValidarDatos()">GUARDAR</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+
+    @*$("#codigo").on("input", function () {
+        var codigo = $(this).val();
+
+        $.ajax({
+            url: "@Url.Action("validarCie10Codigo", "FIS_RIPS")",
+            type: "post",
+            data: { codigo: codigo },
+            success: function (data) {
+                if (data != "") {
+                    $("#codigo").val("");
+                    $("#codigo").focus();
+                    alert(data);
+                }
+            }
+        })
+    });
+
+
+    $("#descripcion").on("input", function () {
+        var descripcion = $(this).val();
+
+        $.ajax({
+            url: "@Url.Action("validarCie10Descripcion", "FIS_RIPS")",
+            type: "post",
+            data: { descripcion: descripcion },
+            success: function (data) {
+                if (data != "") {
+                    $("#descripcion").val("");
+                    $("#descripcion").focus();
+                    alert(data);
+                }
+            }
+        })
+    });*@
+
+    function ValidarDatos() {
+        var validacion = $("#formCie").validate();
+        if (validacion.form()) {
+            Enviardata();
+        }
+    }
+
+    function Enviardata(){
+
+        var formData = new FormData($("form")[0]);
+        formData.append("codigo", $("#codigo").val());
+        formData.append("descripcion", $("#descripcion").val());
+
+        $.ajax({
+            url: "@Url.Action("GuardarCIE10FIS")",
+            type: "post",
+            data: formData,
+            method: "post",
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                alert(data.mensaje);
+                if (data.rta == 1) {
+                    location.href = "@Url.Action("TableroCIE10FIS", "FIS_RIPS")";
+                }
+            }
+        });
+    }
+
+</script>

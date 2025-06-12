@@ -1,0 +1,326 @@
+﻿
+@{
+    ViewBag.Title = "VIGILANCIA EPIDEMIOLÓGICA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var rta = ViewBag.rta;
+    var mensaje = ViewBag.msg;
+}
+
+<br>
+
+
+<div class="tab-content form-group">
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@mensaje
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong> SE INGRESÓ CORRECTAMENTE.
+            </div>
+        </div>
+    }
+</div>
+
+<form id="Vigilancia" enctype="multipart/form-data" method="post" action="@Url.Action("VigilanciaGuardar","Concurrencia")">
+    <div class="container">
+        <div id="pnlPrincipal" class="General">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-secondary_asalud">DETALLE CONCURRENCIA</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Documento paciente</label>
+                            <input type="text" class="form-control solo-numero" id="documento" name="documento" maxlength="45" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nombre paciente</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" maxlength="190" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">IPS</label>
+                            <select class="form-control select2" id="ips" name="ips" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips item in ViewBag.ips)
+                                {
+                                    <option value="@item.id_ref_ips"> @item.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">MEGA/MEPA asignado:</label>
+                            <input type="text" class="form-control" id="mega" name="mega" maxlength="190" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" id="regional" name="regional" onchange="ObtenerUnis($(this).val())" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Unis:</label>
+                            <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Localidad:</label>
+                            <select class="form-control select2" id="ciudad" name="ciudad" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Diagnóstico CIE10:</label>
+                            <select class="form-control select2" id="cie10" name="cie10" required>
+                                <option value="">- Seleccione -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_cie10 item in ViewBag.CIE10)
+                                {
+                                    <option value="@item.id_cie10"> @item.id_cie10-@item.des</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Trabajador de Ecopetrol SI o NO (activo / jubilado):</label>
+                            <input type="radio" id="traEcopetrol" name="traEcopetrol" value="1" onclick="trabajadorEcopetrol($(this).val())" /> Si
+                            <input type="radio" id="traEcopetrol" name="traEcopetrol" value="2" onclick="trabajadorEcopetrol($(this).val())" /> No
+                            <input type="hidden" class="form-control" name="trabajador" id="trabajador" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Auditor :</label><span style="color:red"></span>
+                            <select class="form-control select2" style="width:100%" id="auditor" name="auditor" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.auditores)
+                                {
+                                    <option value="@item.id_usuario">@item.nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Cohorte paciente:</label>
+                            <select class="form-control select2" style="width:100%" id="cohorte" name="cohorte" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cohortes item in ViewBag.cohortes)
+                                {
+                                    <option value="@item.id_ref_cohortes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Archivo:</label>
+                            <input type="file" name="file" id="file" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Archivo soporte:</label>
+                            <input type="file" name="fileSoporte" id="fileSoporte" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Descripción archivos</label>
+                            <textarea type="text" id="descripcionArchivo" name="descripcionArchivo" class="form-control" cols="4" rows="3" maxlength="4999"></textarea>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <input id="BtnGuardar" onclick="Validar();" type="button" value="GUARDAR" class="btn button_Asalud_Guardar" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".datepicker").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+    });
+
+    function Validar() {
+        //var trabajador = $("traEcopetrol").val();
+        var trabajador = document.getElementById("trabajador").value;
+
+        if (trabajador == "" || trabajador == undefined) {
+            alert("Seleccione si es trabajador.");
+            return false;
+        }
+
+        var regional = document.getElementById("regional").value;
+
+        var validator = $("#Vigilancia").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#Vigilancia").submit();
+        }
+    }
+
+     function ObtenerUnis(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+                data: { idregional: a },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").html(data);
+                    $("#unis").val("").trigger("change");
+                }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+                data: { idunis: a },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").html(data);
+                    $("#ciudad").val("").trigger("change");
+
+                }
+            })
+        }
+    }
+
+    function trabajadorEcopetrol(trabajador) {
+        if (trabajador == 1) {
+            document.getElementById("trabajador").value = "SI";
+        } else {
+            document.getElementById("trabajador").value = "NO";
+        }
+    }
+</script>
+
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

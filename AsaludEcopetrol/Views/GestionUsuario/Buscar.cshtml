@@ -1,0 +1,413 @@
+﻿
+@{
+    ViewBag.Title = "BUSCAR USUARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string idadmin = (string)ViewBag.idadmin;
+
+}
+
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                <p style="font-family:'Century Gothic'">@Html.Raw(alerta)</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <p class="text-primary_asalud">INGRESAR DOCUMENTO O USUARIO</p>
+
+        </div>
+
+
+        <div class="panel-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                </div>
+                <div class="col-md-4">
+                    
+                    <label class="radio-inline">
+                        <input type="radio" name="documento" id="documento" value="si" required onclick="mostrar()">Documento
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="documento" id="documento" value="si1" required onclick="mostrar1()">Usuario
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="documento" id="documento" value="si2" required onclick="mostrar2()">Nombres
+                    </label>
+
+                </div>
+                <div class="col-md-4">
+
+                </div>
+            </div>
+
+            <br />
+
+            <form id="formulario" action="" method="post" enctype="multipart/form-data">
+
+                <div class="row" id="pnlDocumento" style="display:none">
+
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Numero Documento:</label><span style="color:red"></span>
+                        <input type="text" class="form-control solo-numero" required name="numerodocumento" id="numerodocumento" maxlength="20" />
+
+
+                    </div>
+
+                    <div class="col-md-3">
+                        <h5><span class="label label-default" style="visibility:hidden">buscar</span></h5>
+                        <button type="button" class="button_Asalud_Guardar" onclick='llamarVistaParcial()'>
+                            BUSCAR
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+            <form id="formulario2" action="" method="post" enctype="multipart/form-data">
+
+                <div class="row" id="pnlUsuario" style="display:none">
+
+
+
+                    <div class="col-md-4">
+
+                    </div>
+
+
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Usuario:</label><span style="color:red"></span>
+                        <input type="text" class="form-control" required name="usuario" id="usuario" maxlength="10" />
+
+
+                    </div>
+
+                    <div class="col-md-3">
+                        <h5><span class="label label-default" style="visibility:hidden">buscar</span></h5>
+                        <button type="button" class="button_Asalud_Guardar" onclick='llamarVistaParcial2()'>
+                            BUSCAR
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+
+
+            <form id="formulario3" action="" method="post" enctype="multipart/form-data">
+
+                <div class="row" id="pnlNombres" style="display:none">
+
+                    <datalist id="nombresusuario">
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.usuarios)
+                        {
+                            <option value="@item.nombre">@item.nombre</option>
+                        }
+                    </datalist>
+
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Nombres :</label><span style="color:red"></span>
+                        <input list="nombresusuario" type="text" class="form-control" required name="nombres" id="nombres" maxlength="50" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <h5><span class="label label-default" style="visibility:hidden">buscar</span></h5>
+                        <button type="button" class="button_Asalud_Guardar" onclick='llamarVistaParcial3()'>
+                            BUSCAR
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+<div id="resultado"></div>
+<div id="resultado2"></div>
+<div id="resultado3"></div>
+
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            messages: {
+                custom: function (input) {
+                    return $(input).parents().find('label').text();
+                }
+            }
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+    })
+
+
+
+    function llamarVistaParcial() {
+
+        var documento = "";
+
+        documento = document.getElementById('numerodocumento').value;
+
+        var laURLDeLaVista = '@Url.Action("_Documento")?ID=' + documento
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                document.getElementById('resultado').style.display = 'block';
+                document.getElementById('resultado2').style.display = 'none';
+                document.getElementById('resultado3').style.display = 'none';
+
+            }
+        });
+    }
+
+
+    function llamarVistaParcial2() {
+
+        var usuario = "";
+
+        usuario = document.getElementById('usuario').value;
+
+        var laURLDeLaVista = '@Url.Action("_Usuario")?ID=' + usuario
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+                document.getElementById('resultado2').style.display = 'block';
+                document.getElementById('resultado').style.display = 'none';
+                document.getElementById('resultado3').style.display = 'none';
+
+            }
+        });
+    }
+
+    function llamarVistaParcial3() {
+
+        var nombres = "";
+
+        nombres = document.getElementById('nombres').value;
+
+        var laURLDeLaVista = '@Url.Action("_Nombres")?ID=' + nombres
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+                document.getElementById('resultado3').style.display = 'block';
+                document.getElementById('resultado').style.display = 'none';
+                document.getElementById('resultado2').style.display = 'none';
+
+            }
+        });
+    }
+
+
+    function mostrar() {
+
+        document.getElementById('pnlDocumento').style.display = 'block';
+        document.getElementById('pnlUsuario').style.display = 'none';
+        document.getElementById('pnlNombres').style.display = 'none';
+
+
+    };
+    function mostrar1() {
+
+        document.getElementById('pnlUsuario').style.display = 'block';
+        document.getElementById('pnlDocumento').style.display = 'none';
+        document.getElementById('pnlNombres').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlNombres').style.display = 'block';
+        document.getElementById('pnlDocumento').style.display = 'none';
+        document.getElementById('pnlUsuario').style.display = 'none';
+
+
+    };
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .text_titulos_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #EEEDED;
+    }
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+      label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+</style>
+

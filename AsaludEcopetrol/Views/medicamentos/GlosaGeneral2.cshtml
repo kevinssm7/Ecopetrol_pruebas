@@ -1,0 +1,99 @@
+﻿@model  AsaludEcopetrol.Models.Medicamentos.GestionMedicamentos
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "GLOSA GENERAL";
+    Layout = "~/Views/Shared/_LayoutECOPETROL2.cshtml";
+}
+
+
+<h2 class="page-header">GLOSA</h2>
+
+@using (Html.BeginForm("GlosaGeneral2", "medicamentos", FormMethod.Post, new { id = "frm-comprobante" }))
+{
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="well well-sm">
+                <div class="row">
+                    <div class="col-xs-4">
+                        @Html.HiddenFor(x => x.motivo_glosa)
+                        @*@Html.TextBoxFor(x => x.motivo_glosa, new { @class = "form-control", placeholder = "Buscar producto", id = "glosa" })*@
+                        @Html.DropDownListFor(model => model.motivo_glosa, new SelectList(Model.GetMedglosa, "id_md_ref_glosa", "nombre"), "Seleccione...", new { @class = "form-control", placeholder = "Motivo Glosa" })
+                        @Html.ValidationMessage("producto_agregar", null, new { @class = "label label-danger" })
+                    </div>
+                    <div class="col-xs-2">
+                        @Html.TextBoxFor(x => x.valor_glosa, new { @class = "form-control", placeholder = "Valor Glosa" })
+
+                    </div>
+                    <div class="col-xs-5">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">S/.</span>
+                            @Html.TextAreaFor(x => x.observaciones, new { @class = "form-control", placeholder = "Observaciones" })
+                        </div>
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-primary" type="submit" value="agregar_producto" name="action">
+                            <i class="glyphicon glyphicon-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr />
+
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+        LimpiarAgregarProducto();
+
+        $(".btn-retirar").click(function () {
+            if (confirm('¿Está seguro de retirar el item seleccionado?')) {
+                $(this).closest('.list-group-item').find('.retirar').val("True");
+                return true;
+            }
+
+            return false;
+        })
+        /* Autocomplete de producto, jquery UI */
+        $("#glosa").autocomplete({
+            dataType: 'JSON',
+            source: function (request, response) {
+                jQuery.ajax({
+                    url: '/Home/BuscarProducto',
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        nombre: request.term
+                    },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                id: item.id_md_ref_glosa,
+                                value: item.nombre,
+
+                            }
+                        }))
+                    }
+                })
+            },
+            select: function (e, ui) {
+                $("#CabeceraProductoId").val(ui.item.id);
+                $("#CabeceraProductoPrecio").val(ui.item.precio);
+                $("#CabeceraProductoCantidad").focus();
+            }
+        })
+    })
+
+    function LimpiarAgregarProducto() {
+        $("#CabeceraProductoId").val("");
+        $("#Producto").val("");
+        $("#CabeceraProductoPrecio").val("");
+        $("#CabeceraProductoCantidad").val(1);
+    }
+</script>
+
+
+
+

@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE MASIVO INVENTARIO ALTO COSTO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string mensajerespuesta = (string)ViewData["MensajeRta"];
+}
+
+<div class="containar">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Cargue archivo</strong>
+        </div>
+        <div class="panel-body">
+            @if (!String.IsNullOrEmpty(mensajerespuesta))
+            {
+                if (mensajerespuesta.Contains("Error"))
+                {
+                    <label class="danger"> @Html.Raw(mensajerespuesta)</label>
+                }
+                else
+                {
+                    @Html.Raw(mensajerespuesta);
+                }
+            }
+
+            <form id="formAlCo" name="formAlCo" enctype="multipart/form-data" method="post" action="CargueMasivoAltoCosto">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Seleccione archivo</label>
+                        <input type="file" name="archivos" id="archivos" onchange="ValidacionArchivo();" required accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    </div>
+                    <br />
+                    <div class="col-md-6">
+                        <button onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    function ValidarFormulario() {
+        var validator = $("#formAlCo").validate();
+
+        if (validator.form()) {
+            LoadingShow();
+            $("#formAlCo").submit();
+        }
+    }
+
+    function ValidacionArchivo() {
+        var data = document.getElementById('archivos');
+        var nameext = data.files[0].name;
+        var extension = getFileExtension(nameext);
+
+        var listaextensiones = ["xlsm", "xlsx", "xlsb", "xltx", "XLSM", "XLSX", "XLSB", "XLTX"];
+
+        var valida = false;
+
+        jQuery.each(listaextensiones, function (i, val) {
+            if (extension == val) {
+                valida = true;
+            }
+        });
+
+        if (valida == false) {
+            alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos excel.");
+            $("#archivos").val("");
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+</script>
+
+
+<style>
+    .error {
+        color: indianred;
+        font-weight: bold;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

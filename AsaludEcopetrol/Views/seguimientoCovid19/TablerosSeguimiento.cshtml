@@ -1,0 +1,1009 @@
+﻿@model  AsaludEcopetrol.Models.Odontologia.covid19
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "TABLEROS SEGUIMIENTO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    string alerta = (string)ViewData["alerta"];
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+
+    <div class="col-sm-6 form-group">
+        <label for="doumento" class="letraa">Seleccione el tablero a cual desea ingresar:</label><span style="color:red"></span>
+        <select class="form-control select2" style="width:100%" required id="listaseguimiento" name="listaseguimiento" onchange="checkFiltro4()">
+            <option value="">- Seleccionar -</option>
+            <option value="1">TABLERO SEGUIMIENTO DIARIO </option>
+            <option value="2">TABLERO SEGUIMIENTO INTERDIARIO </option>
+            <option value="3">TABLERO CASOS CERRADOS </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+    <div id="pnlsSeguimientoDiario">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="title">
+
+                            <h4>
+                                <a data-toggle="collapse" data-parent="#accordion">Tablero seguimiento diario</a>
+                            </h4>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4" text-right>
+                        <a class="btn btn-success" href='javascript:Consolidados(1)'> <i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar consolidado diario</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="panel-heading">
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#D9DBDE" class="contenedor1">
+                            Total casos: @Model.total_casos
+                        </div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#FAD0CC" class="contenedor1">
+                            Sin gestion diaria: @Model.singestion
+                        </div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#DCF2D2" class="contenedor1">
+                            En tiempos: @Model.congestion
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-condensed datetable1" style="font-size:11px; width:100%;  margin:0px !important">
+
+
+                        <thead>
+                            <tr>
+                                <th style="display:none">Id</th>
+
+                                <th>Tipo documento</th>
+                                <th>Documento</th>
+                                <th>Nombres y apellidos</th>
+                                <th>Genero</th>
+                                <th>Regional</th>
+                                <th>Localidad</th>
+                                <th>Tipificacion de cargue: </th>
+                                <th>Seguimiento: </th>
+                                <th>Estado: </th>
+
+                                <th>Alerta seguimiento diario </th>
+                                <th>Opcion </th>
+                                <th>Vicepresidencia</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Descripcion ciudad/Med</th>
+
+                                <th>Departamento</th>
+
+                                <th>Edad</th>
+                                <th>Tipo salud: </th>
+                                <th>Direccion: </th>
+                                <th>Telefono 1: </th>
+                                <th>Telefono 2:  </th>
+                                <th>Correo electronico: </th>
+                                <th>Incluido en sivigila: </th>
+                                <th>Fecha ingreso al pais: </th>
+                                <th>Causa finalizacion del seguimiento: </th>
+                                <th>Observacion de caracterizacion: </th>
+                                <th>Fecha de caracterizacion registro: </th>
+                                <th>Nombre de quien reporta: </th>
+                                <th>Auditor asignado: </th>
+
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbodytbl1">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_covid19_diario item in ViewBag.listaseguimientoprincipal)
+                            {
+                                <tr>
+                                    <td class="text-center" style="display:none">@item.id</td>
+
+                                    <td class="text-center">@item.tipo_documento</td>
+                                    <td class="text-center">@item.documento</td>
+                                    <td class="text-center">@item.nombres @item.apellidos</td>
+                                    <td class="text-center">@item.genero</td>
+                                    <td class="text-center">@item.regional</td>
+                                    <td class="text-center">@item.localidad</td>
+                                    <td class="text-center" style="color:red; font-weight: bold">@item.tipificacion</td>
+                                    <td class="text-center">@item.seguimiento</td>
+                                    <td class="text-center">@item.estado_base</td>
+
+                                    @if (item.AlertaDiaria == "SI")
+                                    {
+                                        <td>
+                                            <div class="alert alert-danger" role="alert">
+                                                Debe realizar la gestion diaria!!
+                                                @if (item.Alerta14Vencido == "SI")
+                                                {
+                                                    <a class="">Alerta informativa! - El caso lleva mas de 14 dias desde sus fecha de caracterizacion </a>
+                                                }
+                                                else
+                                                {
+
+                                                }
+                                            </div>
+                                        </td>
+
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <div class="alert alert-success" role="alert">
+                                                @if (item.Alerta14Vencido == "SI")
+                                                {
+                                                    <a class="">Alerta informativa! - El caso lleva mas de 14 dias desde sus fecha de caracterizacion </a>
+                                                }
+                                                else
+                                                {
+
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                    <td class="text-center">
+                                        <a class="btn btn-primary " onclick="llamarVistaParcial(@item.id);" data-toggle="modal" data-target="#myModal1">
+                                            Gestionar
+                                        </a>
+                                    </td>
+                                    <td class="text-center">@item.viceprecidencia</td>
+                                    @if (item.fecha_nacimiento != null)
+                                    {
+                                        <td class="text-center">@item.fecha_nacimiento.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.descripcion_ciudad</td>
+
+                                    <td class="text-center">@item.departamento</td>
+
+                                    <td class="text-center">@item.edad</td>
+                                    <td class="text-center">@item.tipo_salud</td>
+                                    <td class="text-center">@item.direccion</td>
+                                    <td class="text-center">@item.telefono_1</td>
+                                    <td class="text-center">@item.telefono_2</td>
+                                    <td class="text-center">@item.correo</td>
+                                    <td class="text-center">@item.incluido_en_sivigila</td>
+
+                                    @if (item.fecha_ingreso_pais != null)
+                                    {
+                                        <td class="text-center">@item.fecha_ingreso_pais.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+
+                                    <td class="text-center">@item.causa_finalizacion_del_seguimiento</td>
+                                    <td class="text-center">@item.observacion_de_caracterizacion</td>
+                                    @if (item.fecha_caracterizacion_registro != null)
+                                    {
+                                        <td class="text-center">@item.fecha_caracterizacion_registro.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.nombre_quien_reporta</td>
+                                    <td class="text-center">@item.nombre_auditor_asignado</td>
+
+
+
+
+                                </tr>
+
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+    <div id="pnlSeguimientoInterdiario">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="title">
+                            <h4>
+                                <a data-toggle="collapse" data-parent="#accordion">Tablero seguimiento interdiario</a>
+                            </h4>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4" text-right>
+                        <a class="btn btn-success" href='javascript:Consolidados(2)'> <i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar consolidado interdiario</a>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="panel-heading">
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#D9DBDE" class="contenedor1">
+                            Total casos: @Model.total_casosinter
+                        </div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#FAD0CC" class="contenedor1">
+                            Sin gestion interdiaria: @Model.singestioninter
+                        </div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <div style="background-color:#DCF2D2" class="contenedor1">
+                            En tiempos: @Model.congestioninter
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+
+                        <thead>
+                            <tr>
+                                <th style="display:none">Id</th>
+                                <th>Tipo documento</th>
+                                <th>Documento</th>
+                                <th>Nombres y apellidos</th>
+                                <th>Genero</th>
+                                <th>Regional</th>
+                                <th>Localidad</th>
+                                <th>Tipificacion de cargue: </th>
+                                <th>Seguimiento: </th>
+                                <th>Estado: </th>
+                                <th>Alerta seguimiento diario </th>
+                                <th>Opcion </th>
+                                <th>Vicepresidencia</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Descripcion ciudad/Med</th>
+                                <th>Departamento</th>
+                                <th>Edad</th>
+                                <th>Tipo salud: </th>
+                                <th>Direccion: </th>
+                                <th>Telefono 1: </th>
+                                <th>Telefono 2:  </th>
+                                <th>Correo electronico: </th>
+                                <th>Incluido en sivigila: </th>
+                                <th>Fecha ingreso al pais: </th>
+                                <th>Causa finalizacion del seguimiento: </th>
+                                <th>Observacion de caracterizacion: </th>
+                                <th>Fecha de caracterizacion registro: </th>
+                                <th>Nombre de quien reporta: </th>
+                                <th>Auditor asignado: </th>
+
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbodytbl2">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_covid19_interdiario item in ViewBag.listaseguimientointerdiario)
+                            {
+                                <tr>
+                                    <td class="text-center" style="display:none">@item.id</td>
+
+                                    <td class="text-center">@item.tipo_documento</td>
+                                    <td class="text-center">@item.documento</td>
+                                    <td class="text-center">@item.nombres @item.apellidos</td>
+                                    <td class="text-center">@item.genero</td>
+                                    <td class="text-center">@item.regional</td>
+                                    <td class="text-center">@item.localidad</td>
+                                    <td class="text-center" style="color:red; font-weight: bold">@item.tipificacion</td>
+                                    <td class="text-center">@item.seguimiento</td>
+                                    <td class="text-center">@item.estado_base</td>
+                                    @if (item.AlertaDiaria == "SI")
+                                    {
+
+                                        <td>
+                                            <div class="alert alert-danger" role="alert">
+                                                Debe realizar la gestion interdiaria!!
+                                                @if (item.Alerta14Vencido == "SI")
+                                                {
+                                                    <a class="">Alerta informativa! - El caso lleva mas de 14 dias desde sus fecha de caracterizacion </a>
+                                                }
+                                                else
+                                                {
+
+                                                }
+
+                                            </div>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <div class="alert alert-success" role="alert">
+                                                @if (item.Alerta14Vencido == "SI")
+                                                {
+                                                    <a class="">Alerta informativa! - El caso lleva mas de 14 dias desde sus fecha de caracterizacion </a>
+                                                }
+                                                else
+                                                {
+
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                    <td class="text-center">
+                                        <a class="btn btn-primary " onclick="llamarVistaParcial2(@item.id);" data-toggle="modal" data-target="#myModal2">
+                                            Gestionar
+                                        </a>
+                                    </td>
+
+                                    <td class="text-center">@item.viceprecidencia</td>
+                                    @if (item.fecha_nacimiento != null)
+                                    {
+                                        <td class="text-center">@item.fecha_nacimiento.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.descripcion_ciudad</td>
+
+                                    <td class="text-center">@item.departamento</td>
+
+                                    <td class="text-center">@item.edad</td>
+                                    <td class="text-center">@item.tipo_salud</td>
+                                    <td class="text-center">@item.direccion</td>
+                                    <td class="text-center">@item.telefono_1</td>
+                                    <td class="text-center">@item.telefono_2</td>
+                                    <td class="text-center">@item.correo</td>
+                                    <td class="text-center">@item.incluido_en_sivigila</td>
+
+                                    @if (item.fecha_ingreso_pais != null)
+                                    {
+                                        <td class="text-center">@item.fecha_ingreso_pais.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+
+                                    <td class="text-center">@item.causa_finalizacion_del_seguimiento</td>
+                                    <td class="text-center">@item.observacion_de_caracterizacion</td>
+                                    @if (item.fecha_caracterizacion_registro != null)
+                                    {
+                                        <td class="text-center">@item.fecha_caracterizacion_registro.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.nombre_quien_reporta</td>
+                                    <td class="text-center">@item.nombre_auditor_asignado</td>
+
+
+
+
+                                </tr>
+
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="pnlCasosCerrados">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="title">
+                            <h4>
+                                <a data-toggle="collapse" data-parent="#accordion">Tablero casos cerrados</a>
+                            </h4>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4" text-right>
+                        <a class="btn btn-success" href='javascript:Consolidados(3)'> <i class="glyphicon glyphicon-download-alt"></i>&nbsp;Generar consolidado casos cerrados</a>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+
+                        <thead>
+                            <tr>
+                                <th style="display:none">Id</th>
+                                <th>Tipo documento</th>
+                                <th>Documento</th>
+                                <th>Nombres y apellidos</th>
+                                <th>Genero</th>
+                                <th>Regional</th>
+                                <th>Localidad</th>
+                                <th>Tipificacion de cargue: </th>
+                                <th>Seguimiento: </th>
+                                <th>Estado: </th>
+                                <th>Vicepresidencia</th>
+                                <th>Fecha nacimiento</th>
+                                <th>Descripcion ciudad/Med</th>
+                                <th>Departamento</th>
+                                <th>Edad</th>
+                                <th>Tipo salud: </th>
+                                <th>Direccion: </th>
+                                <th>Telefono 1: </th>
+                                <th>Telefono 2:  </th>
+                                <th>Correo electronico: </th>
+                                <th>Incluido en sivigila: </th>
+                                <th>Fecha ingreso al pais: </th>
+                                <th>Causa finalizacion del seguimiento: </th>
+                                <th>Observacion de caracterizacion: </th>
+                                <th>Fecha de caracterizacion registro: </th>
+                                <th>Nombre de quien reporta: </th>
+                                <th>Auditor asignado: </th>
+
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbodytbl3">
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.vw_seguimiento_covid19_casos_cerrados item in ViewBag.listaseguimientocerrados)
+                            {
+                                <tr>
+                                    <td class="text-center" style="display:none">@item.id</td>
+
+                                    <td class="text-center">@item.tipo_documento</td>
+                                    <td class="text-center">@item.documento</td>
+                                    <td class="text-center">@item.nombres @item.apellidos</td>
+                                    <td class="text-center">@item.genero</td>
+                                    <td class="text-center">@item.regional</td>
+                                    <td class="text-center">@item.localidad</td>
+                                    <td class="text-center" style="color:red; font-weight: bold">@item.tipificacion</td>
+                                    <td class="text-center">@item.seguimiento</td>
+                                    <td class="text-center">@item.estado_base</td>
+                                    <td class="text-center">@item.viceprecidencia</td>
+                                    @if (item.fecha_nacimiento != null)
+                                    {
+                                        <td class="text-center">@item.fecha_nacimiento.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.descripcion_ciudad</td>
+
+                                    <td class="text-center">@item.departamento</td>
+
+                                    <td class="text-center">@item.edad</td>
+                                    <td class="text-center">@item.tipo_salud</td>
+                                    <td class="text-center">@item.direccion</td>
+                                    <td class="text-center">@item.telefono_1</td>
+                                    <td class="text-center">@item.telefono_2</td>
+                                    <td class="text-center">@item.correo</td>
+                                    <td class="text-center">@item.incluido_en_sivigila</td>
+
+                                    @if (item.fecha_ingreso_pais != null)
+                                    {
+                                        <td class="text-center">@item.fecha_ingreso_pais.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+
+                                    <td class="text-center">@item.causa_finalizacion_del_seguimiento</td>
+                                    <td class="text-center">@item.observacion_de_caracterizacion</td>
+                                    @if (item.fecha_caracterizacion_registro != null)
+                                    {
+                                        <td class="text-center">@item.fecha_caracterizacion_registro.Value.ToString("MM/dd/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    <td class="text-center">@item.nombre_quien_reporta</td>
+                                    <td class="text-center">@item.nombre_auditor_asignado</td>
+
+
+
+                                </tr>
+
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title letraa" id="titlemodal">Gestión Seguimiento</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+                @*<div id="resultado2"></div>*@
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title letraa" id="titlemodal">Gestión Seguimiento</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado2"></div>
+                @*<div id="resultado2"></div>*@
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script>
+
+
+
+
+
+    $('.table').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "asc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+
+    });
+
+
+    function llamarVistaParcial(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_GestionTableros")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial2(AI) {
+
+        var laURLDeLaVista = '@Url.Action("_GestionTablerosInterdiarios")?ID=' + AI
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+
+    function checkFiltro4() {
+
+        var valor = $("#listaseguimiento").val()
+
+        if (valor == "1") {
+
+            mostrar1()
+
+        }
+        else if(valor == "2") {
+
+            mostrar2()
+
+        }
+        else if (valor == "3") {
+
+            mostrar3()
+
+        }
+        else if (valor == "") {
+
+             mostrar4()
+        }
+        else {
+
+
+        }
+
+
+
+    }
+    function mostrar1() {
+
+
+
+        document.getElementById('pnlCasosCerrados').style.display = 'none';
+        document.getElementById('pnlSeguimientoInterdiario').style.display = 'none';
+        document.getElementById('pnlsSeguimientoDiario').style.display = 'block';
+
+
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlsSeguimientoDiario').style.display = 'none';
+        document.getElementById('pnlCasosCerrados').style.display = 'none';
+        document.getElementById('pnlSeguimientoInterdiario').style.display = 'block';
+
+    };
+
+
+    function mostrar3() {
+
+        document.getElementById('pnlsSeguimientoDiario').style.display = 'none';
+        document.getElementById('pnlSeguimientoInterdiario').style.display = 'none';
+        document.getElementById('pnlCasosCerrados').style.display = 'block';
+
+    };
+
+    function mostrar4() {
+
+        document.getElementById('pnlsSeguimientoDiario').style.display = 'block';
+        document.getElementById('pnlCasosCerrados').style.display = 'block';
+        document.getElementById('pnlSeguimientoInterdiario').style.display = 'block';
+
+    };
+
+    function Consolidados(a) {
+
+        var opc = a;
+
+        $.ajax({
+            url: "@Url.Action("Consultas")",
+
+            type: "GET",
+            data:
+            {
+                opc: opc
+            },
+            success: function (data) {
+                if (data.opcionrealizar == "1") {
+                      var URL2 = "@Url.Action("GestorConsultas", "seguimientoCovid19")?opc=" + data.opc;
+                      window.open(URL2, '', 'width =400,height =400,left =20,top =20,toolbar =yes');
+                }
+                else {
+                    alert("'SIN REGISTROS...'")
+                }
+
+
+
+
+            },
+            error: function (data) {
+                alert("error al momento de realizar el procedimiento")
+            }
+
+        })
+
+    }
+
+
+
+
+</script>
+
+<style>
+
+    .container {
+        padding-left: 0px;
+    }
+
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .letraa {
+        color: #337ab7;
+    }
+</style>

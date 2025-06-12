@@ -1,0 +1,390 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "TABLERO CIERRE PRE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var conteoNoAprobadas = 0;
+    var numFactura = ViewBag.numFactura;
+}
+
+<br />
+
+
+<div class="container">
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active"> <a class="text-secondary_asalud" href="#1a" id="tab1" data-toggle="tab">EN TRAMITE</a> </li>
+        <li> <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">TRAMITADAS</a></li>
+    </ul>
+    <br />
+    <div class="tab-content">
+        <div class="tab-pane active" id="1a">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <label class="text-secondary_asalud">Total en trámite: @ViewBag.total</label>
+                    @if (ViewBag.total > 0)
+                    {
+                        <div style="text-align: right;">
+                            <a onclick="excelAprobadas(3)" class="btn button_Asalud_descargas">Exportar a excel <i class="glyphicon glyphicon-download btn-xs"></i></a>
+                        </div>
+                    }
+                </div>
+
+                <div class="panel-body">
+                    <form id="formAprobadas" action="tableroTotalPrefacturas" name="formAprobadas" enctype="multipart/form-data" method="post">
+                        <div class="panel-body">
+
+                            @if (ViewBag.total == 0)
+                            {
+                                <div class="row">
+                                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                                        <p style="font-family:'Century Gothic'">@Html.Raw("Use los filtros para seguir buscando")</p>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-sm-3 form-group">
+                                    <label class="text-secondary_asalud">Regional:</label>
+                                    <select class="form-control select2" name="regional" id="regional">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                        {
+                                            <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label class="text-secondary_asalud">Prestador:</label>
+                                    <select class="form-control select2" name="prestador" id="prestador">
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                                        {
+                                            if (item.id_ref_proveedor != 0)
+                                            {
+                                                <option value="@item.id_ref_proveedor">@item.nombre</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="text-secondary_asalud">Nro prefactura</label>
+                                    <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                                </div>
+                                <br />
+
+                                <div class="col-sm-3 form-group text-right">
+                                    <button class="button_Asalud_Guardar" onclick="buscarPrefacturas()" id="buscarAprobadas"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                                    <input type="hidden" id="numFacBus" name="numFacBus" value="@numFactura" />
+                                </div>
+
+
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-condensed" style="font-size:10px; width:100%;" id="tabla1">
+                                    <thead>
+                                        <tr>
+                                            <th>ítem</th>
+                                            <th>Nro cargue</th>
+                                            <th>Regional</th>
+                                            <th>Total registros</th>
+                                            <th>Total aprobados</th>
+                                            <th>Total no aprobados</th>
+                                            <th>Valor total</th>
+                                            <th>Prestador</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            if (ViewBag.total != 0)
+                                            {
+                                                var i = 0;
+                                                foreach (ECOPETROL_COMMON.ENTIDADES.Managment_ReportePrefacturas_cerrar_abiertasResult item in ViewBag.lista)
+                                                {
+                                                    i++;
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.id_cargue_base</td>
+                                                        <td>@item.nombre_regional</td>
+                                                        <td>@item.totalRegistros</td>
+                                                        @{
+                                                            conteoNoAprobadas = (int)item.totalRegistros - (int)item.aprobadas;
+                                                        }
+                                                        <td>@item.aprobadas</td>
+                                                        <td>@conteoNoAprobadas</td>
+                                                        <td>@item.valorTotal</td>
+                                                        <td>@item.nombre</td>
+                                                        <td class="text-center" style="color:#77b589">
+                                                            ABIERTA &nbsp; <a role="button" href="javascript:CerrarPrefactura(@item.id_cargue_base, @i)" class="btn button_Asalud_Aceptar btn-xs">Cerrar&nbsp;<i class="glyphicon glyphicon-save"></i> </a>
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="12" style="text-align:center; font-size:15px;">
+                                                        <label>No hay datos.</label>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1b">
+            @Html.Action("_TRAMITADAS", "medicamentos")
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="Modal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-primary_asalud" id="titlemodal">Cerrar prefactura</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formCerrarFactura">
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Numero factura final:</label>
+                            <input type="text" class="form-control" name="numFacturam" id="numFacturam" required="required" />
+                            <input type="hidden" class="form-control" name="idBase" id="idBase" />
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Valor final:</label>
+                            <input type="text" class="form-control solo-numeros" name="valorm" id="valorm" required="required" />
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label class="text-secondary_asalud">Fecha factura:</label>
+                            <br />
+                            <input type="text" class="form-control datepicker" name="fechaFacturam" id="fechaFacturam" required="required" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a role="button" id="" href="javascript:validarformulario2()" class="button_Asalud_Guardar" type="submit">Guardar &nbsp; <i class="glyphicon glyphicon-upload"></i></a>
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+        BuscarTramitadas();
+
+        $('.select2').select2({
+            width: '100%'
+        });
+    });
+
+    $(".datepicker").kendoDatePicker();
+
+    $('#tabla1').DataTable({
+        "sSearch": "Buscar:",
+        "searching": true,
+        "iDisplayLength": 15,
+        "lengthChange": false,
+        "info": false,
+
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+    });
+
+    $('.solo-numero').keyup(function () {
+        this.value = (this.value + '').replace(/[^0-9]/g, '');
+    });
+
+    function excelAprobadas(opcion) {
+        location.href = "@Url.Action("ExportarExcelTotal", "medicamentos")?opcion="+opcion;
+    }
+
+    function buscarPrefacturas() {
+
+        LoadingShow();
+
+        var validator = $("#formAprobadas").validate();
+        if (validator.form()) {
+            $("#formAprobadas").submit();
+        }
+    }
+
+    function CerrarPrefactura(a, b) {
+
+        var numFactura = $("#numFacBus").val();
+
+        $("#numFacturam").val("");
+        $("#fechaFacturam").val(null);
+        $("#idBase").val(a);
+        $("#valorm").val("");
+
+        $("#Modal").modal('show');
+    }
+
+
+    function validarformulario2() {
+        hasChangue = false;
+        var validator = $("#formCerrarFactura").validate({
+            message: 'Este campo es obligatorio*'
+        });
+        if (validator.form()) {
+
+            $("#Modal").modal('hide');
+            var idBase = $("#idBase").val();
+            var numFactura = $("#numFacturam").val();
+            var fechaFactura = $("#fechaFacturam").val();
+            var valor = $("#valorm").val();
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("UpdatePrefactura")",
+                type: "post",
+                data: {
+                    idBase: idBase,
+                    numFactura: numFactura,
+                    fechaFactura: fechaFactura,
+                    valor: valor
+                },
+                success: function (data) {
+
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                        return false;
+                    }
+                }
+            })
+        }
+    }
+
+    function validarfacturas(a, b) {
+        LoadingShow()
+        var idcarguebase = a;
+        var prestador = b;
+        var url = "@Url.Action("ValidacionFacturas", "medicamentos")?idPrefacturaBase=" + idcarguebase + "&prestador=" + prestador;
+        location.href = url;
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla1 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla1 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla1 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla1 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>
+

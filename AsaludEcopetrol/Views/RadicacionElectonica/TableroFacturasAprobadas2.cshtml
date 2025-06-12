@@ -1,0 +1,536 @@
+﻿@{
+    ViewBag.Title = "TABLERO FACTURAS APROBADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    int[] check = { };
+}
+
+<br />
+
+@*<button class="button_Asalud_Guardar" id="showSelection"> Asignar Masivo</button>
+<button class="button_Asalud_Aceptar" id="showSelection2">Aprobar Masivo</button>*@
+
+
+<br />
+<br />
+@*<table id="grid"></table>*@
+<div id="example">
+    <div id="grid"></div>
+</div>
+<div style="display:none">
+    <input class="form-control" type="text" name="Lista_check" id="Lista_check" required />
+</div>
+
+<br />
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal3">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        Facturas_ckeck = [];
+
+        $("#grid").kendoGrid({
+            dataSource: {
+                batch: true,
+                pageSize: 15,
+                transport: {
+                    read: {
+                        url: "Selection_Read",
+                        dataType: "json",
+                        type: "POST",
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "id_cargue_dtll"
+                    }
+                }
+            },
+            toolbar: ["search"],
+            pageable: true,
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            change: onChange,
+            dataBound: OnGridDataBound,
+            columns: [
+                { field: 'id_cargue_base', title: 'Lote' },
+                { field: 'id_cargue_dtll', title: 'Id Factura' },
+                { field: 'num_factura', title: 'Numero Factura' },
+                { field: 'valor_neto', title: 'Valor Factura' },
+                { field: 'nombre_prestador', title: 'Prestador' },
+                { field: 'analista', title: 'Analista' },
+                { field: 'auditor', title: 'Auditor' },
+                { field: 'dias_trascurridos', title: 'Días Trascurridos' },
+                { field: "fecha_ultima_gestion", title: "Fecha Recepción Factura", format: "{0:dd/MM/yyyy}", encoded: true },
+                {
+                    command: [
+                        {
+                            name: "Gestionar Factura",
+                            visible: function (dataItem) {
+                                return dataItem.version === 1; // Mostrar solo si versión es 1
+                            },
+                            click: function (e) {
+                                e.preventDefault();
+                                var tr = $(e.target).closest("tr");
+                                var data = this.dataItem(tr);
+                                IrADetalle(data.id_cargue_dtll, data.id_cargue_base, data.id_regional)
+                            }
+                        },
+                        {
+                            name: "Asignar Auditor",
+                            visible: function (dataItem) {
+                                return dataItem.version !== 1; // Mostrar si versión NO es 1
+                            },
+                            click: function (e) {
+                                e.preventDefault();
+                                var tr = $(e.target).closest("tr");
+                                var data = this.dataItem(tr);
+                                llamarVistaParcial(data.id_cargue_base, data.id_cargue_dtll, data.id_regional);
+                            }
+                        },
+                        {
+                            name: "Ver Documentos",
+                            visible: function (dataItem) {
+                                return dataItem.version !== 1; // Mostrar si versión NO es 1
+                            },
+                            click: function (e) {
+                                e.preventDefault();
+                                var tr = $(e.target).closest("tr");
+                                var data = this.dataItem(tr);
+                                Edit1(data.id_cargue_dtll, data.id_cargue_base);
+                            }
+                        },
+                        {
+                            name: "No aplica Auditoría",
+                            visible: function (dataItem) {
+                                return dataItem.version !== 1; // Mostrar si versión NO es 1
+                            },
+                            click: function (e) {
+                                e.preventDefault();
+                                var tr = $(e.target).closest("tr");
+                                var data = this.dataItem(tr);
+                                llamarVistaParcial2(data.id_cargue_dtll, data.id_regional);
+                            }
+                        }
+                    ]
+                }
+            ],
+        });
+        var grid = $("#grid").data("kendoGrid");
+        grid.thead.on("click", ".k-checkbox", onClick);
+
+        function onClick(e) {
+            var grid = $("#grid").data("kendoGrid");
+
+            oldPageSize = grid.dataSource.pageSize();
+            grid.dataSource.pageSize(grid.dataSource.data().length);
+
+            if (grid.dataSource.data().length === grid.select().length) {
+                grid.clearSelection();
+            } else {
+                grid.select("tr");
+            };
+
+            grid.dataSource.pageSize(oldPageSize);
+        };
+
+        function onChange(arg) {
+            Facturas_ckeck = this.selectedKeyNames().join();
+            $("#Lista_check").val(Facturas_ckeck);
+        };
+        $("#showSelection").bind("click", function (arg) {
+
+            var lista = $("#Lista_check").val();
+            if (lista != "") {
+                var str = $("#Lista_check").val();
+                let arr = str.split(',');
+                var seleccionados = arr;
+            } else {
+                var str = $("#Lista_check").val();
+                let arr = [];
+                var seleccionados = arr;
+            }
+
+            if (seleccionados.length > 0)
+            {
+               var laURLDeLaVista = '@Url.Action("ObtenerAuditorRegional")';
+                LoadingShow();
+                $.ajax({
+                  cache: false,
+                  async: true,
+                  type: "POST",
+                  url: laURLDeLaVista,
+                    data: { capitulos: seleccionados},
+                    success: function (response) {
+                    LoadingHide();
+                    $("#myModal3").modal('show');
+                    $('#resultado3').html('');
+                    $('#resultado3').html(response);
+                  }
+              });
+
+            }
+            else
+            {
+             alert("Debe seleccionar almenos uno de los items");
+            }
+        });
+
+         $("#showSelection2").bind("click", function () {
+
+          //  var seleccionados = CapitulosSeleccionados();
+             var lista = $("#Lista_check").val();
+             if (lista != "") {
+                 var str = $("#Lista_check").val();
+                 let arr = str.split(',');
+                 var seleccionados = arr;
+             } else {
+                 var str = $("#Lista_check").val();
+                 let arr = [];
+                 var seleccionados = arr;
+             }
+
+            if (seleccionados.length > 0 )
+            {
+
+               var laURLDeLaVista = '@Url.Action("AprobarAuditorMasivo")';
+                LoadingShow();
+                $.ajax({
+                  cache: false,
+                  async: true,
+                  type: "POST",
+                  url: laURLDeLaVista,
+                  data: { capitulos: seleccionados},
+                    success: function (response) {
+                    LoadingHide();
+                    $("#myModal3").modal('show');
+                    $('#resultado3').html('');
+                    $('#resultado3').html(response);
+                  }
+              });
+
+            }
+            else
+            {
+             alert("Debe seleccionar almenos uno de los items");
+            }
+        });
+    });
+
+
+    var checkedIds = {};
+
+    //on click of the checkbox:
+    function selectRow() {
+        var checked = this.checked,
+            row = $(this).closest("tr"),
+            grid = $("#grid").data("kendoGrid"),
+            dataItem = grid.dataItem(row);
+
+        checkedIds[dataItem.id] = checked;
+        if (checked) {
+            //-select the row
+            row.addClass("k-state-selected");
+        } else {
+            //-remove selection
+            row.removeClass("k-state-selected");
+        }
+    }
+
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+     function AbrirSoporteClinicoZip(a)
+    {
+         var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+     function CapitulosSeleccionados() {
+        var checked = [];
+        //var checked = $("#Lista_check").val();
+         for (var i in checkedIds) {
+                if (checkedIds[i]) {
+                    checked.push(i);
+                }
+            }
+         return checked;
+     }
+
+
+    function Edit1(b, a) {
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+            data: {
+                idcargue: a,
+                iddetalle: b
+            },
+
+            success: function (data) {
+                LoadingHide();
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function IrADetalle(a, b, c) {
+
+        var confirmar = confirm("¿Seguro(a) de gestionar esta factura?");
+        if (confirmar) {
+            location.href = "@Url.Action("VerDetalleFactura2")?a=" + a + "&b=" + b + "&c=" + c;
+        }
+    }
+
+
+    function llamarVistaParcial(A, B, C) {
+
+        var laURLDeLaVista = '@Url.Action("GestionarAuditor")?ID=' + A + '&ID2=' + B + '&regional=' + C + "&tipo=2";
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal").modal('show');
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function llamarVistaParcial2(AI, C) {
+        var laURLDeLaVista = '@Url.Action("FacturasAprobadasNA")?ID=' + AI + '&regional=' + C;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal2").modal('show');
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+
+    function VistaDevolucion(AI) {
+        var laURLDeLaVista = '@Url.Action("FacturaDevPrestadores")?ID=' + AI;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#myModal2").modal('show');
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+    function OnGridDataBound(e) {
+
+        var grid = $("#grid").data("kendoGrid");
+        var gridData = grid.dataSource.view();
+        for (var i = 0; i < gridData.length; i++) {
+            var currentUid = gridData[i].uid;
+            if (gridData[i].dias_trascurridos <= 2) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FEFEFE');
+            } else if (gridData[i].dias_trascurridos > 2) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FFEDED');
+            }
+
+        }
+    }
+</script>
+
+
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+</style>

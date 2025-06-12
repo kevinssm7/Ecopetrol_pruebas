@@ -1,0 +1,242 @@
+﻿
+
+@{
+    ViewBag.Title = "TRAER DOCUMENTOS GOLD ";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">ENLISTAR DOCUMENTOS</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formListar">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Nit</label>
+                        <input typeof="text" id="nit" name="nit" class="form-control" required maxlength="80" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Número factura</label>
+                        <input typeof="text" id="numFactura" name="numFactura" class="form-control" required maxlength="80" />
+                    </div>
+                    <br />
+                    <div class="col-md-3">
+                        <a class="btn button_Asalud_Aceptar" onclick="EnlistarDocumentos();">Enlistar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+
+    @*<div class="panel panel-default" style="display:none;">*@
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">DOCUMENTOS</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12" id="listadoDocs">
+                    <table class="tablaContenido table table-bordered table-condensed table-responsive" style="font-size:10px; width:98%;">
+                        <thead>
+                            <tr>
+                                <th>Rutas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12" id="previsua"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        //evento para bloquear el menu del click derecho
+        document.oncontextmenu = function () { return false }
+        document.onkeydown = function (e) {
+            e = e || window.event;
+            if (!e.ctrlKey) return;
+            var code = e.which || e.keyCode;
+            switch (code) {
+                case 83:
+                case 87:
+                    e.preventDefault();
+                    e.stopPropagation();
+                    break;
+            }
+        };
+    });
+
+    function PaginadorContenido() {
+
+        $('.tablaContenido').DataTable().destroy();
+        $('.tablaContenido').DataTable({
+            "searching": true,
+            "aLengthMenu": [[3, 10, 50, 100, 250, -1], [3, 10, 50, 100, 250, "Todos"]],
+            "iDisplayLength": 3,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Ultimo",
+                },
+            }
+        });
+    }
+
+    function EnlistarDocumentos() {
+        var validado = $("#formListar").validate();
+        if (validado.form()) {
+
+            LoadingShow();
+
+            var nit = $("#nit").val();
+            var numFactura = $("#numFactura").val();
+
+            $.ajax({
+                url: "@Url.Action("ListadoDocumentosGols", "FIS_Adicionales")?nit=" + nit + "&numFactura=" + numFactura,
+                method: "GET",
+                success: function (data) {
+
+                    LoadingHide();
+
+
+                    var $tbody = $(".tablaContenido tbody");
+                    $tbody.children().remove(); // Eliminar todo el contenido de tbody
+                    $tbody.html("");
+
+                    $(".tablaContenido tbody").empty();
+
+                    if (data.rta == 1) {
+                        $(".tablaContenido tbody").html(data.tablaContenido);
+                        PaginadorContenido();
+                    } else {
+                        $(".tablaContenido tbody").html(data.tablaContenido);
+                        alert(data.mensaje);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al obtener documentos:", error);
+                    /*$("#listadoDocs").html("<p>Error al cargar los documentos.</p>");*/
+                }
+            });
+        }
+    }
+
+    function convertirRutaAUrl(ruta) {
+        return ruta.replace(/\\/g, "/"); // Reemplaza \ por / y agrega file:///
+    }
+
+    function previsualizarArchivo(ruta) {
+        var url = "@Url.Action("MostrarDocumentoRuta", "Fis_Adicionales")?ruta=" + encodeURIComponent(ruta);
+
+        let previsualDiv = $("#previsua");
+        previsualDiv.empty(); // Limpiar la previsualización anterior
+
+        $.get(url, function (data) {
+            previsualDiv.html(data); // Insertar la vista parcial en el div
+        }).fail(function () {
+            previsualDiv.html("<p>Error al cargar el documento.</p>");
+        });
+    }
+
+// 🚫 Bloquear clic derecho en el visor de archivos
+    $("#previsua").on("contextmenu", function (e) {
+        e.preventDefault();
+    });
+
+// 🚫 Bloquear atajos de teclado (Ctrl+S, Ctrl+P, Imprimir, etc.)
+    $(document).keydown(function (e) {
+        if (
+            (e.ctrlKey && (e.key === "s" || e.key === "p" || e.key === "u")) ||
+            e.key === "PrintScreen"
+        ) {
+            e.preventDefault();
+        }
+    });
+
+
+
+</script>
+
+<style>
+
+    .tablaContenido {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .tablaContenido th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .tablaContenido td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+    #tablaContenido tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    #previsua {
+        width: 100%;
+        height: 100%;
+    }
+
+    .embed-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 15px;
+        opacity: 0.25;
+    }
+
+    .wrapper {
+        position: relative;
+    }
+</style>

@@ -1,0 +1,479 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "CREAR PRESTADOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    int countProfesional = ViewBag.CantidadProfesionales;
+    string alerta = (string)ViewData["alerta"];
+    int creado = Convert.ToInt32(Session["creado"]);
+}
+
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                <p style="font-family:'Century Gothic'">@Html.Raw(alerta)</p>}
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <form id="formulario" action="AgregarPrestador" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="col-m-12 form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="hidden" id="creado" name="creado" value="@creado" />
+                                <label class="text-secondary_asalud">Nit:</label><span style="color:red"></span>
+                                <input id="nitText" class="form-control solo-numero solo-numero2 solo-numero3" name="nitText" autocomplete="off" onchange="traerPrestadores($(this).val())" maxlength="12" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Nombre prestador:</label><span style="color:red"></span>
+                                <input id="nomPrestadorText" class="form-control col-md-6" name="nomPrestadorText" autocomplete="off" />
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="row">
+                            <div class="col-md-4">
+
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" style="width:100%" name="regional" id="regional" onchange="ObtenerUnis($(this).val(), 0)">
+                                    <option value="">- Seleccione -</option>
+                                    @{ string reg = (string)ViewBag.reg;}
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+
+                                        if (!string.IsNullOrEmpty(reg))
+                                        {
+                                            if (reg == item.indice)
+                                            {
+                                                <option selected value="@item.id_ref_regional">@item.indice</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.id_ref_regional">@item.indice</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.id_ref_regional">@item.indice</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Unis:</label>
+                                <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Ciudad:</label>
+                                <select class="form-control select2" id="ciudad" name="ciudad" required>
+                                    <option value="">- Seleccionar -</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="col-m-12 form-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <p class="text-primary_asalud">PROFESIONAL</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Numero documento:</label><span style="color:red"></span>
+                                <input id="numDocumentoText" class="form-control solo-numero solo-numero2 solo-numero3 " name="numDocumentoText" autocomplete="off" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-secondary_asalud">Nombre profesional:</label><span style="color:red"></span>
+                                <input id="nomProfesionalText" class="form-control" name="nomProfesionalText" autocomplete="off" />
+                            </div>
+
+                            <div class="col-sm-4 form-group">
+                                <label class="text-secondary_asalud">Especialidad</label>
+                                <select class="form-control select2" id="especialidadText" name="especialidadText" required>
+                                    <option value="0">- Seleccionar -</option>
+                                    @foreach (var item in ViewBag.especialidad)
+                                    {
+                                        <option value="@item.id">@item.descripcion</option>
+                                    }
+
+                                </select>
+                            </div>
+
+                            <div class="col-sm-12 form-group text-right">
+                                <button type="button" id="btnGuardarPrestador" onclick="GuardarProfesional()" class="button_Asalud_Guardar">Guardar profesional</button>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="panelResponsable">
+                            <table class="table table-bordered table-condensed" style="font-size:10px; width: 100%;" id="tblProfesionales">
+                                <thead>
+                                    <tr style="background-color:#636363;color:white; font-weight:bold">
+                                        <th>#</th>
+                                        <th>Numero documento</th>
+                                        <th>Nombre</th>
+                                        <th>Especialidad</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (countProfesional > 0)
+                                    {
+                                        int count = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.ref_adherencia_profesional item in ViewBag.CantidadProfesionales)
+                                        {
+                                            count = count + 1;
+                                            <tr>
+                                                <td>@count</td>
+                                                <td>
+                                                    <input type="hidden" id="count" value="@countProfesional" />
+                                                </td>
+                                                <td id="id" style="display:none">@item.id_ref_adherencia_profesional</td>
+                                                <td id="documento">@item.Num_documento</td>
+                                                <td id="nombre">@item.Nom_profesional</td>
+                                                <td id="especialidad">@item.Especialidad</td>
+                                                <td class="text-center"><a title="Remover" href='javascript:removerProfesional(@count)'><i class='glyphicon glyphicon-trash'></i></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="10" style="text-align:center">No se han agregado profesionales.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12 form-group text-right">
+                            <button type="button" id="btnGuardarPrestador" onclick="GuardarPrestador()" class="button_Asalud_Aceptar">Guardar prestador</button>
+                        </div>
+                        <input type="hidden" id="cuentaProfesional" name="cuentaProfesional" value="@countProfesional" />
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+            $('.select2').select2({
+                width: '100%'
+            });
+    });
+
+
+    function ObtenerUnis(a) {
+        $.ajax({
+            url: "@Url.Action("ObtenerUnisPrestador")",
+            type: "post",
+            data: {
+                idregional: a,
+            },
+            success: function (data) {
+                $("#unis").empty();
+                $("#unis").html(data);
+                $("#unis").val("").trigger("change");
+            }
+        })
+    }
+
+    function ObtenerUnis2(a, b) {
+        var regional = a;
+        var unis = b;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnisPrestador2")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#unis").empty();
+                    $("#unis").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+
+                        $("#unis").append("<option value='" + b.idUnis + "'>" + b.nombre + "</option>");
+                        $("#unis").val(unis);
+                    });
+                }
+            })
+        }
+
+    }
+
+
+    function ObtenerCiudades(a) {
+
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudadesPrestador")",
+            type: "post",
+            data: { idunis: a },
+            success: function (data) {
+                $("#ciudad").empty();
+                $("#ciudad").html(data);
+                $("#ciudad").val("").trigger("change");
+
+            }
+        })
+    }
+
+    function ObtenerCiudades2(a, b) {
+
+        var idUnis = a;
+        var ciudad = b;
+
+        console.log(a + " + " + b);
+
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudadesPrestador2")",
+                type: "post",
+                data: { idUnis: idUnis },
+                success: function (data) {
+                    $("#ciudad").empty();
+                    $("#ciudad").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+
+                        $("#ciudad").append("<option value='" + b.idCiudad + "'>" + b.nombre + "</option>");
+                        $("#ciudad").val(ciudad);
+                    });
+                }
+            })
+        }
+
+    }
+
+    function traerPrestadores(a) {
+
+        $.ajax({
+            url: "@Url.Action("BuscarPrestador")",
+            type: "POST",
+            minLenght: 5,
+            data: {value:a},
+            success: function (data) {
+
+                console.log(data[0]);
+
+                if (data[0].ciudad != null && data[0] != "") {
+
+                    var nit = data[0].nit;
+                    var nombre = data[0].nombre;
+                    var regional = data[0].regional;
+                    var unis = data[0].unis;
+                    var ciudad = data[0].ciudad;
+
+                    document.getElementById("nitText").value = nit;
+                    document.getElementById("nitText").disabled = true;
+                    document.getElementById("nomPrestadorText").value = nombre;
+                    document.getElementById("nomPrestadorText").disabled = true;
+
+
+                    $("#regional").val(regional).trigger('change');
+
+                    ObtenerUnis2(regional, unis);
+
+                    ObtenerCiudades2(unis, ciudad);
+
+                    document.getElementById("regional").disabled = true;
+                    document.getElementById("unis").disabled = true;
+                    document.getElementById("ciudad").disabled = true;
+                }
+            },
+        });
+    }
+
+    function ValidarFormulario(a) {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            JsonIngresoActas();
+        }
+    }
+
+
+     function GuardarProfesional() {
+
+         var formData = new FormData($("form")[0]);
+
+         var documento = document.getElementById("numDocumentoText").value;
+         var nombre = document.getElementById("nomProfesionalText").value;
+         var especialidad = document.getElementById("especialidadText").value;
+
+         if ((documento == "" || documento == null)  || (nombre == "" || nombre == null) || (especialidad == 0 || especialidad == null)) {
+             alert("Complete los campos de profesional");
+             return false;
+         }
+
+         formData.append("documento", $("#numDocumentoText").val());
+         formData.append("nombre", $("#nomProfesionalText").val());
+         formData.append("especialidad", $("#especialidadText").val());
+
+            $.ajax({
+                url: "@Url.Action("AgregarOtroProfesional")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (data) {
+                    $("#tblProfesionales tbody").empty();
+                    $("#tblProfesionales tbody").html(data.tabla);
+                    $("#cuentaProfesional").val(data.cuentaProfesional);
+
+                    document.getElementById("numDocumentoText").value = "";
+                    document.getElementById("nomProfesionalText").value = "";
+                    var dato = 0;
+                    $("#especialidadText").val(dato).trigger('change');
+                }
+            })
+    }
+
+    function removerProfesional(idProfesional) {
+
+        var mensaje;
+        mensaje = "¿Está seguro que desea eliminar este profesional?";
+
+        var opcion = confirm(mensaje);
+
+        if (opcion == true) {
+
+            $.ajax({
+                url: "@Url.Action("RemoverProfesional")",
+                type: "post",
+                data:
+                {
+                    idProfesional: idProfesional,
+                },
+                success: function (data) {
+                    $("#tblProfesionales tbody").empty();
+                    $("#tblProfesionales tbody").html(data.tabla);
+                    $("#cuentaProfesional").val(data.cuentaProfesional);
+
+                    document.getElementById("documento").value = "";
+                    document.getElementById("nombre").value = "";
+                    document.getElementById("especialidad").value = "";
+                }
+            })
+        }
+    }
+
+     function GuardarPrestador() {
+
+         var formData = new FormData($("form")[0]);
+
+         var nit = document.getElementById("nitText").value;
+         var nom = document.getElementById("nomPrestadorText").value;
+         var ciu   = document.getElementById("ciudad").value;
+
+         if ((nit == "" || nit == null) || (nom == "" || nom == null) || (ciu == 0 || ciu == null)) {
+             alert("Complete los campos de prestador");
+             return false;
+         }
+         var conteoProfesional = document.getElementById("cuentaProfesional").value;
+
+         if (conteoProfesional == 0) {
+             alert("Minimo debe haber un profesional.");
+             return false;
+         }
+
+         formData.append("docPre", $("#nitText").val());
+         formData.append("nomPre", $("#nomPrestadorText").val());
+         formData.append("ciuPre", $("#ciudad").val());
+         LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("RegistroPrestador")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (data) {
+                    var alerta = data.variable;
+
+                    if (data.success != false) {
+                        window.location.href = "@Url.Action("AgregarPrestador")?alerta=" + alerta;
+                        LoadingHide();
+                    }
+                    else {
+                        window.location.href = "@Url.Action("AgregarPrestador")?alerta=" + alerta;
+                    LoadingHide();
+                  }
+
+                }
+            })
+    }
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>

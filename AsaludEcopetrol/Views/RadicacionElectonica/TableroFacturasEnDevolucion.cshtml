@@ -1,0 +1,510 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "TABLERO FACTURAS EN SUBSANACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="row">
+    <div class="col-sm-12 form-group text-left">
+        <input type="hidden" id="desdeAuditor" name="desdeAuditor" value="@ViewBag.desdeAuditor" />
+
+        <button type="button" onclick="refrescarTableroControlSubsanacion()" class="btn btn-xs button_Asalud_Aceptar">Refrescar tablero de control&nbsp;<i class="glyphicon glyphicon-refresh"></i></button>
+    </div>
+</div>
+<div class="table-responsive">
+    <table id="grid"></table>
+    <br />
+    <br />
+</div>
+<div style="display:none">
+    <input class="form-control" type="text" name="rol" id="rol" value="@ViewBag.ROL" />
+</div>
+<div style="display:none">
+    <input class="form-control" type="text" name="Lista_check" id="Lista_check" required />
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModalDevolucion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoDevolucion"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        Facturas_ckeck = [];
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+
+        data1 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "GetAuditoresEnSubsanacion",
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "id_cargue_dtll"
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: data1,
+            toolbar: ["search"],
+            pageable: true,
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            change: onChange,
+            dataBound: OnGridDataBound,
+            columns: [
+                //{ selectable: true, width: "50px"},
+                { field: 'id_cargue_base', title: 'Lote' },
+                { field: 'id_cargue_dtll', title: 'Id factura' },
+                { field: 'num_factura', title: 'Número factura' },
+                { field: 'valor_neto', title: 'Valor factura' },
+                { field: 'nombre_prestador', title: 'Prestador' },
+                { field: 'analista', title: 'Analista' },
+                { field: 'auditor', title: 'Auditor' },
+                { field: 'dias_trascurridos', title: 'Días trascurridos' },
+                { field: "fecha_ultima_gestion", title: "Fecha recepción factura", format: "{0:dd/MM/yyyy}", encoded: true },
+                {
+                    command: [{
+                        name: "Ver Documentos",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            Edit1(data.id_cargue_dtll, data.id_cargue_base)
+                        }
+                    }]
+                },
+                //{
+                //    command: [{
+                //        name: "Devolver factura",
+                //        click: function (e) {
+                //            e.preventDefault();
+                //            var tr = $(e.target).closest("tr");
+                //            var data = this.dataItem(tr);
+                //            DevolverFacturaaPrestador(data.id_cargue_dtll)
+                //        }
+                //    }]
+                //},
+
+                {
+                    command: [{
+                        name: "Gestionar Factura",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            //MostrarDetalleAuditor(data.id_cargue_dtll, data.id_regional)
+                            MostrarDetalleAuditor(data.id_cargue_dtll, data.id_cargue_base, data.id_regional)
+                        }
+                    }]
+                }
+            ],
+        });
+
+        var grid = $("#grid").data("kendoGrid");
+        grid.thead.on("click", ".k-checkbox", onClick);
+
+        $("#showSelection").bind("click", function (arg) {
+
+            var lista = $("#Lista_check").val();
+            if (lista != "") {
+                var str = $("#Lista_check").val();
+                let arr = str.split(',');
+                var seleccionados = arr;
+            } else {
+                var str = $("#Lista_check").val();
+                let arr = [];
+                var seleccionados = arr;
+            }
+
+            if (seleccionados.length > 0) {
+                var laURLDeLaVista = '@Url.Action("GestionarFacturaMavisamente")';
+                LoadingShow();
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    url: laURLDeLaVista,
+                    data: { facturas: seleccionados },
+                    success: function (response) {
+                        LoadingHide();
+                        $("#myModal").modal('show');
+                        $('#resultado').html('');
+                        $('#resultado').html(response);
+                    }
+                });
+            }
+            else {
+                alert("Debe seleccionar almenos uno de los items");
+            }
+        });
+
+        var desdeAuditor = $("#desdeAuditor").val();
+
+        if (desdeAuditor == 1) {
+            refrescarTableroControlSubsanacion();
+        }
+
+    });
+
+    function onClick(e) {
+
+        var grid = $("#grid").data("kendoGrid");
+
+        oldPageSize = grid.dataSource.pageSize();
+        grid.dataSource.pageSize(grid.dataSource.data().length);
+
+        if (grid.dataSource.data().length === grid.select().length) {
+            grid.clearSelection();
+        } else {
+            grid.select("tr");
+        };
+
+        grid.dataSource.pageSize(oldPageSize);
+
+    };
+
+    function onChange(arg) {
+
+        Facturas_ckeck = this.selectedKeyNames().join();
+        $("#Lista_check").val(Facturas_ckeck);
+    };
+
+    function Edit1(b, a)
+    {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+            data: {
+                idcargue: a,
+                iddetalle:b
+                },
+
+            success: function (data)
+            {
+                LoadingHide();
+                $("#tblsoportes tbody").empty();
+                $("#tblsoportes tbody").html(data);
+                $("#ModalSoportes").modal('show');
+            }
+        })
+    }
+
+    function GestionesPrestador(idDetalle) {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GestionesPrestador")",
+            type: "post",
+            data: {
+                idDetalle: idDetalle
+            },
+
+            success: function (data) {
+                LoadingHide();
+                $("#resultadoDevolucion").empty();
+                $("#resultadoDevolucion").html(data);
+                $("#myModalDevolucion").modal('show');
+            }
+        })
+    }
+
+    function DevolverFactura(ID, regional) {
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("ValidarExistenciaFirmaDigitalSami","RadicacionElectonica")",
+            type: "GET",
+            success: function (data)
+            {
+                if (data.success)
+                {
+                    $('#resultado').empty();
+                    $('#resultado').load("@Url.Action("FacturaDevPrestadores", "RadicacionElectonica")?ID=" + ID, "&tipo=1", function () {
+                        $("#myModal").modal('show');
+                        LoadingHide();
+                    });
+                }
+                else
+                {
+                    LoadingHide();
+                    alert(response.message);
+                }
+            }
+        })
+    }
+
+
+    function MostrarDetalleAuditor(a, b, c) {
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("ValidarExistenciaFirmaDigitalSami","RadicacionElectonica")",
+            type: "GET",
+            success: function (data) {
+                if (data.success) {
+                    LoadingHide();
+
+                    var confirmar = confirm("¿Seguro(a) de gestionar esta factura?");
+                    if (confirmar) {
+                        location.href = "@Url.Action("VerDetalleFacturaAuditorSubsanacion", "RadicacionElectonica")?a=" + a + "&b=" + b + "&c=" + c;
+                    }
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+            }
+        })
+    }
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a)
+    {
+         var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function OnGridDataBound(e) {
+
+        var grid = $("#grid").data("kendoGrid");
+        var gridData = grid.dataSource.view();
+        for (var i = 0; i < gridData.length; i++) {
+            var currentUid = gridData[i].uid;
+            if (gridData[i].dias_trascurridos > 2 && gridData[i].dias_trascurridos <= 4) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#EBFFF1');
+            } else if (gridData[i].dias_trascurridos > 4 && gridData[i].dias_trascurridos <= 5) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#ffddc4');
+            }
+            else if (gridData[i].dias_trascurridos > 5 ) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FFEDED');
+            } else {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FEFEFE');
+            }
+        }
+    }
+
+    function refrescarTableroControlSubsanacion()
+    {
+        LoadingShow();
+        var url = "@Url.Action("RefrescarTableroFacturasAuditorSubsanacion", "RadicacionElectonica")";
+        location.href = url
+    }
+
+    function DevolverFacturaaPrestador(idDetalle) {
+        var confirmar = confirm("¿Seguro(a) de devolver esta factura?");
+        if (confirmar == true) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("DevolverFacturaAPrestador", "RadicacionElectonica")",
+                type: "POST",
+                data: {
+                    idDetalle: idDetalle
+                },
+
+                success: function (data) {
+                    LoadingHide();
+                    alert(data.mensaje);
+                    if (data.rta = 1) {
+                        refrescarTableroControlSubsanacion();
+                    }
+                }
+            })
+        }
+    }
+
+</script>
+
+
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+</style>
+

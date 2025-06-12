@@ -1,0 +1,535 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Evolucion.EventoAdverso
+
+@{
+    ViewBag.Title = "EVENTO ADVERSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="container">
+        <div class="General">
+            <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+                <tr>
+                    <td class="text-center">
+                        <Label>HISTORICO EVENTO ADVERSO</Label>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+            <table border="1" align="center" width="600">
+
+
+                @if (Model != null && Model.lstConcEventosAd != null && Model.lstConcEventosAd.Count > 0)
+                {
+                    <tr>
+
+                        <th class="text-center">ID</th>
+                        <th class="text-center">EVENTO ADVERSO</th>
+                        <th class="text-center">DESCRIPCION DEL EVENTO ADVERSO</th>
+                        <th class="text-center">GRADO DE LESION</th>
+                        <th class="text-center">PLAN DE MANEJO</th>
+                        <th class="text-center">BARRERAS DE SEGURIDAD</th>
+                        <th class="text-center">FACTORES CONTRIBUYENTES A LA OCURRENCIA</th>
+                        <th class="text-center">ACCIONES INSEGURAS</th>
+                        <th class="text-center">FECHA EVENTO ADVERSO</th>
+                        <th class="text-center">USUARIO DIGITA</th>
+                        <th class="text-center">FECHA DIGITA</th>
+                        <th class="text-center">FECHA RADICACION CARTA</th>
+
+                    </tr>
+                    foreach (var item in Model.lstConcEventosAd)
+                    {
+                        <tr>
+
+                            <td class="text-center">
+                                @item.id_evento_adverso
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.LstEventoAdversos)
+                                {
+                                    if (item1.id_ref_evento_adv == item.id_ref_evento_adv)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @item.descripcion_Evento
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstGradoDeLesion)
+                                {
+                                    if (item1.id_gradoLesion == item.id_gradoLesion)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstPlanDeManejo)
+                                {
+                                    if (item1.id_plan_de_manejo == item.id_plan_de_manejo)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstBarreraSeguridad)
+                                {
+                                    if (item1.id_barrera_seguiridad == item.id_barrera_seguiridad)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstFacContribu)
+                                {
+                                    if (item1.id_facotres_contri == item.id_facotres_contri)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @foreach (var item1 in Model.lstAccionesInseg)
+                                {
+                                    if (item1.id_acciones_inseg == item.id_acciones_inseg)
+                                    {
+                                        @item1.des
+                                        break;
+                                    }
+                                }
+                            </td>
+                            <td class="text-center">
+                                @item.fecha_evento_adv.Value.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="text-center">
+                                @item.usuario_digita
+                            </td>
+                            <td class="text-center">
+                                @item.fecha_digita.Value.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="text-center">
+                                @item.fecha_de_radica_carta.Value.ToString("dd/MM/yyyy")
+                            </td>
+
+                        </tr>
+                    }
+
+                }
+
+
+            </table>
+            <table>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="Error">
+                        <h2> @Html.ValidationSummary(true, "") </h2>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+        <div class="General">
+            <table align="center" width="700" style="color:#ffffff; background: #2E64FE;">
+                <tr>
+                    <td class="text-center">
+                        <Label>EVENTO ADVERSO</Label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8">
+
+
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_categoria)</span></h4>
+
+                @Html.HiddenFor(x => x.id_categoria)
+                @(Html.Kendo().DropDownListFor(m => m.id_categoria)
+                          .Name("categoria")
+                          .HtmlAttributes(new { style = "width:100%" })
+                          
+                          .DataTextField("descripcion")
+                          .DataValueField("id_ref_categorias_eventos_adv")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeCategoria", "EventoAdverso");
+                               });
+                           })
+                )
+
+                @Html.ValidationMessageFor(u => u.id_categoria)
+
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_evento_adverso)</span></h4>
+
+                @(Html.Kendo().DropDownListFor(m => m.id_evento_adverso)
+                          .Name("evento")
+                          .HtmlAttributes(new { style = "width:100%" })
+                       
+                          .DataTextField("nombre")
+                          .DataValueField("id_ref_evento_adv")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect2"))
+                          .DataSource(source =>
+                          {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeEventosAdv", "EventoAdverso")
+                                  .Data("filterProducts");
+                              })
+                              .ServerFiltering(true);
+                          })
+
+                          .CascadeFrom("categoria")
+                )
+                <script>
+                            function filterProducts() {
+                                return {
+                                    categoria: $("#categoria").val()
+                                };
+
+                            }
+                </script>
+                @Html.ValidationMessageFor(u => u.id_evento_adverso, null, new { @class = "label label-danger" })
+
+            </div>
+
+            @*<div class="col-sm-4">
+
+                @Html.LabelFor(u => u.id_evento_adverso)
+                @Html.DropDownListFor(model => model.id_evento_adverso, new SelectList(Model.LstEventoAdversos, "id_ref_evento_adv", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_evento_adverso)
+            </div>*@
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.descripcion_evento)
+                @Html.TextAreaFor(u => u.descripcion_evento, 5, 50, new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.descripcion_evento)
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_grado_lesion)
+                @Html.DropDownListFor(model => model.id_grado_lesion, new SelectList(Model.lstGradoDeLesion, "id_gradoLesion", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_grado_lesion)
+            </div>
+
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_plan_de_manejo)
+                @Html.DropDownListFor(model => model.id_plan_de_manejo, new SelectList(Model.lstPlanDeManejo, "id_plan_de_manejo", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_plan_de_manejo)
+            </div>
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_barreras_seguridad)
+                @Html.DropDownListFor(model => model.id_barreras_seguridad, new SelectList(Model.lstBarreraSeguridad, "id_barrera_seguiridad", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_barreras_seguridad)
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_factores_contribuyentes)
+                @Html.DropDownListFor(model => model.id_factores_contribuyentes, new SelectList(Model.lstFacContribu, "id_facotres_contri", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_factores_contribuyentes)
+            </div>
+
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.id_acciones_inseguras)
+                @Html.DropDownListFor(model => model.id_acciones_inseguras, new SelectList(Model.lstAccionesInseg, "id_acciones_inseg", "des"), "Seleccione...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.id_acciones_inseguras)
+            </div>
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.fecha_evento_adverso)
+                @(Html.Kendo().DateTimePickerFor(p => p.fecha_evento_adverso)
+
+                    .Name("datepicker")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change");
+                     })
+                    .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+                //.Value(DateTime.Now)
+
+                )
+                @*@Html.EditorFor(model => Model.fecha_evento_adverso, new { htmlAttributes = new { @class = "form-control", placeholder = "MM/dd/yyyy", @readonly = "true" } })*@
+
+                @Html.ValidationMessageFor(p => p.fecha_evento_adverso, null, new { @class = "label label-danger" })
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.fecha_de_radica_carta)
+                @(Html.Kendo().DateTimePickerFor(p => p.fecha_de_radica_carta)
+
+                    .Name("datepicker2")
+                    .Format("dd/MM/yyyy")
+                     .Events(e =>
+                     {
+                         e.Change("change2");
+                     })
+
+                    .HtmlAttributes(new { style = "width: 100%", title = "Vigencia desde" })
+
+                )
+
+                @Html.ValidationMessageFor(p => p.fecha_de_radica_carta, null, new { @class = "label label-danger" })
+            </div>
+            <div class="col-sm-4">
+                @Html.LabelFor(u => u.quien_recibe)
+                @Html.TextAreaFor(u => u.quien_recibe, 5, 50, new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.quien_recibe)
+            </div>
+          
+
+
+        </div>
+        <div class="General">
+
+
+            <div id="pnlGuardar" class="General">
+                <table align="center">
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input id="BtnAgregar" type="submit" value="AGREGAR" class="btn btn-success" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="Error">
+                            @Html.ValidationSummary(true, "")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="display:none">
+                            @Html.TextBoxFor(u => u.id_concurrencia)
+                            @Html.TextBoxFor(u => u.fecha_evento_adversook)
+                            @Html.TextBoxFor(u => u.fecha_de_radica_cartaok)
+                            @Html.TextBoxFor(u => u.id_evento_adverso)
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+
+    });
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_evento_adversook]').val(DataItem);
+    }
+
+
+
+    $(document).ready(function () {
+
+        $('#datepicker2').attr('disabled', 'disabled');
+
+    });
+
+    function change2() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+        $('input:text[id$=fecha_de_radica_cartaok]').val(DataItem);
+    }
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_categoria").val(DataItem.id_ref_categorias_eventos_adv);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_evento_adverso").val(DataItem.id_ref_evento_adv);
+    }
+</script>
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+        /* support: IE7 */
+        *height: 1.7em;
+        *top: 0.1em;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 0.3em;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .tdNomal {
+        Width: 105px;
+    }
+
+    .tdGrande {
+        width: 300px;
+    }
+
+    .tdPequeño {
+        Width: 50px;
+    }
+
+    .select {
+        position: relative;
+        border: 1px solid #ccc;
+        width: 120px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+        .select:before {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 7px 5px 0 5px;
+            border-color: #000000 transparent transparent transparent;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .select select {
+            padding: 5px 8px;
+            width: 130%;
+            border: none;
+            box-shadow: none;
+            background-color: transparent;
+            background-image: none;
+        }
+
+    .auto-style3 {
+        height: 26px;
+    }
+
+
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+

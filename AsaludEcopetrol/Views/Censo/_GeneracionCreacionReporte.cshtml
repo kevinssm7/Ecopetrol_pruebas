@@ -1,0 +1,516 @@
+﻿@{
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_concurrencia> concurrenciaTotal = (List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_concurrencia>)ViewBag.concurrencias;
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_cuentasMedicas> cuentasMedicasTotales = (List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_cuentasMedicas>)ViewBag.cuentasMedicas;
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_visitas> visitasTotales = (List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_visitas>)ViewBag.visitas;
+    List<ECOPETROL_COMMON.ENTIDADES.ref_ecop_censo_tiposConsulta> listaTipoConsulta = (List<ECOPETROL_COMMON.ENTIDADES.ref_ecop_censo_tiposConsulta>)ViewBag.tipoCOnsulta;
+
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_concurrencia> listaConcu = new List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_concurrencia>();
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_cuentasMedicas> listaCuentas = new List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_cuentasMedicas>();
+    List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_visitas> listaVisitas = new List<ECOPETROL_COMMON.ENTIDADES.vw_censo_control_visitas>();
+
+    int id = 1, i = 0; ;
+    int idDos = 0;
+    int conteoTablasConcu = 0;
+    int conteoTablasCM = 0;
+    int conteoTablasVisitas = 0;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading table-responsive">
+        <table id="tablaAct" class="table table-bordered" style="width:99%;">
+            <thead>
+                <tr>
+                    <th class="text-center hidden titulo">Id usuario</th>
+                    <th class="text-center titulo">Documento</th>
+                    <th class="text-center titulo">Nombre</th>
+                    <th class="text-center titulo">Estado</th>
+                    <th class="text-center titulo">Cantidad concurrencias</th>
+                    <th class="text-center titulo">Cantidad cuentas médicas</th>
+                    <th class="text-center titulo">Cantidad visitas</th>
+                    <th class="text-center titulo">Fecha último ingreso</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @if (ViewBag.ConteoUsuarios > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_sis_usuarios_controlActividadesCensoResult usuarios in ViewBag.usuarios)
+                    {
+                        listaConcu = concurrenciaTotal.Where(x => x.id_auditor == usuarios.id_usuario).ToList();
+                        listaCuentas = cuentasMedicasTotales.Where(x => x.id_auditor_asignado == usuarios.id_usuario).ToList();
+                        listaVisitas = visitasTotales.Where(x => x.id_usuario == usuarios.id_usuario).ToList();
+
+                        <tr>
+                            <td class="text-center hidden">@usuarios.id_usuario</td>
+                            <td class="text-center">@usuarios.numero_documento</td>
+                            <td class="text-center">@usuarios.nombre</td>
+                            <td class="text-center">@usuarios.estado</td>
+                            <td class="text-center">@usuarios.conteoConcurrencia</td>
+                            <td class="text-center">@usuarios.conteoCensos</td>
+                            <td class="text-center">@usuarios.conteoVisitas</td>
+                            <td class="text-center">
+                                @usuarios.ultimo_ingreso
+                            </td>
+                            <td>
+                                <h4 class="panel-title text-left text-primary_asalud">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse@(id)">
+                                        @{
+                                            var conteoTotal = Convert.ToInt32(listaConcu.Count() + listaCuentas.Count() + listaVisitas.Count());
+                                        }
+                                        @conteoTotal
+
+                                    </a>
+                                </h4>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="8" class="contenidoTabla">
+                                <div id="collapse@(id)" class="panel-collapse collapse text-right">
+                                    @if (listaConcu.Count() > 0 || listaCuentas.Count() > 0 || listaVisitas.Count() > 0)
+                                    {
+                                        <div class="panel-body table-responsive">
+                                            @foreach (var consulta in listaTipoConsulta)
+                                            {
+                                                idDos += 1;
+
+                                                if (consulta.id_consulta == 1)
+                                                {
+                                                    if (listaConcu.Count() > 0)
+                                                    {
+                                                        conteoTablasConcu = conteoTablasConcu + 1;
+                                                        <div class="panel panel-default">
+                                                            <div class="panel-heading">
+                                                                <h4 class="panel-title text-left text-primary_asalud" style="margin-left:2%">
+                                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#Subcollapse@(idDos)">
+                                                                        @consulta.descripcion.ToUpper()
+                                                                        <span class="pull-right"></span>
+                                                                    </a>
+                                                                </h4>
+                                                            </div>
+                                                            <div id="Subcollapse@(idDos)" class="panel-collapse collapse text-right">
+                                                                <div class="panel-body table-responsive">
+                                                                    <table id="tablaContenidoConcu" class="table tablaConcuNro_@conteoTablasConcu table-bordered" style="width:99%;">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th class="text-center">Fecha ingreso</th>
+                                                                                <th class="text-center">Id censo</th>
+                                                                                <th class="text-center">Id concurrencia</th>
+                                                                                <th class="text-center">Ciudad</th>
+                                                                                <th class="text-center">Ips</th>
+                                                                                <th class="text-center">Dx de ingreso</th>
+                                                                                <th class="text-center">Dx de egreso</th>
+                                                                                <th class="text-center">Fecha de egreso</th>
+                                                                                @*<th class="text-center">Usuario auditor</th>*@
+                                                                                <th class="text-center">Nombre auditor</th>
+                                                                                <th class="text-center">Ultima estancia</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var concu in listaConcu)
+                                                                            {
+                                                                                <tr>
+                                                                                    @if (concu.fecha_ingreso != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_ingreso</td>
+                                                                                    }
+                                                                                    <td class="text-center">@concu.id_censo</td>
+                                                                                    <td class="text-center">@concu.id_concurrencia</td>
+                                                                                    <td class="text-center">@concu.nombreCiudad</td>
+                                                                                    <td class="text-center">@concu.nombreIps</td>
+                                                                                    <td class="text-center">@concu.dx1</td>
+                                                                                    <td class="text-center">@concu.DxprincipalEgreso</td>
+
+                                                                                    @if (concu.fecha_egreso != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_egreso.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_egreso</td>
+                                                                                    }
+
+                                                                                    @*<td class="text-center">@concu.usuarioAuditor</td>*@
+                                                                                    <td class="text-center">@concu.nombreAuditor</td>
+                                                                                    <td class="text-center">@concu.ultimaestancia</td>
+                                                                                </tr>
+                                                                                i += 1;
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else if (consulta.id_consulta == 2)
+                                                {
+                                                    if (listaCuentas.Count() > 0)
+                                                    {
+                                                        conteoTablasCM += 1;
+
+                                                        <div class="panel panel-default">
+                                                            <div class="panel-heading">
+                                                                <h4 class="panel-title text-left text-primary_asalud" style="margin-left:2%">
+                                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#Subcollapse@(idDos)">
+                                                                        @consulta.descripcion.ToUpper()
+                                                                        <span class="pull-right"></span>
+                                                                    </a>
+                                                                </h4>
+                                                            </div>
+                                                            <div id="Subcollapse@(idDos)" class="panel-collapse collapse text-right">
+                                                                <div class="panel-body table-responsive">
+                                                                    <table id="tablaContenidoCuentas" class="table tablaCMNro_@conteoTablasCM table-bordered" style="width:99%;">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th class="text-center">Fecha recepción facturas</th>
+                                                                                <th class="text-center">Fecha asignación facturas</th>
+                                                                                @*<th class="text-center">Usuario auditor</th>*@
+                                                                                <th class="text-center">Nombre auditor</th>
+                                                                                <th class="text-center">Ciudad</th>
+                                                                                <th class="text-center">Nit</th>
+                                                                                <th class="text-center">SAP</th>
+                                                                                <th class="text-center">Prestador</th>
+                                                                                <th class="text-center">Número factura</th>
+                                                                                <th class="text-center">Id detalle factura</th>
+                                                                                <th class="text-center">Valor factura</th>
+                                                                                <th class="text-center">Último estado factura</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var concu in listaCuentas)
+                                                                            {
+                                                                                <tr>
+                                                                                    @if (concu.fecha_recepcion_fac != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_recepcion_fac.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_recepcion_fac</td>
+                                                                                    }
+
+                                                                                    @if (concu.fecha_asignacion_auditor != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_asignacion_auditor.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_asignacion_auditor</td>
+                                                                                    }
+
+                                                                                    @*<td class="text-center">@concu.usuarioAuditorAsignado</td>*@
+                                                                                    <td class="text-center">@concu.nombreAuditorAsignado</td>
+                                                                                    <td class="text-center">@concu.nombreCiudad</td>
+                                                                                    <td class="text-center">@concu.Nit</td>
+                                                                                    <td class="text-center">@concu.homologado_sap</td>
+                                                                                    <td class="text-center">@concu.Nombre</td>
+                                                                                    <td class="text-center">@concu.num_factura</td>
+                                                                                    <td class="text-center">@concu.id_af</td>
+                                                                                    <td class="text-center">@concu.valor_neto</td>
+                                                                                    <td class="text-center">@concu.descripcionEstado</td>
+
+                                                                                </tr>
+                                                                                i += 1;
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else if (consulta.id_consulta == 3)
+                                                {
+                                                    if (listaVisitas.Count() > 0)
+                                                    {
+
+                                                        conteoTablasVisitas += 1;
+                                                        <div class="panel panel-default">
+                                                            <div class="panel-heading">
+                                                                <h4 class="panel-title text-left text-primary_asalud" style="margin-left:2%">
+                                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#Subcollapse@(idDos)">
+                                                                        @consulta.descripcion.ToUpper()
+                                                                        <span class="pull-right"></span>
+                                                                    </a>
+                                                                </h4>
+                                                            </div>
+                                                            <div id="Subcollapse@(idDos)" class="panel-collapse collapse text-right">
+                                                                <div class="panel-body table-responsive">
+                                                                    <table id="tablaContenidoVisitas" class="table tablaVisitasNro_@conteoTablasVisitas table-bordered" style="width:99%;">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th class="text-center">Id visita</th>
+                                                                                <th class="text-center">Fecha visita</th>
+                                                                                @*<th class="text-center">Usuario auditor</th>*@
+                                                                                <th class="text-center">Nombre auditor</th>
+                                                                                <th class="text-center">Nit</th>
+                                                                                <th class="text-center">SAP</th>
+                                                                                <th class="text-center">Prestador</th>
+                                                                                <th class="text-center">Fecha final visita</th>
+                                                                                <th class="text-center">Estado visita</th>
+                                                                                <th class="text-center">Novedad visita</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var concu in listaVisitas)
+                                                                            {
+                                                                                <tr>
+
+                                                                                    <td class="text-center">@concu.id_cronograma_visitas</td>
+
+                                                                                    @if (concu.fecha_visita != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_visita.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_visita</td>
+                                                                                    }
+
+                                                                                    @*<td class="text-center">@concu.Auditor_Asignado</td>*@
+                                                                                    <td class="text-center">@concu.nombreAuditor</td>
+                                                                                    <td class="text-center">@concu.no_id_prestador</td>
+                                                                                    <td class="text-center">@concu.cod_sap</td>
+                                                                                    <td class="text-center">@concu.no_id_prestador</td>
+
+
+                                                                                    @if (concu.fecha_final_visita != null)
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td class="text-center">@concu.fecha_final_visita</td>
+                                                                                    }
+
+                                                                                    <td class="text-center">@concu.estadoVisita</td>
+                                                                                    @*<td class="text-center">@concu.otra_novedad</td>*@
+                                                                                    <td class="text-center">--</td>
+
+                                                                                </tr>
+                                                                                i += 1;
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center">
+                                            <label class="text-secondary_asalud">SIN ACTIVIDADES</label>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+
+                        id += 1;
+                    }
+                }
+                else
+                {
+                    <tr class="text-center">
+                        <td colspan="8">SIN DATOS</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+        MostrarTablasConcu();
+        MostrarTablasCM();
+        MostrarTablasVisitas();
+    });
+
+    function MostrarTablasConcu() {
+        var conteoConcurrencias = "@conteoTablasConcu";
+        if (conteoConcurrencias > 0) {
+            for (var i = 1; i <= conteoConcurrencias; i++) {
+                $('.tablaConcuNro_' + i).DataTable().destroy();
+                $('.tablaConcuNro_' + i).DataTable({
+                    "sSearch": "Buscar:",
+                    "searching": true,
+                    "aLengthMenu": [[10, 20, 50, 100, 500, -1], [10, 20, 50, 100, 500, "Todos"]],
+                    "iDisplayLength": 10,
+                    "lengthChange": false,
+                    "info": false,
+                    responsive: true,
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay información",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ Entradas",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "Sin resultados encontrados",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Ultimo",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        }
+                    },
+                });
+            }
+        }
+    }
+
+    function MostrarTablasCM() {
+        var conteo = "@conteoTablasCM";
+        if (conteo > 0) {
+            for (var i = 1; i <= conteo; i++) {
+                $('.tablaCMNro_' + i).DataTable().destroy();
+                $('.tablaCMNro_' + i).DataTable({
+                    "sSearch": "Buscar:",
+                    "searching": true,
+                    "aLengthMenu": [[10, 20, 50, 100, 500, -1], [10, 20, 50, 100, 500, "Todos"]],
+
+                    "iDisplayLength": 10,
+                    "lengthChange": false,
+                    "info": false,
+                    responsive: true,
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay información",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ Entradas",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "Sin resultados encontrados",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Ultimo",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        }
+                    },
+                });
+            }
+        }
+    }
+
+    function MostrarTablasVisitas() {
+        var conteo = "@conteoTablasVisitas";
+        if (conteo > 0) {
+            for (var i = 1; i <= conteo; i++) {
+                $('.tablaVisitasNro_' + i).DataTable().destroy();
+                $('.tablaVisitasNro_' + i).DataTable({
+                    "sSearch": "Buscar:",
+                    "searching": true,
+                    "aLengthMenu": [[10, 20, 50, 100, 500, -1], [10, 20, 50, 100, 500, "Todos"]],
+                    "iDisplayLength": 10,
+                    "lengthChange": false,
+                    "info": false,
+                    responsive: true,
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay información",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ Entradas",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "Sin resultados encontrados",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Ultimo",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        }
+                    },
+                });
+            }
+        }
+    }
+
+</script>
+
+<style>
+
+    #tablaAct {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 11px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tablaAct .titulo {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            /*border-top: 4px solid #aabcfe;*/
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tablaAct td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tablaAct tr:hover td {
+            background: #d7d7d7;
+            color: #000000;
+        }
+
+        #tablaAct tr:hover .contenidoTabla {
+            background: #d7d7d7;
+            color: #000000;
+        }
+
+        #tablaAct .contenidoTabla {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+    .table thead {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        /* border-top: 4px solid #aabcfe; */
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+</style>

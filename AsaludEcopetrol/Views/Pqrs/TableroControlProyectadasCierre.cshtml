@@ -1,0 +1,694 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "TABLERO CIERRE PROYECTADAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+    string rol = (string)ViewBag.rol;
+    Int32? idusuario = (Int32?)ViewBag.idusuario;
+    var rta = ViewBag.rta;
+    int i = 0;
+}
+
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+
+    @if (rta == 2)
+    {
+        <div class="form-group">
+            <div class="alert alert-danger" role="alert">
+                <strong>Error al cargar! </strong>@ViewBag.msj
+            </div>
+        </div>
+    }
+    else if (rta == 1)
+    {
+        <div class="form-group">
+            <div class="alert alert-success" role="alert">
+                <strong>Éxito! </strong>@ViewBag.msj
+            </div>
+        </div>
+    }
+
+    <div class="panel-heading">
+        <form name="formulario" id="formulariobuscar" method="post" enctype="multipart/form-data" accept-charset="@Url.Action("TableroControlProyectadasCierre")">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número de caso</label>
+                        <input type="text" class="form-control" name="numcaso" id="numcaso" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número OPC</label>
+                        <input type="text" class="form-control" name="numopc" id="numopc" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Número documento</label>
+                        <input type="text" class="form-control" name="numdocumento" id="numdocumento" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Fecha de envío a cierre proyectadas</label>
+                        <div class="input-group">
+                            <input class="datepickerr" title="datepicker" style="width:100%" name="fechainicial" id="fechainicial" />
+                            <span class="input-group-addon" id="sizing-addon2">A</span>
+                            <input class="datepickerr" title="datepicker" style="width:100%" aria-describedby="sizing-addon2" name="fechafinal" id="fechafinal" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label class="text-secondary_asalud">Id PQR</label>
+                        <input type="text" class="form-control" name="idPqr" id="idPqr" />
+                    </div>
+                </div>
+                <br />
+                <div class="col-sm-9 text-right">
+                    <button type="button" id="btnbuscar" class="button_Asalud_Guardar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (ViewBag.acto > 0)
+                    {
+                        <a role="button" onclick="exportarExcel();" class="button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar Resultados</a>
+                    }
+                </div>
+                <br />
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-right">
+                    <div class="col-md-2">
+                        <a class="btn btn-sm button_Asalud_Guardar" onclick="MostrarModalGestionMasiva();" contextmenu="Todos" style="width:100%;"><i class="glyphicon glyphicon-check"></i>&nbsp;Gestión masiva</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <table id="TablaCierre" class="table table-bordered table-condensed table-striped" style="width:98%; font-size:10px;">
+            <thead>
+                <tr>
+                    <th><a class="btn btn-sm button_Asalud_Aceptar" onclick="llenarTodoslosCheckx();" contextmenu="Todos" style="width:100%;"><i class="glyphicon glyphicon-check"></i>&nbsp;Todos</a></th>
+                    <th>Id PQR</th>
+                    <th>Número caso</th>
+                    <th>Número OPC</th>
+                    <th>Fecha de envío a cierre proyectadas</th>
+                    <th>Id solicitante</th>
+                    <th>Observación</th>
+                    <th>Analista asignado</th>
+                    <th>Usuario proyecta</th>
+                    <th>Estado seguimiento</th>
+                    <th>Estado gestión</th>
+                    <th>Repositorio</th>
+                    <th>Gestión</th>
+                    <th>Devuelto</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_proyectadasCierreResult order in ViewBag.listaEstado)
+                {
+                    i++;
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="validaDato_@i" name="validaDato_@i" />
+                            <input type="hidden" id="numCaso_@i" name="numCaso_@i" value="@order.numero_caso" />
+                            <input type="hidden" id="idPqr_@i" name="idPqr_@i" value="@order.id_ecop_PQRS" />
+                        </td>
+                        <td>
+                            @order.id_ecop_PQRS
+                            <input type="hidden" id="nombreUsuarioSeg_@i" name="nombreUsuario_@i" value="@order.usuarioReaperturaSeg" />
+                            <input type="hidden" id="observacionSeg_@i" name="observacion_@i" value="@order.observacionReaperturaSeg" />
+                            <input type="hidden" id="fechaSeg_@i" name="fecha_@i" value="@order.fechaReaperturaSeg" />
+
+                            <input type="hidden" id="nombreUsuarioGes_@i" name="nombreUsuario_@i" value="@order.usuarioReaperturaGes" />
+                            <input type="hidden" id="observacionGes_@i" name="observacion_@i" value="@order.observacionReaperturaGes" />
+                            <input type="hidden" id="fechaGes_@i" name="fecha_@i" value="@order.fechaReaperturaGes" />
+                        </td>
+                        <td>
+                            @order.numero_caso
+                            <input type="hidden" id="numeroCaso_@i" value="@order.numero_caso" />
+                        </td>
+                        <td>@order.consecutivo_caso</td>
+                        <td>
+                            @if (order.fecha_gestion != null)
+                            {
+                                <span>@order.fecha_gestion.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </td>
+                        <td>@order.solicitante_numero_identi</td>
+                        <td>@order.observacion_aprobacion</td>
+                        <td>@order.usuarioAsignado</td>
+                        <td>@order.usuarioProyecta</td>
+
+                        @if (order.reabiertoSeguimiento == 1)
+                        {
+                            <td style="text-align:center;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #A29DD7" onclick="verDetalleReaperturaSeg(@i, 2);" data-toggle="modal">
+                                    Reabierto
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style="text-align:left;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #ceefc4" data-toggle="modal">
+                                    PROYECTABLE
+                                </a>
+                            </td>
+                        }
+
+                        @if (order.reabierto == 1)
+                        {
+                            <td style="text-align:center;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #A29DD7" onclick="verDetalleReaperturaGes(@i, 1);" data-toggle="modal">
+                                    Reabierto
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style="text-align:left;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #ceefc4" data-toggle="modal">
+                                    PROYECTABLE
+                                </a>
+                            </td>
+                        }
+
+                        <td>
+                            <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@order.id_ecop_PQRS);" data-toggle="modal" data-target="#myModalArchivos">
+                                <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                            </a>
+                        </td>
+
+                        <td>
+                            <a class="button_Asalud_Guardar" onclick="Gestionar(@order.id_ecop_PQRS, @i);" data-toggle="modal" data-target="#myModal">
+                                Gestionar
+                            </a>
+                        </td>
+
+                        @if (order.devuelto_en_cierre == 1)
+                        {
+                            <td style="text-align:center;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #FFDBC0" data-toggle="modal">
+                                    SI
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td style="text-align:left;">
+                                <a class="button_Asalud_Guardar btn-sm" style="color: black; background-color: #ceefc4" data-toggle="modal">
+                                    NO
+                                </a>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModal">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="modalMensaje">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="panel-body">
+                <div class="panel panel-default panel-heading">
+                    <p class="text-primary_asalud">DETALLE CIERRE - <label id="tipoCierre"></label></p>
+                </div>
+                <div class="panel panel-default panel-heading">
+                    <div id="mensaje"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalGestionMasiva">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p class="text-primary_asalud">GESTIONAR SELECCIONADOS</p>
+                    </div>
+                    <div class="panel-body">
+                        <form id="formularioMasivo">
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">¿Cerrar?</label>
+                                    <br />
+                                    <input type="radio" id="opcionMasivo" value="si" name="opcionMasivo" onclick="validacionMasivoSiNo(this.value);" required />Si &nbsp;
+                                    <input type="radio" id="opcionMasivo" value="no" name="opcionMasivo" onclick="validacionMasivoSiNo(this.value);" />No
+                                    <input type="hidden" id="radioFinalMasivo" name="radioFinalMasivo" />
+                                </div>
+
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">Observación:</label>
+                                    <textarea id="obsMasiva" name="obsMasiva" class="form-control" cols="4" rows="4" maxlength="400" required></textarea>
+                                </div>
+                                <div class="col-sm-12 form-group text-center">
+                                    <button class="button_Asalud_Guardar" onclick="validarGestionMasiva();">GUARDAR</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var ArrayListadoChequeados = [];
+
+
+    $(window).load(function () {
+        $("#loader").fadeOut("slow");
+    });
+
+    $(document).ready(function () {
+
+        //$('#TablaCierre').DataTable({
+        //    "sSearch": "Buscar:",
+        //    "searching": true,
+        //    "aLengthMenu": [[10, 20, 50, 100, 500, -1], [10, 20, 50, 100, 500, "Todos"]],
+        //    "iDisplayLength": 10,
+        //    "lengthChange": false,
+        //    "info": false,
+        //    responsive: true,
+        //    language: {
+        //        "decimal": "",
+        //        "emptyTable": "No hay información",
+        //        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        //        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        //        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        //        "infoPostFix": "",
+        //        "thousands": ",",
+        //        "lengthMenu": "Mostrar _MENU_ Entradas",
+        //        "loadingRecords": "Cargando...",
+        //        "processing": "Procesando...",
+        //        "search": "Buscar:",
+        //        "zeroRecords": "Sin resultados encontrados",
+        //        "paginate": {
+        //            "first": "Primero",
+        //            "last": "Ultimo",
+        //            "next": "Siguiente",
+        //            "previous": "Anterior"
+        //        }
+        //    },
+        //});
+
+        $('#TablaCierre').DataTable({
+            "searching": true,
+            "aLengthMenu": [[10, 20, 50, 100, 200, 500, -1], [10, 20, 50, 100, 200, 500, "Todos"]],
+            "iDisplayLength": 20,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Ultimo",
+                },
+            }
+        });
+
+        $("#btnbuscar").click(function () {
+            LoadingShow();
+            $("#formulariobuscar").submit();
+        })
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+    })
+
+
+    function llenarTodoslosCheckx() {
+        var conteo = "@i";
+        if (conteo > 0) {
+            for (var i = 0; i <= conteo; i++) {
+                $("#validaDato_" + i).prop("checked", true);
+            }
+        }
+    }
+
+    function MostrarModalGestionMasiva() {
+
+        var existe = 0;
+        var conteo = "@i";
+        if (conteo > 0) {
+            for (var i = 0; i <= conteo; i++) {
+                if ($("#validaDato_" + i).prop("checked")) {
+                    existe++;
+                }
+            }
+        }
+
+        if (existe > 0) {
+            $("#myModalGestionMasiva").modal("show");
+        } else {
+            alert("Seleccione los casos a gestionar");
+        }
+    }
+
+
+    function validacionMasivoSiNo(valor) {
+
+        if (valor == "si") {
+            $("#radioFinalMasivo").val("si");
+        } else {
+            $("#radioFinalMasivo").val("no");
+        }
+    }
+
+
+    function validarGestionMasiva() {
+
+        var validator = $("#formularioMasivo").validate();
+        if (validator.form()) {
+            enviarDatosGestionMasiva();
+        }
+    }
+
+    function enviarDatosGestionMasiva() {
+        ArrayListadoChequeados = [];
+
+        var conteo = "@i";
+        if (conteo > 0) {
+            for (var i = 0; i <= conteo; i++) {
+                if ($("#validaDato_" + i).prop("checked")) {
+
+                    var id = $("#idPqr_" + i).val();
+                    var numCaso = $("#numCaso_" + i).val();
+                    if (!isNaN(id)) {
+
+                        if (!ArrayListadoChequeados[id]) {
+                            ArrayListadoChequeados[id] = [];
+                        }
+                        ArrayListadoChequeados[id][0] = id;
+                        ArrayListadoChequeados[id][1] = numCaso;
+                    }
+                }
+            }
+        }
+
+        if (ArrayListadoChequeados.length == 0) {
+            alert("Sin registros para actualizar");
+            return false;
+        }
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("ActualizarGestionMasivaCierre", "Pqrs")",
+            type: "post",
+            data: {
+                opcion: $("#radioFinalMasivo").val(),
+                observacionMasivo: $("#obsMasiva").val(),
+                ids: ObtenerDatos() // Convertir a una matriz de una sola columna
+            },
+            success: function (data) {
+                debugger
+                console.log(data);
+
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta == 1) {
+                    location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Error al procesar la solicitud: " + error);
+                LoadingHide();
+            }
+        });
+    }
+
+    function ObtenerDatos() {
+        var data = [];
+
+        /*Recorre el Array y adiciona los valores de bancos al array general*/
+        ArrayListadoChequeados.forEach(function (e) {
+            data.push(e);
+        });
+
+        return data;
+    }
+
+
+    function Gestionar(A, conteo) {
+
+        var numero_caso = document.getElementById("numeroCaso_" + conteo).value;
+
+        var laURLDeLaVista = '@Url.Action("_OpcionCerrarProyectada")?ID=' + A + "&numero_caso=" + numero_caso;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function verArAproyec(idPqrs) {
+
+        var URL2 = "@Url.Action("GestorUrlArchivoCierreProyectada", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    function MostrarArchivos(idPqrs) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=1";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+
+            }
+        });
+    }
+
+    function exportarExcel() {
+        var URL2 = "@Url.Action("ExportarLstpqrsProyectadasCierre", "Pqrs")";
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function verDetalleReaperturaSeg(i) {
+
+        var nombreUsuario = document.getElementById("nombreUsuarioSeg_" + i).value;
+        var observacion = document.getElementById("observacionSeg_" + i).value;
+        var fecha = document.getElementById("fechaSeg_" + i).value;
+
+        var detalle = "Usuario reabre: " + nombreUsuario + " <br/>";
+        detalle += "<br/>";
+        detalle += "Fecha reapertura: " + fecha + " <br/>";
+        detalle += "<br/>";
+        detalle += "Observación: " + observacion + " <br/>";
+
+        $("#mensaje").html(detalle);
+
+        $("#tipoCierre").html("SEGUIMIENTO");
+
+        $("#modalMensaje").modal('show');
+    }
+
+    function verDetalleReaperturaGes(i) {
+
+        var nombreUsuario = document.getElementById("nombreUsuarioGes_" + i).value;
+        var observacion = document.getElementById("observacionGes_" + i).value;
+        var fecha = document.getElementById("fechaGes_" + i).value;
+
+        var detalle = "Usuario reabre: " + nombreUsuario + " <br/>";
+        detalle += "<br/>";
+        detalle += "Fecha reapertura: " + fecha + " <br/>";
+        detalle += "<br/>";
+        detalle += "Observación: " + observacion + " <br/>";
+
+        $("#mensaje").html(detalle);
+
+        $("#tipoCierre").html("GESTIÓN");
+
+        $("#modalMensaje").modal('show');
+    }
+
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .reabierto {
+        width: 100%;
+        height: 18px;
+        border-radius: 5px;
+        /*margin-left: -20px;*/
+    }
+</style>

@@ -1,0 +1,649 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.management_fisPrestadoresResult
+
+@{
+    ViewBag.Title = "CREACIÓN PRESTADORES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    List<ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_sedesResult> listaSedes = (List<ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_sedesResult>)Session["ListadoSedes"];
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CREAR PRESTADORES</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formularioIngreso">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nit</label>
+                            <input type="hidden" name="id_prestador" id="id_prestador" value="@Model.id_prestador" />
+                            <input type="text" class="form-control solo-numeros" id="nit" name="nit" maxlength="12" required value="@Model.nit" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Código verificación</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_verfificacion" name="codigo_verfificacion" maxlength="1" required value="@Model.codigo_verfificacion" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Código habilitación</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_habilitacion" name="codigo_habilitacion" maxlength="12" required value="@Model.codigo_habilitacion" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Código sede</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_sede" name="codigo_sede" maxlength="12" required value="@Model.codigo_sede" />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Código SAP</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_SAP" name="codigo_SAP" maxlength="12" required value="@Model.codigo_SAP" />
+                        </div>
+
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Tipo prestador</label>
+                            <select id="tipoPrestador" name="tipoPrestador" class="form-control" required>
+                                <option value="">-Seleccione-</option>
+                                <option value="J">Jurídico</option>
+                                <option value="N">Natural</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Razón social</label>
+                            <input type="text" class="form-control" id="razon_social" name="razon_social" maxlength="300" required value="@Model.razon_social" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Dirección</label>
+                            <input type="text" class="form-control" id="direccion" name="direccion" maxlength="300" required value="@Model.direccion" />
+                        </div>
+
+                    </div>
+                    <br />
+
+                    <div class="row">
+
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select id="regional" name="regional" class="form-control select2" onchange="ObtenerDepartamentos(this.value)" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.fis_rips_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_regional">@item.nom_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Departamento</label>
+                            <select class="form-control select2" id="departamento_proveedor" name="departamento_proveedor" onchange="ObtenerCiudades(this.value)" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad</label>
+                            <select class="form-control select2" id="ciudad_proveedor" name="ciudad_proveedor" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Correo electrónico</label>
+                            <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" maxlength="300" required value="@Model.correo_electronico" />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Contacto telefónico</label>
+                            <input type="text" class="form-control solo-numeros" id="contacto_telefonico" name="contacto_telefonico" maxlength="12" required value="@Model.contacto_telefonico" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">¿Tiene más sedes?</label>
+                            <select id="tiene_mas_sedes" name="tiene_mas_sedes" class="form-control select2" onchange="MostrarMasSedes(this.value)" required value="@Model.tiene_mas_sedes">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">SI</option>
+                                <option value="2">NO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            @if (Model.id_prestador == null || Model.id_prestador == 0)
+                            {
+                                <label class="text-secondary_asalud">Archivos:</label>
+                                <input type="file" id="files" name="files" class="form-control" multiple />
+                            }
+                            else
+                            {
+                                <label class="text-secondary_asalud">Archivos:</label>
+                                <a class="button_Asalud_Aceptar archivos" style="width:100%;" onclick="MirarRepositorio(@Model.id_prestador);" data-toggle="modal" data-target="#myModalArchivos">
+                                    Ver <i class="glyphicon glyphicon-file"></i>
+                                </a>
+                            }
+                        </div>
+
+                    </div>
+                    <br />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div style="display:none" id="DivMasSedes">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">MÁS SEDES</strong>
+            </div>
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formularioSedes">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Código habilitación</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_habilitacion_sede" name="codigo_habilitacion_sede" required maxlength="12" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Código sede</label>
+                            <input type="text" class="form-control solo-numeros" id="codigo_otra_sede" onchange="ValidarCodigoOtraSede(this.value)" name="codigo_otra_sede" required maxlength="12" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Dirección</label>
+                            <input type="text" class="form-control" id="direccion_sede" name="direccion_sede" required maxlength="299" />
+                        </div>
+                        
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Contacto telefónico</label>
+                            <input type="text" class="form-control solo-numeros" id="contacto_telefonico_sede" name="contacto_telefonico_sede" required maxlength="12" />
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select id="regional_sede" name="regional_sede" class="form-control select2" onchange="ObtenerDepartamentosSede(this.value)" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.fis_rips_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_regional">@item.nom_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Departamento</label>
+                            <select class="form-control select2" id="departamento_sede" name="departamento_sede" onchange="ObtenerCiudadesSede(this.value)" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad</label>
+                            <select class="form-control select2" id="ciudad_sede" name="ciudad_sede" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Correo electrónico</label>
+                            <input type="email" class="form-control" id="correo_electronico_sede" name="correo_electronico_sede" required maxlength="299" />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12" align="center">
+                            <button class="btn-sm button_Asalud_Guardar" type="button" onclick="ValidarFormularioSedes()">Guardar sede</button>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div id="panelotrosi">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-condensed " style="font-size:10px; width: 100%;" id="tbSedes">
+                                <thead>
+                                    <tr style="background-color:#636363;color:white; font-weight:bold">
+                                        <th>#</th>
+                                        <th>Código habilitación</th>
+                                        <th>Código sede</th>
+                                        <th>Regional</th>
+                                        <th>Departamento</th>
+                                        <th>Ciudad</th>
+                                        <th>Dirección</th>
+                                        <th>Contacto telefónico</th>
+                                        <th>Correo</th>
+                                        <th>Fecha creación</th>
+                                        <th>Usuario creador</th>
+                                        <th>Eliminar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (listaSedes.Count() > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fisPrestadores_sedesResult item in listaSedes)
+                                        {
+                                            <tr>
+                                                <td>@item.id_sede</td>
+                                                <td>@item.codigo_habilitacion_sede</td>
+                                                <td>@item.codigo_otra_sede</td>
+                                                <td>@item.regional_sede</td>
+                                                <td>@item.departamento_sede</td>
+                                                <td>@item.ciudad_sede</td>
+                                                <td>@item.direccion_sede</td>
+                                                <td>@item.contacto_telefonico_sede</td>
+                                                <td>@item.correo_electronico_sede</td>
+                                                <td>@item.fecha_digita</td>
+                                                <td>@item.nombreDiigtaSedes</td>
+                                                
+                                                <td>
+                                                    <a class="btn btn-xs button_Asalud_Rechazar" onclick="EliminarSede(@item.id_sede)"><i class="glyphicon glyphicon-trash"></i>Eliminar</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">GUARDADO</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button onclick="ValidarFormularioDatos()" class="button_Asalud_Guardar">GUARDAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('.solo-numeros').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        var idPrestador = "@Model.id_prestador";
+        if (idPrestador != null && idPrestador != "0") {
+            PintarCampos();
+        }
+    });
+
+
+    @*$("#nit").on("change", function () {
+        var IDPrestador = $(this).val();
+
+          $.ajax({
+            url: "@Url.Action("ValidarExistenciaPrestadorNit", "FIS_RIPS")",
+            type: "post",
+              data: { IDPrestador: IDPrestador},
+              success: function (data) {
+                  if (data != "") {
+                      $("#nit").val("");
+                      $("#nit").focus();
+                      alert(data);
+                  }
+              }
+          })
+    });
+
+    $("#codigo_habilitacion").on("change", function () {
+        var codHab = $(this).val();
+
+          $.ajax({
+            url: "@Url.Action("ValidarExistenciaPrestadorCodHab", "FIS_RIPS")",
+            type: "post",
+              data: { codHab: codHab},
+              success: function (data) {
+                  if (data != "") {
+                      $("#codigo_habilitacion").val("");
+                      $("#codigo_habilitacion").focus();
+                      alert(data);
+                  }
+              }
+          })
+    });*@
+
+
+    function PintarCampos() {
+
+        var tipoPrestador = "@Model.tipoPrestador";
+        $("#tipoPrestador").val(tipoPrestador).trigger("change");
+
+        var regional = "@Model.regional";
+        $("#regional").val(regional).trigger("change");
+
+        var tieneSedes = "@Model.tiene_mas_sedes";
+        if (tieneSedes == 1) {
+            $("#tiene_mas_sedes").val(tieneSedes).trigger("change");
+        } else {
+            $("#tiene_mas_sedes").val(2).trigger("change");
+        }
+
+        MostrarMasSedes(tieneSedes);
+    }
+
+    function ObtenerDepartamentos(regional) {
+        $.ajax({
+            url: "@Url.Action("ObtenerDepartamentos")",
+            type: "POST",
+            data: {
+                regional: regional,
+            },
+            method: "POST",
+            success: function (data) {
+                $("#departamento_proveedor").empty();
+                $("#departamento_proveedor").html(data);
+                $("#departamento_proveedor").val("").trigger("change");
+
+                if ("@Model.departamento_proveedor" != "") {
+                    $("#departamento_proveedor").val("@Model.departamento_proveedor").trigger("change");
+                }
+            }
+        })
+    }
+
+    function ObtenerCiudades(departamento) {
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudades")",
+            type: "POST",
+            data: {
+                departamento: departamento,
+            },
+            method: "POST",
+
+            success: function (data) {
+                $("#ciudad_proveedor").empty();
+                $("#ciudad_proveedor").html(data);
+                $("#ciudad_proveedor").val("").trigger("change");
+
+                if ("@Model.ciudad_proveedor" != "") {
+                    $("#ciudad_proveedor").val("@Model.ciudad_proveedor").trigger("change");
+                }
+            }
+        })
+    }
+
+    function ObtenerDepartamentosSede(regional) {
+        $.ajax({
+            url: "@Url.Action("ObtenerDepartamentos")",
+            type: "POST",
+            data: {
+                regional: regional,
+            },
+            method: "POST",
+
+            success: function (data) {
+                $("#departamento_sede").empty();
+                $("#departamento_sede").html(data);
+                $("#departamento_sede").val("").trigger("change");
+            }
+        })
+    }
+
+    function ObtenerCiudadesSede(departamento) {
+        $.ajax({
+            url: "@Url.Action("ObtenerCiudades")",
+            type: "POST",
+            data: {
+                departamento: departamento,
+            },
+            method: "POST",
+
+            success: function (data) {
+                $("#ciudad_sede").empty();
+                $("#ciudad_sede").html(data);
+                $("#ciudad_sede").val("").trigger("change");
+            }
+        })
+    }
+
+    function MostrarMasSedes(valor) {
+
+        if (valor != "") {
+            var codigoHabilitacion = $("#codigo_habilitacion").val();
+            if (codigoHabilitacion == "" || codigoHabilitacion == null) {
+                alert("Primero ingrese el código habilitación");
+                $("#tiene_mas_sedes").val("").trigger("change");
+                return false;
+            }
+
+            $("#codigo_habilitacion_sede").val(codigoHabilitacion);
+
+            if (valor == 1) {
+                document.getElementById("DivMasSedes").style.display = "block";
+            } else {
+                document.getElementById("DivMasSedes").style.display = "none";
+            }
+        }
+    }
+
+    function MirarRepositorio(idPrestador) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos", "FIS_RIPS")?idPrestador=' + idPrestador;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function ValidarCodigoOtraSede(otraSede) {
+
+        var codigo_habilitacion = $("#codigo_habilitacion").val();
+        var codigo_habilitacion_sede = $("#codigo_habilitacion_sede").val();
+
+        var sede = $("#codigo_sede").val();
+        if (sede == otraSede && codigo_habilitacion == codigo_habilitacion_sede) {
+            alert("ESTE CÓDIGO HABILITACIÓN Y CÓDIGO SEDE YA ESTÁN INGRESADOS");
+            $("#codigo_otra_sede").val("");
+            $("#codigo_otra_sede").focus();
+            return false;
+        }
+    }
+
+    function ValidarFormularioSedes() {
+        var validar = $("#formularioSedes").validate();
+        if (validar.form()) {
+            MandarSedes();
+        }
+    }
+
+    function limpiarCamposSede() {
+
+        $("#codigo_otra_sede").val("");
+        $("#direccion_sede").val("");
+        $("#contacto_telefonico_sede").val("");
+        $("#correo_electronico_sede").val("");
+        $("#regional_sede").val("").trigger("change");
+
+    }
+
+    function MandarSedes() {
+
+        var id_prestador = $("#id_prestador").val();
+        var codigo_habilitacion_sede = $('#codigo_habilitacion_sede').val();
+        var codigo_otra_sede = $('#codigo_otra_sede').val();
+        var ciudad_sede = $('#ciudad_sede').val();
+        var departamento_sede = $('#departamento_sede').val();
+        var regional_sede = $('#regional_sede').val();
+        var direccion_sede = $('#direccion_sede').val();
+        var contacto_telefonico_sede = $('#contacto_telefonico_sede').val();
+        var correo_electronico_sede = $('#correo_electronico_sede').val();
+
+        // Crear objeto de datos a enviar
+        var datos = {
+            id_prestador: id_prestador,
+            codigo_habilitacion_sede: codigo_habilitacion_sede,
+            codigo_otra_sede: codigo_otra_sede,
+            ciudad_sede: ciudad_sede,
+            departamento_sede: departamento_sede,
+            regional_sede: regional_sede,
+            direccion_sede: direccion_sede,
+            contacto_telefonico_sede: contacto_telefonico_sede,
+            correo_electronico_sede: correo_electronico_sede
+        };
+
+        LoadingShow();
+        $.ajax({
+            type: 'POST',
+            url: '/FIS_RIPS/CrearSedesPrestadorGuardar',
+            data: datos,
+            success: function (response) {
+                // Manejar la respuesta del servidor aquí
+                LoadingHide();
+
+                if (response.success) {
+                    $("#tbSedes tbody").empty();
+                    $("#tbSedes tbody").html(response.tabla);
+                    $("#id_prestador").val(response.id);
+                    limpiarCamposSede();
+                }
+                else
+                {
+                    alert(response.message);
+                    return false;
+                }
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+    function EliminarSede(idSede) {
+
+        var id_prestador = $("#id_prestador").val();
+
+        var confirmar = confirm("¿Seguro de eliminar esta sede?");
+        if (confirmar == true) {
+
+            LoadingShow();
+            $.ajax({
+                type: 'POST',
+                url: '/FIS_RIPS/EliminarSede', // Reemplazar 'Controller' y 'Action' con el nombre real del controlador y el método al que deseas enviar los datos
+                data: {
+                    idSede: idSede,
+                    id_prestador: id_prestador,
+                },
+                success: function (response) {
+
+                    if (response.rta == 1) {
+                        $("#tbSedes tbody").empty();
+                        $("#tbSedes tbody").html(response.tabla);
+                    }
+
+                    alert(response.mensaje);
+                    LoadingHide();
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+    function ValidarFormularioDatos() {
+        var validar = $("#formularioIngreso").validate();
+        if (validar.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+
+        var formData = new FormData($("#formularioIngreso")[0]);
+
+        formData.append("id_prestador", $("#id_prestador").val());
+        formData.append("nit", $("#nit").val());
+        formData.append("codigo_verfificacion", $("#codigo_verfificacion").val());
+        formData.append("codigo_SAP", $("#codigo_SAP").val());
+        formData.append("codigo_habilitacion", $("#codigo_habilitacion").val());
+        formData.append("razon_social", $("#razon_social").val());
+        formData.append("tipoPrestador", $("#tipoPrestador").val());
+        formData.append("codigo_sede", $("#codigo_sede").val());
+        formData.append("ciudad_proveedor", $("#ciudad_proveedor").val());
+        formData.append("departamento_proveedor", $("#departamento_proveedor").val());
+        formData.append("regional", $("#regional").val());
+        formData.append("direccion", $("#direccion").val());
+        formData.append("contacto_telefonico", $("#contacto_telefonico").val());
+        formData.append("correo_electronico", $("#correo_electronico").val());
+        formData.append("tiene_mas_sedes", $("#tiene_mas_sedes").val());
+
+
+
+        var id_prestador = "@ViewBag.id_prestador";
+
+        if (id_prestador == 0 || id_prestador == null || id_prestador == "") {
+
+            var archivos = $("#files")[0].files;
+
+            for (var i = 0; i < archivos.length; i++) {
+                formData.append("archivos", archivos[i]);
+            }
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: '@Url.Action("CrearPrestadorGuardar", "FIS_RIPS")',
+            data: formData,
+            method: "POST",
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                if (response.rta != 0) {
+                    location.href = "@Url.Action("TableroPrestadores", "FIS_RIPS")?rta=" + response.rta;
+                }
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+</script>

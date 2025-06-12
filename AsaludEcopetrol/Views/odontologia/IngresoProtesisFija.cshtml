@@ -1,0 +1,1126 @@
+﻿
+@{
+    ViewBag.Title = "TRATAMIENTO PROTESIS FIJA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{
+    int[] Dientes_LineaUno = ViewBag.dientesLineaUno.ToArray();
+    int[] Dientes_LineaDos = ViewBag.dientesLineaDos.ToArray();
+}
+
+<br />
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <br />
+        <form class="animated fadeInDown" id="formulario">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">Ingreso datos básicos</strong>
+                </div>
+
+                <div class="panel-body" id="panel_formulario">
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Mes</label>
+                            <select class="form-control select2" required id="cbxmes" name="mes" autocomplete="off">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                {
+                                    <option value="@item.id_mes">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Año</label>
+                            <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" maxlength="5" required name="año" id="año">
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+                        <div class="col-sm-3 form-group">
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select class="form-control select2" onchange="CargarUnis($(this).val())" required id="cbxregional" name="regional">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Unis</label>
+                            <select class="form-control select2" onchange="CargarLocalidades($(this).val())" required id="cbxunis" name="unis">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Localidad</label>
+                            <select class="form-control select2" required id="cbxlocalidad" name="localidad">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Documento identidad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " onchange="format($(this).val())" maxlength="18" required name="documento" id="documento" />
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Nombre  del beneficiario</label>
+                            <input type="text" maxlength="100" class="form-control" name="nombre" id="nombre" required />
+                        </div>
+
+                        <div class="col-sm-1 form-group">
+                            <label class="text-secondary_asalud">Edad</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="edad" maxlength="2" id="edad" required />
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Tiempo de duracion tratamiento en meses </label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3" required name="TratamientoMeses" maxlength="2" id="TratamientoMeses" />
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Hubo colaboración paciente</label>
+                            <select class="form-control select" required id="optradio" name="optradio">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Especialista tratante</label>
+                            <select class="form-control select2" id="cbxprofesional" required name="profesional">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Odontologo PPE que realiza remision</label>
+                            <select class="form-control select2" id="cbxprofesionalOdon" required name="profesionalOdon">
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Paciente satisfecho  con tratamiento </label>
+                            <select class="form-control select" required id="optsatisfecho" name="optsatisfecho">
+
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Tratamiento realizado dentro de tiempos de grantia </label>
+                            <select class="form-control select" required id="optTiempos" name="optTiempos">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Paciente que usa prótesis fija por primera vez ó repetida </label>
+                            <select class="form-control select" required id="optpriemeraRepetida" name="optpriemeraRepetida">
+                                <option value="">- Seleccionar -</option>
+                                <option value="SI">PRIMERA VEZ</option>
+                                <option value="NO">REPETIDA</option>
+                            </select>
+                        </div>
+                        <div id="pnlrepetida" style="display:none" class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Hace cuanto realizó la prótesis anterior</label>
+                            <select class="form-control select" required id="optTiempoAnt" name="optTiempoAnt">
+                                <option value="">- Seleccionar -</option>
+                                <option value="MAS 8">HACE MAS DE 8 AÑOS</option>
+                                <option value="MENOS 8">HACE MENOS DE 8 AÑOS</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-5 form-group">
+                            <label class="text-secondary_asalud">Se puede verificar que las evoluciones de la historia clínica contengan el tratamiento  realizado </label>
+                            <select class="form-control select" required id="optverifica" name="optverifica">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Es tratamiento terminado de prótesis fija sobre implante</label>
+                            <select class="form-control select" required id="opttterminado" name="opttterminado">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_si_no item in ViewBag.sino)
+                                {
+                                    <option value="@item.id_ref_sino">@item.descripcion</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">Selección</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Seleccionar dientes superiores</label>
+                            <input name="dientesLineaUno" id="dientesLineaUno" style="width: 100%; max-width:100%; max-height:60%;" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Seleccionar dientes inferiores</label>
+                            <input name="dientesLineaDos" id="dientesLineaDos" style="width: 100%; max-width:100%; max-height:60%;" />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12 text-right">
+                            <button class="btn button_Asalud_Aceptar" type="button" onclick="LlenarNuevosArrays()">Seleccionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="panel panel-default" id="divAuditoria">
+                @*@Html.Action("AuditoriaDientesFija", "odontologia")*@
+
+
+                @*<div class="panel-heading">
+                        <strong class="text-primary_asalud">Auditoría</strong>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="row table table-bordered table-condensed table-striped" id="table2">
+                            <thead>
+                                <tr>
+                                    <th>ELIJA EN EL NUMERO DE DIENTE EL TIPO DE TRATAMIENTO A AUDITAR</th>
+
+                                    @for (int i = 0; i < Dientes_LineaUno.Length; i++)
+                                    {
+                                        <th>@Dientes_LineaUno[i]</th>
+                                    }
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PARAMETROS AUDITADOS</td>
+                                    @for (int i = 0; i < Dientes_LineaUno.Length; i++)
+                                    {
+                                        <td>
+                                            <input type="hidden" value="@Dientes_LineaUno[i]" id="tbl2_id_diente_@i" />
+                                            <select id="tbl2_PA_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                                                <option value="0">- Ninguno -</option>
+                                                @foreach (var item in Model.LIstParametrosAuditados)
+                                                {
+                                                    <option value="@item.id_param_auditado">@item.descripcion</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td>TERMINADO ( ESTETICA ADAPTACION MARGINAL )</td>
+                                    @for (int i = 0; i < Dientes_LineaUno.Length; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_ter_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%" required="">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td>FUNCION ( OCLUSION, FONETICA)</td>
+                                    @for (int i = 0; i < Dientes_LineaUno.Length; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_fun_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <td>PERTINENCIA DEL TTO REALIZADO</td>
+                                    @for (int i = 0; i < Dientes_LineaUno.Length; i++)
+                                    {
+                                        <td>
+                                            <select id="tbl2_pert_@i" onchange="obtenervaloresDientesUno()" style="text-align-last:center; min-width:100%">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr />
+                    <div class="table-responsive">
+                        <table class="row table table-bordered table-condensed table-striped" id="table2">
+                            <thead>
+                                <tr>
+                                    <th>ELIJA EN EL NUMERO DE DIENTE EL TIPO DE TRATAMIENTO A AUDITAR</th>
+                                    @for (int i = 0; i < Dientes_LineaDos.Length; i++)
+                                    {
+                                        <th>@Dientes_LineaDos[i]</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PARAMETROS AUDITADOS</td>
+                                    @for (int i = 0; i < Dientes_LineaDos.Length; i++)
+                                    {
+                                        <td>
+                                            <input type="hidden" value="@Dientes_LineaDos[i]" id="tbl3_id_diente_@i" />
+                                            <select id="tbl3_PA_@i" onchange="obtenervaloresDientesDos()" style="text-align-last:center; min-width:100%">
+                                                <option value="0">- Ninguno -</option>
+                                                @foreach (var item in Model.LIstParametrosAuditados)
+                                                {
+                                                    <option value="@item.id_param_auditado">@item.descripcion</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td>TERMINADO ( ESTETICA ADAPTACION MARGINAL )</td>
+                                    @for (int i = 0; i < Dientes_LineaDos.Length; i++)
+                                    {
+                                        <td>
+                                            <select onchange="obtenervaloresDientesDos()" id="tbl3_ter_@i" style="text-align-last:center; min-width:100%">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td>FUNCION ( OCLUSION, FONETICA)</td>
+                                    @for (int i = 0; i < Dientes_LineaDos.Length; i++)
+                                    {
+                                        <td>
+                                            <select onchange="obtenervaloresDientesDos()" id="tbl3_fun_@i" style="text-align-last:center; min-width:100%">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <td>PERTINENCIA DEL TTO REALIZADO</td>
+                                    @for (int i = 0; i < Dientes_LineaDos.Length; i++)
+                                    {
+                                        <td>
+                                            <select onchange="obtenervaloresDientesDos()" id="tbl3_pert_@i" style="text-align-last:center; min-width:100%">
+                                                @foreach (var item in Model.LIstPorcentajes)
+                                                {
+                                                    <option value="@item.id_ref_check_porcentajes">@item.porcentaje</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>*@
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud"></strong>
+                </div>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Observaciones</label>
+                            <input class="form-control" type="text" name="Observaciones" maxlength="500" id="Observaciones" required />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 form-group text-right">
+                        <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Guardar Cambios</button>
+                    </div>
+                </div>
+
+                <div style="display:none">
+                    <input class="hidden " type="text" name="dientes_uno" id="dientes_uno" required />
+                    <input class="hidden" type="text" name="dientes_dos" id="dientes_dos" required />
+
+                    <input class="form-control" type="text" name="detalle_dientes_uno" id="detalle_dientes_uno" required />
+                    <input class="form-control" type="text" name="detalle_dientes_dos" id="detalle_dientes_dos" required />
+                    <input class="form-control" type="text" name="alerta" id="alerta" required />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var dientesUnoArray = [];
+    var dientesDosArray = [];
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+        var mivalor = '@ViewBag.alerta'
+        $("#alerta").val(mivalor);
+
+
+        $("#optpriemeraRepetida").change(function () {
+
+
+            var mivalor = $("#optpriemeraRepetida").val()
+              var mitexto = $("#optpriemeraRepetida option:selected").text()
+
+              if (mivalor == "NO") {
+                 document.getElementById('pnlrepetida').style.display = 'block';
+              } else {
+                  document.getElementById('pnlrepetida').style.display = 'none';
+              }
+          })
+
+        traerDientesUno();
+        traerDientesDos();
+
+        var lista = '@Model.detalle_dientes_uno';
+        var listados = '@Model.detalle_dientes_dos';
+        if (lista != "" && listados != "" )
+        {
+
+            var listado = lista.split(',');
+            var count = 0;
+            for(var l = 0; l < @Dientes_LineaUno.Length; l++)
+            {
+                $("#tbl2_id_diente_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl2_PA_" + l).val(listado[count]);
+
+                count += 1;
+                $("#tbl2_ter_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl2_fun_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl2_pert_" + l).val(listado[count]);
+                count += 1;
+            }
+
+            listado = listados.split(',');
+            count = 0;
+            for(var l = 0; l < @Dientes_LineaDos.Length; l++)
+            {
+                $("#tbl3_id_diente_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl3_PA_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl3_ter_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl3_fun_" + l).val(listado[count]);
+                count += 1;
+                $("#tbl3_pert_" + l).val(listado[count]);
+                count += 1;
+            }
+        }
+
+        //obtenervaloresDientesUno();
+        //obtenervaloresDientesDos();
+
+        $("form[name='frm-gasto']").validate({
+            lang: 'Es',
+            rules: {
+                Obs: "required",
+                id_regional: { required: true },
+            },
+            messages: {
+                file: 'No se ha seleccionado ningun archivo'
+            },
+            submitHandler: function (form)
+            {
+                LoadingShow();
+                form.submit();
+            }
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $("#k-checkbox-label").text("Seleccionar todo");
+    })
+
+    function traerDientesUno() {
+
+        $("#dientesLineaUno").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("traerDientes", "odontologia")',
+                        dataType: "json",
+                        data: {
+                            tipo: 1
+                        }
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+        });
+    }
+
+    function traerDientesDos() {
+
+        $("#dientesLineaDos").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("traerDientes", "odontologia")',
+                        dataType: "json",
+                        data: {
+                            tipo: 2
+                        }
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+        });
+    }
+
+    function LlenarNuevosArrays() {
+
+        debugger
+        var dientes1 = $("#dientesLineaUno").data("kendoDropDownTree");
+        var listaUno = dientes1.value();
+
+        var dientes2 = $("#dientesLineaDos").data("kendoDropDownTree");
+        var listaDos = dientes2.value();
+
+        if (listaUno.length > 0 || listaDos.length > 0) {
+
+            $("#dientes_uno").val(listaUno);
+            $("#dientes_dos").val(listaDos);
+            $("#divAuditoria").empty();
+            $("#divAuditoria").load("@Url.Action("AuditoriaDientesFija", "odontologia")?dientesUno=" + listaUno + "&dientesDos=" + listaDos);
+
+
+            document.getElementById("divAuditoria").style.display = "block";
+        }
+
+        else {
+            alert("Seleccione los dientes a evaluar de la parte superior o inferior");
+            return false;
+        }
+    }
+
+
+
+    function obtenervaloresDientesUno() {
+
+        debugger
+        var dienteUno = $("#dientes_uno").val();
+        dientesUnoArray = dienteUno.split(",");
+
+        var parametro = new Array(dientesUnoArray.length);
+        for (var i = 0; i < parametro.length; i++) {
+            parametro[i] = new Array(4);
+            parametro[i][0] = $("#tbl2_id_diente_" + i).val();
+            parametro[i][1] = $("#tbl2_PA_" + i).val();
+            parametro[i][2] = $("#tbl2_ter_" + i).val();
+            parametro[i][3] = $("#tbl2_fun_" + i).val();
+            parametro[i][4] = $("#tbl2_pert_" + i).val();
+
+            if (parametro[i][1] == 0) {
+                $("#tbl2_ter_" + i).prop('disabled', true);
+                $("#tbl2_fun_" + i).prop('disabled', true);
+                $("#tbl2_pert_" + i).prop('disabled', true);
+            }
+            else {
+                $("#tbl2_ter_" + i).prop('disabled', false);
+                $("#tbl2_fun_" + i).prop('disabled', false);
+                $("#tbl2_pert_" + i).prop('disabled', false);
+
+                if ($("#tbl2_ter_" + i).val() == 0 || $("#tbl2_fun_" + i).val() == 0 || $("#tbl2_pert_" + i).val() == 0) {
+
+                    $("#alerta").val("SI");
+
+                } else {
+                    $("#alerta").val("NO");
+                }
+            }
+        }
+
+        $("#detalle_dientes_uno").val(parametro);
+    }
+
+    function obtenervaloresDientesDos() {
+        debugger
+
+        var dienteDos = $("#dientes_dos").val();
+        dientesDosArray = dienteDos.split(",");
+
+        var parametro = new Array(dientesDosArray.length);
+
+        for (var i = 0; i < parametro.length; i++) {
+            parametro[i] = new Array(4);
+            parametro[i][0] = $("#tbl3_id_diente_" + i).val();
+            parametro[i][1] = $("#tbl3_PA_" + i).val();
+            parametro[i][2] = $("#tbl3_ter_" + i).val();
+            parametro[i][3] = $("#tbl3_fun_" + i).val();
+            parametro[i][4] = $("#tbl3_pert_" + i).val();
+
+            if (parametro[i][1] == 0) {
+                $("#tbl3_ter_" + i).prop('disabled', true);
+                $("#tbl3_fun_" + i).prop('disabled', true);
+                $("#tbl3_pert_" + i).prop('disabled', true);
+            } else {
+                $("#tbl3_ter_" + i).prop('disabled', false);
+                $("#tbl3_fun_" + i).prop('disabled', false);
+                $("#tbl3_pert_" + i).prop('disabled', false);
+
+
+                if ($("#tbl3_ter_" + i).val() == 0 || $("#tbl3_fun_" + i).val() == 0 || $("#tbl3_pert_" + i).val() == 0) {
+
+                    $("#alerta").val("SI");
+
+                } else {
+                    $("#alerta").val("NO");
+                }
+            }
+        }
+        //$('input:text[id$=detalle_dientes_dos]').val(parametro);
+        $("#detalle_dientes_dos").val(parametro);
+    }
+
+
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_regional").val(DataItem.id_ref_regional);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_unis").val(DataItem.id_ref_unis);
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_ref_ciudades").val(DataItem.id_ref_ciudades);
+    }
+
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ortodoncista_tratante").val(DataItem.id_ref_odont_prestadores);
+    }
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ppe_quien_realiza").val(DataItem.id_ref_odont_prestadores);
+    }
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#colaboracion_paciente").val(DataItem.id_ref_ffmm_sino);
+
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            validarSelects();
+        }
+    }
+
+    //function validarSelects() {
+    //    debugger
+
+    //    var selects = document.querySelectorAll("select[required]");
+
+    //    for (var i = 0; i < selects.length; i++) {
+    //        var select = selects[i];
+    //        if (select.value == "" || select.value == 0 || select.value == null) {
+    //            alert("Los campos de parametros a evaluar son obligatorios.");
+    //            event.preventDefault(); // Evita que el formulario se envíe si falta una selección
+    //            return false;
+    //        }
+    //    }
+    //}
+
+
+    function validarSelects() {
+        debugger
+
+        var dientes1 = $("#dientesLineaUno").data("kendoDropDownTree");
+        var listaUno = dientes1.value();
+
+        var dientes2 = $("#dientesLineaDos").data("kendoDropDownTree");
+        var listaDos = dientes2.value();
+
+        if (listaUno.length > 0 || listaDos.length > 0) {
+
+            var selects = document.querySelectorAll("select[required]");
+
+            for (var i = 0; i < selects.length; i++) {
+                var select = selects[i];
+
+                // Verificar si el select y su elemento padre están visibles
+                if (select.style.display !== "none" &&
+                    window.getComputedStyle(select.parentElement).getPropertyValue("display") !== "none" &&
+                    (select.value == "" || select.value == null)) {
+                    alert("Los campos de parametros a evaluar son obligatorios.");
+                    event.preventDefault(); // Evita que el formulario se envíe si falta una selección
+                    return false;
+                }
+            }
+
+            GuardarDatos();
+        }
+        else {
+            alert("Seleccione los dientes a evaluar de la parte superior o inferior");
+            return false;
+        }
+    }
+
+
+    function GuardarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("mesIngresado", $("#cbxmes").val());
+        formData.append("ano", $("#año").val());
+        formData.append("id_regional", $("#cbxregional").val());
+        formData.append("id_unis", $("#cbxunis").val());
+        formData.append("id_localidad", $("#cbxlocalidad").val());
+        formData.append("documento_identidad", $("#documento").val());
+        formData.append("nombre", $("#nombre").val());
+        formData.append("edad", $("#edad").val());
+        formData.append("tiempo_tratamiento", $("#TratamientoMeses").val());
+         formData.append("paciente_satisfecho", $("#optsatisfecho").val());
+        formData.append("especialista_tratante", $("#cbxprofesional").val());
+        formData.append("colaboracion_paciente", $("#optradio").val());
+        formData.append("ppe_quien_realiza", $("#cbxprofesionalOdon").val());
+        formData.append("se_realizo_en_los_tiempos", $("#optTiempos").val());
+
+        formData.append("protesis", $("#optpriemeraRepetida").val());
+        formData.append("tiempo_protesis_aterior", $("#optTiempoAnt").val());
+        formData.append("hc_tratamiento_realizado", $("#optverifica").val());
+
+        formData.append("terminado_protesis_fija_implante", $("#opttterminado").val());
+        formData.append("observaciones", $("#Observaciones").val());
+
+        formData.append("detalle_dientes_uno", $("#detalle_dientes_uno").val());
+        formData.append("detalle_dientes_dos", $("#detalle_dientes_dos").val());
+        formData.append("alerta", $("#alerta").val());
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveFija", "odontologia")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+
+                     LoadingHide();
+                     alert(response.message);
+                    location.reload();
+                    var URL2 = "@Url.Action("CrearPdfOdontFija", "odontologia")?id=" + response.ID;
+                    window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+
+                }
+                else
+                {
+                     alert(response.message);
+                     LoadingHide();
+
+                }
+
+            }
+        })
+    }
+
+    function LimpiarFormulario() {
+
+    }
+
+    function CargarUnis(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeUnis", "odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis2").empty();
+                    $("#cbxunis").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxunis2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxunis").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                        $("#cbxunis2").append("<option value='" + b.id_ref_unis + "'>" + b.nombre + "</option>");
+                    });
+                    CargarEspecialista(regional);
+                    CargarOdontologos(regional);
+                }
+            })
+        }
+
+    }
+
+    function CargarLocalidades(a)
+    {
+        var unis = a;
+        if (unis != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeLocalidades", "odontologia")",
+                type: "post",
+                data: { unis: unis },
+                success: function (data) {
+                    $("#cbxlocalidad").empty();
+                    $("#cbxlocalidad2").empty();
+                    $("#cbxlocalidad").append("<option value=''> - Seleccionar - </option>");
+                    $("#cbxlocalidad2").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxlocalidad").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                        $("#cbxlocalidad2").append("<option value='" + b.id_ref_ciudades + "'>" + b.nombre_localidad + "</option>");
+                    })
+                }
+            })
+        }
+
+    }
+
+    function CargarEspecialista(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasOdont","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesional").empty();
+                    $("#cbxprofesional").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesional").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+    function CargarOdontologos(a) {
+        var regional = a;
+        if (regional != "") {
+            $.ajax({
+                url: "@Url.Action("GetCascadeEspecialistasTotal","odontologia")",
+                type: "post",
+                data: { regional: regional },
+                success: function (data) {
+                    $("#cbxprofesionalOdon").empty();
+                    $("#cbxprofesionalOdon").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#cbxprofesionalOdon").append("<option value='" + b.Razón_Social + "'>" + b.Razón_Social + "</option>");
+                    })
+                }
+            })
+        }
+    }
+
+    function format(a) {
+
+        var mivalor = a;
+
+        $.ajax({
+            url: '@Url.Action("ListaBeneficiario")/' + mivalor,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            data: {},
+            success: function (data) {
+
+                $('input:text[id$=nombre]').val(data.OBJ.Nombre);
+                $('input:text[id$=edad]').val(data.OBJ.edad);
+            },
+            error: function (xhr) {
+                $('input:text[id$=nombre]').val("");
+                $('input:text[id$=edad]').val(0);
+
+                alert('error');
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>

@@ -1,0 +1,276 @@
+﻿@model  AsaludEcopetrol.Models.Medicamentos.GestionMedicamentos
+@{
+    ViewBag.Title = "TABLERO  DE GESTIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+<br />
+
+@using (Html.BeginForm())
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">CONSULTAR</strong>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center th">ID</th>
+                        <th class="text-center th">TRIMESTRE</th>
+                        <th class="text-center th">FECHA VISITA</th>
+                        <th class="text-center th">CIUDAD</th>
+                        <th class="text-center th">PROVEEDOR</th>
+                        <th class="text-center th">PUNTO DISPENSACION</th>
+                        <th class="text-center th">% CALIFICACION</th>
+                        <th class="text-center th">PROCESO</th>
+
+                        <th class="text-center th"></th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.GestionMd)
+                    {
+                        <tr>
+                            <td>@order.ID</td>
+                            <td>@order.TRIMESTRE</td>
+                            <td>@order.FECHA_VISITA</td>
+                            <td>@order.ciudad</td>
+                            <td>@order.nombre_auditado</td>
+                            <td>@order.nombre_farmacia</td>
+                            <td>@order.resultado</td>
+                            <td>@order.proceso</td>
+
+                            @if (order.proceso == "Evaluacion estandares")
+                            {
+                                if (order.GESTIONADO == "SI")
+                                {
+                                    <td>
+                                        <div class="alert alert-danger">
+                                            <strong>ALERTA..!</strong> Fecha Limite de Respuesta. @order.fecha_limite_respuesta.Value.ToString("dd/MM/yyyy")
+
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <button type="button" class="btn btn-primary" onclick="llamarVistaParcial(@order.ID);" data-toggle="modal" data-target="#myModal">
+                                            GESTIONAR
+                                        </button>
+                                    </td>
+                                }
+
+                            }
+                            else
+                            {
+                                if (order.GESTIONADO == "SI")
+                                {
+                                    <td>
+                                        <div class="alert alert-danger">
+                                            <strong>ALERTA..!</strong> Fecha Limite de Respuesta. @order.fecha_limite_respuesta.Value.ToString("dd/MM/yyyy")
+
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    if (order.proceso == "Herramienta Tecnologica TB1")
+                                    {
+                                        <td>
+                                            <button type="button" class="btn btn-primary" onclick="llamarVistaParcial2(@order.ID,1);" data-toggle="modal" data-target="#myModal">
+                                                GESTIONAR
+                                            </button>
+                                        </td>
+                                    }
+                                    else if (order.proceso == "Herramienta Tecnologica TB2")
+                                    {
+                                        <td>
+                                            <button type="button" class="btn btn-primary" onclick="llamarVistaParcial2(@order.ID,2);" data-toggle="modal" data-target="#myModal">
+                                                GESTIONAR
+                                            </button>
+                                        </td>
+                                    }
+                                    else if (order.proceso == "Herramienta Tecnologica TB3")
+                                    {
+                                        <td>
+                                            <button type="button" class="btn btn-primary" onclick="llamarVistaParcial2(@order.ID,3);" data-toggle="modal" data-target="#myModal">
+                                                GESTIONAR
+                                            </button>
+                                        </td>
+                                    }
+                                    else if (order.proceso == "Herramienta Tecnologica TB4")
+                                    {
+                                        <td>
+                                            <button type="button" class="btn btn-primary" onclick="llamarVistaParcial2(@order.ID,4);" data-toggle="modal" data-target="#myModal">
+                                                GESTIONAR
+                                            </button>
+                                        </td>
+                                    }
+
+                                }
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br />
+    <br />
+}
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.table').DataTable({
+            "searching": true,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+    });
+
+    function llamarVistaParcial(A) {
+
+        document.getElementById('resultado').style.display = 'block';
+
+
+        var laURLDeLaVista = '@Url.Action("Gestion")/' + A
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+    function llamarVistaParcial2(A, B) {
+
+        document.getElementById('resultado').style.display = 'block';
+
+
+        var laURLDeLaVista = '@Url.Action("GestionHT")/' + A + "?tabla=" + B
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+</script>
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

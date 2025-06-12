@@ -1,0 +1,402 @@
+﻿@model  AsaludEcopetrol.Models.GestorDocumental.GestorDocumental
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "SUBIR DOCUMENTOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+@using (Html.BeginForm())
+{
+    <fieldset>
+        <div class="container">
+            <form id="frm-alumno">
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.proceso)</span></h5>
+                        @Html.DropDownListFor(model => model.proceso, new SelectList(Model.LstProcesos, "id_proceso", "nom_proceso"), "Seleccione...", new { @class = "form-control", @onchange = "habilitar()" })
+                        @Html.ValidationMessageFor(u => u.proceso, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div id='pnlTipo' style='display:none;' class="col-sm-6">
+
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.tipo_consulta)</span></h5>
+                        @Html.RadioButtonFor(model => model.tipo_consulta, 1, new { @onclick = "mostrar()" })@Html.Label("FACTURACION")
+                        @Html.ValidationMessageFor(u => u.tipo_consulta, null, new { @class = "label label-danger" })
+                        &nbsp;
+                        @Html.RadioButtonFor(model => model.tipo_consulta, 2, new { @onclick = "mostrar1()" })@Html.Label("CALIDAD")
+                        @Html.ValidationMessageFor(u => u.tipo_consulta, null, new { @class = "label label-danger" })
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div id='pnlFactura' style='display:none;' class="col-sm-6">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_factura)</span></h5>
+                        @Html.TextBoxFor(p => p.numero_factura, "{0:#.#}", new { @class = "form-control", @onchange = "format()" })
+                        @Html.ValidationMessageFor(u => u.numero_factura, null, new { @class = "label label-danger" })
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div id='pnlCalidad' style='display:none;' class="col-sm-6">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_proveedor)</span></h5>
+                        @(Html.Kendo().DropDownListFor(m => m.numero_proveedor)
+                                          .Name("numero_proveedor")
+                                          .HtmlAttributes(new { style = "width:100%" })
+
+                                          .DataTextField("nombre")
+                                          .DataValueField("id_ref_proveedor")
+                                          .Filter(FilterType.Contains)
+                                          .Events(events => events.Select("CustomerSelect3"))
+                                           .DataSource(source =>
+                                           {
+                                               source.Read(read =>
+                                               {
+                                                   read.Action("GetCascadeProveedores", "GestorDocumental");
+                                               });
+
+                                           })
+
+
+                        )
+
+                        @Html.ValidationMessageFor(u => u.numero_proveedor, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div id='pnlCedula' style='display:none;' class="col-sm-6">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_documento)</span></h5>
+                        @Html.TextBoxFor(p => p.numero_documento, "{0:#.#}", new { @class = "form-control", @onchange = "format2()", @onclick = "format2()" })
+                        @Html.ValidationMessageFor(u => u.numero_documento, null, new { @class = "label label-danger" })
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+
+                    <div id='pnlCaso' style='display:none;' class="col-sm-6 form-group">
+                        <input type="hidden" id="idpqrs" />
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_caso)</span></h5>
+                        @Html.TextBoxFor(p => p.numero_caso, "{0:#.#}", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(u => u.numero_caso, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div id='pnlFacturaCuentas' style='display:none;' class="col-sm-6">
+                        <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.numero_factura_cuentas)</span></h5>
+                        @Html.TextBoxFor(p => p.numero_factura_cuentas, "{0:#.#}", new { @class = "form-control", @onchange = "formatcuentas()" })
+                        @Html.ValidationMessageFor(u => u.numero_factura_cuentas, null, new { @class = "label label-danger" })
+                    </div>
+
+                </div>
+
+                <div id="pnlGuardar" style='display:none;' class="General">
+                    <table align="center">
+                        <tr>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+
+                                <input id="BtnActualizar" type="submit" value="BUSCAR" class="btn btn-success" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="display:none">
+
+                                @*  @Html.TextBoxFor(u => u.fecha_ingreso_salesforceOK)*@
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div id="pnlContinuarPQR" style='display:none; margin-top:2%' class="General col-sm-12 form-group row">
+                    <a id="Btncontinuarpqr" role="button" href="javascript:adddocumentospqr()" class="btn btn-success col-sm-offset-6">Continuar</a>
+                </div>
+                <br />
+                <br />
+
+                <div id="pnlerror" style='display:none;' class="General">
+                    <table align="center">
+                        <tr>
+                            <td>
+                                <div class="alert alert-danger">
+
+                                    SIN REGISTROS...
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+}
+<script>
+
+    $("#numero_caso").focusout(function () {
+        if ($(this).val() != "")
+        {
+            $.ajax({
+                url: "@Url.Action("Getpqrsbynumcaso","GestorDocumental")",
+                type: "post",
+                data: { numcaso: $(this).val() },
+                success: function (data)
+                {
+                    if (data != "") {
+                        $("#idpqrs").val(data);
+                        $("#pnlContinuarPQR").css('display', 'block');
+                    } else
+                    {
+                        var numcaso = $("#numero_caso").val();
+                        alert("No se ha encontrado ninguna PQRS con el numero de caso " + numcaso);
+                        $("#pnlContinuarPQR").css('display', 'none');
+                    }
+
+                }
+            })
+
+
+        } else {
+            $("#pnlContinuarPQR").css('display','none');
+        }
+    })
+
+
+    function habilitar()
+    {
+
+        var mivalor = $("#proceso").val()
+        var mitexto = $("#proceso option:selected").text()
+
+        if (mivalor == 3) {
+            document.getElementById('pnlTipo').style.display = 'block';
+            document.getElementById('pnlCedula').style.display = 'none';
+            document.getElementById('pnlCaso').style.display = 'none';
+        } else if (mivalor == 1) {
+
+            document.getElementById('pnlCaso').style.display = 'block';
+            document.getElementById('pnlCedula').style.display = 'none';
+            document.getElementById('pnlCalidad').style.display = 'none';
+            document.getElementById('pnlFactura').style.display = 'none';
+            document.getElementById('pnlTipo').style.display = 'none';
+        }
+        else if (mivalor == 4 ) {
+
+            document.getElementById('pnlCaso').style.display = 'none';
+            document.getElementById('pnlCedula').style.display = 'none';
+            document.getElementById('pnlCalidad').style.display = 'none';
+            document.getElementById('pnlFactura').style.display = 'none';
+            document.getElementById('pnlFacturaCuentas').style.display = 'block';
+            document.getElementById('pnlTipo').style.display = 'none';
+        }
+        else {
+            document.getElementById('pnlTipo').style.display = 'none';
+            document.getElementById('pnlCedula').style.display = 'block';
+            document.getElementById('pnlCalidad').style.display = 'none';
+            document.getElementById('pnlFactura').style.display = 'none';
+            document.getElementById('pnlCaso').style.display = 'none';
+        }
+    };
+
+
+    function format(e) {
+
+        var textBox1 = $('input:text[id$=numero_factura]').keyup();
+        var value2 = textBox1.val();
+
+        $.ajax({
+            url: '@Url.Action("ConsultaFac")/' + value2,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            data: {},
+            success: function (data) {
+                if (data.success) {
+                    document.getElementById('pnlGuardar').style.display = 'block';
+                    document.getElementById('pnlerror').style.display = 'none';
+
+                } else {
+                    document.getElementById('pnlerror').style.display = 'block';
+                    document.getElementById('pnlGuardar').style.display = 'none';
+
+                }
+            },
+            error: function (xhr) {
+                alert('error');
+            }
+        });
+    }
+
+       function formatcuentas(e) {
+          var formData = new FormData($("form")[0]);
+          formData.append("id", $("#numero_factura_cuentas").val());
+
+        $.ajax({
+
+             url: "/GestorDocumental/ConsultaFacCuentasMed",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+
+                if (data.success) {
+                    document.getElementById('pnlGuardar').style.display = 'block';
+                    document.getElementById('pnlerror').style.display = 'none';
+
+                } else {
+                    document.getElementById('pnlerror').style.display = 'block';
+                    document.getElementById('pnlGuardar').style.display = 'none';
+
+                }
+            },
+            error: function (xhr) {
+                alert('error');
+            }
+        });
+    }
+
+    function mostrar() {
+        document.getElementById('pnlCalidad').style.display = 'none';
+        document.getElementById('pnlFactura').style.display = 'block';
+        document.getElementById('pnlGuardar').style.display = 'none';
+    };
+
+    function mostrar1() {
+        document.getElementById('pnlFactura').style.display = 'none';
+        document.getElementById('pnlCalidad').style.display = 'block';
+        document.getElementById('pnlGuardar').style.display = 'block';
+
+    };
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#numero_proveedor").val(DataItem.nombre);
+    }
+    function adddocumentospqr()
+    {
+        var numcaso = $("#numero_caso").val();
+        var idpqrs = $("#idpqrs").val();
+        if (numcaso != "")
+        {
+            var url = '@Url.Action("AddDocumentosPQR","GestorDocumental")?pqrs=' + idpqrs + '&numerocaso=' + numcaso;
+            window.location = url;
+        }
+    }
+
+
+
+</script>
+
+
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+
+

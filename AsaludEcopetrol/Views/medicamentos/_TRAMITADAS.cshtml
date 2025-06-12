@@ -1,0 +1,342 @@
+﻿
+<div class="tab-pane active" id="1b">
+    <div class="row">
+        <div class="col-md-6">
+            <label class="text-secondary_asalud">Total tramitadas: @ViewBag.total2</label>
+        </div>
+        @if (ViewBag.total2 > 0)
+        {
+            <div class="col-md-6" style="text-align: right;">
+                <a role="button" class="button_Asalud_descargas" title="Reporte" href="javascript:excelAprobadas(4)">
+                    <i class="glyphicon glyphicon-download"></i>&nbsp; Exportar a excel
+                </a>
+            </div>
+        }
+    </div>  
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form id="formNoAprobadas" action="_TRAMITADAS" method="post">
+                <div class="panel-body">
+
+                    @if (ViewBag.total2 == 0)
+                    {
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                                <p style="font-family:'Century Gothic'">@Html.Raw("Use los filtros para seguir buscando")</p>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Regional:</label>
+                            <select class="form-control select2" name="regionalT" id="regionalT">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3 form-group">
+                            <label class="text-secondary_asalud">Prestador:</label>
+                            <select class="form-control select2" name="prestadorT" id="prestadorT">
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.md_Ref_proveedor item in ViewBag.proveedor)
+                                {
+                                    if (item.id_ref_proveedor != 0)
+                                    {
+                                        <option value="@item.id_ref_proveedor">@item.nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Nro factura</label>
+                            <input type="text" class="form-control" id="numFacturaT" name="numFacturaT" />
+                        </div>
+                        <br />
+
+                        <div class="col-sm-3 form-group text-right">
+                            <button type="button" onclick="BuscarTramitadas()" class="button_Asalud_Guardar"> <i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                        </div>
+                    </div>
+                    <table id="tablaDatos" class="tablaDatos table-bordered table-condensed" style="font-size:10px; width:98%;">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Nro prefactura</th>
+                                <th>Regional</th>
+                                <th>Valor individual</th>
+                                <th>Valor total</th>
+                                <th>Nuevo valor</th>
+                                <th>Factura cierre</th>
+                                <th>Valor cierre</th>
+                                <th>Usuario auditor</th>
+                                <th>Cierre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (ViewBag.total2 > 0)
+                                {
+                                    var i = 0;
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_prefacturas_consolidado_cerradasResult item in ViewBag.lista2)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>
+                                                @i
+                                                <input type="hidden" id="descripcion_@i" value="@item.observaciones" />
+                                            </td>
+                                            <td>@item.remision_prefactura_fact</td>
+                                            <td>@item.nombre_regional</td>
+                                            <td>@item.vlrUnitario_suma</td>
+                                            <td>@item.valorTotalPrefacturas</td>
+                                            <td>@item.nuevoValor_suma</td>
+                                            <td>@item.num_factura</td>
+                                            <td>@item.valorCierre</td>
+                                            <td>@item.nombre</td>
+                                            <td style='text-align:center;'> <a class='button_Asalud_Guardar btn-sm' onclick='verDetalle(@i);' data-toggle='modal'>Ver</a></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="12" style="text-align:center; font-size:15px;">
+                                            <label>No hay prefacturas cerradas.</label>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalRepositorio">
+    <div class="modal-dialog modal-lg" style="width:85%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="text-secondary_asalud">Repositorio</h5>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalMensaje">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="panel-body">
+                <div class="panel panel-default panel-heading">
+                    <p class="text-primary_asalud" id="idTipo"></p>
+                </div>
+                <div class="panel panel-default panel-heading">
+                    <p id="mensaje"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        
+    });
+
+    function GestionCerrar() {
+        $("#modalRepositorio").modal("hide");
+    }
+
+
+        //$("#1a").load(
+        @*$.ajax({
+            url: "@Url.Action("_TRAMITADAS")",
+            type: "post",
+            data: {
+                regionalT: regionalT,
+                prestadorT: prestadorT,
+                numFacturaT: numFacturaT,
+            },
+            success: function (data) {
+                LoadingHide();
+            }
+        });*@
+        //var Particion = data.split("|");
+        //var tabla = Particion[0];
+        //var conteo = Particion[1];
+
+        //if (conteo > 0) {
+        //    $("#divExcel").css("display", "block");
+        //    $("#divSinTotal").css("display", "none");
+
+        //} else {
+        //    $("#divExcel").css("display", "none");
+        //    $("#divSinTotal").css("display", "block");
+        //}
+
+        //$("#tablaDatos2 tbody").empty();
+        //$("#tablaDatos2 tbody").html(tabla);
+        //$("#conteom").val(conteo);
+
+
+        //LoadingHide();
+        //    }
+        //})
+        //);
+        //});
+
+
+
+    function MostrarModal(idEvaluacion) {
+        alert(idEvaluacion);
+    }
+
+
+    function verDetalle(i) {
+        var detalle = document.getElementById("descripcion_" + i).value;
+        $("#mensaje").html(detalle);
+        $("#idTipo").html('Observaciones');
+        $("#modalMensaje").modal('show');
+    }
+
+</script>
+
+
+@*<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .tablaDatos {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .tablaDatos th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .tablaDatos td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tablaDatos tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+
+    .tablaDatos2 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 1%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .tablaDatos2 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .tablaDatos2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tablaDatos2 tbody {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .tablaDatos2 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+</style>*@
+

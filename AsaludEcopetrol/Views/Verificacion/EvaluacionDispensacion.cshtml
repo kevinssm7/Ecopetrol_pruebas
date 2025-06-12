@@ -1,0 +1,2208 @@
+﻿@using AsaludEcopetrol.Models;
+@{
+    ViewBag.Title = "EVALUACIÓN DISPENSACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    AsaludEcopetrol.Models.Verificacion.VerificacionFarmaceutica Modelo = new AsaludEcopetrol.Models.Verificacion.VerificacionFarmaceutica();
+    var finalConteo = 0;
+    int idDispensacion = ViewBag.idDispen;
+    int i = 0, j = 0;
+    var existe = ViewBag.existe;
+    var tipoEvaluacion = ViewBag.tipo;
+    ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacion_totalIdResult TipicaBase = ViewBag.TipicaBase;
+    List<ECOPETROL_COMMON.ENTIDADES.ver_evaluacion_archivos> listadoArchivos = ViewBag.archivosEva;
+
+    var titulo = "";
+    var subtitulo = "";
+    var m = 0;
+}
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">EVALUACIÓN</strong>
+            </div>
+            <div class="panel-heading">
+                <form id="formulario" name="formulario" method="post" enctype="multipart/form-data">
+                    <div>
+                        <input type="hidden" id="idDispen" name="idDispen" value="@idDispensacion" />
+                        <input type="hidden" id="existe" name="existe" value="@existe" />
+                        <input type="hidden" id="tipoEvaluacion" name="tipoEvaluacion" value="@tipoEvaluacion" />
+                        <input type="hidden" id="id_evaluacion" name="id_evaluacion" value="@ViewBag.id_evaluacion" />
+                        <input type="hidden" id="validacion" name="validacion" />
+                    </div>
+
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.ver_puntoDispensacion item in ViewBag.lista)
+                    {
+                        <div id="contenidoDatos">
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Nit prestador</label>
+                                    <input type="text" class="form-control" onblur="" id="txtnit" name="txtnit" value="@item.nit_prestador" disabled />
+                                </div>
+                                <div class="col-sm-5 col-md-5 col-xs-12 form-group">
+                                    <label class="text-secondary_asalud">Prestador</label>
+                                    <input type="text" class="form-control" id="txtprestador" name="txtprestador" value="@item.nombre_prestador" disabled />
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Contacto telefónico</label>
+                                    <input type="text" class="form-control" onblur="" id="txtcontacto" name="txtcontacto" value="@item.contacto_telefonico" disabled />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3  form-group">
+                                    <label class="text-secondary_asalud">Ciudad</label>
+                                    <input type="text" class="form-control" onblur="" id="txtciudad" name="txtciudad" value="@item.ciudad" disabled />
+                                </div>
+                                <div class="col-md-5 form-group">
+                                    <label class="text-secondary_asalud">Dirección punto dispensación</label>
+                                    <input type="text" class="form-control" id="txtdireccion" name="txtdireccion" value="@item.direccion_punto_dispensacion" disabled />
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Fecha verificación o visita</label>
+
+                                    @if (item.fecha_nuevavisita != null)
+                                    {
+                                        <input type="text" class="form-control" onblur="" id="txtfecha" name="txtfecha" value="@item.fecha_nuevavisita.Value.ToString("dd/MM/yyy")" disabled />
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" onblur="" id="txtfecha" name="txtfecha" value="@item.fecha_verificacionOvisita.Value.ToString("dd/MM/yyy")" disabled />
+                                    }
+
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Regional</label>
+                                    <input type="text" class="form-control" onblur="" id="txtregional" name="txtregional" value="@item.regional" disabled />
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Unis</label>
+                                    <input type="text" class="form-control" onblur="" id="txtunis" name="txtunis" value="@item.unis" disabled />
+                                </div>
+
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Auditor</label>
+                                    <input type="text" class="form-control" onblur="" id="txxpaciente" name="txtauditori" value="@item.auditor_asignado" disabled />
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label class="text-secondary_asalud">Farmacia</label>
+                                    <input type="text" class="form-control" onblur="" id="txxpaciente" name="txtauditori" value="@item.nombre_farmacia" disabled />
+                                </div>
+                            </div>
+
+                            @if (existe != 0 && tipoEvaluacion == 1)
+                            {
+                                <div class="row">
+                                    <div class="col-md-3 form-group">
+                                        <label class="text-secondary_asalud">Nombre auditado</label>
+                                        <input type="text" class="form-control" onblur="" id="txtnomAuditado" name="txtnomAuditado" value="@item.nombre_auditado" maxlength="80" required disabled />
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col-md-3 form-group">
+                                        <label class="text-secondary_asalud">Nombre auditado</label>
+                                        <input type="text" class="form-control" onblur="" id="txtnomAuditado" name="txtnomAuditado" value="@item.nombre_auditado" maxlength="80" required />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div id="divTabla" class="table-responsive">
+                            <table id="tablaTipos" class="table table-bordered" style="width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Evaluar</th>
+                                        <th>Requisito</th>
+                                        <th>Peso</th>
+                                        <th>Valor</th>
+                                        <th>Estado</th>
+                                        <th>Impacto</th>
+                                        <th>Observaciones</th>
+                                        <th>Archivos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @{
+                                        var k = 1;
+                                    }
+
+                                    @if (ViewBag.conteoTitulos != 0)
+                                    {
+                                        var conteoTiulacion = 1;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.ref_verificacion_farmaceutico item2 in ViewBag.titulos)
+                                        {
+                                            if (titulo.Count() == 0)
+                                            {
+                                                titulo = Convert.ToString(item2.id_veriticacion);
+                                            }
+                                            else
+                                            {
+                                                titulo += "," + Convert.ToString(item2.id_veriticacion);
+                                            }
+
+                                            //j: titulo
+                                            j += 1;
+                                            <tr>
+                                                <td class="encabezado"></td>
+                                                <td class="encabezado"></td>
+                                                <td class="encabezado">
+                                                    @*<input type="text" value="@item2.descripcion" style="width:100%; max-height:auto !important; text-align:left; overflow:hidden;" class="todo" id="descripcion_@j" disabled />*@
+                                                    <input type="text" value="@item2.descripcion" style="width:100%;" class="todo" id="descripcion_@j" disabled />
+                                                </td>
+                                                <td class="encabezado">
+                                                    <input type="text" class="todo" id="pesoTitulo_@j" disabled />
+                                                </td>
+                                                <td class="encabezado">
+                                                    <input type="text" class="todo" id="valor_@j" disabled />
+                                                </td>
+                                                <td class="encabezado">
+                                                    <input type="text" class="todo" id="resultadoParcial_@j" disabled />
+                                                </td>
+
+                                                <td class="encabezado"></td>
+                                                <td class="encabezado">
+                                                    <input type="text" class="todo" id="observacion_@j" disabled />
+                                                </td>
+                                                <td class="encabezado"></td>
+
+                                            </tr>
+
+                                            List<ECOPETROL_COMMON.ENTIDADES.ver_tipocriterio> intermedio = (List<ECOPETROL_COMMON.ENTIDADES.ver_tipocriterio>)ViewBag.tipoCriterioIntermedio;
+                                            intermedio = intermedio.Where(x => x.id_tipo_verificacion == item2.id_veriticacion).OrderBy(x => x.id_tipo_criterio).ToList();
+
+                                            var l = 0;
+
+                                            foreach (var item3 in intermedio)
+                                            {
+                                                l += 1;
+
+                                                List<ECOPETROL_COMMON.ENTIDADES.ref_ver_tipoCriterio> tipos = ViewBag.tipoCriterio;
+                                                tipos = tipos.Where(x => x.id_tipo_criterio == item3.id_tipo_criterio).OrderBy(x => x.indice).ToList();
+
+                                                List<ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacion_totalIdResult> itemSupremo = ViewBag.dispenEvalu;
+                                                itemSupremo = itemSupremo.Where(x => x.id_tipoCriterio == item3.id_tipo_criterio).ToList();
+
+                                                //Nueva evañuación
+                                                if (existe == 0)
+                                                {
+                                                    foreach (var item4 in tipos)
+                                                    {
+                                                        if (subtitulo.Count() == 0)
+                                                        {
+                                                            subtitulo = Convert.ToString(item4.id_tipo_criterio);
+                                                        }
+                                                        else
+                                                        {
+                                                            subtitulo += "," + Convert.ToString(item4.id_tipo_criterio);
+                                                        }
+
+                                                        if (item3.id_tipo_criterio == item3.id_tipo_criterio)
+                                                        {
+
+                                                            i += 1;
+
+                                                            <tr id="tabla_@i">
+                                                                <td>@conteoTiulacion.@l</td>
+                                                                <td>
+                                                                    <label style="text-align:left">Si</label>
+                                                                    <br />
+                                                                    <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" required>
+                                                                    <br />
+                                                                    <label style="text-align:left">No</label>
+                                                                    <br />
+                                                                    <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" />
+
+                                                                    <input type="hidden" id="radioFinal_@j-@i" name="radioFinal_@j-@i" />
+                                                                    <input type="hidden" id="valorCampo_@j-@i" name="valorCampo_@j-@i" />
+                                                                </td>
+                                                                <td>
+                                                                    @item4.nombre_criterio
+                                                                </td>
+                                                                <td>
+                                                                    <input class="conteoFilas" type="hidden" id="conteoFilas" value="@l" />
+                                                                    <input class="result_@j" type="hidden" id="result_@i" value="0" />
+                                                                    <input type="hidden" id="resultadov_@i" value="@item3.id_ver_tipoCriterio-0-NO" />
+
+                                                                    <input type="text" id="peso_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item4.peso" disabled required>
+                                                                    <input type="hidden" id="pesoCopia_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item4.peso" disabled required>
+                                                                </td>
+                                                                <td>
+                                                                    <select required style="text-align-last:center" class="col-md-12 form-control" name="txtValor-@j-@i" id="txtValor-@j-@i" onchange="actualizarv1(@j, @item4.id_tipo_criterio,@i, this.value, @item4.peso, @l)">
+                                                                        <option value="">...</option>
+                                                                        <option value="0">No cumple</option>
+                                                                        <option value="1">Cumple</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" id="resultado_@j-@i" rows="2" cols="1" value="0" name="resultado_@j-@i" class="form-control solo-numero col-md-12" maxlength="1" required disabled />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="hidden" id="impactoValor_@j-@i" name="impactoValor_@j-@i" value="@item3.impacto" />
+
+                                                                    <select class="col-md-12 form-control select2" name="impacto_@j-@i" id="impacto_@j-@i" required disabled>
+                                                                        <option value="">-Seleccione-</option>
+
+                                                                        @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipoCriterio impac in ViewBag.tipoImpacto)
+                                                                        {
+                                                                            if (item3.impacto != null)
+                                                                            {
+                                                                                if (Convert.ToInt32(item3.impacto) == impac.id_tipo)
+                                                                                {
+                                                                                    <option selected value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                            }
+                                                                        }
+
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <textarea type="text" id="observaciones_@j-@i" rows="2" cols="30" name="observaciones_@j-@i" class="form-control col-md-12" maxlength="1000" required></textarea>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="file" class="form-control" onchange="textoArchivo(@j, @i)" name="archivos_@j-@i" id="archivos_@j-@i" aria-label="Archivo" multiple>
+                                                                    <textarea type="text" class="textFile form-control" style="display:none;" name="Textoarchivos_@j-@i" id="Textoarchivos_@j-@i" aria-label="TextoArchivo" disabled></textarea>
+                                                                </td>
+                                                            </tr>
+                                                            k++;
+                                                        }
+                                                        finalConteo += 1;
+                                                    }
+                                                }
+
+                                                //Visualización de evaluación
+                                                else if (existe != 0 && tipoEvaluacion == 1)
+                                                {
+                                                    foreach (var item5 in tipos)
+                                                    {
+                                                        if (subtitulo.Count() == 0)
+                                                        {
+                                                            subtitulo = Convert.ToString(item5.id_tipo_criterio);
+                                                        }
+                                                        else
+                                                        {
+                                                            subtitulo += "," + Convert.ToString(item5.id_tipo_criterio);
+                                                        }
+
+                                                        var valorFila = 1;
+
+                                                        foreach (var item4 in itemSupremo)
+                                                        {
+
+                                                            if (item4.id_tipo_criterio == item5.id_tipo_criterio)
+                                                            {
+                                                                i += 1;
+                                                                m += 1;
+
+                                                                <tr id="tabla_@i">
+                                                                    <td>@conteoTiulacion.@l</td>
+                                                                    @{
+                                                                        var radio = item4.decision;
+                                                                        var valido = "";
+                                                                    }
+                                                                    @if (radio == "si")
+                                                                    {
+                                                                        valido = "block";
+                                                                    }
+                                                                    else if (radio == "no")
+                                                                    {
+                                                                        valido = "none";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        valido = "";
+                                                                    }
+                                                                    <td>
+
+                                                                        @if (radio == "si")
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" checked required disabled>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" disabled />
+                                                                        }
+                                                                        else if (radio == "no")
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" required disabled>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" checked disabled />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" required disabled>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" disabled />
+                                                                        }
+
+                                                                        <input type="hidden" id="radioFinal_@j-@i" name="radioFinal_@j-@i" />
+                                                                        <input type="hidden" id="valorCampo_@j-@i" name="valorCampo_@j-@i" value="@radio" />
+
+                                                                    </td>
+                                                                    <td>
+                                                                        @item5.nombre_criterio
+                                                                    </td>
+                                                                    <td>
+                                                                        <input class="conteoFilas" type="hidden" id="conteoFilas" value="@l" />
+                                                                        <input class="result_@j" type="hidden" id="result_@i" value="0" />
+                                                                        <input type="hidden" id="resultadov_@i" value="@item3.id_ver_tipoCriterio-0-NO" />
+
+                                                                        <input style="display:@valido" type="text" id="peso_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item5.peso" disabled required>
+                                                                        <input type="hidden" id="pesoCopia_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item5.peso" disabled required>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select required style="text-align-last:center; display: @valido" class="col-md-12 form-control" name="txtValor-@j-@i" id="txtValor-@j-@i" onchange="actualizarv1(@j, @item5.id_tipo_criterio,@i, this.value, @item5.peso, @l)" disabled>
+                                                                            @foreach (var itemselect in itemSupremo)
+                                                                            {
+                                                                                if (itemselect.valor == 0)
+                                                                                {
+                                                                                    <option value="">...</option>
+                                                                                    <option selected value="0">No cumple</option>
+                                                                                    <option value="1">Cumple</option>
+                                                                                }
+                                                                                else if (itemselect.valor == 1)
+                                                                                {
+                                                                                    <option value="">...</option>
+                                                                                    <option value="0">No cumple</option>
+                                                                                    <option selected value="1">Cumple</option>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <option selected value="">...</option>
+                                                                                    <option value="0">No cumple</option>
+                                                                                    <option value="1">Cumple</option>
+                                                                                }
+                                                                            }
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input style="display:@valido" type="text" id="resultado_@j-@i" rows="2" cols="1" name="resultado_@j-@i" class="form-control solo-numero col-md-12" maxlength="1" required value="@item4.resultado_total" disabled />
+                                                                    </td>
+                                                                    <td>
+                                                                        <select class="col-md-12 form-control select2" style="display: @valido" name="impacto_@j-@i" id="impacto_@j-@i" required disabled>
+                                                                            <option value="">-Seleccionar-</option>
+
+                                                                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipoCriterio impac in ViewBag.tipoImpacto)
+                                                                            {
+                                                                                if (item3.impacto != null)
+                                                                                {
+                                                                                    if (Convert.ToInt32(item3.impacto) == impac.id_tipo)
+                                                                                    {
+                                                                                        <option selected value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                }
+
+                                                                            }
+
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <textarea type="text" id="observaciones_@j-@i" rows="2" cols="30" name="observaciones_@i-@j" class="form-control col-md-12" maxlength="1000" disabled></textarea>
+                                                                        <input type="hidden" id="observacionesTraer_@j-@i" rows="2" cols="30" name="observacionesTraer_@i-@j" class="form-control col-md-12" value="@item4.observaciones" />
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <input type="file" class="form-control" onchange="textoArchivo(@j, @i)" name="archivos_@j-@i" id="archivos_@j-@i" aria-label="Archivo" multiple disabled>
+                                                                        <textarea type="text" class="textFile form-control" style="display:none;" name="Textoarchivos_@j-@i" id="Textoarchivos_@j-@i" aria-label="TextoArchivo"></textarea>
+                                                                    </td>
+                                                                </tr>
+                                                                k++;
+                                                                valorFila++;
+                                                            }
+                                                            finalConteo += 1;
+                                                        }
+                                                    }
+                                                }
+
+                                                //Evaluacion autocompletada
+                                                else
+                                                {
+                                                    foreach (var item5 in tipos)
+                                                    {
+                                                        if (subtitulo.Count() == 0)
+                                                        {
+                                                            subtitulo = Convert.ToString(item5.id_tipo_criterio);
+                                                        }
+                                                        else
+                                                        {
+                                                            subtitulo += "," + Convert.ToString(item5.id_tipo_criterio);
+                                                        }
+
+                                                        foreach (var item4 in itemSupremo)
+                                                        {
+                                                            if (item4.id_tipo_criterio == item5.id_tipo_criterio)
+                                                            {
+                                                                // i = tipo criterio
+
+                                                                i += 1;
+                                                                m += 1;
+
+                                                                <tr id="tabla_@i">
+                                                                    <td>@k</td>
+                                                                    @{
+                                                                        var radio = item4.decision;
+                                                                        var valido = "";
+                                                                    }
+                                                                    @if (radio == "si")
+                                                                    {
+                                                                        valido = "block";
+                                                                    }
+                                                                    else if (radio == "no")
+                                                                    {
+                                                                        valido = "none";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        valido = "";
+                                                                    }
+                                                                    <td>
+
+                                                                        @if (radio == "si")
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" checked required>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" />
+                                                                        }
+                                                                        else if (radio == "no")
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" required>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" checked />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <label style="text-align:left">Si</label>
+                                                                            <br />
+                                                                            <input type="radio" id="si" value="si" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" required>
+                                                                            <br />
+                                                                            <label style="text-align:left">No</label>
+                                                                            <br />
+                                                                            <input type="radio" id="no" value="no" name="radio_@j-@i" onchange="validacionSiNo(@j, this.value, @i);" />
+                                                                        }
+
+                                                                        <input type="hidden" id="radioFinal_@j-@i" name="radioFinal_@j-@i" />
+                                                                        <input type="hidden" id="valorCampo_@j-@i" name="valorCampo_@j-@i" value="@radio" />
+
+                                                                    </td>
+                                                                    <td>
+                                                                        @item5.nombre_criterio
+                                                                    </td>
+                                                                    <td>
+                                                                        <input class="conteoFilas" type="hidden" id="conteoFilas" value="@l" />
+                                                                        <input class="result_@j" type="hidden" id="result_@i" value="0" />
+                                                                        <input type="hidden" id="resultadov_@i" value="@item3.id_ver_tipoCriterio-0-NO" />
+
+                                                                        <input style="display:@valido" type="text" id="peso_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item5.peso" disabled required>
+                                                                        <input type="hidden" id="pesoCopia_@j-@i" rows="2" cols="1" name="peso" class="form-control solo-numero col-md-12" maxlength="1" value="@item5.peso" disabled required>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select required style="text-align-last:center; display: @valido" class="col-md-12 form-control" name="txtValor-@j-@i" id="txtValor-@j-@i" onchange="actualizarv1(@j, @item5.id_tipo_criterio,@i, this.value, @item5.peso, @l)">
+                                                                            @foreach (var itemselect in itemSupremo)
+                                                                            {
+                                                                                if (itemselect.valor == 0)
+                                                                                {
+                                                                                    <option value="">...</option>
+                                                                                    <option selected value="0">No cumple</option>
+                                                                                    <option value="1">Cumple</option>
+                                                                                }
+                                                                                else if (itemselect.valor == 1)
+                                                                                {
+                                                                                    <option value="">...</option>
+                                                                                    <option value="0">No cumple</option>
+                                                                                    <option selected value="1">Cumple</option>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <option selected value="">...</option>
+                                                                                    <option value="0">No cumple</option>
+                                                                                    <option value="1">Cumple</option>
+                                                                                }
+                                                                            }
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input style="display:@valido" type="text" id="resultado_@j-@i" rows="2" cols="1" name="resultado_@j-@i" class="form-control solo-numero col-md-12" maxlength="1" required disabled value="@item4.resultado_total" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="hidden" id="impactoValor_@j-@i" name="impactoValor_@j-@i" value="@item3.impacto" />
+                                                                        <select class="col-md-12 form-control select2" style="display: @valido" name="impacto_@j-@i" id="impacto_@j-@i" required disabled>
+                                                                            <option value="">-Seleccione-</option>
+
+                                                                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipoCriterio impac in ViewBag.tipoImpacto)
+                                                                            {
+                                                                                if (item3.impacto != null)
+                                                                                {
+                                                                                    if (Convert.ToInt32(item3.impacto) == impac.id_tipo)
+                                                                                    {
+                                                                                        <option selected value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                        break;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <option value="@impac.id_tipo">@impac.descripcion</option>
+                                                                                }
+
+                                                                            }
+
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <textarea type="text" id="observaciones_@j-@i" rows="2" cols="30" name="observaciones_@i-@j" class="form-control col-md-12" maxlength="1000" required></textarea>
+                                                                        <input type="hidden" id="observacionesTraer_@j-@i" rows="2" cols="30" name="observacionesTraer_@i-@j" class="form-control col-md-12" value="@item4.observaciones" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="file" class="form-control" onchange="textoArchivo(@j, @i)" name="archivos_@j-@i" id="archivos_@j-@i" aria-label="Archivo" multiple>
+
+                                                                        @{
+                                                                            var estructura = "";
+                                                                            List<ECOPETROL_COMMON.ENTIDADES.ver_evaluacion_archivos> listado = listadoArchivos.Where(x => x.id_tipoCriterio == item5.id_tipo_criterio && x.id_verification == item4.id_verification).ToList();
+
+                                                                            if (listado.Count() > 0)
+                                                                            {
+                                                                                foreach (ECOPETROL_COMMON.ENTIDADES.ver_evaluacion_archivos ar in listado)
+                                                                                {
+                                                                                    estructura += ar.nombre + "\n";
+                                                                                }
+
+                                                                                <textarea type="text" class="textFile form-control" style="display:block;" name="Textoarchivos_@j-@i" id="Textoarchivos_@j-@i" aria-label="TextoArchivo" placeholder="@estructura" contextmenu="@estructura" disabled></textarea>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <textarea type="text" class="textFile form-control" style="display:none;" name="Textoarchivos_@j-@i" id="Textoarchivos_@j-@i" aria-label="TextoArchivo" placeholder="@estructura" contextmenu="@estructura" disabled></textarea>
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                </tr>
+                                                                k++;
+                                                                //}
+                                                            }
+                                                            finalConteo += 1;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            conteoTiulacion++;
+                                        }
+                                    }
+
+                                    @*Nueva evaluacion*@
+                                    @if (existe == 0)
+                                    {
+                                        <tr>
+                                            <td class="total" colspan="3">TOTAL</td>
+                                            <td class="total">
+                                                <input type="text" id="total" name="total" class="form-control solo-numero col-md-12" maxlength="2" disabled required>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+                                                <input type="text" id="totalResultados" name="totalResultados" value="0" class="form-control solo-numero col-md-12" maxlength="2" disabled required>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+                                                <input type="text" id="resultadosporcentaje" name="resultadosporcentaje" value="0" class="form-control solo-numero col-md-12" maxlength="2" disabled required>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">RECURSO HUMANO</td>
+                                            <td colspan="5">
+                                                <input type="text" id="recursohumano" value="0" name="recursohumano" class="form-control solo-numero col-md-12" maxlength="3" disabled required>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">CONDICIONES LOCATIVAS Y DOTACIÓN</td>
+                                            <td colspan="5">
+                                                <input type="text" id="condiciones_locativasDotacion" value="0" name="condiciones_locativasDotacion" class="form-control solo-numero col-md-12" maxlength="3" disabled required>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">PROCESOS GENERALES</td>
+                                            <td colspan="5">
+                                                <input type="text" id="procesos_generales" name="procesos_generales" value="0" class="form-control solo-numero col-md-12" maxlength="3" disabled required>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">PROCESOS ESPECIALES</td>
+                                            <td colspan="5">
+                                                <input type="text" id="procesos_especiales" name="procesos_especiales" value="0" class="form-control solo-numero col-md-12" maxlength="3" disabled required>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                    @*Ver evaluación*@
+                                    else if (existe != 0 && tipoEvaluacion == 1)
+                                    {
+                                        <tr>
+                                            <td class="total" colspan="3">TOTAL</td>
+                                            <td class="total">
+                                                <input type="text" id="total" name="total" value="@TipicaBase.total_peso" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+
+                                                <input type="text" id="totalResultados" name="totalResultados" value="@TipicaBase.total_resultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+
+                                                @{
+                                                    if (TipicaBase.resultado == null)
+                                                    {
+                                                        var totalResultado = "No aplica";
+                                                        <input type="text" id="resultadosporcentaje" name="resultadosporcentaje" value="@totalResultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" id="resultadosporcentaje" name="resultadosporcentaje" value="@TipicaBase.resultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">RECURSO HUMANO</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="recursohumano" name="recursohumano" value="@TipicaBase.recurso_humano" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td colspan="4" style="text-align:center">CONDICIONES LOCATIVAS Y DOTACIÓN</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="condiciones_locativasDotacion" name="condiciones_locativasDotacion" value="@TipicaBase.condiciones_locativasDotacion" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">PROCESOS Y PROCEDIMIENTOS</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="procesos_generales" name="procesos_generales" value="@TipicaBase.procesos_generales" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">PROCESOS ESPECIALES</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="procesos_especiales" name="procesos_especiales" value="@TipicaBase.procesos_especiales" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                    }
+
+                                    @*Evaluación autoguardada*@
+                                    else
+                                    {
+                                        <tr>
+                                            <td class="total" colspan="3">TOTAL</td>
+                                            <td class="total">
+                                                <input type="text" id="total" name="total" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+
+                                                <input type="text" id="totalResultados" name="totalResultados" value="@TipicaBase.total_resultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                            </td>
+                                            <td class="total"></td>
+                                            <td class="total">
+
+                                                @{
+                                                    if (TipicaBase.resultado == null)
+                                                    {
+                                                        var totalResultado = "No aplica";
+                                                        <input type="text" id="resultadosporcentaje" name="resultadosporcentaje" value="@totalResultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" id="resultadosporcentaje" name="resultadosporcentaje" value="@TipicaBase.resultado" class="form-control solo-numero col-md-12" maxlength="2" disabled>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">RECURSO HUMANO</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="recursohumano" name="recursohumano" value="@TipicaBase.recurso_humano" class="form-control solo-numero col-md-12 " maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+
+                                            <td colspan="4" style="text-align:center">CONDICIONES LOCATIVAS Y DOTACIÓN</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="condiciones_locativasDotacion" name="condiciones_locativasDotacion" value="@TipicaBase.condiciones_locativasDotacion" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align:center"> PROCESOS GENERALES</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="procesos_generales" name="procesos_generales" value="@TipicaBase.procesos_generales" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4" style="text-align:center">PROCESOS ESPECIALES</td>
+                                            <td colspan="5">
+
+                                                <input type="text" id="procesos_especiales" name="procesos_especiales" value="@TipicaBase.procesos_especiales" class="form-control solo-numero col-md-12" maxlength="3" disabled>
+
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        if (existe == 0)
+                        {
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <textarea rows="5" class="form-control" id="hallazgos" name="hallazgos" required maxlength="4999" placeholder="- Hallazgos -"></textarea>
+                                </div>
+                                <div class="col-sm-12 form-group">
+
+                                    <textarea rows="5" class="form-control" id="observacionesAdi" name="observacionesAdi" required maxlength="4999" placeholder="- Observaciones adicionales -"></textarea>
+                                </div>
+
+                                <div class="col-sm-12 form-group text-center">
+                                    <a href="@Url.Action("TableroPuntoDispensacion", "Verificacion")" role="button" class="btn button_Asalud_Rechazar">Volver</a>
+
+                                    <button onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">Guardar Resultados</button>
+                                    @*<button onclick="guardadoAutomatico()" class="btn button_Asalud_Guardar">Guardar automatico</button>*@
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (existe != 0 && tipoEvaluacion == 1)
+                        {
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">Hallazgo</label>
+
+                                    <textarea rows="5" class="form-control" id="hallazgos" name="hallazgos" required maxlength="4999" placeholder="@TipicaBase.hallazgos" disabled></textarea>
+                                </div>
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">Observaciones adicionales</label>
+                                    <textarea rows="5" class="form-control" id="observacionesAdi" name="observacionesAdi" required maxlength="4999" placeholder="@TipicaBase.observacion_adicionales" disabled></textarea>
+                                </div>
+
+                                <div class="col-sm-12 form-group text-center">
+                                    <a href="@Url.Action("TableroPuntoDispensacion", "Verificacion")" role="button" class="btn button_Asalud_Rechazar">Volver</a>
+                                    @*<button onclick="guardadoAutomatico()" class="btn button_Asalud_Guardar">Guardar automatico</button>*@
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">Hallazgo</label>
+                                    <textarea rows="5" class="form-control" id="hallazgos" name="hallazgos" required maxlength="4999" placeholder="@TipicaBase.hallazgos"></textarea>
+                                    <input type="hidden" id="hallazgosLlenado" name="hallazgosLlenado" value="@TipicaBase.hallazgos" />
+
+                                </div>
+                                <div class="col-sm-12 form-group">
+                                    <label class="text-secondary_asalud">Observaciones adicionales</label>
+                                    <textarea rows="5" class="form-control" id="observacionesAdi" name="observacionesAdi" required maxlength="4999" placeholder="@TipicaBase.observacion_adicionales"></textarea>
+                                    <input type="hidden" id="observacionesAdiLlenado" name="observacionesAdiLlenado" value="@TipicaBase.observacion_adicionales" />
+                                </div>
+
+                                <div class="col-sm-12 form-group text-center">
+                                    <a href="@Url.Action("TableroPuntoDispensacion", "Verificacion")" role="button" class="btn button_Asalud_Rechazar">Volver</a>
+
+                                    <button onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">Guardar Resultados</button>
+                                    @*<button onclick="guardadoAutomatico()" class="btn button_Asalud_Guardar">Guardar automatico</button>*@
+                                </div>
+                            </div>
+                        }
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <input id="finalTitulo" value="@titulo" type="hidden" />
+    <input id="finalSubTitulo" value="@subtitulo" type="hidden" />
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var arrayTitulos = [];
+    var arrayPrincipal = [];
+    var arrayRadio = [];
+    var arrayPeso = [];
+    var arrayValor = [];
+    var arrayResultado = [];
+    var arrayImpacto = [];
+    var arrayObservaciones = [];
+    var arrayArchivos = [];
+    var arrayArchivosOrigen = [];
+
+    var totalGlobal = 0;
+
+    $(document).ready(function () {
+
+        var existe = $("#existe").val();
+        var tipoEvaluacion = $("#tipoEvaluacion").val();
+
+        if (existe == 0 || (existe != 0 && tipoEvaluacion != 1)) {
+
+            setInterval(guardadoAutomatico, 90000);
+            //setInterval(guardadoAutomatico, 10000);
+
+            if (existe == 0) {
+                pesoTotal(0, 0, 0, 0);
+                llenadoRadios();
+            }
+
+            else if (tipoEvaluacion != 1 && existe != 0) {
+                pesoTotal(0, 0, 0, 0);
+                LlenarAutomaticoInicio();
+            }
+        }
+
+        else if (existe != 1 && tipoEvaluacion == 1) {
+            llenadoObservaciones();
+        }
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+    });
+
+    function LlenarAutomaticoInicio() {
+        var totalTitulos = @j;
+        var totalSubtitulos = @m;
+        var validador = 1;
+
+        var hallazgo = $("#hallazgosLlenado").val();
+        var observacionAdicional = $("#observacionesAdiLlenado").val();
+
+        if (hallazgo != null && hallazgo != undefined) {
+            document.getElementById("hallazgos").innerText = hallazgo;
+        }
+
+        if (observacionesAdiLlenado != null && observacionesAdiLlenado != undefined) {
+            document.getElementById("observacionesAdi").innerText = observacionAdicional;
+        }
+
+        for (var x = 1; x < (totalTitulos + 1); x++) {
+
+            for (var y = 1; y < (totalSubtitulos + 1); y++) {
+
+                var radio = $("#valorCampo_" + x + "-" + y).val();
+                if (radio != undefined) {
+
+                    document.getElementById("observaciones_" + x + "-" + y).innerText = document.getElementById("observacionesTraer_" + x + "-" + y).value;
+
+                    validacionSiNo(x, radio, y);
+                    validador++;
+                }
+            }
+        }
+
+        var totalFinal = $("#total").val();
+        var resultadoFinal = $("#totalResultados").val();
+
+        var resultadoPorventaje = (parseFloat(resultadoFinal) / parseFloat(totalFinal)) * 100;
+        resultadoPorventaje = resultadoPorventaje.toFixed(1);
+
+        if (resultadoPorventaje != Infinity) {
+            $("#resultadosporcentaje").val(resultadoPorventaje);
+        }
+        else {
+            $("#resultadosporcentaje").val(0);
+        }
+    }
+
+    $('.solo-numero').keyup(function () {
+        this.value = (this.value + '').replace(/[^0-9]/g, '');
+    });
+
+    function llenadoRadios() {
+        var totalTitulos = @j;
+        var totalSubtitulos = @i;
+
+        for (var x = 1; x < (totalTitulos + 1); x++) {
+
+            for (var y = 1; y < (totalSubtitulos + 1); y++) {
+
+                var radioSi = document.querySelector("input[name='radio_" + x + "-" + y + "'][value='si']");
+                if (radioSi) {
+                    radioSi.checked = true;
+                    $("#radioFinal_" + x + "-" + y).val("si");
+                    $("#valorCampo_" + x + "-" + y).val("si");
+
+                    validacionSiNo(x, 'si', y);
+
+                }
+            }
+        }
+    }
+
+    function llenadoObservaciones() {
+        var totalTitulos = @j;
+        var totalSubtitulos = @m;
+
+        for (var x = 1; x < (totalTitulos + 1); x++) {
+
+            for (var y = 1; y < (totalSubtitulos + 1); y++) {
+
+                var radioValue = $("#valorCampo_" + x + "-" + y).val();
+
+                if (radioValue !== undefined) {
+                    // Marcar el radio correspondiente
+                    if (radioValue === "si") {
+                        document.getElementById("si").checked = true;
+                    } else if (radioValue === "no") {
+                        document.getElementById("no").checked = true;
+                    }
+
+                    document.getElementById("observaciones_" + x + "-" + y).innerText = document.getElementById("observacionesTraer_" + x + "-" + y).value;
+                }
+            }
+        }
+    }
+
+    function pesoTotal(a, b, c, d) {
+
+        var finalConteo = @finalConteo;
+
+        var conteoTitulos = @j;
+        var conteoSubtitulos = @i;
+        var valorTotal = 0;
+        var totalidad = 0;
+        var titulo = c;
+        var subtitulo = d;
+
+        if (a != 0) {
+
+            var total = $("#total").val();
+
+            if (total == "") {
+                total = 0;
+            }
+            valorTotal = total;
+
+            if (b == 0) {
+
+                var validacion = $("#valorCampo_" + titulo + "-" + subtitulo).val();
+
+                if (validacion == "si") {
+                    valorTotal = parseFloat(total) - parseFloat(a);
+                    $("#valorCampo_" + titulo + "-" + subtitulo).val("no");
+                }
+
+            } else {
+                valorTotal = parseFloat(total) + parseFloat(b);
+            }
+
+            totalGlobal = valorTotal;
+
+            $("#total").val(valorTotal);
+        }
+    }
+
+    function actualizarv1(a, b, c, d, e, f) {
+        var titulo = a;
+        var subtitulo = c;
+
+        var valor = $("#txtValor-" + titulo + "-" + subtitulo).val();
+        var num = valor.split('-')[0];
+        $("#txt1-" + titulo + "-" + subtitulo).val(num).prop('readonly', true);
+        $("#resultadov_" + subtitulo).val(titulo + "-" + valor);
+        $("#result_" + titulo).val(num);
+        var valorResultado = e * d;
+        $("#resultado_" + titulo +"-"+subtitulo).val(valorResultado);
+
+        //if (valor == 1) {
+        //    $("#impacto_" + titulo + "-" + subtitulo).val(1);
+        //    //$("#impacto_" + titulo + "-" + subtitulo).prop("disabled", true);
+
+        //} else {
+        //    $("#impacto_" + titulo + "-" + subtitulo).val(1).trigger("change");
+        //    //$("#impacto_" + titulo + "-" + subtitulo).prop("disabled", false);
+        //}
+
+        ponerPeso(a, b, c);
+        ponerValor(a, b, c);
+    }
+
+    function ponerPeso(a, b, c) {
+        var fila = c;
+        var columna = a;
+
+        var pesoFinal = 0;
+
+        var final = @finalConteo;
+        $("#pesoTitulo_" + columna).val(0);
+
+        for (var j = columna; j < (columna + 1); j++) {
+
+            var pesoParcial = 0;
+
+            for (var i = 0; i < final; i++) {
+
+                var pesoPoner = 0;
+
+                var validador = $("#valorCampo_" + columna + "-" + (i + 1)).val();
+
+                if (validador == "si") {
+                    pesoPoner = $("#peso_" + columna + "-" + (i + 1)).val();
+                }
+
+                if (pesoPoner != undefined && pesoPoner != null && pesoPoner != "") {
+
+                    pesoParcial = $("#pesoTitulo_" + columna).val();
+
+                    var pesoParcialF = 0;
+
+                    if (pesoParcial == "" || pesoParcial == 0) {
+                        pesoParcialF = 0;
+                    } else {
+                        pesoParcialF = pesoParcial;
+                    }
+
+                    pesoFinal += parseFloat(pesoPoner) + parseFloat(pesoParcialF);
+
+                }
+            }
+        }
+
+        $("#pesoTitulo_" + columna).val(pesoFinal);
+
+        ponerResultado(a, b, c);
+        ponerResultadoFinal(a);
+    }
+
+    function ponerValor(a, b, c) {
+        var fila = c;
+        var columna = a;
+        var valorPoner = 0;
+        var valorParcial = 0;
+        var valorFinal = 0;
+
+        var final = @finalConteo;
+        $("#valor_" + columna).val(0);
+
+        for (var j = columna; j < (columna+1); j++) {
+            for (var i = 0; i < final; i++) {
+
+                valorPoner = $("#txtValor-" + columna + "-" + (i + 1)).val();
+
+                if (valorPoner != undefined && valorPoner != null && valorPoner != "") {
+
+                    valorParcial = $("#valor_" + columna).val();
+
+                    valorPoner = parseFloat(valorPoner);
+
+                    var valorParcialF = 0;
+
+                    if (valorParcial == "" || valorParcial == 0) {
+                        valorParcialF = 0;
+                    } else {
+                        valorParcialF = valorParcial;
+                    }
+
+                    valorFinal += valorPoner + valorParcialF;
+                }
+            }
+        }
+
+        $("#valor_" + columna).val(valorFinal);
+
+        ponerResultado(a, b, c);
+        ponerResultadoFinal(a);
+
+    }
+
+    function ponerResultadoFinal(a) {
+
+        var finalConteo = @finalConteo;
+
+        var conteoTitulos = @j;
+        var conteoSubtitulos = @i;
+        var valorTotal = 0;
+        $("#totalResultados").val(0);
+
+        for (var j = 1; j < (conteoTitulos + 1); j++) {
+            for (var i = 1; i < (conteoSubtitulos + 1); i++) {
+
+                var tomaDatos = $("#resultado_" + j + "-" + i).val();
+
+                if (tomaDatos != undefined && tomaDatos != "" && tomaDatos != null) {
+                    valorTotal += parseFloat(tomaDatos);
+                }
+            }
+        }
+        $("#totalResultados").val(valorTotal);
+    }
+
+    function validacionSiNo(a, b, c) {
+
+        var titulo = a;
+        var valor = b;
+        var subtitulo = c;
+
+        if (valor == "no") {
+
+            $("#radioFinal_" + titulo + "-" + subtitulo).val("no");
+
+            var valorReducir = $("#peso_" + titulo + "-" + subtitulo).val();
+
+            $("#impacto_" + titulo + "-" + subtitulo).show();
+            $("#peso_" + titulo + "-" + subtitulo).hide();
+            $("#peso_" + titulo + "-" + subtitulo).val(null);
+
+            $("#txtValor-" + titulo + "-" + subtitulo).val(null);
+            $("#txtValor-" + titulo + "-" + subtitulo).hide();
+
+            $("#valor_" + titulo).val(total);
+
+            $("#resultado_" + titulo + "-" + subtitulo).hide();
+            $("#resultado_" + titulo + "-" + subtitulo).val(null);
+
+            $("#impacto_" + titulo + "-" + subtitulo).val(1).trigger("change");
+            //$("#impacto_" + titulo + "-" + subtitulo).prop("disabled", false);
+
+            ponerPeso(a, b, c);
+            ponerValor(a, b, c);
+            ponerResultado(a, b, c);
+
+            pesoTotal(valorReducir, 0, titulo, subtitulo);
+
+        } else if(valor == "si") {
+
+            $("#radioFinal_" + titulo + "-" + subtitulo).val("si");
+
+            $("#impacto_" + titulo + "-" + subtitulo).show();
+
+            $("#peso_" + titulo + "-" + subtitulo).show();
+            $("#txtValor-" + titulo + "-" + subtitulo).show();
+            $("#resultado_" + titulo + "-" + subtitulo).show();
+
+            var copiaPeso = $("#pesoCopia_" + titulo + "-" + subtitulo).val();
+            $("#peso_" + titulo + "-" + subtitulo).val(copiaPeso);
+
+            var valorAumentar = $("#peso_" + titulo + "-" + subtitulo).val();
+
+            $("#valorCampo_" + titulo + "-" + subtitulo).val("si");
+
+            var valorImpacto = $("#impactoValor_" + titulo + "-" + subtitulo).val();
+            $("#impacto_" + titulo + "-" + subtitulo).val(valorImpacto).trigger("change");
+
+            ponerPeso(a, b, c);
+            ponerValor(a, b, c);
+            ponerResultado(a, b, c);
+
+            pesoTotal(1, valorAumentar, titulo, subtitulo);
+        }
+    }
+
+    function ponerResultado(a, b, c) {
+        var fila = c;
+        var columna = a;
+        var valorPoner = 0;
+        var valorParcial = 0;
+        var valorFinal = 0;
+
+        var final = @finalConteo;
+        $("#resultadoParcial_" + columna).val(0);
+
+        for (var j = columna; j < (columna + 1); j++) {
+            for (var i = 0; i < final; i++) {
+
+                valorPoner = $("#resultado_" + columna + "-" + (i + 1)).val();
+
+                if (valorPoner != undefined && valorPoner != null && valorPoner != "") {
+
+                    valorParcial = $("#resultadoParcial_" + columna).val();
+
+                    var valorParcialF = 0;
+
+                    if (valorParcial == "" || valorParcial == 0) {
+                        valorParcialF = 0;
+                    } else {
+                        valorParcialF = valorParcial;
+                    }
+
+                    valorFinal += parseFloat(valorPoner) + parseFloat(valorParcialF);
+
+                }
+            }
+        }
+
+        $("#resultadoParcial_" + columna).val(valorFinal);
+
+        ponerObservacion(a, b, c, valorFinal);
+        llenadoComplementario();
+
+    }
+
+    function ponerObservacion(a, b, c, valorFinal) {
+        var fila = c;
+        var columna = a;
+        var valorPoner = 0;
+        var conteo = 0;
+        //var radio = b;
+
+        var final = @finalConteo;
+        $("#observacion_" + columna).val(0);
+
+        for (var j = columna; j < (columna + 1); j++) {
+            for (var i = 0; i < (final+1); i++) {
+
+                valorPeso = $("#pesoTitulo_" + columna).val();
+                valorResultado = $("#resultadoParcial_" + columna).val();
+
+                if (valorPeso == 0 && valorResultado == 0) {
+                    valorPoner = 0;
+                }
+                else {
+
+                    valorPoner = parseFloat(valorResultado) / parseFloat(valorPeso);
+                    valorPoner = valorPoner * 100;
+                    valorPoner = valorPoner.toFixed(0);
+                }
+
+                //if (valorPoner == NaN || valorPoner == "NaN" || valorPoner == isNaN) {
+                //    valorPoner = 0;
+                //}
+
+                $("#observacion_" + columna).val(valorPoner);
+
+                var radio = $("#radioFinal_" + j + "-" + i).val();
+
+                if (radio != undefined) {
+
+                    if (radio != "no") {
+                        conteo++;
+                    }
+                }
+            }
+        }
+
+        //if (conteo == 0) {
+        //    $("#observacion_" + columna).val(NaN);
+        //}
+    }
+
+    function llenadoComplementario() {
+
+        var totalFinal = parseFloat($("#total").val()) || 0; // Usa parseFloat y el operador OR para manejar valores vacíos
+        var resultadoFinal = parseFloat($("#totalResultados").val()) || 0;
+
+        var resultadoPorcentaje;
+
+        if (totalFinal === 0) {
+            resultadoPorcentaje = 0; // Si totalFinal es 0, el resultado es 0
+        } else {
+            resultadoPorcentaje = (resultadoFinal / totalFinal) * 100;
+        }
+
+        resultadoPorcentaje = resultadoPorcentaje.toFixed(2); // Redondea a 1 decimal
+
+        $("#resultadosporcentaje").val(resultadoPorcentaje); // Asigna el valor calculado
+
+        var finalConteo = @finalConteo;
+
+        for (var i = 1; i < finalConteo; i++) {
+            var descripcion = $("#descripcion_" + i).val();
+
+            if (descripcion != undefined) {
+
+                if (descripcion.includes("CONDICIONES")) {
+
+                    var observacionPorce = $("#observacion_" + i).val();
+
+                    if (observacionPorce == "NaN") {
+                        observacionPorce = "No aplica";
+                    }
+
+                    $("#condiciones_locativasDotacion").val(observacionPorce);
+
+                } else if (descripcion.includes("GENERAL")) {
+
+                    var observacionPorce = $("#observacion_" + i).val();
+
+                    if (observacionPorce == "NaN") {
+                        observacionPorce = "No aplica";
+                    }
+
+                    $("#procesos_generales").val(observacionPorce);
+
+                } else if (descripcion.includes("RECUR")) {
+
+                    var observacionPorce = $("#observacion_" + i).val();
+
+                    if (observacionPorce == "NaN") {
+                        observacionPorce = "No aplica";
+                    }
+
+                    $("#recursohumano").val(observacionPorce);
+
+                } else if (descripcion.includes("ESPECIAL")) {
+
+                    var observacionPorce = $("#observacion_" + i).val();
+
+                    if (observacionPorce == "NaN") {
+                        observacionPorce = "No aplica";
+                    }
+
+                    $("#procesos_especiales").val(observacionPorce);
+                }
+            }
+        }
+    }
+
+    function ValidarFormulario()
+    {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            enviarDatos();
+        }
+    }
+
+    function validaCompleto() {
+
+        arrayTitulos = [];
+        arrayTitulos = [];
+        arrayPrincipal = [];
+        arrayRadio = [];
+        arrayPeso = [];
+        arrayValor = [];
+        arrayResultado = [];
+        arrayImpacto = [];
+        arrayObservaciones = [];
+        arrayArchivos =  [];
+        arrayArchivosOrigen = [];
+
+        var finalConteo = @finalConteo;
+
+        var conteoTitulos = @j;
+        var conteoSubtitulos = @i;
+
+        var titulos = document.getElementById('finalTitulo').value;
+        var subtitulos = document.getElementById('finalSubTitulo').value;
+
+
+        var tituloFinal = titulos.split(",");
+        var subtitulosFinal = subtitulos.split(",");
+
+
+        for (var j = 1; j < (conteoTitulos + 1); j++) {
+
+            var titulo = $("#descripcion_" + j).val();
+            arrayTitulos = arrayTitulos.concat(titulo);
+
+            for (var i = 1; i < (conteoSubtitulos + 1); i++) {
+
+                var radio = $("#radioFinal_" + j + "-" + i).val();
+                var peso = $("#peso_" + j + "-" + i).val();
+
+
+                var valor = $("#txtValor-" + j + "-" + i).val();
+                var resultados = $("#resultado_" + j + "-" + i).val();
+                var impacto = $("#impacto_" + j + "-" + i).val();
+                var observacion = $("#observaciones_" + j + "-" + i).val();
+
+                var archivoBase = document.getElementById("archivos_" + j + "-" + i);
+
+                if (archivoBase != undefined) {
+
+                    if (archivoBase != "" && archivoBase != null && archivoBase != undefined) {
+
+                        var conteoArchivos = archivoBase.files.length;
+
+                        for (var w = 0; w < conteoArchivos; w++) {
+
+                            var archivo = archivoBase.files[w];
+                            arrayArchivos = arrayArchivos.concat(archivo);
+
+                            var origen = tituloFinal[j - 1] + "." + subtitulosFinal[i - 1];
+                            arrayArchivosOrigen = arrayArchivosOrigen.concat(origen + "|");
+                        }
+                    }
+                }
+
+                if (radio != "no") {
+                    if (peso != undefined && peso != "" && peso != null) {
+                        if (peso != "" && peso != null) {
+                            arrayPeso = arrayPeso.concat(peso);
+                        } else {
+                            arrayPeso = arrayPeso.concat(null);
+                        }
+                    }
+
+                    if (valor != undefined && valor != "" && valor != null) {
+                        if (valor != "" && valor != null) {
+                            arrayValor = arrayValor.concat(valor);
+                        } else {
+                            arrayValor = arrayValor.concat(null);
+                        }
+                    }
+
+                    if (resultados != undefined && resultados != "" && resultados != null) {
+                        if (resultados != "" && resultados != null) {
+                            arrayResultado = arrayResultado.concat(resultados);
+                        } else {
+                            arrayResultado = arrayResultado.concat(null);
+                        }
+                    }
+                }
+                else {
+                    arrayPeso = arrayPeso.concat(null);
+                    arrayValor = arrayValor.concat(null);
+                    arrayResultado = arrayResultado.concat(null);
+                }
+
+                if (radio != undefined) {
+                    if (radio != "" && radio != null) {
+                        arrayRadio = arrayRadio.concat(radio + "|");
+                    } else {
+                        arrayRadio = arrayRadio.concat("no|");
+                    }
+                }
+
+                if (impacto != undefined) {
+                    if (impacto != "" && impacto != null) {
+                        arrayImpacto = arrayImpacto.concat(impacto + "|");
+                    } else {
+                        arrayImpacto = arrayImpacto.concat("1|");
+                    }
+                }
+
+                if (observacion != undefined) {
+                    if (observacion != "" && observacion != null) {
+                        arrayObservaciones = arrayObservaciones.concat(observacion+"|");
+                    } else {
+                        arrayObservaciones = arrayObservaciones.concat("|");
+                    }
+                }
+
+            }
+        }
+    }
+
+    function enviarDatos() {
+
+        validaCompleto();
+
+        var formData = new FormData($("form")[0]);
+
+        /*datos normales*/
+        var idDispensacion = document.getElementById("idDispen").value;
+        var total = document.getElementById("total").value;
+        if (total == "" || total == "NaN" || total == NaN || total == "No aplica") {
+            total = null;
+        }
+
+        var totalResultado = document.getElementById("totalResultados").value;
+        if (totalResultado == "" || totalResultado == "NaN" || totalResultado == NaN || totalResultado == "No aplica") {
+            totalResultados = null;
+        }
+
+        var resultadosporcentaje = document.getElementById("resultadosporcentaje").value;
+        if (resultadosporcentaje == "" || resultadosporcentaje == "NaN" || resultadosporcentaje == NaN || resultadosporcentaje == "No aplica") {
+            resultadosporcentaje = null;
+        }
+
+        var recursohumano = document.getElementById("recursohumano").value;
+        if (recursohumano == "" || recursohumano == "NaN" || recursohumano == NaN || recursohumano == "No aplica") {
+            recursohumano = null;
+        }
+
+        var condiciones_locativasDotacion = document.getElementById("condiciones_locativasDotacion").value;
+        if (condiciones_locativasDotacion == "" || condiciones_locativasDotacion == "NaN" || condiciones_locativasDotacion == NaN || condiciones_locativasDotacion == "No aplica") {
+            condiciones_locativasDotacion = null;
+        }
+
+        var procesos_especiales = document.getElementById("procesos_especiales").value;
+        if (procesos_especiales == "" || procesos_especiales == "NaN" || procesos_especiales == NaN || procesos_especiales == "No aplica") {
+            procesos_especiales = null;
+        }
+
+        var procesos_generales = document.getElementById("procesos_generales").value;
+        if (procesos_generales == "" || procesos_generales == "NaN" || procesos_generales == NaN || procesos_generales == "No aplica") {
+            procesos_generales = null;
+        }
+
+        var hallazgos = document.getElementById("hallazgos").value;
+        var observacionesAdi = document.getElementById("observacionesAdi").value;
+
+        formData.append("idDispen", idDispensacion);
+        formData.append("total", total);
+        formData.append("totalResultados", totalResultado);
+        formData.append("resultadosporcentaje", resultadosporcentaje);
+        formData.append("recursohumano", recursohumano);
+        formData.append("condiciones_locativasDotacion", condiciones_locativasDotacion);
+        formData.append("procesos_generales", procesos_generales);
+        formData.append("procesos_especiales", procesos_especiales);
+        formData.append("hallazgos", hallazgos);
+        formData.append("observacionesAdi", observacionesAdi);
+
+        /*arrays*/
+        var arrayPeso2 = JSON.stringify(arrayPeso);
+        formData.append("arrayPeso", arrayPeso);
+
+        formData.append("arrayRadio", arrayRadio);
+
+        var arrayValor2 = JSON.stringify(arrayValor);
+        formData.append("arrayValor", arrayValor);
+
+        var arrayResultado2 = JSON.stringify(arrayResultado);
+        formData.append("arrayResultado", arrayResultado);
+
+        var arrayImpacto2 = JSON.stringify(arrayImpacto);
+        formData.append("arrayImpacto", arrayImpacto);
+
+        formData.append("arrayTitulos", arrayTitulos);
+
+        var arrayObservaciones2 = JSON.stringify(arrayObservaciones);
+        formData.append("arrayObservaciones", arrayObservaciones);
+
+        /*titulos*/
+        formData.append("finalTitulo", $("#finalTitulo").val());
+        formData.append("finalSubTitulo", $("#finalSubTitulo").val());
+        formData.append("id_evaluacion", $("#id_evaluacion").val());
+        formData.append("nombre_auditado", $("#txtnomAuditado").val());
+
+        var id_evaluacion = 0;
+        $("#validacion").val(2);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarEvaluacionDispensacion")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+
+                if (data.success) {
+
+                    id_evaluacion = data.id_evaluacion;
+                    $("#validacion").val(2);
+                    pdfEvaluacion(id_evaluacion);
+                    alert(data.message);
+                    guardarImagenes(id_evaluacion, 1);
+
+                    LoadingHide();
+                    location.href = "@Url.Action("TableroPuntoDispensacion")";
+                }
+                else {
+                    alert(data.message);
+                    $("#validacion").val(null);
+                    LoadingHide();
+                    window.location.href =  "@Url.Action("TableroPuntoDispensacion")?msg="+data.message;
+                }
+            },
+        })
+    }
+
+    function guardarImagenes(id_evaluacion, tipoIngreso) {
+
+        //tipoIngreso) 1: Envio total, 2: Envio automatico parcial
+
+        var finalConteo = @finalConteo;
+
+        var conteoTitulos = @j;
+        var conteoSubtitulos = @i;
+
+        var conteo = arrayArchivos.length;
+
+        for (var x = 0; x < conteo; x++) {
+
+            var data = new FormData();
+
+            var file = arrayArchivos[x];
+            var origen = arrayArchivosOrigen[x]
+
+            data.append('files', file);
+            data.append('idEvaluacion', id_evaluacion);
+            data.append("origen", origen);
+            data.append("tipoIngreso", tipoIngreso);
+
+            $.ajax({
+                url: "@Url.Action("GuardarImagenes")",
+                type: "post",
+                data: data,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                traditional: true,
+            })
+        }
+
+        if (tipoIngreso == 1) {
+            location.href = "@Url.Action("TableroPuntoDispensacion")";
+        }
+    }
+
+    function pdfEvaluacion(id_evaluacion) {
+
+        var url = "@Url.Action("PdfEvaluacionVisitas", "Verificacion")?id_evaluacion=" + id_evaluacion;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function textoArchivo(j, i) {
+
+        var archivoBase = document.getElementById("archivos_" + j + "-" + i);
+        var archivoBase = document.getElementById("archivos_" + j + "-" + i);
+        var observacion = document.getElementById("observaciones_" + j + "-" + i);
+        var nombresArchivos = "";
+
+        if (archivoBase != null && archivoBase.length != 0) {
+
+            for (var y = 0; y < archivoBase.files.length; y++) {
+
+                var archivo = archivoBase.files[y];
+                var nombre = archivo.name;
+
+                if (nombresArchivos == "") {
+
+                    nombresArchivos = "*" + nombre;
+                }
+                else{
+                    nombresArchivos += "\n" + "*" +  nombre;
+                }
+            }
+        }
+
+        //document.getElementById("Textoarchivos_" + j + "-" + i).value = nombresArchivos;
+        document.getElementById("Textoarchivos_" + j + "-" + i).style.display = 'block';
+        document.getElementById("Textoarchivos_" + j + "-" + i).innerHTML = nombresArchivos;
+
+    }
+
+    function validaAutoGuardado() {
+
+        arrayTitulos = [];
+        arrayTitulos = [];
+        arrayPrincipal = [];
+        arrayRadio = [];
+        arrayPeso = [];
+        arrayValor = [];
+        arrayResultado = [];
+        arrayImpacto = [];
+        arrayObservaciones = [];
+        arrayArchivos = [];
+        arrayArchivosOrigen = [];
+
+        var finalConteo = @finalConteo;
+
+        var conteoTitulos = @j;
+        var conteoSubtitulos = @i;
+
+        var titulos = document.getElementById('finalTitulo').value;
+        var subtitulos = document.getElementById('finalSubTitulo').value;
+
+
+        var tituloFinal = titulos.split(",");
+        var subtitulosFinal = subtitulos.split(",");
+
+
+        for (var j = 1; j < (conteoTitulos + 1); j++) {
+
+            var titulo = $("#descripcion_" + j).val();
+            arrayTitulos = arrayTitulos.concat(titulo);
+
+            for (var i = 1; i < (conteoSubtitulos + 1); i++) {
+
+                var radio = $("#radioFinal_" + j + "-" + i).val();
+                var peso = $("#peso_" + j + "-" + i).val();
+
+                var valor = $("#txtValor-" + j + "-" + i).val();
+                var resultados = $("#resultado_" + j + "-" + i).val();
+                var impacto = $("#impacto_" + j + "-" + i).val();
+                var observacion = $("#observaciones_" + j + "-" + i).val();
+
+                var archivoBase = document.getElementById("archivos_" + j + "-" + i);
+
+                if (archivoBase != undefined) {
+
+                    if (archivoBase != "" && archivoBase != null && archivoBase != undefined) {
+
+                        var conteoArchivos = archivoBase.files.length;
+
+                        for (var w = 0; w < conteoArchivos; w++) {
+
+                            var archivo = archivoBase.files[w];
+                            arrayArchivos = arrayArchivos.concat(archivo);
+
+                            var origen = tituloFinal[j - 1] + "." + subtitulosFinal[i - 1];
+                            arrayArchivosOrigen = arrayArchivosOrigen.concat(origen + "|");
+                        }
+                    }
+                }
+
+                if (radio != "no") {
+
+                    if (peso != undefined) {
+                        if (peso != "" && peso != null) {
+                            arrayPeso = arrayPeso.concat(peso);
+                        } else {
+                            arrayPeso = arrayPeso.concat(null);
+                        }
+                    }
+
+                    if (valor != undefined) {
+
+                        if (valor != "" && valor != null) {
+                            arrayValor = arrayValor.concat(valor);
+                        } else {
+                            arrayValor = arrayValor.concat(null);
+                        }
+                    }
+
+                    if (resultados != undefined) {
+                        if (resultados != "" && resultados != null) {
+                            arrayResultado = arrayResultado.concat(resultados);
+                        } else {
+                            arrayResultado = arrayResultado.concat(null);
+                        }
+                    }
+                }
+
+                else {
+                    arrayPeso = arrayPeso.concat(null);
+                    arrayValor = arrayValor.concat(null);
+                    arrayResultado = arrayResultado.concat(null);
+                }
+
+
+                if (radio != undefined) {
+                    if (radio != "" && radio != null) {
+                        arrayRadio = arrayRadio.concat(radio + "|");
+                    } else {
+                        arrayRadio = arrayRadio.concat("|");
+                    }
+                }
+
+                if (impacto != undefined) {
+                    if (impacto != "" && impacto != null) {
+                        arrayImpacto = arrayImpacto.concat(impacto + "|");
+                    } else {
+                        arrayImpacto = arrayImpacto.concat("1|");
+                    }
+                }
+
+                if (observacion != undefined) {
+                    if (observacion != "" && observacion != null) {
+                        arrayObservaciones = arrayObservaciones.concat(observacion + "|");
+                    } else {
+                        arrayObservaciones = arrayObservaciones.concat("|");
+                    }
+                }
+
+            }
+        }
+    }
+
+    @*function guardadoAutomatico() {
+
+        const validacion = $("#validacion").val();
+        if (validacion != 2) {
+            validaAutoGuardado();
+
+            const formData = new FormData($("form")[0]);
+            const fields = [
+                { id: "idDispen", name: "idDispen" },
+                { id: "id_evaluacion", name: "id_evaluacion" },
+                { id: "total", name: "total" },
+                { id: "totalResultados", name: "totalResultados" },
+                { id: "resultadosporcentaje", name: "resultadosporcentaje" },
+                { id: "recursohumano", name: "recursohumano" },
+                { id: "condiciones_locativasDotacion", name: "condiciones_locativasDotacion" },
+                { id: "procesos_generales", name: "procesos_generales" },
+                { id: "procesos_especiales", name: "procesos_especiales" },
+                { id: "hallazgos", name: "hallazgos" },
+                { id: "observacionesAdi", name: "observacionesAdi" }
+            ];
+
+            fields.forEach(field => {
+                let value = document.getElementById(field.id).value;
+                if (["", "NaN", NaN, "No aplica"].includes(value)) {
+                    value = null;
+                }
+                formData.append(field.name, value);
+            });
+
+            const arrays = [
+                { name: "arrayPeso", data: arrayPeso },
+                { name: "arrayRadio", data: arrayRadio },
+                { name: "arrayValor", data: arrayValor },
+                { name: "arrayResultado", data: arrayResultado },
+                { name: "arrayImpacto", data: arrayImpacto },
+                { name: "arrayTitulos", data: arrayTitulos },
+                { name: "arrayObservaciones", data: arrayObservaciones }
+            ];
+
+            arrays.forEach(array => {
+                formData.append(array.name, JSON.stringify(array.data));
+            });
+
+            const extraFields = [
+                { id: "finalTitulo", name: "finalTitulo" },
+                { id: "finalSubTitulo", name: "finalSubTitulo" },
+                { id: "id_evaluacion", name: "id_evaluacion" },
+                { id: "txtnomAuditado", name: "nombre_auditado" }
+            ];
+
+            extraFields.forEach(field => {
+                formData.append(field.name, $(`#${field.id}`).val());
+            });
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("AutoguardadoEvaluacionDispensacion")",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                traditional: true,
+                success: function (data) {
+                    LoadingHide();
+                    if (data.success) {
+                        const id_evaluacion = data.idevaluacion;
+                        guardarImagenes(id_evaluacion, 2);
+                        $("#id_evaluacion").val(id_evaluacion);
+                    }
+                }
+            });
+        }
+    }*@
+
+    function guardadoAutomatico() {
+
+        try {
+            const validacion = $("#validacion").val();
+            if (validacion != 2) {
+                validaAutoGuardado();
+
+                const formData = new FormData($("form")[0]);
+                const fields = [
+                    { id: "idDispen", name: "idDispen" },
+                    { id: "id_evaluacion", name: "id_evaluacion" },
+                    { id: "total", name: "total" },
+                    { id: "totalResultados", name: "totalResultados" },
+                    { id: "resultadosporcentaje", name: "resultadosporcentaje" },
+                    { id: "recursohumano", name: "recursohumano" },
+                    { id: "condiciones_locativasDotacion", name: "condiciones_locativasDotacion" },
+                    { id: "procesos_generales", name: "procesos_generales" },
+                    { id: "procesos_especiales", name: "procesos_especiales" },
+                    { id: "hallazgos", name: "hallazgos" },
+                    { id: "observacionesAdi", name: "observacionesAdi" }
+                ];
+
+                fields.forEach(field => {
+                    let value = document.getElementById(field.id).value;
+                    if (["", "NaN", NaN, "No aplica"].includes(value)) {
+                        value = null;
+                    }
+                    formData.append(field.name, value);
+                });
+
+                const arrays = [
+                    { name: "arrayPeso", data: arrayPeso },
+                    { name: "arrayRadio", data: arrayRadio },
+                    { name: "arrayValor", data: arrayValor },
+                    { name: "arrayResultado", data: arrayResultado },
+                    { name: "arrayImpacto", data: arrayImpacto },
+                    { name: "arrayTitulos", data: arrayTitulos },
+                    { name: "arrayObservaciones", data: arrayObservaciones }
+                ];
+
+                arrays.forEach(array => {
+                    formData.append(array.name, JSON.stringify(array.data));
+                });
+
+                const extraFields = [
+                    { id: "finalTitulo", name: "finalTitulo" },
+                    { id: "finalSubTitulo", name: "finalSubTitulo" },
+                    { id: "id_evaluacion", name: "id_evaluacion" },
+                    { id: "txtnomAuditado", name: "nombre_auditado" }
+                ];
+
+                extraFields.forEach(field => {
+                    formData.append(field.name, $(`#${field.id}`).val());
+                });
+
+                LoadingShow();
+                $.ajax({
+                    url: "@Url.Action("AutoguardadoEvaluacionDispensacion")",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    traditional: true,
+                    success: function (data) {
+                        LoadingHide();
+                        if (data.success) {
+
+                            const id_evaluacion = data.idevaluacion;
+                            $("#id_evaluacion").val(id_evaluacion);
+                            guardarImagenes(id_evaluacion, 2);
+
+                        } else {
+                            alert("Se ha finalizado la sesión");
+                            window.location.href = '@Url.Action("Login", "Usuario")';
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        debugger
+                        LoadingHide();
+                        //console.error("Error en la solicitud Ajax:", error);
+                        alert("Ocurrió un error durante el guardado automático.");
+                        window.location.href = '@Url.Action("Login", "Usuario")';
+                    }
+                });
+            }
+        } catch (e) {
+            debugger
+            LoadingHide();
+            //console.error("Error en guardadoAutomatico:", e);
+            alert("Ocurrió un error inesperado.");
+            window.location.href = '@Url.Action("Login", "Usuario")';
+        }
+    }
+
+
+</script>
+
+<style>
+
+    label.error {
+        float: left;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 1px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #767171;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        background: #fff;
+        border-bottom: 2px solid;
+        color: #767171;
+        border-top: 1px solid transparent;
+    }
+
+    .encabezado {
+        background: #767171;
+        color: #fff;
+    }
+
+    .color {
+        background: #6798CD;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    label {
+    }
+
+    .encabezado .todo {
+        resize: none;
+        text-align: center;
+        border: 0;
+        color: white;
+        background-color: #767171;
+    }
+
+    #contenedor {
+        display: inline-block;
+        min-width: 100px;
+    }
+
+    #texto {
+        background-color: red;
+        width: 100%;
+    }
+
+    [type="file"] {
+        position: relative;
+        width: 110px;
+        height: 35px;
+        border-radius: 5px;
+        font-size: 8px;
+        text-align: center;
+    }
+
+    .textContent {
+        display: inline-block;
+        min-width: 100px;
+    }
+
+    .textFile {
+        /*background-color: white;
+            color: black;
+            width: 100%;
+            height: 100px;
+            font-family: 'Century Gothic';
+            font-size: 7px;
+    */
+        /*resize: none;
+            overflow: hidden;
+            min-height: 50px;
+            max-height: 100px;*/
+        width: 195px;
+        height: 140px;
+        box-sizing: border-box;
+        direction: rtl;
+        display: block;
+        max-width: 100%;
+        line-height: 1.6;
+        padding: 20px 20px 25px;
+        border-radius: 1px;
+        border: 0px solid #F7E98D;
+        font-family: 'Century Gothic';
+        font-size: 8px;
+        transition: box-shadow 0.5s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: linear-gradient(#d7e7f2, #c1d9e9);
+        background: -o-linear-gradient(#d7e7f2, #c1d9e9);
+        background: -moz-linear-gradient(#d7e7f2, #c1d9e9);
+        background: -webkit-linear-gradient(#d7e7f2, #c1d9e9);
+        text-align: left;
+    }
+</style>

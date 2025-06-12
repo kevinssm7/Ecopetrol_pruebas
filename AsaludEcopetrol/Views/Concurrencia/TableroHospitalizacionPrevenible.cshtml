@@ -1,0 +1,295 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO HOSPITALIZACIÓN EVITABLE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+
+}
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE HOSPITALIZACIÓN EVITABLE</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" action="TableroHospitalizacionPrevenible" method="post">
+            <div class="row">
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">CIE10</label>
+                    <input autocomplete="off" type="text" class="form-control" id="CIE10" name="CIE10" maxlength="100" placeholder="Diagnóstico cie10" />
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select id="regional" class="form-control select2" name="regional">
+                        <option value="">-Seleccione-</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+                            <option value="@item.indice"> @item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                    @if (resultado != 0)
+                    {
+                        <a class="button_Asalud_descargas" href="@Url.Action("ReporteHETableroControl", "Concurrencia")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte completo</a>
+                    }
+                </div>
+            </div>
+            @if (resultado == 0)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos.")</p>
+                    </div>
+                </div>
+            }
+        </form>
+
+        <br />
+        <table id="tabla" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Id HE</th>
+                    <th>Id concurrencia</th>
+                    <th>id censo</th>
+                    <th>Id egreso</th>
+                    <th>Documento</th>
+                    <th>Nombre paciente</th>
+                    <th>Regional</th>
+                    <th>Diagnóstico egreso</th>
+                    <th>Archivos</th>
+                    <th>Gestión</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 0;
+                }
+                @foreach (ECOPETROL_COMMON.ENTIDADES.management_hospitalizacionPrevenible_TableroResult item in ViewBag.list)
+                {
+                    i++;
+                    <tr>
+
+                        <td>@i</td>
+                        <td>@item.id_HE</td>
+                        <td>@item.id_concurrencia</td>
+                        <td>@item.id_censo</td>
+                        <td>@item.id_egreso</td>
+                        <td>@item.doc_paciente</td>
+                        <td>@item.afi_nom</td>
+                        <td>@item.regional</td>
+                        <td>@item.dx1</td>
+                        <td>
+                            <a class="button_Asalud_Aceptar" href="@Url.Action("ReporteHETableroControlIndividual", "Concurrencia", new { id_HE = item.id_HE})"> Reporte</a>
+                            <a class="button_Asalud_descargas" href='javascript:pdfConcu(@item.id_concurrencia)'> PDF</a>
+                        </td>
+                        <td>
+                            <a class="button_Asalud_Guardar" href="@Url.Action("GestionHospitalizacionPrevenible", "Concurrencia", new { idHE = item.id_HE})">
+                                GESTIONAR
+                            </a>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#CIE10").autocomplete({
+            source: "/Concurrencia/BuscarCIE10",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.cie10);
+                }
+            }
+        })
+    })
+
+    function pdfConcu(idConcurrencia) {
+
+        var url = "@Url.Action("PdfDescargaConcu", "Concurrencia")?idConcurrencia=" + idConcurrencia;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+     @*function traerCie10(a) {
+
+        $.ajax({
+            url: "@Url.Action("BuscarCIE10")",
+            type: "POST",
+            minLenght: 1,
+            data: {value:a},
+            success: function (data) {
+
+                var cie10 = data[0].cie10;
+                document.getElementById("CIE10").value = cie10;
+
+            },
+        });
+    }*@
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+
+    .pdf {
+        background-image: url(../../Files/pdf.png);
+        background-color: transparent;
+        background-repeat: no-repeat;
+        height: 50px;
+        width: 40px;
+        background-size: 35px 35px;
+        background-position: center;
+    }
+
+    .excel {
+        background-image: url(../../Files/excel.png);
+        background-color: transparent;
+        background-repeat: no-repeat;
+        height: 50px;
+        width: 40px;
+        background-size: 35px 35px;
+        background-position: center;
+    }
+</style>
+
+
+

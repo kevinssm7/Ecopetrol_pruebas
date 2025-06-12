@@ -1,0 +1,472 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO CONTROL SEGUIMIENTO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+}
+
+<div class="container">
+    <div class="col-md-12 text-right">
+        <a class="btn button_Asalud_descargas" onclick="verExcelDatos();" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>&nbsp; DESCARGAR</a>
+    </div>
+    <br />
+    <br />
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <form name="formulario" id="formulario" enctype="multipart/form-data">
+                    <div class="panel-body">
+                        <table class="tableSegui table-bordered table-condensed table-striped" id="tableSegui" style="width: 98%; font-size: 10px;">
+                            <thead>
+                                <tr>
+                                    <th>Id PQR</th>
+                                    <th>Número caso</th>
+                                    <th>Ciudad</th>
+                                    <th>Asignación</th>
+                                    <th>Fecha respuesta programada SalesForce</th>
+                                    <th>Fecha envío proyectada</th>
+                                    <th>Estado</th>
+                                    <th>Revisión de calidad</th>
+                                    <th>Detalle</th>
+                                    <th>Eliminar</th>
+                                    <th>Aprobar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.conteo > 0)
+                                {
+                                    foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_TableroseguimientoResult order in ViewBag.lista)
+                                    {
+                                        i++;
+                                        <tr>
+                                            <td>@order.id_ecop_PQRS</td>
+                                            <td>
+                                                @order.numero_caso
+                                                <input type="hidden" id="numeroCaso_@i" value="@order.numero_caso" />
+                                            </td>
+                                            <td>@order.ciudad_del_caso_descripcion</td>
+                                            <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                                            <td>@order.fecha_egreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+
+                                            <td>
+                                                @if (order.fecha_envio_proyectada != null)
+                                                {
+                                                    @order.fecha_envio_proyectada.Value.ToString("dd/MM/yyyy")
+                                                }
+                                                else
+                                                {
+                                                    @order.fecha_envio_proyectada
+                                                }
+                                            </td>
+
+                                            <td>@order.estadoDescripcion</td>
+
+                                            <td style="text-align:center;">
+                                                <a class="button_Asalud_Aceptar" onclick="MostrarArchivos(@order.id_ecop_PQRS);" data-toggle="modal" data-target="#myModalArchivos">
+                                                    <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                                                </a>
+                                            </td>
+
+                                            <td style="text-align:center;">
+                                                <a class="button_Asalud_Aceptar" onclick="MostrarDetalle(@order.id_ecop_PQRS);" data-toggle="modal" data-target="#myModalDetalle">
+                                                    Ver
+                                                </a>
+                                            </td>
+
+                                            @if (order.ultima_obs == null)
+                                            {
+                                                <td style="text-align:center;">
+                                                    <a title="Eliminar" class="btn-sm button_Asalud_Rechazar" href="javascript:Eliminar(@order.id_ecop_PQRS)">
+                                                        Eliminar
+                                                    </a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>Ya ha sido gestionado</td>
+                                            }
+
+                                            <td style="text-align:center;">
+                                                @if (order.estado_gestion == 3)
+                                                {
+                                                    <a class="button_Asalud_Aceptar" onclick="aprobarCaso(@order.id_ecop_PQRS);">
+                                                        <i class="glyphicon glyphicon-ok"></i>
+                                                    </a>
+
+                                                    <a class="button_Asalud_Rechazar" onclick="ReAbrirCaso(@order.id_ecop_PQRS, @i);">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                <td>
+                                                </td>
+                                            }
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="text-align:center; font-size:14px;">
+                                                SIN PQRS
+                                            </td>
+                                        </tr>
+                                    }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-backdrop="static" data-keyboard="false" id="myModalDetalle">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoDetalle"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalCerrar">
+    <div class="modal-dialog modal-lg" style="width:35%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoCerrar"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="mySubModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoSubArchivos"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.tableSegui').DataTable({
+            "searching": true,
+            "idisplaylength": 20,
+            "lengthchange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "Buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+    });
+
+    function verArAproyec(idPqrs) {
+
+        var URL2 = "@Url.Action("VerArchivoIngresoPqrId", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+    }
+
+    function MostrarArchivos(idPqrs) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivosCerradoSeguimiento")?idPqrs=' + idPqrs + "&tipo=2";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+            }
+        });
+    }
+
+      function MostrarDetalle(idPqrs) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarDetalleGestionesPqrs")?idPqrs=' + idPqrs;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoDetalle').html('');
+                $('#resultadoDetalle').html(response);
+            }
+        });
+    }
+
+    function verExcelDatos() {
+
+        var URL2 = "@Url.Action("descargarDatosPqrsSeguimiento", "Pqrs")";
+        window.open(URL2, '', 'width =400,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    function ReAbrirCaso(idPqrs, i) {
+
+        var numeroCaso = $("#numeroCaso_" + i).val();
+
+        var confirmar = confirm("¿Está seguro(a) de reabrir este caso?")
+        if (confirmar == true) {
+            var UrlVista = '@Url.Action("_reaperturaPQR", "Pqrs")';
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: UrlVista,
+                data: {
+                    idPqrs: idPqrs,
+                    numeroCaso: numeroCaso,
+                    tipo: 2,
+                },
+                success: function (response) {
+                    $('#resultadoCerrar').html('');
+                    $('#resultadoCerrar').html(response);
+                    $("#myModalCerrar").modal('show');
+                }
+            });
+        }
+    }
+
+
+    function aprobarCaso(idPqr) {
+
+        var confirmar = confirm("¿Está seguro(a) de cerrar este caso?");
+        if (confirmar == true) {
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("cerrarCasoPqr", "Pqrs")",
+                type: "post",
+                data: {
+                    idPqr: idPqr,
+                },
+                method: "post",
+                success: function (data) {
+                    if (data.rta = 1) {
+                        alert(data.mensaje);
+                        LoadingHide();
+                        location.reload();
+                    }
+                    else {
+                        alert(data.mensaje);
+                        LoadingHide();
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+    function MostrarSubArchivos(idPqrs) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=8";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+                $("#myModalArchivos").modal('show');
+            }
+        });
+    }
+
+      function Eliminar(Valor) {
+        var opcion = confirm("Está seguro de eliminar este registro...");
+        if (opcion == true) {
+
+            var formData = new FormData($("form")[0]);
+
+            formData.append("id_ecop_PQRS", Valor);
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarPQRS", "Pqrs")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    if (response.success) {
+                        alert(response.message);
+                        LoadingHide();
+                        location.reload();
+                    }
+                    else {
+                        alert(response.message);
+                        LoadingHide();
+
+                    }
+
+                }
+            })
+        }
+    }
+
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .dataTables_length {
+        visibility: hidden;
+    }
+</style>

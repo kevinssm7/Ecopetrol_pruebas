@@ -1,0 +1,1950 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.managemenet_prestadores_traerDatosFacturas_idDetalleResult
+
+@{
+    ViewBag.Title = "GESTIÓN FACTURA ANALISTA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+
+    ECOPETROL_COMMON.ENTIDADES.management_fis_traerDatosContrato_nitResult contrato = new ECOPETROL_COMMON.ENTIDADES.management_fis_traerDatosContrato_nitResult();
+    //if (ViewBag.contratos != null)
+    //{
+    //    contrato = ViewBag.contratos;
+    //}
+
+    List<ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_usuariosResult> usuario = new List<ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_usuariosResult>();
+
+    if (ViewBag.ripsUsuarios != null)
+    {
+        usuario = ViewBag.ripsUsuarios;
+    }
+
+    ECOPETROL_COMMON.ENTIDADES.management_fis_traerFechas_cuvResult fechas = new ECOPETROL_COMMON.ENTIDADES.management_fis_traerFechas_cuvResult();
+    if (ViewBag.fechas != null)
+    {
+        fechas = ViewBag.fechas;
+    }
+}
+
+<div class="container">
+    <form id="formTotalidadFacturas">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS BÁSICOS</strong>
+            </div>
+            <div class="panel-body">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Código prestador</label>
+                            <input type="hidden" id="idCargue" name="idCargue" value="@ViewBag.idCargue" />
+                            <input type="hidden" id="idDetalle" name="idDetalle" value="@ViewBag.idDetalle" />
+                            <input type="hidden" id="regional" name="regional" value="@ViewBag.regional" />
+                            <input type="hidden" id="cuv" name="cuv" value="@ViewBag.cuv" />
+                            <input type="hidden" id="valorFactura" name="valorFactura" value="@ViewBag.valorFactura" />
+                            <input type="text" id="codigoPrestador" name="codigoPrestador" value="@Model.codigo_prestador" class="form-control" maxlength="50" />
+
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Nit del prestador</label>
+                            <input type="text" id="nit" name="nit" value="@Model.nit" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Prestador</label>
+                            <input type="text" id="prestador" name="prestador" value="@Model.razonSocial" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Número factura</label>
+                            <input type="text" id="factura" name="factura" value="@Model.num_factura" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha factura</label>
+                            <input type="text" id="fechafactura" name="fechafactura" style="width:100%;" class="form-control datepickerr2" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha inicio atención</label>
+                            <input type="text" id="fechainicio" name="fechainicio" style="width:100%;" value="@fechas.fechaInicial" class="form-control datepickerr" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-secondary_asalud">Fecha final atención</label>
+                            <input type="text" id="fechafin" name="fechafin" style="width:100%;" value="@fechas.fechaFinal" class="form-control datepickerr" />
+                        </div>
+                        <br />
+
+                        <div class="col-md-3">
+                            <a class="btn btn-sm button_Asalud_Aceptar" onclick="verArchivos()">
+                                Documentos <i class="glyphicon glyphicon-file" style="align-content:center;"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Departamento prestacion</label>
+                            <select class="form-control select2" id="id_departamento" name="id_departamento" onchange="ObtenerCiudades(this.value)" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_fis_departamentos item in ViewBag.departamentos)
+                                {
+                                    <option value="@item.id_departamento">@item.nombre_departamento</option>
+                                }
+
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Ciudad prestación</label>
+                            <select class="form-control select2" id="id_municipio" name="id_municipio" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong class="text-primary_asalud">CONTRATOS</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="text-secondary_asalud">¿FI?</label>
+                                    <select id="fi" name="fi" class="form-control" onchange="ContratoFI(this.value)" required>
+                                        <option value="">-Seleccione-</option>
+                                        <option value="SI">SI</option>
+                                        <option value="NO">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <br />
+
+                            <div class="row" id="divSeleccionContrato" style="display:none">
+                                <div class="col-md-12">
+                                    <label class="text-secondary_asalud">Lista contratos</label>
+                                    <select id="listaContratos" name="listaContratos" class="form-control select2" onchange="ColocarContrato(this.value)" required>
+                                        <option value="">-Seleccione-</option>
+                                        @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_traerDatosContrato_nitResult item in ViewBag.ListaContratos)
+                                        {
+                                            var opcion = @item.ciudadProveedor + "_" + item.num_contrato + "_" + item.estado;
+                                            <option value="@opcion"> @item.ciudadProveedor - @item.num_contrato - @item.estado - @item.codigo_habilitacion - @item.nit</option>
+                                        }
+
+                                    </select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row" id="divSeleccionContratoSel" style="display:none">
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Localidad de prestador</label>
+                                    <input type="text" id="localidad" name="localidad" value="@contrato.ciudadProveedor" class="form-control" readonly />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Número contrato</label>
+                                    <input type="text" id="numcontrato" name="numcontrato" value="@contrato.num_contrato" class="form-control" readonly />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-secondary_asalud">Estado contrato</label>
+                                    <input type="text" id="estado" name="estado" value="@contrato.estado" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <div class="panel-body">
+
+            <div class="col-md-2">
+                <a class="btn button_Asalud_Aceptar" onclick="EditarIvaMasivo();">Editar IVA</a>
+            </div>
+
+            <div class="col-md-2">
+                <a class="btn button_Asalud_Guardar" onclick="EditarTigasMasivo();">Editar TIGAS</a>
+            </div>
+
+            <div class="col-md-2">
+                <a class="btn button_Asalud_Aceptar" onclick="AgregarGlosaMasivo();">Agregar glosas</a>
+            </div>
+
+            <div class="col-md-12 text-right">
+                <a onclick="ExportarRips();" class="btn-sm button_Asalud_descargas"><i class="glyphicon glyphicon-download"></i>&nbsp; Descargar detalles</a>
+            </div>
+        </div>
+        <br />
+
+        <div class="col-md-6 text-center">
+            <label class="text-secondary_asalud">Valor factura: <span id="valortotalFactura">0</span> </label>
+        </div>
+        <div class="col-md-6 text-center">
+            <label class="text-secondary_asalud">Valor factura menos detalles: <span id="valortotalFacturaRestante">@ViewBag.valorFacturaMenosDetalles</span> </label>
+        </div>
+
+        <br />
+        <div class="panel-body divBusquedaCups">
+            <div class="col-md-5">
+                <input type="text" id="cupsBusqueda" name="cupsBusqueda" maxlength="300" placeholder="CUPS" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <a class="btn btn-sm button_Asalud_Aceptar" onclick="SeleccionarAllCups();">MARCAR TODOS</a>
+                <a class="btn btn-sm button_Asalud_Rechazar" onclick="DesmarcarAllCups();">DESMARCAR TODOS</a>
+            </div>
+        </div>
+        <br />
+
+        @foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_cargueRips_usuariosResult us in ViewBag.ripsUsuarios)
+        {
+            var existeBen = us.existeBeneficiario == 1 ? us.nombreUsuario : "NO EXISTE BENEFICIARIO";
+            var colorExisteBB = us.existeBeneficiario == 0 ? "noExBb" : "";
+
+            <div class="panel panel-default">
+                <div class="panel-heading @colorExisteBB" id="SombreadoUsuario_@us.id_usuarios">
+                    <strong class="text-primary_asalud" data-toggle="collapse" onclick="ReiniciarTablas(@us.id_usuarios, 2)" data-target="#usuarioPanel_@us.id_usuarios" style="cursor:pointer;">
+                        USUARIO: @us.tipoDocumentoIdentificacion @us.numDocumentoIdentificacion - @existeBen
+                    </strong>
+                </div>
+                @*<div id="usuarioPanel_@us.id_usuarios" class="panel-collapse collapse">*@
+                    <div class="panel-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-2">
+                                            <label class="text-secondary_asalud">Cie10</label>
+                                            <input type="text" id="cie10_@us.id_usuarios" name="cie10_@us.id_usuarios" class="form-control" />
+                                            <input type="hidden" id="cie10Anterior_@us.id_usuarios" name="cie10Anterior_@us.id_usuarios" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="text-secondary_asalud">Descripción Cie10</label>
+                                            <input type="text" id="cie10Descripcion_@us.id_usuarios" name="cie10Descripcion_@us.id_usuarios" class="form-control" readonly />
+                                            <input type="hidden" id="cie10DescripcionAnterior_@us.id_usuarios" name="cie10DescripcionAnterior@us.id_usuarios" class="form-control" readonly />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="text-secondary_asalud">Cie10 relacionado</label>
+                                            <input type="text" id="cie10rela_@us.id_usuarios" name="cie10rela_@us.id_usuarios" class="form-control" />
+                                            <input type="hidden" id="cie10relaAnterior_@us.id_usuarios" name="cie10relaAnterior@us.id_usuarios" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="text-secondary_asalud">Descripción Cie10 relacionado</label>
+                                            <input type="text" id="cie10Descripcionrela_@us.id_usuarios" name="cie10Descripcionrela_@us.id_usuarios" class="form-control" readonly />
+                                            <input type="hidden" id="cie10DescripcionrelaAnterior_@us.id_usuarios" name="cie10DescripcionrelaAnterior_@us.id_usuarios" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-12 text-left">
+                                        <div class="col-md-4">
+                                            <a class="button_Asalud_Guardar" onclick="ActualizarDX(@us.id_usuarios, @us.id_factura, @us.id_lote)">ACTUALIZAR</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-heading">
+                                <strong class="text-primary_asalud">DETALLES</strong>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+
+                                </div>
+
+                                <div class="col-md-12 text-right">
+                                    <a class="btn button_Asalud_Aceptar" onclick="AgregarRips('@us.id_usuarios', '@us.id_transaccion');" data-toggle="modal" data-target="#ModalAgregarRips">Añadir detalle</a>
+                                </div>
+                                <br />
+                                <br />
+
+
+                                <input type="hidden" id="conteoCups_@us.id_usuarios" name="conteoCups_@us.id_usuarios" />
+
+                                <table id="tablaDetalle_@us.id_usuarios" class="table table-striped table-bordered table-condensed datatable table-responsive" style="width:98%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Ítem</th>
+                                            <th title="Solo se seleccionen los que se muestran por pantalla">Sel todos<input type="checkbox" id="chkTodos_@us.id_usuarios" onchange="MarcarTodos(@us.id_usuarios)" title="Solo se seleccionen los que se muestran por pantalla" /></th>
+                                            <th>Documento usuario</th>
+                                            <th>Usuario</th>
+                                            <th>Código CUPS-CUMS</th>
+                                            <th>Descripción CUPS-CUMS</th>
+                                            <th>Fecha prestación</th>
+                                            <th>Cantidad</th>
+                                            <th>Valor unitario</th>
+                                            <th>valor total detalle</th>
+                                            <th>Tipo IVA</th>
+                                            <th>Valor con IVA</th>
+                                            <th>TIGA</th>
+                                            <th>Descripción TIGA</th>
+                                            <th>Glosa automática tarifas</th>
+                                            <th>Glosa</th>
+                                            <th>Opciones</th>
+                                            <th>Cambiar tipo IVA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <div class="col-md-12 text-center">
+                                    <label class="text-secondary_asalud">Total RIPS: <span id="valorTotalCups_@us.id_usuarios">0</span> </label>
+                                </div>
+                                <br />
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <strong class="text-primary_asalud">GLOSAS</strong>
+                                    </div>
+                                    <div class="panel-body">
+                                        <input type="hidden" id="conteoGlosa_@us.id_usuarios" name="conteoGlosa_@us.id_usuarios" />
+                                        <div class="col-md-12 text-left">
+                                            <div class="col-md-2">
+                                                <a class="btn btn-sm button_Asalud_Aceptar" id="btnMasivoLevantar_@us.id_usuarios" style="display:none;" onclick="LevantarGlosaMasivo();"><i class="glyphicon glyphicon-edit"></i>Levantar masivo</a>
+                                            </div>
+                                        </div>
+                                        <table id="tablaGlosas_@us.id_usuarios" class="table table-striped table-bordered table-condensed datatable table-responsive" style="width:98%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>ítem</th>
+                                                    <th>Id</th>
+                                                    <th>Documento usuario</th>
+                                                    <th>Usuario</th>
+                                                    <th>Descripción CUPS-CUMS</th>
+                                                    <th>Tipo glosa</th>
+                                                    <th>Concepto general</th>
+                                                    <th>Concepto específico</th>
+                                                    <th>Concepto aplicación</th>
+                                                    <th>Valor glosa</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Valor total</th>
+
+                                                    <th>Observaciones</th>
+                                                    <th>Levantar</th>
+                                                    <th>Opciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+
+                                        <div class="col-md-12 text-center">
+                                            <label class="text-secondary_asalud">Total glosas: <span id="valorTotalGlosas_@us.id_usuarios">0</span> </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @*</div>*@
+                </div>
+            </div>
+        }
+
+        <br />
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DETALLES</strong>
+            </div>
+            <br />
+
+            <div class="panel-body">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Anticipo SI/NO</label>
+                            <select id="anticipo" name="anticipo" class="form-control" onchange="mostrarAnticipo(this.value)" required>
+                                <option value="">-Seleccione-</option>
+                                <option value="SI">SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Iva valor</label>
+                            <input type="text" class="form-control solo-numero" id="iva" name="iva" onchange="CalcularBaseIva(this.value)" maxlength="12" required />
+                        </div>
+                        <div class="col-md-4" id="divAnticipo" style="display:none;">
+                            <label class="text-secondary_asalud">Valor anticipo</label>
+                            <input type="text" class="form-control solo-numero" id="valoranticipo" name="valoranticipo" maxlength="12" required />
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Base iva valor</label>
+                            <input type="text" class="form-control solo-numero" id="baseiva" name="baseiva" maxlength="12" required readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Valor total factura</label>
+                            <input type="text" class="form-control solo-numero" id="totalfactura" name="totalfactura" maxlength="12" required readonly />
+                        </div>
+                        <br />
+
+                        <div class="col-md-4">
+                            <a class="btn btn-sm button_Asalud_Aceptar" id="btnAuditor" onclick="asignarAuditor()">Asignar auditor</a>
+                            <label class="text-secondary_asalud" id="auditorAsignado" style="font-size:11px;"></label>
+                        </div>
+
+                        @*<div class="col-md-2">
+                                <a class="btn btn-sm button_Asalud_Aceptar" id="btnsinAuditor" onclick="sinAsignarAuditor()">No aplica auditoria</a>
+                            </div>*@
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="text-secondary_asalud">Hallazgo de RIPS</label>
+                            <textarea id="hallazgo" name="hallazgo" class=" form-control" cols="3" rows="5" maxlength="1000" required></textarea>
+                        </div>
+                    </div>
+                    <br />
+
+                    @*<div id="divSiGuarda" class="row" style="display:block;">
+                            <div class="col-md-12 text-center">
+                                <a class="button_Asalud_Guardar" onclick="ValidarIngresoFacturaTotal();">GUARDAR</a>
+                            </div>
+                        </div>
+                        <div id="divNoGuarda" class="alert alert-danger" role="alert" style="display:none;">
+                            VALORES DE FACTURA Y RIPS NO COINCIDEN
+                        </div>*@
+
+                    @if (ViewBag.conContrato != 0)
+                    {
+                        <div id="divSiGuarda" class="row" style="display:none;">
+                            <div class="col-md-12 text-center">
+                                <a class="button_Asalud_Guardar" onclick="ValidarIngresoFacturaTotal();">GUARDAR</a>
+                            </div>
+                        </div>
+                        <div id="divNoGuarda" class="alert alert-danger" role="alert" style="display:block;">
+                            VALORES DE FACTURA Y RIPS NO COINCIDEN
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="divSiGuarda" class="row" style="display:none;">
+                            <div class="col-md-12 text-center">
+                                <a class="button_Asalud_Guardar" onclick="ValidarIngresoFacturaTotal();">GUARDAR</a>
+                            </div>
+                        </div>
+                        <div id="divNoGuarda" class="alert alert-danger" role="alert" style="display:block;">
+                            NO EXISTE NEGOCIACÓN PARA ESTE PRESTADOR
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="ModalArchivos" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:60%">
+        <div class="modal-content">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong class="text-primary_asalud">DOCUMENTOS CARGADOS</strong>
+                </div>
+                <div class="panel-body">
+                    <table id="tableArchivos" style="width:98%;" class="table table-bordered table-condensed table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>item</th>
+                                <th>Tipo</th>
+                                <th>Nombre documento</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalGlosa">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="modalRegistroRips">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoReg"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalAgregarRips">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoNewRips"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="modalAsignarAuditores">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoAuditores"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalsinAsignarAuditores">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadosinAuditores"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="ModalRips">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultadoRips"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="ModalGloMas">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resulGM"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="ModalEditarIva">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultIva"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" id="ModalEditarTiga">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultTiga"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+
+        $(".datepickerr2").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date()
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+
+        $(".k-input").attr('readonly', true);
+
+        var valorFactura = "@ViewBag.valorFactura";
+        var valorTotal = formatearaPesos(valorFactura);
+        $("#valortotalFactura").text(valorTotal);
+
+        var valoresIguales = "@ViewBag.valorFacturaMenosDetallesResultado";
+        var valorCups = "@ViewBag."
+        totalfactura
+
+        if (valoresIguales == 1) {
+            document.getElementById("divSiGuarda").style.display = "block";
+            document.getElementById("divNoGuarda").style.display = "none";
+        } else {
+            document.getElementById("divNoGuarda").style.display = "block";
+            document.getElementById("divSiGuarda").style.display = "none";
+        }
+
+        var Usuarios = "@ViewBag.listadoUsuarios";
+        var listadoUsuarios = Usuarios.split(",");
+
+        if (listadoUsuarios.length > 0) {
+
+            for (var i = 0; i < listadoUsuarios.length; i++) {
+                PintarCups(listadoUsuarios[i]);
+                PintarGlosas(listadoUsuarios[i]);
+            }
+        }
+    });
+
+    $("#cupsBusqueda").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "@Url.Action("BuscarCupsIdFactura", "RadicacionElectonica")",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        term: request.term,
+                        idFactura: "@ViewBag.idDetalle",
+                    },
+                    success: function (data) {
+                        response(
+                            (data || []).map(item => ({
+                                label: item.label,
+                                value: item.id,
+                            }))
+                        );
+                    },
+                    error: function (xhr) {
+                        console.error("Error en la solicitud:", xhr.responseText);
+                    },
+                });
+            }
+        },
+        select: function (event, ui) {
+            //console.log("Elemento seleccionado:", ui.item);
+        },
+    });
+
+
+
+    $("#anticipo").change(function () {
+        CalcularTotalFactura();
+    })
+
+    function RecalcularTodasLasTablas(nuevo) {
+        var Usuarios = "@ViewBag.listadoUsuarios";
+        var listadoUsuarios = Usuarios.split(",");
+
+        if (listadoUsuarios.length > 0) {
+            for (var i = 0; i < listadoUsuarios.length; i++) {
+                PintarCups(listadoUsuarios[i], nuevo);
+                PintarGlosas(listadoUsuarios[i], nuevo);
+            }
+        }
+    }
+
+    function ObtenerCiudades(departamento) {
+        $.ajax({
+            url: "@Url.Action("ObtenerMunicipiosFis")",
+            type: "POST",
+            data: {
+                departamento: departamento,
+            },
+            method: "POST",
+
+            success: function (data) {
+                $("#id_municipio").empty();
+                $("#id_municipio").html(data);
+                $("#id_municipio").val("").trigger("change");
+            }
+        })
+    }
+
+    function ReiniciarTablas(idUsuario, tipo) {
+
+        if (tipo == 2) {
+
+            $('#usuarioPanel_' + idUsuario).on('shown.bs.collapse', function () {
+                PaginadorGlosas(idUsuario, tipo);
+                PaginadorCups(idUsuario, tipo);
+            });
+        }
+
+        //if (tipo == 2) {
+        //    PaginadorGlosas(idUsuario, tipo);
+        //    PaginadorCups(idUsuario, tipo);
+        //}
+    }
+
+    function verArchivos() {
+
+        var b = $("#idDetalle").val();
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+            data: {
+                iddetalle: b
+            },
+
+            success: function (data) {
+                LoadingHide();
+                $("#tableArchivos tbody").empty();
+                $("#tableArchivos tbody").html(data);
+                $("#ModalArchivos").modal('show');
+            }
+        })
+    }
+
+    function AbrirSoporteClinico2(a, b) {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a) {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function ActualizarDatosRips() {
+        var idDetalle = $("#idDetalle").val();
+        var idCargue = $("#idCargue").val();
+
+        var laURLDeLaVista = '@Url.Action("ModalRipsMasivo")?idDetalle=' + idDetalle + "&idCargue=" + idCargue + "&tipo=2";
+        $.ajax({
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoRips').html('');
+                $('#resultadoRips').html(response);
+            }
+        });
+    }
+
+    function AgregarGlosa(i, idUsuario) {
+
+        var idRips = $("#idRips_" + i + "-" + idUsuario).val();
+        var codCups = $("#codCups_" + i + "-" + idUsuario).val();
+        var codigo_cuv = $("#codigo_cuv_" + i + "-" + idUsuario).val();
+        var tipo = $("#tipo_" + i + "-" + idUsuario).val();
+        var idDetalle = $("#idDetalle").val();
+        var idCargue = $("#idCargue").val();
+        var valorGlosa = $("#valorindividualCups_" + i + "-" + idUsuario).val();
+        var valorGlosaTotal = $("#valorCups_" + i + "-" + idUsuario).val();
+        var codPrestador = $("#codPrestador_" + i + "-" + idUsuario).val();
+        var cantidadMaxima = $("#cantidad_" + i + "-" + idUsuario).val();
+
+        var laURLDeLaVista = '@Url.Action("ModalCrearGlosa", "RadicacionElectonica")?codCups=' + codCups + "&idRips=" + idRips + "&codigo_cuv=" + codigo_cuv + "&tipo=" + tipo + "&idDetalle=" + idDetalle + "&idCargue=" + idCargue + "&valorGlosa=" + valorGlosa + "&valorGlosaTotal=" + valorGlosaTotal + "&tipoIngreso=1" + "&codPrestador=" + codPrestador + "&cantidadMaxima=" + cantidadMaxima + "&idUsuario=" + idUsuario + "&masivo=0";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+
+                $("#modalGlosa").modal("show");
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function EditarGlosa(i, idGlosa, idUsuario) {
+
+        debugger
+
+
+        var codCups = $("#codCups_" + i + "-" + idUsuario).val();
+        var codigo_cuv = $("#codigo_cuv_" + i + "-" + idUsuario).val();
+        var tipo = $("#tipo_" + i + "-" + idUsuario).val();
+        var idDetalle = $("#idDetalle").val();
+        var idCargue = $("#idCargue").val();
+        var valorGlosa = $("#valorindividualCups_" + i + "-" + idUsuario).val();
+        var valorGlosaTotal = $("#valorCups_" + i+ "-" + idUsuario).val();
+        var codPrestador = $("#codPrestador_" + i+ "-" + idUsuario).val();
+
+        var laURLDeLaVista = '@Url.Action("ModalCrearGlosa", "RadicacionElectonica")?codCups=' + codCups + "&codigo_cuv=" + codigo_cuv + "&tipo=" + tipo + "&idDetalle=" + idDetalle + "&idCargue=" + idCargue + "&valorGlosa=" + valorGlosa + "&valorGlosaTotal=" + valorGlosaTotal + "&tipoIngreso=1" + "&codPrestador=" + codPrestador + "&idGlosa=" + idGlosa + "&idUsuario=" + idUsuario;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function PintarCups(idUsuario, nuevo) {
+
+        var cuv = $("#cuv").val();
+        var idDetalle = $("#idDetalle").val();
+
+        $.ajax({
+            url: "@Url.Action("TraerDetalleCups")",
+            type: "post",
+            data: {
+                cuv: cuv,
+                idDetalle: idDetalle,
+                idUsuario: idUsuario,
+                tipo: 1,
+                nuevo: nuevo
+            },
+
+            success: function (data) {
+                LoadingHide();
+
+                var datos = data.split('|');
+                var tabla = datos[0];
+                var conteoCups = datos[1];
+                var totalCups = datos[2];
+                var cie10 = datos[3];
+                var cie10_rela = datos[4];
+                var tieneglosa = datos[5];
+
+                $("#conteoCups_" + idUsuario).val(conteoCups);
+                $("#tablaDetalle_" + idUsuario+ " tbody").empty();
+                $('#tablaDetalle_' + idUsuario).DataTable().destroy();
+                $("#tablaDetalle_" + idUsuario+ " tbody").html(tabla);
+                //document.getElementById('cie10_' + idUsuario).textContent = cie10;
+
+                var cie10_completo = cie10.split('-');
+                var cie10_completo_rela = cie10_rela.split('-');
+
+                document.getElementById('cie10_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10Descripcion_' + idUsuario).value = cie10_completo[1];
+                document.getElementById('cie10Anterior_' + idUsuario).value = cie10_completo[0];
+                document.getElementById('cie10DescripcionAnterior_' + idUsuario).value = cie10_completo[1];
+
+                document.getElementById('cie10rela_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10Descripcionrela_' + idUsuario).value = cie10_completo_rela[1];
+                document.getElementById('cie10relaAnterior_' + idUsuario).value = cie10_completo_rela[0];
+                document.getElementById('cie10DescripcionrelaAnterior_' + idUsuario).value = cie10_completo_rela[1];
+
+                var valorTotal = formatearaPesos(totalCups);
+                $("#valorTotalCups_" + idUsuario).text(valorTotal);
+
+                var existeNegociacion = "@ViewBag.conContrato";
+
+                if (nuevo == 1) {
+                    $("#anticipo").val("NO").trigger("change");
+                }
+
+                var tieneGlosaPartido = tieneglosa.split('-');
+                var existeGlosa = tieneGlosaPartido[1];
+                if (existeGlosa != 0) {
+                    $("#SombreadoUsuario_" + idUsuario).addClass("Sombreado");
+                }
+                else {
+                    $("#SombreadoUsuario_" + idUsuario).removeClass("Sombreado");
+                }
+
+                PaginadorCups(idUsuario, 1);
+            }
+        });
+    }
+
+    function PaginadorCups(idUsuario, tipo) {
+
+        if (tipo == 2) {
+            $('#tablaDetalle_' + idUsuario).DataTable().destroy();
+        }
+
+        $('#tablaDetalle_' + idUsuario).DataTable({
+            "searching": true,
+            "aLengthMenu": [[30, 50, 100, 250, 500, 1000, 5000, -1], [30, 50, 100, 250, 500, 1000, 5000, "Todos"]],
+            "iDisplayLength": 1000,
+            "lengthchange": false,
+            "info": false,
+            "responsive": true,
+            "zeroRecords": "No se encontraron resultados",
+            responsive: true,
+            language: {
+                sLengthMenu: "Ver _MENU_ registros",
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthmenu: "Mostrar menu registros",
+                info: "Mostrando registros del start al end de un total de total registros",
+                infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(Filtrado de un total de max registros)",
+                loadingrecords: "Cargando...",
+                zerorecords: "No se encontraron resultados",
+                emptytable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Ultimo",
+                },
+            }
+        });
+    }
+
+    function PintarGlosas(idUsuario, nuevo) {
+
+        var b = $("#idDetalle").val();
+        $("#modalGlosa").modal("hide");
+        $("#ModalGloMas").modal("hide");
+
+        $.ajax({
+            url: "@Url.Action("TraerGlosas")",
+            type: "post",
+            data: {
+                idDetalle: b,
+                tipo: 1,
+                idUsuario: idUsuario,
+                nuevo: nuevo
+            },
+
+            success: function (data) {
+                LoadingHide();
+
+                var datos = data.split('|');
+                var tabla = datos[0];
+                var conteoGlosa = datos[1];
+                var totalGlosa = datos[2];
+
+                $("#conteoGlosa_" + idUsuario).val(conteoGlosa);
+                $("#tablaGlosas_" + idUsuario + " tbody").empty();
+                $('#tablaGlosas_' + idUsuario).DataTable().destroy();
+                $("#tablaGlosas_" + idUsuario + " tbody").html(tabla);
+
+                $("#anticipo").val("NO").trigger("change");
+
+                if (conteoGlosa > 0) {
+                    document.getElementById("btnMasivoLevantar_"+idUsuario).style.display = "block";
+                } else {
+                    document.getElementById("btnMasivoLevantar_" + idUsuario).style.display = "none";
+                }
+
+                var valorTotal = formatearaPesos(totalGlosa);
+                $("#valorTotalGlosas_" + idUsuario).text(valorTotal);
+
+                PaginadorGlosas(idUsuario, 1);
+            }
+        });
+    }
+
+    function PaginadorGlosas(idUsuario, tipo) {
+
+        if (tipo == 2) {
+            $('#tablaGlosas_' + idUsuario).DataTable().destroy();
+        }
+
+        $('#tablaGlosas_' + idUsuario).DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 30,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    }
+
+    function LevantarGlosa(idGlosa, idUsuario) {
+
+        var confirmar = confirm("¿Seguro(a) de levantar esta glosa?");
+        if (confirmar) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("LevantarGlosa")",
+                type: "post",
+                data: {
+                    idGlosa: idGlosa,
+                    idFactura: "@ViewBag.idDetalle"
+                },
+
+                success: function (data) {
+
+                    LoadingHide();
+                    alert(data.mensaje);
+                    PintarCups(idUsuario, 1);
+                    PintarGlosas(idUsuario, 1);
+                }
+            })
+        }
+    }
+
+    function LevantarGlosaMasivo() {
+
+        let seleccionados= "";
+
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='ch_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idGlosa = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+
+                if (seleccionados == "") {
+                    seleccionados = idUsuario + "-" + idGlosa + "-" + idFactura + "-" + idCargue;
+                } else {
+                    seleccionados += "|" + idUsuario + "-" + idGlosa + "-" + idFactura + "-" + idCargue;
+                }
+            }
+        });
+
+        if (seleccionados == "" || seleccionados == undefined) {
+            alert("Seleccione glosas a levantar");
+            return false;
+        }
+
+        var confirmar = confirm("¿Seguro(a) de levantar estas glosas?");
+        if (confirmar) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("LevantarGlosaMasivos")",
+                type: "post",
+                data: {
+                    seleccionados: seleccionados,
+                    idFac: "@ViewBag.idDetalle",
+
+                },
+
+                success: function (data) {
+
+                    LoadingHide();
+                    alert(data.mensaje);
+                    RecalcularTodasLasTablas(1);
+                }
+            })
+        }
+    }
+
+    function CapitulosSeleccionados() {
+        var contador = "@ViewBag.count";
+        var seleccionados = [];
+
+        for (var i = 1; i <= contador; i++) {
+            if ($("#ch_" + i).is(':checked')) {
+                seleccionados.push($("#ch_" + i).val());
+            }
+        }
+        return seleccionados;
+    }
+
+    function CalcularTotalGlosas() {
+
+        var total = 0;
+        var cont = $("#conteoGlosa").val();
+
+        var conteo = parseInt(cont, 10);
+
+        if (!isNaN(conteo) && conteo > 0) {
+
+            for (var j = 1; j <= conteo; j++) {
+                var valor = $("#valorGlosa_" + j).val();
+                var cantidad = parseFloat($("#cantidadGlosa_" + j).val());
+                var numero = parseFloat(valor);
+
+                if (!isNaN(numero) && numero !== 0) {
+
+                    total += (numero * cantidad);
+                }
+            }
+        }
+
+        var valorTotal = formatearaPesos(total);
+        $("#valorTotalGlosas").text(valorTotal);
+    }
+
+    function CalcularTotalFactura() {
+
+        var Usuarios = "@ViewBag.listadoUsuarios";
+        var listadoUsuarios = Usuarios.split(",");
+        var valorTotal = 0;
+        var valorFactura = "@ViewBag.valorFactura";
+
+        if (listadoUsuarios.length > 0) {
+            for (var i = 0; i < listadoUsuarios.length; i++) {
+                var totalDetalles = convertirPesosANumero($("#valorTotalCups_" + listadoUsuarios[i]).text());
+                var totalGlosas = convertirPesosANumero($("#valorTotalGlosas_" + listadoUsuarios[i]).text());
+                //var totalidad = parseFloat(totalDetalles - totalGlosas);
+                var totalidad = parseFloat(totalDetalles);
+
+                if (totalidad != NaN && totalidad != "NaN") {
+                    valorTotal = valorTotal + totalidad;
+                }
+            }
+        }
+
+        if (parseFloat(valorTotal) == parseFloat(valorFactura)) {
+            document.getElementById("divSiGuarda").style.display = "block";
+            document.getElementById("divNoGuarda").style.display = "none";
+        } else {
+            document.getElementById("divNoGuarda").style.display = "block";
+            document.getElementById("divSiGuarda").style.display = "none";
+        }
+
+        $("#totalfactura").val(valorTotal);
+        var restante = parseFloat(valorFactura) - parseFloat(valorTotal);
+        var restanteTotal = formatearaPesos(restante);
+        //$("#valortotalFacturaRestante").text(restanteTotal);
+
+    }
+
+    function asignarAuditor() {
+
+        var A = $("#idCargue").val();
+        var B = $("#idDetalle").val();
+        var C = $("#regional").val();
+
+        var laURLDeLaVista = '@Url.Action("GestionarAuditor")?ID=' + A + '&ID2=' + B + '&regional=' + C;
+        LoadingShow();
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                LoadingHide();
+                $("#modalAsignarAuditores").modal('show');
+                $('#resultadoAuditores').html('');
+                $('#resultadoAuditores').html(response);
+            }
+        });
+    }
+
+    function mostrarAnticipo(valor) {
+
+        $("#valoranticipo").val("");
+
+        if (valor == "SI") {
+            document.getElementById("divAnticipo").style.display = "block";
+        } else {
+            document.getElementById("divAnticipo").style.display = "none";
+        }
+    }
+
+    function BuscarAuditor(auditor) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarAuditor")?auditor=' + auditor;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#auditorAsignado').text(response);
+            }
+        });
+    }
+
+    function MostrarTextoCompleto(i) {
+        $(".observaciones_" + i).hide();
+        $(".observaciones_completas_" + i).show();
+        $(".botonMostrar_" + i).hide();
+        $(".botonOcultar_" + i).show();
+    }
+
+    function OcultarTextoCompleto(i) {
+        $(".observaciones_" + i).show();
+        $(".observaciones_completas_" + i).hide();
+        $(".botonOcultar_" + i).hide();
+        $(".botonMostrar_" + i).show();
+    }
+
+    function CalcularBaseIva(iva) {
+        var valorBase = ((parseFloat(iva) * 100) / 19);
+        valorBase = Math.round(valorBase);
+        $("#baseiva").val(valorBase);
+    }
+
+    function ValidarIngresoFacturaTotal() {
+
+        const elementos = document.querySelectorAll("[id^='SombreadoUsuario_']");
+
+        let existeSinBB = false;
+        elementos.forEach(elemento => {
+            if (elemento.classList.contains('noExBb')) {
+                //console.log(`El elemento con ID ${elemento.id} tiene la clase 'Sombreado'.`);
+                existeSinBB = true;
+            }
+        });
+
+        if (existeSinBB) {
+            alert("Existen usuarios sin datos de beneficiarios");
+            return false;
+        }
+
+        var validar = $("#formTotalidadFacturas").validate();
+        if (validar.form()) {
+            GuardarDatosFactura();
+        }
+    }
+
+    function GuardarDatosFactura() {
+
+        var auditorSeleccionado = $("#auditorAsignado").text();
+        if (auditorSeleccionado == null || auditorSeleccionado == "") {
+            alert("Se debe seleccionar el auditor");
+            return false;
+        }
+
+        var formData = new FormData($("#formTotalidadFacturas")[0]);
+
+        var Usuarios = "@ViewBag.listadoUsuarios";
+        var listadoUsuarios = Usuarios.split(",");
+
+
+
+        if (listadoUsuarios.length > 0) {
+            for (var i = 0; i < listadoUsuarios.length; i++) {
+                var totalDetalles = convertirPesosANumero($("#valorTotalCups_" + listadoUsuarios[i]).text());
+                var totalGlosas = convertirPesosANumero($("#valorTotalGlosas_" + listadoUsuarios[i]).text());
+                var totalidad = parseFloat(totalDetalles - totalGlosas);
+
+                if (totalidad != NaN && totalidad != "NaN") {
+                    formData.append("listaValores", totalidad);
+                } else {
+                    formData.append("listaValores", 0);
+                }
+            }
+        }
+
+        formData.append("listausuarios", Usuarios);
+        formData.append("idCargue", $("#idCargue").val());
+        formData.append("idDetalle", $("#idDetalle").val());
+        formData.append("cuv", $("#cuv").val());
+
+        formData.append("regional", $("#regional").val());
+        formData.append("codigoPrestador", $("#codigoPrestador").val());
+        formData.append("nit", $("#nit").val());
+        formData.append("prestador", $("#prestador").val());
+        formData.append("factura", $("#factura").val());
+        formData.append("tipodocumento", $("#tipodocumento").val());
+        formData.append("numerodocumento", $("#numerodocumento").val());
+        formData.append("nombrebeneficiario", $("#nombrebeneficiario").val());
+        formData.append("fechafactura", $("#fechafactura").val());
+        formData.append("fechainicio", $("#fechainicio").val());
+        formData.append("fechafin", $("#fechafin").val());
+        formData.append("localidad", $("#localidad").val());
+        formData.append("numcontrato", $("#numcontrato").val());
+        formData.append("estado", $("#estado").val());
+        formData.append("anticipo", $("#anticipo").val());
+        formData.append("iva", $("#iva").val());
+        formData.append("valoranticipo", $("#valoranticipo").val());
+        formData.append("baseiva", $("#baseiva").val());
+        formData.append("totalfactura", $("#totalfactura").val());
+        formData.append("hallazgo", $("#hallazgo").val());
+        formData.append("tipoIngreso", 1);
+        formData.append("valor_factura", $("#valorFactura").val());
+        formData.append("FI", $("#FI").val());
+
+        formData.append("id_departamento", $("#id_departamento").val());
+        formData.append("id_municipio", $("#id_municipio").val());
+
+
+        LoadingShow();
+        $.ajax({
+            url: '@Url.Action("GuardarFacturaFis", "RadicacionElectonica")',
+            data: formData,
+            method: "POST",
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                if (response.rta != 0) {
+                    location.href = "@Url.Action("TableroFacturasAprobadas2", "RadicacionELectonica")";
+                }
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+
+    }
+
+    function formatearaPesos(value) {
+        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(value);
+    }
+
+    function convertirPesosANumero(valorFormateado) {
+        // Eliminar cualquier símbolo de moneda y caracteres no numéricos
+        let valorLimpio = valorFormateado.replace(/[^0-9,-]+/g, '').replace(',', '.');
+        // Convertir la cadena resultante en un número flotante
+        let valorFloat = parseFloat(valorLimpio);
+        return valorFloat;
+    }
+
+    function DeleteGlosa(idGlosa, idUsuario) {
+        var confirmar = confirm("¿Seguro(a) de eliminar esta glosa?");
+        if (confirmar == true) {
+            LoadingShow();
+            $.ajax({
+                url: '@Url.Action("EliminarGlosaFactura", "RadicacionElectonica")',
+                data: {
+                    idGlo: idGlosa,
+                    idFactura : "@ViewBag.idDetalle"
+                },
+                method: "POST",
+                success: function (response) {
+                    LoadingHide();
+                    alert(response.mensaje);
+
+                    if (response.rta != 0) {
+                        PintarCups(idUsuario);
+                        PintarGlosas(idUsuario);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+    function EditarRips(idRegistro, idUsuario, idTransaccion, tipoIngreso) {
+
+        var idFactura = $("#idDetalle").val();
+
+        var confirmar = confirm("¿Seguro(a) de editar este registro?");
+        if (confirmar == true) {
+
+            var laURLDeLaVista = '@Url.Action("ModalEditarCups", "RadicacionElectonica")?idRegistro=' + idRegistro + "&idFactura=" + idFactura + "&idUsuario=" + idUsuario + "&idTransaccion=" + idTransaccion + "&tipoIngreso=" + tipoIngreso;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $('#resultadoReg').html('');
+                    $('#resultadoReg').html(response);
+                    $("#modalRegistroRips").modal("show");
+                }
+            });
+        }
+    }
+
+    function AgregarRips(idUsuario, idTransaccion) {
+
+        var codPrestador = $("#codigoprestador").val();
+
+        var idFactura = $("#idDetalle").val();
+        var idBase = $("#idCargue").val();
+        var cuv = $("#cuv").val();
+
+        var laURLDeLaVista = '@Url.Action("ModalAgregarCups", "RadicacionElectonica")?idFactura=' + idFactura + "&idBase=" + idBase + "&cuv=" + cuv + "&idUsuario=" + idUsuario + "&idTransaccion=" + idTransaccion + "&codPrestador=" + codPrestador;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoNewRips').html('');
+                $('#resultadoNewRips').html(response);
+            }
+        });
+    }
+
+    function EliminarRips(id, idUsuario, idFactura) {
+        var confirmar = confirm("¿Seguro(a) de eliminar este registro?");
+        if (confirmar == true) {
+            LoadingShow();
+            $.ajax({
+                url: '@Url.Action("EliminarRegistroRips", "RadicacionElectonica")',
+                data: {
+                    idRegistro: id,
+                    idFactura: idFactura
+                },
+                method: "POST",
+                success: function (response) {
+                    LoadingHide();
+                    alert(response.mensaje);
+
+                    if (response.rta != 0) {
+                        PintarCups(idUsuario);
+                        PintarGlosas(idUsuario);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    LoadingHide();
+                }
+            });
+        }
+    }
+
+    function RecalcularIva(idRegistro, tipo, idUsuario) {
+
+        $.ajax({
+            url: "@Url.Action("ActualizarIvaFis", "RadicacionElectonica")",
+            method: "post",
+            type: "post",
+            data: {
+                idRegistro: idRegistro,
+                tipo: tipo,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            method: "POST",
+            success: function (response) {
+                DevolverTotalIva("@ViewBag.idDetalle", idUsuario);
+            },
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+    function DevolverTotalIva(idfactura, idUsuario) {
+
+        $.ajax({
+            url: "@Url.Action("DevolverTotalIva", "RadicacionElectonica")",
+            method: "post",
+            type: "post",
+            data: {
+                idfactura: idfactura
+            },
+            method: "POST",
+            success: function (response) {
+
+                $("#iva").val(response).trigger("change");
+
+                PintarCups(idUsuario);
+                PintarGlosas(idUsuario);
+            },
+
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+    function ExportarRips() {
+        var id = "@ViewBag.idDetalle";
+        var URL2 = "@Url.Action("DescargarReporteCupsGlosas", "RadicacionElectonica")?idFactura=" + id;
+        window.open(URL2, '', 'width=450,height =150,left =50,top =550,toolbar =yes');
+    }
+
+    $("[id^='cie10_']").each(function () {
+        $(this).autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 1) {
+                    $.ajax({
+                        url: "/RadicacionElectonica/BuscarCie10Fis",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data && data.length > 0) {
+                                response(
+                                    data.map(function (item) {
+                                        return {
+                                            label: item.label,
+                                            value: item.id,
+                                        };
+                                    })
+                                );
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        },
+                    });
+                }
+            },
+            select: function (event, ui) {
+                let nomCamp = $(this).attr("id");
+                var idUs = nomCamp.split("_")[1];
+                $("#cie10_" + idUs).val(ui.item.value);
+                var des = ui.item.label.split("-")[1];
+                $("#cie10Descripcion_" + idUs).val(des);
+            },
+        });
+    });
+
+    $("[id^='cie10rela_']").each(function () {
+        $(this).autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 1) {
+                    $.ajax({
+                        url: "/RadicacionElectonica/BuscarCie10Fis",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data && data.length > 0) {
+                                response(
+                                    data.map(function (item) {
+                                        return {
+                                            label: item.label,
+                                            value: item.id,
+                                        };
+                                    })
+                                );
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        },
+                    });
+                }
+            },
+            select: function (event, ui) {
+                let nomCamp = $(this).attr("id");
+                var idUs = nomCamp.split("_")[1];
+                $("#cie10rela_" + idUs).val(ui.item.value);
+                var des = ui.item.label.split("-")[1];
+                $("#cie10Descripcionrela_" + idUs).val(des);
+            },
+        });
+    });
+
+    function ActualizarDX(idUsuario, idFactura, idLote) {
+
+        var dx = $("#cie10_" + idUsuario).val();
+        var dxDes = $("#cie10Descripcion_" + idUsuario).val();
+        var relDx = $("#cie10rela_" + idUsuario).val();
+        var relDxDes = $("#cie10Descripcionrela_" + idUsuario).val();
+
+        var dxA = $("#cie10Anterior_" + idUsuario).val();
+        var dxDesA = $("#cie10DescripcionAnterior_" + idUsuario).val();
+        var relDxA = $("#cie10relaAnterior_" + idUsuario).val();
+        var relDxDesA = $("#cie10DescripcionrelaAnterior_" + idUsuario).val();
+
+        var confirmar = confirm("¿Seguro(a) de actualizar estos diagnósticos?");
+        if (confirmar == true) {
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("ActualizarDiagnosticos")",
+                method: "post",
+                data: {
+                    idUsuario: idUsuario,
+                    idFactura: idFactura,
+                    idLote: idLote,
+                    dx: dx,
+                    dxDes: dxDes,
+                    relDx: relDx,
+                    relDxDes: relDxDes,
+                    dxA: dxA,
+                    dxDesA: dxDesA,
+                    relDxA: relDxA,
+                    relDxDesA: relDxDesA
+                },
+                type: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+
+                        $("#cie10Anterior_" + idUsuario).val(dx);
+                        $("#cie10DescripcionAnterior_" + idUsuario).val(dxDes);
+                        $("#cie10relaAnterior_" + idUsuario).val(relDx);
+                        $("#cie10DescripcionrelaAnterior_" + idUsuario).val(relDxDes);
+                    }
+                }
+            });
+        }
+    }
+
+    function MarcarTodos(usuario) {
+        const chkPrincipal = document.getElementById("chkTodos_" + usuario);
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_${usuario}-']`);
+
+        // Iterar sobre todos los checkboxes dinámicos y ajustarlos al estado del principal
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = chkPrincipal.checked;
+        });
+    }
+
+    function AgregarGlosaMasivo() {
+
+        var seleccionado = [];
+
+        debugger
+
+        var seleccionados = "";
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idRegistro = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+                var tipo = info[4];
+
+                if (seleccionados == "") {
+                    seleccionados = idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue + "-" + tipo;
+                } else {
+                    seleccionados += "|" + idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue + "-" + tipo;
+                }
+            }
+        });
+
+        if (seleccionados == "") {
+            alert("Seleccione registros para añadir glosa");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("ModalGlosaMasivo")",
+            cache: false,
+            async: true,
+            type: "POST",
+            data: {
+                seleccionados: seleccionados,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            success: function (data) {
+                $('#resulGM').html('');
+                $('#resulGM').html(data);
+                $("#ModalGloMas").modal("show");
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al procesar la solicitud:", error);
+            }
+        });
+    }
+
+    function EditarIvaMasivo() {
+        var seleccionados = "";
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idRegistro = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+                var tipo = info[4];
+
+                if (seleccionados == "") {
+                    seleccionados = idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue + "-" + tipo;
+                } else {
+                    seleccionados += "|" + idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue + "-" + tipo;
+                }
+            }
+        });
+
+        if (seleccionados == "") {
+            alert("Seleccione registros para editar IVA");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("ModalEditarIva")",
+            cache: false,
+            async: true,
+            type: "POST",
+            data: {
+                seleccionados: seleccionados,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            success: function (data) {
+                $('#resultIva').html('');
+                $('#resultIva').html(data);
+                $("#ModalEditarIva").modal("show");
+            }
+        })
+    }
+
+    function DevolverTotalIvaLuegoDeMasivo() {
+        var idFactura = "@ViewBag.idDetalle";
+        $.ajax({
+            url: "@Url.Action("DevolverTotalIva", "RadicacionElectonica")",
+            method: "post",
+            type: "post",
+            data: {
+                idFactura: idFactura
+            },
+            method: "POST",
+            success: function (response) {
+
+                $("#iva").val(response).trigger("change");
+                RecalcularTodasLasTablas(1);
+            },
+
+            error: function (xhr, status, error) {
+                LoadingHide();
+            }
+        });
+    }
+
+    function EditarTigasMasivo() {
+        var seleccionados = "";
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idRegistro = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+
+                if (seleccionados == "") {
+                    seleccionados = idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue;
+                } else {
+                    seleccionados += "|" + idUsuario + "-" + idRegistro + "-" + idFactura + "-" + idCargue;
+                }
+            }
+        });
+
+        if (seleccionados == "") {
+            alert("Seleccione registros para editar TIGA");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("ModalEditarTigas")",
+            cache: false,
+            async: true,
+            type: "POST",
+            data: {
+                seleccionados: seleccionados,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            success: function (data) {
+                $('#resultTiga').html('');
+                $('#resultTiga').html(data);
+                $("#ModalEditarTiga").modal("show");
+            }
+        })
+    }
+
+    function SeleccionarAllCups() {
+        const cup = $("#cupsBusqueda").val(); // Obtener el valor del input cupsBusqueda
+
+        if (cup) {
+            // Seleccionar todos los checkboxes cuyo atributo name comience con 'chekregistro_' seguido del valor del CUPS
+            const checkboxes = document.querySelectorAll(`input[type='checkbox'][name^='chekregistro_${cup}-']`);
+
+            if (checkboxes.length > 0) {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true; // Marcar todos los checkboxes seleccionados
+                });
+                alert(`${checkboxes.length} ítems marcados para el CUPS ${cup}`);
+            } else {
+                alert(`No se encontraron ítems para el CUPS ${cup}`);
+            }
+        } else {
+            alert("Seleccione un CUPS");
+        }
+    }
+
+    function DesmarcarAllCups() {
+        const cup = $("#cupsBusqueda").val(); // Obtener el valor del input cupsBusqueda
+
+        if (cup) {
+            // Seleccionar todos los checkboxes cuyo atributo name comience con 'chekregistro_' seguido del valor del CUPS
+            const checkboxes = document.querySelectorAll(`input[type='checkbox'][name^='chekregistro_${cup}-']`);
+
+            if (checkboxes.length > 0) {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false; // Marcar todos los checkboxes seleccionados
+                });
+                alert(`${checkboxes.length} ítems desmarcados para el CUPS ${cup}`);
+            } else {
+                alert(`No se encontraron ítems para el CUPS ${cup}`);
+            }
+        } else {
+            alert("Seleccione un CUPS");
+        }
+    }
+
+    function ColocarContrato(valor) {
+
+        debugger
+
+        var separador = valor.split("_");
+        var localidad = separador[0];
+        var numContrato = separador[1];
+        var estado = separador[2];
+
+        $("#localidad").val(localidad).trigger("change");
+        $("#numcontrato").val(numContrato).trigger("change");
+        $("#estado").val(estado).trigger("change");
+
+    }
+
+    function ContratoFI(valor) {
+
+        $("#localidad").val("").trigger("change");
+        $("#numcontrato").val("").trigger("change");
+        $("#estado").val("").trigger("change");
+        $("#listaContratos").val("").trigger("change");
+
+        if (valor == "SI") {
+            $("#listaContratos").attr("required", false);
+            document.getElementById("divSeleccionContrato").style.display = "none";
+            document.getElementById("divSeleccionContratoSel").style.display = "none";
+        }
+        else {
+            $("#listaContratos").attr("required", true);
+            document.getElementById("divSeleccionContrato").style.display = "block";
+            document.getElementById("divSeleccionContratoSel").style.display = "block";
+        }
+    }
+
+</script>
+
+<style>
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 1px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #636363;
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        align-items: start !important;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+        align-items: center;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .noExBb {
+        background-color: #DBC5C5 !important;
+    }
+
+    .Sombreado {
+        background-color: #b1b1b1 !important; /* Color de fondo para sombrear */
+        border: 1px solid #dcdcdc; /* Borde opcional para resaltar */
+        padding: 10px; /* Espaciado interno */
+        border-radius: 5px; /* Bordes redondeados */
+    }
+
+        .Sombreado strong {
+            font-weight: bold; /* Letra en negrita */
+            color: #000000; /* Asegura el color primario si no está definido */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Sombra ligera al texto */
+        }
+
+        /* Opción adicional para hover */
+        .Sombreado:hover {
+            background-color: #e6e6e6; /* Sombrea más claro al pasar el cursor */
+        }
+
+    .divBusquedaCups {
+        position: relative;
+        margin-left: 20%;
+    }
+</style>

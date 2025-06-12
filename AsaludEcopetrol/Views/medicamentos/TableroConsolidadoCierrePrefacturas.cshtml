@@ -1,0 +1,288 @@
+﻿@using Kendo.Mvc.UI;
+
+@model List<ECOPETROL_COMMON.ENTIDADES.md_prefacturas_cargue_base>
+@{
+    ViewBag.Title = "TABLERO DE CONTROL CIERRE DE PRE-FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">CIERRE DE PRE FACTURAS</strong>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed" style="width: 100%;" id="tblotroResponsable">
+            <thead>
+                <tr style="background-color:#636363;color:white; font-weight:bold">
+                    <th>#Cargue</th>
+                    <th>Prestador</th>
+                    <th>Regional</th>
+                    <th>Fecha cargue</th>
+                    <th>Usuario cargue</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.conteo != 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_consolidadoInicialPrefacturasResult item in ViewBag.listado)
+                    {
+                        <tr>
+                            <td>@item.id_cargue_base</td>
+                            <td>@item.Nombre</td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.fecha_digita.ToString("dd/MM/yyyy")</td>
+                            <td>@item.nombreCreador</td>
+                            <td class="text-center">
+                                <a role="button" href="javascript:ValidarPreFacturas(@item.id_cargue_base)" class="btn btn-xs button_Asalud_Aceptar">
+                                    Cerrar prefacturas &nbsp; <i class="glyphicon glyphicon-check"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="12" style="text-align:center; font-size:13px;">
+                            <label class="text-footer_asalud">NO HAY CARGUES LISTADO POR VALIDAR.</label>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        LoadingHide();
+
+        $('.table').DataTable({
+            "searching": true,
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    });
+
+    function ValidarPreFacturas(cargueBase)
+    {
+        location.href = "@Url.Action("tableroCierrePrefacturas", "medicamentos")?cargueBase=" + cargueBase;
+    }
+
+    function eliminarCargue(idCargue) {
+        var opcion = confirm("¿Está seguro de eliminar estos registros?");
+        if (opcion == true) {
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarCarguePrefacturas", "medicamentos")?idCargue=" + idCargue,
+                type: "post",
+                data: {},
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    console.log(response);
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+    function solicitarCierre(idCargue) {
+
+        var confirmacion = confirm("¿Desea solicitar eliminación de todos los registros de este cargue?");
+        if (confirmacion) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("solicitudEliminacionDatosPrefactura", "medicamentos")",
+                type: "post",
+                data: {
+                    idCargue: idCargue
+                },
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+            })
+        }
+    }
+
+</script>
+
+
+<style>
+    .error {
+        color: indianred;
+        font-weight: bold;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    .thEn {
+        width: 30%;
+    }
+
+    .thCa {
+        width: 70%;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

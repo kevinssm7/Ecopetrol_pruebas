@@ -1,0 +1,322 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.ProcesosInternos.ProcesosInternos
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "ITEMS";
+    string alerta = (string)ViewData["Alerta"];
+}
+
+
+<br />
+
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        @if (!String.IsNullOrEmpty(alerta))
+        {
+            @Html.Raw(alerta);
+        }
+        <div class="col-sm-12 form-group row">
+            <strong>Nombre Capitulo: </strong> @ViewBag.nomcapitulo
+        </div>
+        <div class="col-sm-12 form-group row">
+            <table class="table table-hover table-striped table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>item</th>
+                        <th>Nombre Item</th>
+                        <th>Peso Individual</th>
+                        <th>Meta</th>
+                        <th>Estado</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 0; }
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.item_capitulo item in ViewBag.listaitems)
+                    {
+                        i += 1;
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.nom_item</td>
+                            <td>@item.Peso_individual%</td>
+                            <td>
+                                @foreach (var c in ViewBag.Condiciones)
+                                {
+                                    if (item.condicion_meta == c.Value)
+                                    {
+                                        <label>@c.Text</label>
+                                    }
+                                }
+                                @item.valor_meta
+                            </td>
+                            <td>
+                                @if (item.activo == true)
+                                {
+                                    <label>Habilitado</label>
+                                }
+                                else
+                                {
+                                    <label>Inhabilitado</label>
+                                }
+                            </td>
+                            <td style="align-content:center">
+                                
+                                @if (item.activo == true)
+                                {   <a role="button"  href="javascript:void(0)" onclick="getitemInformacion(@item.id_item)" class="btn btn-success">Editar</a>
+                                    <a role="button" href="@Url.Action("HabilitareInhabilitaritem","ProcesosInternos", new {IdItem = item.id_item,  estado=true})" class="btn btn-success">Inhabilitar</a>
+                                }
+                                else
+                                {   <a role="button" href="javascript:void(0)" onclick="getitemInformacion(@item.id_item)" disabled="disabled" class="btn btn-success">Editar</a>
+                                    <a role="button" href="@Url.Action("HabilitareInhabilitaritem","ProcesosInternos", new {IdItem = item.id_item, estado=false })" class="btn btn-danger">Habilitar</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th></th>
+                        <th>@ViewBag.totalpeso%</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="col-sm-12 text-right form-group">
+            <button class="btn btn-primary" type="button" id="btnadditem">Agregar Item</button>
+            <a role="button" class="btn btn-default" href="@Url.Action("Capitulos","ProcesosInternos", new {idindicador = ViewBag.idindicador })">Volver</a>
+        </div>
+
+        <div id="popup" style="display: none;">
+            <div class="content-popup" style="min-height:56rem">
+                <div class="close"><a href="#" id="close"><span class="glyphicon glyphicon-remove"></span></a></div>
+                <center><h3><span class="text-secondary_asalud" id="titlemodal">Agregar Capitulo</span></h3></center>
+                <div class="popup-body" id="popup_body" style="margin-top: 6%">
+                    <form id="form_items" method="post" action="/ProcesosInternos/Items" enctype="multipart/form-data">
+                        <input type="hidden" id="txtiditem" name="iditem" />
+                        <input type="hidden" id="txtidindicador" name="idindicador" value="@ViewBag.idindicador" />
+                        <input type="hidden" id="txtidcapitulo" name="idcapitulo" value="@ViewBag.idcapitulo" />
+                        <input type="hidden" id="txtdistribucionpesos" name="txtdistribucionpesos" />
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Peso Individual</label>
+                            <input type="text" class="form-control solo-numero" maxlength="3" name="pesoindv" id="txtpesoindv" />
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Condicion Meta</label>
+                            <select class="form-control" id="cbxcondicionmeta" name="condicionmeta">
+                                <option value="">Seleeccione...</option>
+                                @foreach (var item in ViewBag.Condiciones)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label class="text-secondary_asalud">Valor Meta</label>
+                            <input type="text" class="form-control solo-numero" id="vlrmeta" maxlength="3" name="vlrmeta" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Item</label>
+                            <textarea class="form-control" id="txtitem" name="txtitem" maxlength="200" rows="3"></textarea>
+                        </div>
+
+                        <div class="col-sm-12 form-group">
+                            <strong>Distribuir los pesos de los capitulos </strong>
+                            <input type="hidden" id="txtcountcampos" />
+                            <div id="paneldistribucion" style="max-height:130px; overflow-y:scroll">
+
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-right">
+                            <button class="btn btn-primary" type="submit">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="popup-overlay rext-right">
+
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+
+        $("#form_items").validate({
+            lang: 'Es',
+            rules: {
+                pesoindv: "required",
+                vlrmeta: "required",
+                condicionmeta: { required: true },
+                txtitem: "required",
+            },
+
+            submitHandler: function (form)
+            {
+                var sumapesogeneral = 0;
+                var count = $("#txtcountcampos").val();
+                var lista = [];
+                for (var i = 1; i <= count; i++) {
+                    sumapesogeneral = (parseFloat(sumapesogeneral) + parseFloat($("#txt_" + i).val()));
+                    lista.push($("#txt_" + i).val());
+                }
+                $("#txtdistribucionpesos").val(lista);
+                debugger
+                sumapesogeneral += parseFloat($("#txtpesoindv").val());
+                if (sumapesogeneral <= 100) {
+                    $("#form_items").submit();
+                } else {
+                    alert("El procentaje total de los capitulos no puede ser mayor al 100%");
+                }
+            }
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.,]/g, '');
+        });
+
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este Campo es Obligatorio *",
+        });
+
+        $('.table').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+        });
+
+        $("#btnadditem").click(function ()
+        {
+            var idindicaor = '@ViewBag.idindicador';
+            var idcapitulo = '@ViewBag.idcapitulo';
+
+            $.ajax({
+                url: "@Url.Action("GetItemInformacion","ProcesosInternos")",
+                type: "post",
+                data: { idindicador: idindicaor, idcapitulo: idcapitulo },
+                success: function (data) {
+                    $("#paneldistribucion").empty();
+                    $("#paneldistribucion").html(data.tabla);
+                    $("#txtcountcampos").val(data.countvalores);
+
+                    $("#txtiditem").val();
+                    $("#cbxcondicionmeta").val("");
+                    $("#txtpesoindv").val("");
+                    $("#vlrmeta").val("");
+                    $("#txtitem").val("");
+                    $("#titlemodal").text("Agregar nuevo item");
+                    AbrirModal();
+                }
+            })
+        });
+
+        $('#close').on('click', function ()
+        {
+            debugger
+            $('#popup').fadeOut('slow');
+            $('.popup-overlay').fadeOut('slow');
+            return false;
+        });
+
+        $("#vlrmeta").focusout(function () {
+            var value = $(this).val();
+            if (parseFloat(value) > 100) {
+                alert("No puede ingresar un valor mayor a 100");
+                $("#vlrmeta").val("");
+            }
+        })
+
+        $("#txtpesoindv").focusout(function () {
+            var value = $(this).val();
+            if (parseFloat(value) > 100) {
+                alert("No puede ingresar un valor mayor a 100");
+                $("#txtpesoindv").val("");
+            }
+        })
+    })
+
+
+    function AbrirModal() {
+        $('#popup').fadeIn('slow');
+        $('.popup-overlay').fadeIn('slow');
+        $('.popup-overlay').height($(window).height());
+        return false;
+    }
+
+    function getitemInformacion(a) {
+        var value = a;
+        var idindicaor = '@ViewBag.idindicador';
+        var idcapitulo = '@ViewBag.idcapitulo';
+
+        $.ajax({
+            url: "@Url.Action("GetItemInformacion","ProcesosInternos")",
+            type: "post",
+            data: { iditem: value, idindicador: idindicaor, idcapitulo: idcapitulo },
+            success: function (data)
+            {
+                $("#paneldistribucion").empty();
+                $("#paneldistribucion").html(data.tabla);
+                $("#txtcountcampos").val(data.countvalores);
+                $("#titlemodal").text("Editar item")
+                $("#cbxcondicionmeta").val(data.condicionmeta);
+                $("#txtpesoindv").val(data.pesoindv);
+                $("#vlrmeta").val(data.valormeta);
+                $("#txtitem").val(data.nomitem);
+                $("#txtiditem").val(data.iditem);
+                AbrirModal();
+            }
+        })
+    }
+
+
+</script>
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

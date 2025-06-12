@@ -1,0 +1,262 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "TABLERO VALIDACION PRE FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    //var opcion = ViewBag.opcion;
+    //var active = "";
+}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+<br />
+
+
+<div class="container">
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab3" data-toggle="tab">APROBADAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">NO APROBADAS</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <br />
+        @*@if (opcion == 1 || opcion == 0)
+            {
+                active = "active";
+            }*@
+
+        <div class="tab-pane active" id="1a">
+            <form id="formAprobadas" name="formAprobadas" enctype="multipart/form-data" method="post">
+
+                <div>
+                    <label class="text-secondary_asalud">Total aprobadas: @ViewBag.total</label>
+                </div>
+                <br />
+                @*<div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Nro factura</label>
+                                <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                                <input type="hidden" class="form-control" id="opcion" name="opcion" value="@opcion" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Valor</label>
+                                <input type="text" class="form-control solo-numero" id="valor" name="valor" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Fecha factura</label>
+                                <input type="text" class="form-control" id="fechaFactura" name="fechaFactura" />
+                            </div>
+                            <div class="col-md-3">
+                                <button class="button_Asalud_Aceptar" onclick="buscarAprobadas()" id="buscarAprobadas"><i class="glyphicon glyphicon-search"></i> Buscar</button>
+                            </div>
+                        </div>
+                    </div>*@
+                @*<br />*@
+
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <div class="form-group text-right">
+                                <a onclick="excelTotal(1);" class="btn button_Asalud_descargas">Exportar a excel <i class="glyphicon glyphicon-download"></i></a>
+                            </div>
+                            <table class="table table-bordered table-condensed" style="font-size:10px; width:100%;" id="datos">
+                                <thead>
+                                    <tr>
+                                        <th>ítem</th>
+                                        <th>Numero prefactura</th>
+                                        <th>Descripción producto</th>
+                                        <th>Nombre beneficiario</th>
+                                        <th>Documento beneficiario</th>
+                                        <th>Fecha despacho</th>
+                                        <th>Vigencia desde</th>
+                                        <th>Vigencia hasta</th>
+                                        <th>Valor unitario</th>
+                                        @*<th></th>*@
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        if (ViewBag.total != 0)
+                                        {
+                                            var i = 0;
+                                            foreach (ECOPETROL_COMMON.ENTIDADES.Managment_ReportePrefacturas_totalResult item in ViewBag.aprobados)
+                                            {
+                                                i++;
+                                                <tr>
+                                                    <td>@i</td>
+                                                    <td>@item.num_prefactura</td>
+                                                    <td>@item.descipcion_produco</td>
+                                                    <td>@item.nom_beneficiario</td>
+                                                    <td>@item.tipo_id_beneficiario - @item.num_doc_beneficiario</td>
+                                                    <td>@item.prefactura_fecha_despacho_formula</td>
+                                                    <td>@item.lupe_fecha_inicio_vigencia</td>
+                                                    <td>@item.lupe_fecha_fin_vigencia</td>
+                                                    <td>@item.prefactura_valor_unitario</td>
+                                                    @*<td></td>*@
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                                    <label>No hay datos.</label>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane" id="1b">
+            @Html.Action("_FNOAPROBADAS", "medicamentos")
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#fechaFactura").kendoDatePicker();
+
+        $('#datos').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 20,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    });
+
+    function excelTotal(opcion) {
+        location.href = "@Url.Action("ExportarExcelTotal", "medicamentos")?opcion=" + opcion;
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .container ul li .text_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #636363;
+        font-weight: bold;
+    }
+</style>
+
+
+

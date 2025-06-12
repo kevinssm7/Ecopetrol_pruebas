@@ -1,0 +1,174 @@
+﻿
+@{
+    ViewBag.Title = "CONFIGURACIÓN ANALISTAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string msg = (string)ViewData["Msg"];
+    int rta = (int)ViewData["rta"];
+}
+
+<br />
+
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CONFIGURACIÓN</strong>
+        </div>
+        <div class="panel-body">
+            @if (rta > 0)
+            {
+                <div class="form-group">
+                    @if (rta == 1)
+                    {
+                        <div class="alert alert-success">
+                            <strong>Éxito!</strong> @msg
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> @msg
+                        </div>
+                    }
+                </div>
+                <br />
+            }
+            <form id="formulario" name="formulario" action="GuardarConfiguracion" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" style="width:100%" name="regional" id="regional" onchange="ObtenerUnis($(this).val(), 0)">
+                        <option value="">- Seleccione -</option>
+                        @{ string reg = (string)ViewBag.reg;}
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+
+                            if (!string.IsNullOrEmpty(reg))
+                            {
+                                if (reg == item.indice)
+                                {
+                                    <option selected value="@item.id_ref_regional">@item.indice</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_regional">@item.indice</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.id_ref_regional">@item.indice</option>
+                            }
+                        }
+                    </select>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Unis:</label>
+                        <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())" required>
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="col-sm-12">
+                        <label class="text-secondary_asalud">Analista:</label><span style="color:red"></span>
+                        <input id="dropdownanalista" name="dropdownanalista" style="width: 100%;" required />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+
+    function ObtenerUnis(a) {
+
+        traerAnalistas(a);
+
+        $.ajax({
+            url: "@Url.Action("ObtenerUnisPrestador")",
+            type: "post",
+            data: {
+                idregional: a,
+            },
+            success: function (data) {
+                $("#unis").empty();
+                $("#unis").html(data);
+                $("#unis").val("").trigger("change");
+            }
+        })
+    }
+
+    function traerAnalistas(regional) {
+
+        $("#dropdownanalista").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Select ...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: "traerAnalista",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            placeholder: "Seleccionar...",
+            checkboxes: true,
+            checkAll: true,
+            autoClose: false,
+        });
+    }
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>

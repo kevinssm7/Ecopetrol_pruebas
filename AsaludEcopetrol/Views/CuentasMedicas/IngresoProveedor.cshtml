@@ -1,0 +1,238 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.CuentasRecepcion
+@{
+    ViewBag.Title = "INGRESO PROVEEDOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+@using (Html.BeginForm())
+{
+
+    <fieldset>
+        <div class="container">
+            <form id="frm-alumno">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">INGRESO</h3>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label for="depart" class="text-secondary_asalud">DEPARTAMENTO:</label>
+                                @(Html.Kendo().DropDownListFor(m => m.cod_dane_departamento)
+                                        .Name("cod_dane_departamento")
+                                       .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                        .OptionLabel("Seleccione Departamento...")
+                                        .DataTextField("descripcion")
+                                        .DataValueField("cod_departamento")
+                                        .Filter(FilterType.Contains)
+                                        .Events(events => events.Select("CustomerSelect5"))
+                                        .DataSource(source =>
+                                        {
+                                            source.Read(read =>
+                                            {
+                                                read.Action("GetCascadedepartamentoFFMM", "CuentasMedicas");
+                                            });
+                                        })
+                                )
+                                <span class="k-invalid-msg" data-for="depart"></span>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">MUNICIPIO:</label>
+                                @(Html.Kendo().DropDownListFor(m => m.cod_dane_municipio)
+                                                        .Name("cod_dane_municipio")
+                                                        .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                                        .OptionLabel("Seleccione Municipio...")
+                                                        .DataTextField("muninombre")
+                                                        .DataValueField("cod_municipio")
+                                                        .Filter(FilterType.Contains)
+                                                        .Events(events => events.Select("CustomerSelect6"))
+                                                        .DataSource(source =>
+                                                        {
+                                                            source.Read(read =>
+                                                            {
+                                                                read.Action("GetCascadeMunicipioFFMM", "CuentasMedicas")
+                                                                .Data("filterdepart");
+                                                            })
+                                                            .ServerFiltering(true);
+                                                        })
+
+                                                        .CascadeFrom("cod_dane_departamento")
+                                )
+                                <script>
+                                    function filterdepart() {
+                                        return {
+                                            depart: $("#cod_dane_departamento").val()
+                                        };
+                                    }
+                                </script>
+                                <span class="k-invalid-msg" data-for="munic"></span>
+
+
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">CODIGO HABILITACION:</label>
+                                @Html.TextBoxFor(p => p.codigohabilitacion, "{0:#.#}", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.codigohabilitacion, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">NIT:</label>
+                                @Html.TextBoxFor(p => p.nit, "{0:#.#}", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.nit, null, new { @class = "label label-danger" })
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">NOMBRE PROVEEDOR:</label>
+                                @Html.TextBoxFor(p => p.proveedor, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.proveedor, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">DIRECCION:</label>
+                                @Html.TextBoxFor(p => p.direccion, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.direccion, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label for="munic" class="text-secondary_asalud">TELEFONO:</label>
+                                @Html.TextBoxFor(p => p.telefono, "{0:#.#}", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.telefono, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3">
+
+                                <label for="munic" class="text-secondary_asalud">NATURALEZA JURIDICA PROVEEDOR:</label>
+
+                                @Html.RadioButtonFor(model => model.najunombre, "PUBLICA", new { @onclick = "mostrar2()" })@Html.Label("PUBLICA")
+                                @Html.ValidationMessageFor(u => u.najunombre, null, new { @class = "label label-danger" })
+                                &nbsp;
+                                @Html.RadioButtonFor(model => model.najunombre, "MIXTA", new { @onclick = "mostrar3()" })@Html.Label("MIXTA")
+                                @Html.ValidationMessageFor(u => u.najunombre, null, new { @class = "label label-danger" })
+                                &nbsp;
+                                @Html.RadioButtonFor(model => model.najunombre, "PRIVADA", new { @onclick = "mostrar3()" })@Html.Label("PRIVADA")
+                                @Html.ValidationMessageFor(u => u.najunombre, null, new { @class = "label label-danger" })
+
+                            </div>
+                            <div class="col-sm-4">
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="pnlGuardar" class="General">
+                    <table align="center">
+                        <tr>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+
+                                <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="Error">
+                                @Html.ValidationSummary(true, "")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="display:none">
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+}
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+       
+       
+    });
+
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cod_dane_departamento").val(DataItem.cod_departamento);
+
+    }
+
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cod_dane_municipio").val(DataItem.cod_municipio);
+
+    }
+
+
+
+</script>
+
+
+<style>
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+</style>
+
+

@@ -1,0 +1,781 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "TABLERO GESTIÓN NUM FACTURAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="gj-margin-top-10">
+            <div class="gj-float-left">
+                <form class="display-inline" id="formulariobuscar">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Numero Factura</label>
+                            <input type="text" class="form-control" name="numFac" id="numFac" autocomplete="off" />
+                        </div>
+                        <br />
+                        <div class="col-sm-5">
+                            <button id="btnSearch" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                        </div>
+                        @if (ViewBag.ROL == "1")
+                        {
+                            <div class="col-md-3">
+                                <a class="button_Asalud_Aceptar" onclick="DescargarFacturasZip();">FACTURAS ZIP</a>
+                            </div>
+                        }
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-condensed table-striped datatable" id="grid"></table>
+    <br />
+    <br />
+</div>
+<div style="display:none">
+    <input class="form-control" type="text" name="rol" id="rol" value="@ViewBag.ROL" />
+</div>
+<div id="dialog2" class="gj-display-none">
+
+
+</div>
+
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal2">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal4">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado4"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal5">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado5"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal6">
+    <div class="modal-dialog modal-lg" style="width:80%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado6"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalSoportes" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Documentos Cargados</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblsoportes" class="table table-bordered table-condensed table-striped datatable">
+                    <thead>
+                        <tr>
+                            <th>item</th>
+                            <th>Tipo</th>
+                            <th>Nombre documento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        var var1 = $('input:text[id$=fechainicial]').keyup();
+        var var2 = $('input:text[id$=fechafinal]').keyup();
+
+        var grid = $('#grid').grid({
+            locale: 'es-es',
+            primaryKey: 'id_cargue_dtll',
+            dataSource: '/RadicacionElectonica/GetNumFactura/',
+            filtering: true,
+
+            filterRow: {
+                visible: true,
+                applyFilter: "onClick"
+            },
+
+            columns: [
+                { field: 'id_cargue_base', title: 'Lote' },
+                { field: 'num_factura', title: 'Numero Factura'},
+                { field: 'valor_neto', title: 'Valor Factura' },
+                { field: 'nombre_prestador', title: 'Prestador' },
+                { field: 'homologacion_razonSocial', title: 'Prestador homologado' },
+                //{ field: 'homologacion_sap', title: 'Codigo SAP' },
+                { field: 'nombre_regional', title: 'Regional' },
+                { field: 'fecha_recepcion_fac', title: 'Fecha Recepción', type: 'date', format: "dd/mm/yyyy"  },
+                { field: 'estado_des', title: 'Estado Actual' },
+                { field: 'Numero_factura_nueva', title: 'Número nueva factura' },
+                { field: 'valor_factura_nueva', title: 'Valor nueva factura' },
+                { field: 'nom_analitica', title: 'Analista' },
+                { field: 'nom_auditor', title: 'Auditor' },
+                { field: 'numero_contrato', title: 'Número contrato' },
+                { field: 'nroPedido', title: 'Número pedido' },
+                { field: 'nom_auditor', title: 'Auditor' },
+                {
+                    title: 'Documentos', tmpl: '<span style="cursor:pointer" class="material-icons">crop_original</span >', align: 'center',
+                    events: { 'click': Edit2 }
+                },
+                {
+                    title: 'Aprobación', tmpl: '<span style="cursor:pointer" class="material-icons">picture_as_pdf</span >', align: 'center',
+                    events: { 'click': Edit3 }
+                },
+                {
+                    title: 'Motivo', width: 100,
+                    tmpl: '<span style="cursor:pointer" class="material-icons">visibility</span >',
+                    align: 'center',
+                    events: {
+                        'click': function (e)
+                        {
+                           Edit4(e);
+                        }
+                    }
+                },
+                {
+                    title: 'Observación', width: 100,
+                    tmpl: '<span style="cursor:pointer" class="material-icons">add_circle</span >',
+                    align: 'center',
+                    events: {
+                        'click': function (e)
+                        {
+                          Edit5(e);
+                        }
+                    }
+                },
+
+                {
+                     title: 'Devolución', width: 100,
+                     tmpl: '<span style="cursor:pointer" class="material-icons">picture_as_pdf</span >',
+                     align: 'center',
+                     events: {
+                         'click': function (e)
+                         {
+                             Edit6(e);
+                         }
+                     }
+                },
+
+                {
+                    title: 'Radicación', width: 100,
+                    tmpl: '<span style="cursor:pointer" class="material-icons">picture_as_pdf</span >',
+                    align: 'center',
+                    events: {
+                        'click': function (e) {
+                            Edit7(e);
+                        }
+                    }
+                },
+
+                {
+                    title: 'Detalles', tmpl: '<span style="cursor:pointer" class="material-icons">arrow_forward</span >', align: 'center',
+                    events: { 'click': RedireccionDetalles }
+                },
+
+            ],
+            pager: { limit: 20 },
+
+        });
+
+        grid.on('dataBound', function (e, records, totalRecords) {
+            LoadingHide();
+        });
+
+
+        dialog2 = $('#dialog2').dialog({
+            autoOpen: false,
+            resizable: false,
+            modal: true,
+            height: 600,
+            width: 800,
+        });
+
+
+
+        $('#btnCancel2').on('click', function () {
+            dialog2.close();
+            //location.reload();
+        });
+
+        $('#btnSearch').on('click', function ()
+        {
+            if (ValidacionArchivo()) {
+                LoadingShow();
+                grid.reload({ page: 1, idDetalle: $("#idDetalle").val(), fechainicial: $('#fechainicial').val(), fechafin: $('#fechafinal').val(), nombre_prestador: $('#prestador').val(), estado: $('#estado').val(), regional: $('#regional').val(), nit: $('#nit').val(), numFac: $('#numFac').val(), buscar: "True" });
+            }
+        });
+
+        $('#btnClear').on('click', function () {
+            $('#fechainicial').val('');
+            $('#fechafinal').val('');
+            $('#prestador').val('');
+            $('#estado').val('');
+            $('#regional').val('');
+            $('#nit').val('');
+            $('#numFac').val('');
+            grid.reload({ fechainicial: '', fechafin: '', nombre_prestador: '', estado: '', regional: '', nit: '', numFac: '' });
+        });
+    });
+
+
+    function RedireccionDetalles(e) {
+        var b = e.data.record.id_cargue_base;
+        var a = e.data.record.id_cargue_dtll;
+        location.href = "@Url.Action("VerDetalleFacturasAuditorDetallado")?a=" + a + "&b=" + b;
+    }
+
+    function Edit2(e)
+    {
+        var b = e.data.record.id_cargue_dtll;
+        var a = e.data.record.id_cargue_base;
+
+        $.ajax({
+            url: "@Url.Action("tablasoportesTotales")",
+            type: "post",
+        data: {
+            idcargue: a,
+            iddetalle:b
+        },
+        success: function (data)
+        {
+            $("#tblsoportes tbody").empty();
+            $("#tblsoportes tbody").html(data);
+            $("#ModalSoportes").modal('show');
+        }
+        })
+
+    }
+
+    function Edit3(e)
+    {
+        var id_rol = $("#rol").val();
+        if (id_rol != 21)
+        {
+            var a = e.data.record.id_cargue_dtll;
+            var b = e.data.record.estado_aprobada;
+            var C = e.data.record.estado_factura;
+
+            if ((C == 6 || C >= 11) && (C != 13 && C != 14))
+            {
+                var url = "@Url.Action("PdfFacturasAprobadas", "RadicacionElectonica")?ID=" + a + '&ID2=' + b ;
+                popupWindow = window.open(url, '', 'height=200,width=450,left=50,top=750,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+            }
+            else
+            {
+                alert("Factura no esta aprobada...");
+            }
+        }
+    }
+
+    function Edit4(e) {
+
+
+        var AI = e.data.record.id_cargue_dtll;
+        var BI = e.data.record.id_cargue_base;
+        var c = e.data.record.estado_factura;
+
+        if (c == 3)
+        {
+            var laURLDeLaVista = '@Url.Action("VerRechazo")'
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {
+                    ID: AI,
+                    IDBASE: BI
+                },
+                success: function (response) {
+                    $("#myModal4").modal('show');
+                    $('#resultado4').html('');
+                    $('#resultado4').html(response);
+                }
+            });
+        }
+        else if (c == 5)
+        {
+           var laURLDeLaVista = '@Url.Action("VerDevolucion")?ID=' + AI
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "GET",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    $("#myModal5").modal('show');
+                    $('#resultado5').html('');
+                    $('#resultado5').html(response);
+                }
+            });
+        }
+        else
+        {
+            alert("Estado de la factura no visualiza motivo de rechazo o devolución");
+        }
+    }
+
+    function Edit5(e)
+    {
+        var id_rol = $("#rol").val();
+
+        if (id_rol == "1" || id_rol == "20")
+        {
+
+             var AI = e.data.record.id_cargue_dtll;
+             var c = e.data.record.estado_factura;
+
+             if (c == 3 || c == 5)
+             {
+                var laURLDeLaVista = '@Url.Action("GestionarObservacion")?ID=' + AI
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "GET",
+                    url: laURLDeLaVista,
+                    data: {},
+                    success: function (response) {
+                        $("#myModal6").modal('show');
+                        $('#resultado6').html('');
+                        $('#resultado6').html(response);
+                    }
+                });
+             }
+             else
+             {
+                 alert("Estado de la factura no permite generar Observaciones");
+             }
+        }
+        else
+        {
+            alert("Sin permisos para esta acción...");
+        }
+    }
+
+    function Edit6(e)
+    {
+        var AI = e.data.record.id_cargue_dtll;
+        var c = e.data.record.estado_factura;
+
+        if (c == 5 || c == 14)
+        {
+            $.ajax({
+                url: "@Url.Action("ObtenerIdDevolucion")",
+                type: "post",
+                data: { id: AI },
+                success: function (data)
+                {
+                    var url = "@Url.Action("CrearPdfCartaDevolucionFac2", "RadicacionElectonica")?ID=" + data.idDev+ "&idAf=" + AI;
+                    popupWindow = window.open(url, '', 'height=200,width=500,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+                }
+            })
+        }
+    }
+
+    function Edit7(e) {
+
+        var id = e.data.record.id_cargue_base;
+        var url = "@Url.Action("ExportarCarta", "RadicacionElectonica")?idcargue=" + id;
+        window.open(url, '', 'width=700,height =500,left =50,top =50,toolbar =yes');
+
+    }
+
+    function GestionCerrar() {
+
+        location.reload();
+    }
+
+    function ValidacionArchivo2() {
+        var val1 = $("#fechainicial").val()
+        var val2 = $("#fechafinal").val()
+        var val3 = $("#prestador").val()
+        var val4 = $("#estado").val()
+        var val5 = $("#regional").val()
+        var val6 = $("#nit").val()
+        var val7 = $("#numFac").val()
+
+        if (val1 == "" && val2 == "" && val3 == "" && val4 == "" && val5 == "" && val6 == "" && val7 == "")
+        {
+            alert('Por favor, seleccione un filtro de descarga...');
+            return false;
+        }
+        else {
+            return true
+        }
+    }
+
+    function ValidacionArchivo() {
+        var fecha = $("#fechainicial").val()
+        var fecha2 = $("#fechafinal").val()
+
+        if (fecha != "") {
+            if (fecha2 != "") {
+                return true
+            }
+            else {
+                alert('Por favor, seleccione una fecha final...');
+                return false;
+            }
+        }
+        else {
+            return true
+        }
+
+    }
+
+    function AbrirSoporteClinico2(a,b)
+    {
+        var url = "@Url.Action("versoporteclinico2", "RadicacionElectonica")?idsoporteclinico=" + a + '&idDtll=' + b ;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbrirSoporteClinicoZip(a)
+    {
+        var url = "@Url.Action("Verdocumentodigital_zip", "RadicacionElectonica")?idcarguedtll=" + a;
+        location.href = url;
+
+    }
+
+    function DescargarFacturasZip() {
+        var url = "@Url.Action("DescargarFacturasEnComprimido", "RadicacionElectonica")";
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+</script>
+
+
+
+<style>
+
+    TABLE.gj-grid {
+        text-align: center;
+        margin: 10px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .gj-grid-md {
+        position: relative;
+        border: 1px solid #e0e0e0;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        background-color: #fff;
+    }
+
+
+        .gj-grid-md th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            position: relative;
+            vertical-align: bottom;
+            font-weight: 700;
+            line-height: 31px;
+            letter-spacing: 0;
+            height: 56px;
+            font-size: 12px;
+            color: #FDF9F9;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            background: #636363;
+        }
+
+        .gj-grid-md td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            position: relative;
+            height: 48px;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            color: rgba(0,0,0,.87);
+        }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .sinDevolucion {
+        background-color: white;
+    }
+
+    .conDevolucion {
+        background-color: #f2dede;
+    }
+
+
+    /*   .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }*/
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+        label.error {
+            background-color: indianred;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            float: left;
+            width: 100%;
+            text-align: justify;
+            font-weight: bold;
+        }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+
+    .k-tabstrip-items .k-state-default.k-item {
+        background-image: none;
+        background-color: #fff;
+        border-color: #fff;
+        margin-right: 1px;
+    }
+
+
+
+    .k-tabstrip-items .k-state-active.k-item {
+        background-color: #556da2;
+        border-color: black;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .k-tabstrip-items .k-state-hover.k-item {
+        background: #556da2;
+        border-color: black;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+
+    /*.ui-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 160px;
+        padding: 5px 0;
+        margin: 2px 0 0;
+        list-style: none;
+        font-size: 12px;
+        text-align: left;
+        color: #636363;
+        background-color: white;
+        border: 1px solid #cccccc;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px;*/
+    /*-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);*/
+    /*box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        background-clip: padding-box;
+    }
+
+        .ui-autocomplete > li > div {
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: normal;
+            line-height: 1.42857143;
+            white-space: nowrap;
+        }
+
+    .ui-state-hover,
+    .ui-state-active,
+    .ui-state-focus {
+        text-decoration: none;
+        cursor: pointer;
+        color: black;
+    }
+
+    .ui-helper-hidden-accessible {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }*/
+</style>
+
+

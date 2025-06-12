@@ -1,0 +1,583 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "TABLERO CONTROL PQRS AUDITOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+@*@using (Html.BeginForm())
+    {*@
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">FILTROS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-4 form-group puntero" style="font-size:13px; text-align:center;">
+                <div>
+                    <a class="text-primary_asalud" style="color: #636363;" onclick="mostrarEstados(0);">
+                        SEMAFORIZACIÓN
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #D9DBDE; color: #636363 " class="contenedor1" onclick="mostrarEstados(0);">
+                    <a class="text-secondary_asalud" style="color: #636363;">
+                        Total casos: @ViewBag.Total
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #b0c2f2; color: #636363; " class="contenedor1" onclick="mostrarEstados(1);">
+                    <a class="text-secondary_asalud" style="color: #636363;">
+                        Supersalud: @ViewBag.superSalud
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #A29DD7; color: #636363; " class="contenedor1" onclick="mostrarEstados(2);">
+                    <a class="text-secondary_asalud" style="color: #636363;">
+                        Reabiertos: @ViewBag.reabiertos
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #883344; color: #c5c5c5; " class="contenedor1" onclick="mostrarEstados(3);">
+                    <a class="text-secondary_asalud" style="color: #c5c5c5;">
+                        Vencidos: @ViewBag.vencidas
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #FFFAE0; color: #636363; " class="contenedor1" onclick="mostrarEstados(4);">
+                    <a class="text-secondary_asalud" style="color: #636363; ">
+                        Por priorizar: @ViewBag.priorizar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #CF9CE3; color: #636363; " class="contenedor1" onclick="mostrarEstados(5);">
+                    <a class="text-secondary_asalud" style="color: #636363; ">
+                        Ampliación: @ViewBag.ampliacion
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #E88693; color: #636363; " class="contenedor1" onclick="mostrarEstados(6);">
+                    <a class="text-secondary_asalud" style="color: #636363; ">
+                        Ampliación vencidos: @ViewBag.ampliacionVen
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #CF9CE3; color: #636363" class="contenedor1" onclick="mostrarEstados(7);">
+                    Vobo auditor: @ViewBag.totalVobo
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #E88693; color: #636363" class="contenedor1" onclick="mostrarEstados(8);">
+                    Total analisis de caso: @ViewBag.totalAsignacion
+                </div>
+            </div>
+            <div class="col-md-2 form-group puntero" style="font-size:13px;">
+                <div style="background-color: #FFBE8E; color: #636363" class="contenedor1" onclick="mostrarEstados(9);">
+                    Casos por gestionar: @ViewBag.totalPasan
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">RESULTADOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-hover display  table-condensed table-bordered" style="width:100%; font-size:10px; margin:0px">
+                <thead>
+                    <tr>
+                        <th>Id PQR</th>
+                        <th>Numero Caso</th>
+                        <th>Ciudad</th>
+                        <th>Asignacion</th>
+                        <th>Ingreso SalesForce</th>
+                        <th>Semaforo SalesForce </th>
+                        <th>Ingreso Buzòn Asalud </th>
+                        <th>Vencimiento 5 Dìas Habiles Buzòn Asalud </th>
+                        <th>Semaforo Buzòn Asalud </th>
+                        <th>Ultima Observaciòn</th>
+                        <th>Analista Asignado</th>
+                        <th>Auditor Asignado</th>
+                        <th>Prestador</th>
+                        <th>Archivos ingreso</th>
+                        <th>Archivos analista</th>
+                        <th>Datos</th>
+                        <th>Gestión</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+
+                <tbody id="myTable">
+
+                    @if (ViewBag.Total > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_tableroAuditorResult order in ViewBag.lista)
+                        {
+                            <tr>
+                                @if (order.reabierto == 1)
+                                {
+                                    <td style="text-align:left;">
+                                        <div class="reabierto" style="color: black; background-color: #A29DD7">
+                                            @order.id_ecop_PQRS
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td style="text-align:left;">
+                                        <div class="reabierto" style="color: black" ;>
+                                            @order.id_ecop_PQRS
+                                        </div>
+                                    </td>
+                                }
+
+                                @if (order.pasa_auditor == "SI")
+                                {
+                                    <td style="text-align:left;">
+                                        <div class="porGestion" style="color: black; text-align: center; background-color: #FFBE8E">
+                                            @order.numero_caso
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>@order.numero_caso</td>
+                                }
+
+                                @if (order.supersalud == 1)
+                                {
+                                    <td class="text-center">
+                                        <div class="alert alert-danger" role="alert" style="color: black; background-color: #b0c2f2">
+                                            @order.ciudad_del_caso_descripcion
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>@order.ciudad_del_caso_descripcion</td>
+                                }
+
+                                <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@order.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+
+                                @if (order.estado_gestion == 4)
+                                {
+
+                                    if (order.dias_restantesAmpli <= 2)
+                                    {
+                                        if (order.fecha_ampliacion != null)
+                                        {
+                                            <td class="text-center">
+                                                <div class="alert alert-danger" role="alert" style="color:black; background-color: #E88693">
+                                                    Caso con ampliación fecha pronto a vencer:
+                                                    @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                                </div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        if (order.fecha_ampliacion != null)
+                                        {
+                                            <td class="text-center">
+                                                <div class="alert alert-danger" role="alert" style="color: black; background-color: #CF9CE3">
+                                                    Caso con ampliación fecha:
+                                                    @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                                </div>
+                                            </td>
+                                        }
+
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (order.dias_ok_salfe_egreso > 1)
+                                    {
+                                        <td class="text-center">
+                                            <div class="alert alert-danger" role="alert" style="color: #ffffff; background-color: #883344">
+                                                Caso vencido
+                                            </div>
+                                        </td>
+                                    }
+
+                                    else if (order.dias_ok_salfe_egreso <= 1)
+                                    {
+                                        <td class="text-center">
+                                            <div class="alert alert-warning" role="alert" style="font-weight:bold">
+                                                En Alerta
+                                            </div>
+                                        </td>
+                                    }
+
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                }
+
+                                <td>@order.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@order.fecha_respuesta_programada5Buzon.Value.ToString("dd/MM/yyyy")</td>
+                                @if (order.dias_restantes5Buzon >= 5)
+                                {
+                                    <td>
+                                        <div class="alert alert-success" role="alert">
+
+                                        </div>
+                                    </td>
+                                }
+
+                                else if (order.dias_restantes5Buzon == 3 || order.dias_restantes5Buzon == 4)
+                                {
+                                    <td>
+                                        <div class="alert alert-warning" role="alert">
+
+                                        </div>
+                                    </td>
+                                }
+                                else if (order.dias_restantes5Buzon <= 2)
+                                {
+                                    <td>
+                                        <div class="alert alert-danger" role="alert">
+
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                    </td>
+                                }
+
+                                <td>@order.ultima_obs</td>
+                                <td>@order.usuario_asignado_descrip</td>
+                                <td>@order.nombre_auditor_des</td>
+                                <td>@order.prestador_nom</td>
+
+                                @if (order.existeArchivoIngreso.Equals("SI"))
+                                {
+                                    <td class="archivos">
+                                        <a class="button_Asalud_Aceptar archivos" onclick="MostrarArchivos(@order.id_ecop_PQRS, 8);" data-toggle="modal" data-target="#myModalArchivos">
+                                            Ver <i class="glyphicon glyphicon-file" style="align-content:center;"></i>
+                                        </a>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>Sin archivo</td>
+                                }
+                                @if (order.existeArchivoAuditor.Equals("SI"))
+                                {
+                                    <td>
+                                        <a class="button_Asalud_Aceptar archivos" onclick="MostrarArchivos(@order.id_ecop_PQRS, 5);" data-toggle="modal" data-target="#myModalArchivos">
+                                            <i class="glyphicon glyphicon-file"></i>&nbsp; Ver
+                                        </a>
+
+                                        @*<a href='javascript:verArAnalista(@order.id_ecop_PQRS)'>
+                                                Archivo auditor
+                                            </a>*@
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>Sin archivo</td>
+                                }
+
+                                @if (order.existeGestionAuditor == "SI")
+                                {
+                                    <td class="text-center">
+                                        <a href='javascript:pdfPqr(@order.id_ecop_PQRS);'>Descargar</a>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">
+                                        Sin gestión auditor
+                                    </td>
+                                }
+
+                                @if (ViewBag.rol != "13")
+                                {
+                                    <td>
+                                        <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("GestionPQRSAuditor", "Pqrs", new { idPqrs = order.id_ecop_PQRS})">
+                                            Gestionar
+                                        </a>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+
+                                @if (order.analisis_caso == "SI" && order.vobo_auditor == "NO")
+                                {
+                                    <td class="text-center">
+                                        <div class="alert alert-danger" role="alert" style="font-weight: bold; background-color: #E88693; ">
+
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">
+                                        <div class="alert alert-danger" role="alert" style="font-weight: bold; background-color: #CF9CE3; ">
+
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="14" style="text-align:center"> SIN CASOS</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $('#close').on('click', function () {
+        $('#popup').fadeOut('slow');
+        $('.popup-overlay').fadeOut('slow');
+        return false;
+    });
+
+    $("#myInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+    function pdfPqr(idPqr)
+    {
+        var url = "@Url.Action("pdfPqr", "Pqrs")?idPqr=" + idPqr;
+          popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    $('.table').DataTable({
+        "searching": true,
+        "sSearch": "Buscar:",
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+
+        responsive: true,
+
+
+        language: {
+            search: "Buscar",
+        }
+    });
+
+
+
+    function verArAnalista (a) {
+
+        var idecopPqrs = a;
+
+        $.ajax({
+            url: "@Url.Action("ArtefactoProyeccion")",
+            type: "GET",
+            data:
+            {
+                idecopPqrs: idecopPqrs
+            },
+            success: function (data) {
+                var URL2 = "@Url.Action("GestorUrlArchivoAnalista", "Pqrs")?idecopPqrs=" + data.idecopPqrs;
+                window.open(URL2, '', 'width =700,height =700,left =50,top =50,toolbar =yes');
+            },
+            error: function (data) {
+                alert("error al momento de realizar el procedimiento")
+            }
+        })
+    }
+
+    @*function verArIngreso(idPqrs) {
+        var URL2 = "@Url.Action("GestorUrlArchivoIngresoPqr", "Pqrs")?idPqrs=" + idPqrs;
+        window.open(URL2, '', 'width =500,height =500,left =50,top =50,toolbar =yes');
+    }*@
+
+
+    function MostrarArchivos(idPqrs, tipo) {
+
+        var laURLDeLaVista = '@Url.Action("MostrarRepositorioArchivos")?idPqrs=' + idPqrs + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado3').html('');
+                $('#resultado3').html(response);
+
+            }
+        });
+    }
+
+    function mostrarEstados(estado) {
+        LoadingShow();
+        location.href = "@Url.Action("TableroControlAuditor", "Pqrs")?estado=" + estado;
+    }
+
+</script>
+
+<style>
+    #DataTables_Table_0_filter input[type="search"] {
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: 10px;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    /*   .contenedor1 {
+                        border-radius: 10px;
+                        height: 35px;
+                        font-weight: 600;
+                        text-align: center;
+                    }
+                */
+    .contenedor1 {
+        border-radius: 10px;
+        /*height: 35px;*/
+        font-weight: 600;
+        text-align: center;
+    }
+
+
+    .porGestion {
+        width: 75px;
+        height: 25px;
+        border-radius: 5px;
+        margin-left: -5px;
+    }
+
+    .archivos {
+        width: 500px;
+        height: 25px;
+        font-size: 11px;
+    }
+
+    .puntero {
+        cursor: pointer;
+    }
+</style>

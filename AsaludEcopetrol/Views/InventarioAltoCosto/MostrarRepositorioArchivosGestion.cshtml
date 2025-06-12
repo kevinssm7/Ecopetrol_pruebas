@@ -1,0 +1,272 @@
+﻿@{
+    var idGestion = ViewBag.idGestion;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS GESTIÓN</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idGestion</label>
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <input type="hidden" id="idGestion" name="idGestion" value="@ViewBag.idGestion" />
+                <input type="hidden" id="idDetalle" name="idDetalle" value="@ViewBag.idDetalle" />
+                <table id="tableGestionDocumental" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Nombre archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+
+                            @if (ViewBag.rol == "1")
+                            {
+                                <th class="text-center">Eliminar</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteo > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_inventario_altoCosto_verArchivosResult item in ViewBag.lista)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    @*<td class="text-center">@item.id_gestion</td>*@
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_digita</td>
+                                    }
+
+                                    <td class="text-center">@item.nombre</td>
+                                    <td class="text-center">@item.nombreUsuarioDigita</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_archivo);'>Ver archivo</a>
+                                    </td>
+
+                                    @if (ViewBag.rol == "1")
+                                    {
+                                        <td class="text-center">
+                                            <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_archivo, @item.id_gestion);">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        @if (ViewBag.rol == "1")
+        {
+            <div id="divFormulario">
+                <form id="formularioArchivosIngreso" method="post" action="InsertarArchivosRepositorio">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Adjuntar:</label><span style="color:red"></span>
+                            <input type="file" class="form-control" name="archivos" id="archivos" multiple required />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="text-center">
+                            <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioArchivos()">CARGAR</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#tableGestionDocumental').DataTable({
+            "searching": true,
+            "iDisplayLength": 10,
+            "lengthChange": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+    });
+
+    function MostrarArchivo(idArchivo) {
+        var url = "@Url.Action("VerArchivoGestionACidArchivo", "InventarioAltoCosto")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function ValidarformularioArchivos() {
+
+        importarScript("~/Scripts/validate.js");
+
+        var validator = $("#formularioArchivosIngreso").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function importarScript(nombre) {
+        var s = document.createElement("script");
+        s.src = nombre;
+        document.querySelector("head").appendChild(s);
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var formData = new FormData($("form")[0]);
+
+        var idDetalle = $("#idDetalle").val();
+        var idGestionId = @idGestion;
+
+        formData.append("idDetalle", idDetalle);
+        formData.append("gestionId", idGestionId);
+
+        var archivos = $("#archivos").get(0).files;
+        for (i = 0; i < archivos.length; i++) {
+            formData.append("archivos", archivos[i]);
+        }
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarNuevosArchivosALGestion", "InventarioAltoCosto")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+            success: function (response) {
+
+                if (response.rta == 1) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    location.reload();
+                }
+                else {
+                    alert(response.mensaje);
+                    LoadingHide();
+                }
+            }
+        });
+    }
+
+    function EliminarArchivo(idArchivo, idGestion) {
+        if (confirm('Está a punto de eliminar un archivo ¿Desea continuar?')) {
+            EliminarRegistro(idArchivo, idGestion);
+        }
+    }
+
+    function EliminarRegistro(idArchivo, idGestion) {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idArchivo", idArchivo);
+        formData.append("idGestion", idGestion);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarArchivoAC", "InventarioAltoCosto")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    alert(response.message);
+                    LoadingHide();
+                    location.reload();
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+                }
+            }
+        })
+    }
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>

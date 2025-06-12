@@ -1,0 +1,346 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    ViewBag.Title = "CAPITULOS";
+}
+
+@{ List<ECOPETROL_COMMON.ENTIDADES.item_capitulo> itemcapitulos = (List<ECOPETROL_COMMON.ENTIDADES.item_capitulo>)ViewData["itemcapitulos"];
+    string alerta = (string)ViewData["Alerta"]; }
+
+<br />
+
+<div class="container">
+    <div id="pnlPrincipal" class="General">
+        @if (!String.IsNullOrEmpty(alerta))
+        {
+            @Html.Raw(alerta);
+        }
+        <div class="row form-group" style="font-family:'Century Gothic'">
+            <div class="col-sm-4">
+                <strong>Nombre Regional: </strong> @ViewBag.nomregional
+            </div>
+            <div class="col-sm-4">
+                <strong>Nombre Prestador: </strong> @ViewBag.nameindicador
+            </div>
+            <div>
+                <strong>Total: </strong> <span id="txttotal">@ViewBag.pesogeneral</span>%
+                <input type="hidden"id="inputtotal" value="@ViewBag.pesogeneral" />
+            </div>
+        </div>
+        <div class="col-sm-12 form-group row">
+            <table id="tabla" class="table table-hover table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Nombre capitulo</th>
+                        <th>Peso general Capitulo</th>
+                        <th style="text-align:center">Peso General Indicadores</th>
+                        <th class="text-center">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 0;decimal total = 0;}
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.capitulo_indicador item in ViewBag.listacapitulos)
+                    {
+                        i += 1;
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.capitulos.nom_capitulo</td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input type="hidden" id="idcapituloindicador_@i" value="@item.id_cap_indicador" />
+                                    <input type="text" class="form-control solo-numero campos" id="txtpeso_@i" readonly value="@item.peso_general_capitulo">
+                                    <span class="input-group-addon" id="btneditar_@i"><a href="javascript:activarcampo(@i, @item.peso_general_capitulo)" style="color:black"><i class="glyphicon glyphicon-pencil"></i> </a></span>
+                                </div>
+                            </td>
+                            <td style="text-align:center">
+                                @{ var items = itemcapitulos.Where(l => l.capitulo_id == item.capitulo_id).ToList();
+                                    decimal pesoindicadores = 0;
+                                    if (items.Count() > 0)
+                                    {
+                                        pesoindicadores = items.Select(l => l.Peso_individual).Sum().Value;
+                                    }
+
+                                    //double pesogeneral = (Convert.ToDouble(item.peso_general_capitulo.Value) / 100) * pesoindicadores;
+                                    total += pesoindicadores;
+                                }
+                                    <label>@Math.Round(pesoindicadores,1)%</label>
+                            </td>
+                            <td class="text-center">
+                                <a role="button" title="Admin Indicadores" href="@Url.Action("Indicadores","ProcesosInternos",new {idregional = ViewBag.idregional, idindicador = item.indicador_id, idcapitulo = item.capitulo_id})" class="btn btn-sm button_Asalud_Aceptar">Admin Indicadores</a>
+                            </td>
+
+                        </tr>
+                                    }
+                </tbody>
+                <thead>
+                    <tr>
+                        <th colspan="3">TOTAL</th>
+                        <th class="text-center">@Math.Round(total,1)%</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="col-sm-12 form-group text-center">
+            <a class="btn button_Asalud_Rechazar" role="button" href="@Url.Action("TipoPrestadores","ProcesosInternos", new {idregional = ViewBag.idregional })">Volver</a>
+            @*<button class="btn button_Asalud_Guardar" type="button" id="btnaddcap">Agregar Capitulo</button>*@
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        if (Math.round(parseFloat('@total')) < 100)
+        {
+            Swal.fire(
+                'Recuerde!',
+                'El peso de todos los capitulos debe sumar el 100%',
+                'warning'
+            )
+        }
+
+        $("#form_capitulos").validate({
+            lang: 'Es',
+            rules: {
+                pesogen: "required",
+                nomcapitulo: "required",
+            },
+
+            submitHandler: function (form) {
+                var sumapesogeneral = 0;
+                var count = $("#txtcountcampos").val();
+                var lista = [];
+                for (var i = 1; i <= count; i++) {
+                    sumapesogeneral = (parseFloat(sumapesogeneral) + parseFloat($("#txt_" + i).val()));
+                    lista.push($("#txt_" + i).val());
+                }
+                $("#txtdistribucionpesos").val(lista);
+                sumapesogeneral += parseFloat($("#txtpesogen").val());
+                if (sumapesogeneral <= 100) {
+                    $("#form_capitulos").submit();
+                } else {
+                    alert("El procentaje total de los capitulos no puede ser mayor al 100%");
+                }
+            }
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $('#tabla').DataTable({
+            "searching": false,
+            "iDisplayLength": 25,
+            "lengthChange": false,
+            "info": false,
+            "paging": false
+        });
+
+
+        $("#btnaddcap").click(function () {
+            var indi = '@ViewBag.idindicador';
+            $.ajax({
+                url: "@Url.Action("GetcapituloInformacion","ProcesosInternos")",
+                type: "post",
+                data: { idindicador: indi },
+                success: function (data) {
+                    $("#paneldistribucion").empty();
+                    $("#paneldistribucion").html(data.tabla);
+
+                    $('.solo-numero').keyup(function () {
+                        this.value = (this.value + '').replace(/[^0-9]/g, '');
+                    });
+
+                    $("#txtcountcampos").val(data.contcampos);
+                    $("#titlemodal").text("Agregar nuevo capitulo");
+                    $("#txtidcapitulo").val("");
+                    $("#txtpesogen").val("");
+                    $("#txtnomcapitulo").val("");
+                    AbrirModal();
+                },
+            })
+        })
+    })
+
+    function AbrirModal() {
+        $("#ModalCapitulos").modal('show');
+    }
+
+    function activarcampo(i, p) {
+        var html = "<a href='javascript:GuardarCampo(" + i + "," + p + ")' style='color:black'><i class='glyphicon glyphicon-floppy-disk'></i></a>";
+        $("#txtpeso_" + i).prop('readonly', false);
+        $("#btneditar_" + i).empty();
+        $("#btneditar_" + i).html(html);
+
+    }
+
+    function GuardarCampo(i, p) {
+        var html = "<a href='javascript:activarcampo(" + i + "," + p + ")' style='color:black'><i class='glyphicon glyphicon-pencil'></i> </a>";
+        var peso = $("#txtpeso_"+i).val();
+        var id_capitulo_indicador = $("#idcapituloindicador_" + i).val();
+
+        if (peso <= 100 && peso >= 0)
+        {
+            if (validarpesogen())
+            {
+                $.ajax({
+                    url: "@Url.Action("GuardarCofiguracionCapitulo")",
+                    type: "post",
+                    data: {
+                        idindicador: "@ViewBag.idindicador",
+                        idregional: "@ViewBag.idregional",
+                        idcapituloindicador: id_capitulo_indicador,
+                        peso: peso
+                    },
+                    success: function (data)
+                    {
+                        $("#txttotal").text(data);
+                        $("#inputtotal").val(data);
+                        $("#txtpeso_" + i).prop('readonly', true);
+                        $("#btneditar_" + i).empty();
+                        $("#btneditar_" + i).html(html);
+                    }
+                })
+            }
+            else
+            {
+                alert("El peso general de los capitulos de este indicador, no puede ser mayor al 100%");
+            }
+
+        }
+        else
+        {
+            alert("El peso general de este capitulo no puede ser mayor al 100%");
+
+        }
+    }
+
+    function validarpesogen()
+    {
+        var int = 0;
+        $("#tabla tbody tr td .campos").each(function ()
+        {
+            var value = parseInt($(this).val());
+            int = int + value;
+        })
+
+        if (parseInt(int) <= 100)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+
+    //function validarpesogen(a) {
+    //    var value = a;
+    //    if (parseFloat(value) > 100 && parseFloat(a)) {
+    //        alert("No puede ingresar un valor mayor a 100");
+    //        $("#txtpesogen").val("");
+    //    }
+    //}
+
+    function getcapituloInformacion(a, b) {
+        var indi = a;
+        var value = b;
+        $.ajax({
+            url: "@Url.Action("GetcapituloInformacion","ProcesosInternos")",
+            type: "post",
+            data: { idindicador: indi, idcapitulo: value },
+            success: function (data) {
+                $("#paneldistribucion").empty();
+                $("#paneldistribucion").html(data.tabla);
+                $('.solo-numero').keyup(function () {
+                    this.value = (this.value + '').replace(/[^0-9]/g, '');
+                });
+
+                $("#txtcountcampos").val(data.contcampos);
+                $("#titlemodal").text("Editar capitulo");
+                $("#txtidcapitulo").val(data.idcapitulo);
+                $("#txtpesogen").val(data.pesogen);
+                $("#txtnomcapitulo").val(data.nomcapitulo);
+                AbrirModal();
+            }
+        })
+    }
+
+</script>
+
+<style>
+      table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .content-popup {
+        margin-top: 6% !important;
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

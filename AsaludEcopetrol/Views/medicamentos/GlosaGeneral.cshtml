@@ -1,0 +1,337 @@
+﻿
+@{
+    ViewBag.Title = "GLOSA GENERAL";
+
+}
+
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso glosa</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formulario">
+
+                    <div class="row">
+                        <div class="col-sm-7">
+                            <label class="text-secondary_asalud">Motivo glosa</label>
+                            <select class="form-control select2" required id="motivo" name="motivo" autocomplete="off">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_md_ref_glosa item in ViewBag.LIst)
+                                {
+                                    <option value="@item.id_md_ref_glosa">@item.nombre</option>
+
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">Valor glosa</label>
+                            <input type="text" class="form-control solo-numero solo-numero2 solo-numero3 " name="VlrPendiente" id="VlrPendiente" value="@ViewBag.VlrPendiente" readonly />
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <label class="text-secondary_asalud">Observacion _</label>
+                            <input class="form-control" type="text" name="Observación" maxlength="500" id="Observaciones" value="@ViewBag.Observaciones" required />
+                        </div>
+
+
+                    </div>
+
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <button class="btn btn-primary" type="button" onclick="finalizar()">INGRESAR</button>
+
+                        </div>
+
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="numero_formula" id="numero_formula" value="@ViewBag.numero_formula" />
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+     $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+          $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+        $(".k-input").attr('readonly', true);
+
+
+
+    })
+
+
+
+     function finalizar() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+
+    function FinalizarDatos() {
+
+         var formData = new FormData($("form")[0]);
+
+        formData.append("numero_formula", $("#numero_formula").val());
+        formData.append("motivo_glosa", $("#motivo").val());
+        formData.append("valor_glosa", $("#VlrPendiente").val());
+        formData.append("observaciones", $("#Observaciones").val());
+
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SaveGlosaGeneral", "medicamentos")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                 if (response.success)
+                {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else
+                 {
+                     alert(response.message);
+                     LoadingHide();
+                }
+
+            }
+        })
+    }
+
+     function calcula1(E_ID) {
+
+
+        var textBox1 = $('input:text[id$=VlrPendiente]').keyup();
+
+
+        var A = textBox1.val();
+
+        if (A > E_ID) {
+            alert('LA GLOSA NO PUEDE SER MAYOR A ' + E_ID);
+             $('input:text[id$=VlrPendiente]').val("");
+        }
+
+
+
+    }
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+   
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+

@@ -1,0 +1,247 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.CuentasRecepcion
+@{
+    ViewBag.Title = "BUSCAR FACTURA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<br>
+
+
+@using (Html.BeginForm())
+{
+
+    <div class="container">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary-Asalud">Buscar factura</strong>
+            </div>
+
+            <div class="panel-body">
+                @*<div class="row">
+
+
+                        <div class="col-sm-3">
+                            @Html.RadioButtonFor(model => model.Items, "1", new { @onclick = "mostrar()" })
+                            @Html.Label("FACTURA")
+                        </div>
+                        <div class="col-sm-3">
+                            @Html.RadioButtonFor(model => model.Items, "2", new { @onclick = "mostrar1()" })
+                            @Html.Label("ID RADICACION")
+                        </div>
+
+                    </div>*@
+
+                <div id="pnlFactura">
+                    <div class="row form-group">
+
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO FACTURA:</label>
+                            @Html.TextBoxFor(m => m.numero_factura, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group">
+
+                        <div class="col-sm-6">
+
+                            <input id="BtnActualizar" type="submit" value="BUSCAR" class="btn button_Asalud_Aceptar" />
+                        </div>
+
+                    </div>
+
+                </div>
+                <div id="pnlRadicacion" style="display:none">
+                    <div class="row form-group">
+                        <div class="col-sm-3">
+                            <label class="text-secondary_asalud">NUMERO RADICACION:</label>
+                            @Html.TextBoxFor(m => m.id_ref_ffmm_radicacion_Cuentas, new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        @if (Model.ListRecepcion != null && Model != null && Model.ListRecepcion.Count != 0)
+        {
+            <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style='display:none;'>ID</th>
+                        <th>TIPO PRESTADOR</th>
+                        <th>FECHA PRESENTACION FACTURA</th>
+                        <th>UNIDAD REGIONALIZADORA</th>
+                        <th>UNIDAD SATELITE</th>
+                        <th>NOMBRE IPS</th>
+                        <th>DEPARTAMENTO</th>
+                        <th>MUNICIPIO</th>
+                        <th>NUMERO FACTURA</th>
+                        <th>VALOR FACTURA</th>
+                        <th>VALOR ATENCION</th>
+
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="myTable">
+
+                    @foreach (var order in Model.ListRecepcion)
+                    {
+
+                        <tr>
+                            <td style='display:none;'>@order.id_ref_ffmm_radicacion_Cuentas</td>
+                            <td>@order.tipo_proveedor</td>
+                            @if (order.fecha_presentacion_factura == null)
+                            {
+                                <td>@order.fecha_presentacion_factura</td>
+                            }
+                            else
+                            {
+                                <td>@order.fecha_presentacion_factura.Value.ToString("dd/MM/yyyy")</td>
+
+                            }
+                            <td>@order.unidad_regionalizadora</td>
+                            <td>@order.unidad_satelite</td>
+                            <td>@order.nombre_razon_social_ips_proveedor</td>
+                            <td>@order.Departamento</td>
+                            <td>@order.municipio</td>
+                            <td>@order.numero_factura</td>
+                            <td>@order.vlr_factura</td>
+                            <td>@order.vlr_atencion</td>
+                            @if (@order.estado == 1)
+                            {
+                                <td>
+                                    <a class="btn btn-primary" href="@Url.Action("IngresoCuentasAuditoria", "CuentasMedicas", new { id = order.id_ref_ffmm_radicacion_Cuentas})">
+                                        GESTIONAR
+                                    </a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <a class="btn btn-primary" href="@Url.Action("VerCuentasAuditoria", "CuentasMedicas", new { id = order.id_ref_ffmm_radicacion_Cuentas})">
+                                        GESTIONAR
+                                    </a>
+                                </td>
+                            }
+
+
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+
+    </div>
+
+
+
+}
+
+
+<script type="text/javascript">
+
+    function mostrar() {
+
+        document.getElementById('pnlFactura').style.display = 'block';
+        document.getElementById('pnlRadicacion').style.display = 'none';
+        document.getElementById('pnlGuardar').style.display = 'block';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('pnlRadicacion').style.display = 'block';
+        document.getElementById('pnlFactura').style.display = 'none';
+        document.getElementById('pnlGuardar').style.display = 'block';
+
+    };
+
+    function CustomerSelect9(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#optradio").val(DataItem.id_ref_ffmm_tipo_proveedor);
+
+    }
+
+    $('.table').DataTable({
+        "searching": false,
+        "sSearch": "Buscar:",
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+    });
+
+    $('#close').on('click', function () {
+        $('#popup').fadeOut('slow');
+        $('.popup-overlay').fadeOut('slow');
+        return false;
+    });
+
+
+    $("#myInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+
+

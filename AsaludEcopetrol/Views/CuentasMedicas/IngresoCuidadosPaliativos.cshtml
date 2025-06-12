@@ -1,0 +1,1228 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.FFMM.cuentascuidadosP
+@{
+    ViewBag.Title = "INGRESO CUIDADOS PALIATIVOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br>
+
+@using (Html.BeginForm())
+{
+}
+
+
+
+
+
+
+<div class="container">
+    <form id="myform" name="myform" action="@Url.Action("IngresoCuentasMedicas")" method="post" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title">INICIO AUDITORIA</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">FECHA AUDITORIA:</label>
+                        <input type="datetime" data-role='datepicker' id="txtFechaAuditoria" value="" name="FechaAuditoria" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                        <span data-for='FechaAuditoria' class='k-invalid-msg'></span>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="unidad" class="text-secondary_asalud">UNIDAD:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.id_ffmm_cuidados_paliativos)
+                                            .Name("unidad")
+                                            .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                            .OptionLabel("Seleccione...")
+                                            .DataTextField("descripcion")
+                                            .DataValueField("id_ref_ffmm_unidad_cp")
+                                            .Filter(FilterType.Contains)
+                                            .Events(events => events.Select("CustomerSelect1"))
+                                            .DataSource(source =>
+                                             {
+                                                 source.Read(read =>
+                                                 {
+                                                     read.Action("GetCascadeUnidadCP", "CuentasMedicas");
+                                                 });
+                                             })
+                        )
+
+                        <span class="k-invalid-msg" data-for="unidad"></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="tipoV" class="text-secondary_asalud">TIPO VISITA:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.id_ref_tipo_visita)
+                                            .Name("tipoV")
+                                            .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                            .OptionLabel("Seleccione...")
+                                            .DataTextField("descripcion")
+                                            .DataValueField("id_ref_ffmm_tipo_visita")
+                                            .Filter(FilterType.Contains)
+                                            .Events(events => events.Select("CustomerSelect2"))
+                                            .DataSource(source =>
+                                             {
+                                                 source.Read(read =>
+                                                 {
+                                                     read.Action("GetCascadeTipoV_CP", "CuentasMedicas");
+                                                 });
+                                             })
+                        )
+
+                        <span class="k-invalid-msg" data-for="tipoV"></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">VISITA NUMERO:</label>
+                        <input type="number" class="k-textbox" name="vlrVisita" id="vlrVisita" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3 class="panel-title">DATOS USUARIO</h3>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label for="depart" class="text-secondary_asalud">DEPARTAMENTO:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.cod_dane_departamento)
+                               .Name("depart")
+                               .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                .OptionLabel("Seleccione Departamento...")
+                                .DataTextField("descripcion")
+                                .DataValueField("cod_departamento")
+                                .Filter(FilterType.Contains)
+                                .Events(events => events.Select("CustomerSelect5"))
+                                .DataSource(source =>
+                                {
+                                    source.Read(read =>
+                                    {
+                                        read.Action("GetCascadedepartamentoFFMM", "CuentasMedicas");
+                                    });
+                                })
+                        )
+                        <span class="k-invalid-msg" data-for="depart"></span>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="munic" class="text-secondary_asalud">MUNICIPIO:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.cod_dane_municipio)
+                                                .Name("munic")
+                                                .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                                .OptionLabel("Seleccione Municipio...")
+                                                .DataTextField("muninombre")
+                                                .DataValueField("cod_municipio")
+                                                .Filter(FilterType.Contains)
+                                                .Events(events => events.Select("CustomerSelect6"))
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read =>
+                                                    {
+                                                        read.Action("GetCascadeMunicipioFFMM", "CuentasMedicas")
+                                                        .Data("filterdepart");
+                                                    })
+                                                    .ServerFiltering(true);
+                                                })
+
+                                                .CascadeFrom("depart")
+                        )
+                        <script>
+                            function filterdepart() {
+                                return {
+                                    depart: $("#depart").val()
+                                };
+                            }
+                        </script>
+                        <span class="k-invalid-msg" data-for="munic"></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="ipsP" class="text-secondary_asalud">NOMBRE IPS:</label>
+
+                        @(Html.Kendo().DropDownList()
+                          .Name("ipsP")
+                          .HtmlAttributes(new { validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                          .OptionLabel("Seleccione IPS...")
+                          .DataTextField("nombre")
+                          .DataValueField("id_ref_ffmm_prestadores")
+                          .Events(events => events.Select("CustomerSelect7"))
+                          .Filter(FilterType.Contains)
+                          .DataSource(source =>
+                           {
+                              source.Read(read =>
+                              {
+                                  read.Action("GetCascadeIPSFFMM", "CuentasMedicas")
+                                  .Data("filterMuni");
+                              })
+                          .ServerFiltering(true);
+                          })
+
+                           .Enable(false)
+                           .AutoBind(false)
+                           .CascadeFrom("munic")
+                        )
+                        <script>
+                            function filterMuni() {
+                                return {
+                                    munic: $("#munic").val()
+                                };
+                            }
+                        </script>
+                        <span class="k-invalid-msg" data-for="ipsP"></span>
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">NOMBRES Y APELLIDOS DEL USUARIO:</label>
+                        @Html.TextBoxFor(m => m.nombre_apellidos, new { @class = "form-control", type = "text", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="tipo_id" class="text-secondary_asalud">TIPO ID:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.tipoId)
+                                     .Name("tipo_id")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_tipo_documental")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect8"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeTipoID", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                        <span class="k-invalid-msg" data-for="tipo_id"></span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">NUMERO ID:</label>
+                        @Html.TextBoxFor(m => m.numero_id, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *" })
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">FECHA NACIMIENTO:</label>
+                        <input type="text" data-role='datepicker' id="txtFechaNacimiento" value="" name="FechaNacimiento" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                        <span data-for='FechaNacimiento' class='k-invalid-msg'></span>
+
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">EDAD N:</label>
+                        @Html.TextBoxFor(m => m.edadN, "{0:#.#}", new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">EDAD T:</label>
+                        @Html.TextBoxFor(m => m.edadT, new { @class = "form-control", type = "number", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">GRUPO ETARIO:</label>
+                        @Html.TextBoxFor(m => m.grupoEtario, new { @class = "form-control", type = "Text", required = "required", validationmessage = "Este Campo es Obligatorio *", @readonly = "readonly" })
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="sexo" class="text-secondary_asalud">SEXO:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.sexo)
+                                     .Name("sexo")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_sexo")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect9"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeSexo", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                        <span class="k-invalid-msg" data-for="sexo"></span>
+                    </div>
+
+
+                </div>
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label for="estado_afilicacion" class="text-secondary_asalud">ESTADO AFILIACION:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.id_estado_afiliacion)
+                                     .Name("estado_afilicacion")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_estado")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect10"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeEstadoAfi", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                        <span class="k-invalid-msg" data-for="estado_afilicacion"></span>
+                    </div>
+
+                    <div class="col-sm-3">
+
+                        <label for="adscrpcion" class="text-secondary_asalud">SITIO ADSCRIPCIÓN:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("adscrpcion")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("sitio_adscripcion")
+                        .Events(events => events.Select("CustomerSelect11"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCascadesitio_adscripcion", "CuentasMedicas");
+                          });
+
+                          })
+
+                        )
+                        @Html.HiddenFor(x => x.sitio_adcripcion)
+                        <span class="k-invalid-msg" data-for="adscrpcion"></span>
+                    </div>
+                    <div class="col-sm-3">
+
+                        <label for="tipo_afiliacion" class="text-secondary_asalud"> TIPO AFILIACION:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.id_tipo_afiliacion)
+                                         .Name("tipo_afiliacion")
+                                         .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_ref_ffmm_tipo_afiliacion")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect12"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadeTipoAfi", "CuentasMedicas");
+                                             });
+                                         })
+                        )
+                        <span class="k-invalid-msg" data-for="tipo_afiliacion"></span>
+
+                    </div>
+
+                    <div class="col-sm-2">
+                        <label for="grado" class="text-secondary_asalud">GRADO:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("grado")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("grado")
+                        .Events(events => events.Select("CustomerSelect13"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCascadeGrado", "CuentasMedicas");
+                          });
+
+                          })
+
+                        )
+                        @Html.HiddenFor(x => x.grado)
+                        <span class="k-invalid-msg" data-for="grado"></span>
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label for="fuerza" class="text-secondary_asalud"> FUERZA:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.id_fuerza)
+                                     .Name("fuerza")
+                                    .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:90%" })
+                                     .OptionLabel("Seleccione...")
+                                     .DataTextField("descripcion")
+                                     .DataValueField("id_ref_ffmm_fuerza")
+                                     .Filter(FilterType.Contains)
+                                     .Events(events => events.Select("CustomerSelect14"))
+                                     .DataSource(source =>
+                                     {
+                                         source.Read(read =>
+                                         {
+                                             read.Action("GetCascadeFuerza", "CuentasMedicas");
+                                         });
+                                     })
+                        )
+                        <span class="k-invalid-msg" data-for="fuerza"></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">DATOS AUDITORIA</h3>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">FECHA INGRESO AL PROGRAMA:</label>
+                        <input type="text" data-role='datepicker' value="" id="txtFechaIngresoPrograma" name="FechaIngresoPrograma" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                        <span data-for='FechaIngresoPrograma' class='k-invalid-msg'></span>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">CUMPLE CON CRITERIOS DE PERMANENCIA EN PROGRAMA:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.cumple_criterios)
+                                         .Name("cumple_criterios")
+                                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_ref_ffmm_sino")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect15"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadesino", "CuentasMedicas");
+                                             });
+                                         })
+                        )
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CRITERIOS QUE NO CUMPLE:</label>
+
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label for="dx1" class="text-secondary_asalud">CODIGO CIE-10 PRINCIPAL:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx1")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect16"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                        })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect3");
+                        })
+
+                        )
+                        @Html.HiddenFor(x => x.cod_cie10Principal)
+                        <span class="k-invalid-msg" data-for="dx1"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="dx1des" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 PRINCIPAL:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx1des")
+                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect17"))
+                        .Filter(FilterType.Contains)
+
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                         .Events(e =>
+                        {
+                          e.Select("onSelect4");
+                        })
+                        )
+                        @Html.HiddenFor(x => x.descripcion_cie10_principal)
+                        <span class="k-invalid-msg" data-for="dx1des"></span>
+                    </div>
+                    <div class="col-sm-3">
+
+                    </div>
+
+
+                </div>
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label for="dx2" class="text-secondary_asalud">CODIGO CIE-10 SECUNDARIO:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx2")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("id_cie10")
+                        .Events(events => events.Select("CustomerSelect18"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect5");
+                        })
+
+                        )
+                        @Html.HiddenFor(x => x.codigo_cie10_secun)
+                        <span class="k-invalid-msg" data-for="dx2"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="dx2des" class="text-secondary_asalud">DESCRIPCIÒN CIE-10 SECUNDARIO:</label>
+                        @(Html.Kendo().AutoComplete()
+                        .Name("dx2des")
+                        .Placeholder("Seleccione...")
+                        .DataTextField("des")
+                        .Events(events => events.Select("CustomerSelect19"))
+                        .Filter(FilterType.Contains)
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataSource(source =>
+                         {
+                          source.Read(read =>
+                          {
+                           read.Action("GetCie10", "Evolucion");
+                          });
+
+                          })
+                        .Events(e =>
+                        {
+                          e.Select("onSelect6");
+                        })
+                        )
+                        @Html.HiddenFor(x => x.descripcion_cie10_secun)
+                        <span class="k-invalid-msg" data-for="dx2des"></span>
+                    </div>
+                    <div class="col-sm-3">
+
+                    </div>
+
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">ULTIMA VALORACION MEDICA:</label>
+                        <input type="text" data-role='datepicker' value="" id="txtFechaValoracionMedica" name="FechaValoracionMedica" data-type="date" required="required" validationmessage="Este Campo es Obligatorio *" />
+                        <span data-for='FechaValoracionMedica' class='k-invalid-msg'></span>
+                    </div>
+
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD TERAPIA FISICA:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaF" id="CantidadTerapiaF" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD TERAPIA FISICA:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaF" id="PerioCantidadTerapiaF" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA MEDICA DE TERAPIA FISICA:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaF" id="PerTinCantidadTerapiaF" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+
+                </div>
+
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD TERAPIA DE LENGUAJE:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaLenguaje" id="CantidadTerapiaLenguaje" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD TERAPIA DE LENGUAJE:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaLenguaje" id="PerioCantidadTerapiaLenguaje" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA MEDICA DE TERAPIA DE LENGUAJE:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaLenguaje" id="PerTinCantidadTerapiaLenguaje" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD TERAPIA  OCUPACIONAL:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaOcupacional" id="CantidadTerapiaOcupacional" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD TERAPIA OCUPACIONAL:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaOcupacional" id="PerioCantidadTerapiaOcupacional" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA MEDICA DE TERAPIA OCUPACIONAL:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaOcupacional" id="PerTinCantidadTerapiaOcupacional" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD TERAPIA RESPIRATORIA:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaRespiratoria" id="CantidadTerapiaRespiratoria" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD TERAPIA RESPIRATORIA:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaRespiratoria" id="PerioCantidadTerapiaRespiratoria" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA MEDICA DE TERAPIA OCUPACIONAL:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaOcupacional" id="PerTinCantidadTerapiaOcupacional" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                </div>
+
+                <div class="row form-group">
+
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD PSICOLOGIA:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaPsicologia" id="CantidadTerapiaPsicologia" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD PSICOLOGIA:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaPsicologia" id="PerioCantidadTerapiaPsicologia" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA PSICOLOGIA:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaPsicologia" id="PerTinCantidadTerapiaPsicologia" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD CLINICA DE HERIDAS:</label>
+                        <input type="number" class="k-textbox" name="CantidadTerapiaHeridas" id="CantidadTerapiaHeridas" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERIODIDAD CLINICA DE HERIDAS:</label>
+                        <input type="text" class="k-textbox" name="PerioCantidadTerapiaClinicaHeridas" id="PerioCantidadTerapiaClinicaHeridas" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA CLINICA DE HERIDAS:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadTerapiaClinicaHeridas" id="PerTinCantidadTerapiaClinicaHeridas" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">SERVICIO ENFERMERIA:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.servicio_enfermeria)
+                                         .Name("servicio_enfermeria")
+                                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_ref_ffmm_sino")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect20"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadesino", "CuentasMedicas");
+                                             });
+                                         })
+                        )
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD EN HORAS PERIODIDAD SERVICIO ENFERMERIA:</label>
+                        <input type="number" class="k-textbox" name="PerioCantidadServicioEnfermeria" id="PerioCantidadServicioEnfermeria" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA SERVICIO ENFERMERIA:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadServicioEnfermeria" id="PerTinCantidadServicioEnfermeria" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">SERVICIO DE CUIDADOR:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.servicio_cuidador)
+                                        .Name("servicio_cuidador")
+                                       .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                                        .OptionLabel("Seleccione...")
+                                        .DataTextField("descripcion")
+                                        .DataValueField("id_ref_ffmm_sino")
+                                        .Filter(FilterType.Contains)
+                                        .Events(events => events.Select("CustomerSelect21"))
+                                        .DataSource(source =>
+                                        {
+                                            source.Read(read =>
+                                            {
+                                                read.Action("GetCascadesino", "CuentasMedicas");
+                                            });
+                                        })
+                        )
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CANTIDAD EN HORAS PERIODIDAD SERVICIO CUIDADOR:</label>
+                        <input type="number" class="k-textbox" name="PerioCantidadServicioCuidador" id="PerioCantidadServicioCuidador" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERTINENCIA SERVICIO CUIDADOR:</label>
+                        <input type="text" class="k-textbox" name="PerTinCantidadServicioCuidador" id="PerTinCantidadServicioCuidador" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">OTROS SERVICIOS:</label>
+                        <input type="text" class="k-textbox" name="OtrosServicios" id="OtrosServicios" required="required" validationmessage="Este Campo es Obligatorio *" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">ESCALA DISCAPACIDAD:</label>
+                        <input type="text" class="k-textbox" name="EscalaDiscapacidad" id="EscalaDiscapacidad" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">MEDICION SEGÚN ESCALA DISCAPACIDAD:</label>
+                        <input type="text" class="k-textbox" name="MedicionEscalaDiscapacidad" id="MedicionEscalaDiscapacidad" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PLAN DE MANEJO:</label>
+                        <input type="text" class="k-textbox" name="PlanManejo" id="PlanManejo" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">OBJETIVOS TERAPEUTICOS:</label>
+                        <input type="text" class="k-textbox" name="Objetivos" id="Objetivos" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">PERCEPCION DE LA PRESTACION DEL SERVICIO:</label>
+                        <select class="form-control" required id="percepcion" name="percepcion">
+                            <option value="">-Seleccione una opción-</option>
+                            @foreach (var item in ViewBag.PercepcionLista)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">OBSERVACIONES:</label>
+                        <input type="text" class="k-textbox" name="Observaciones" id="Observaciones" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">TUTELA:</label>
+                        @(Html.Kendo().DropDownListFor(m => m.cumple_criterios)
+                                         .Name("tutela")
+                                        .HtmlAttributes(new { required = "required", validationmessage = "Este Campo es Obligatorio *", style = "width:100%" })
+                                         .OptionLabel("Seleccione...")
+                                         .DataTextField("descripcion")
+                                         .DataValueField("id_ref_ffmm_sino")
+                                         .Filter(FilterType.Contains)
+                                         .Events(events => events.Select("CustomerSelect22"))
+                                         .DataSource(source =>
+                                         {
+                                             source.Read(read =>
+                                             {
+                                                 read.Action("GetCascadesino", "CuentasMedicas");
+                                             });
+                                         })
+                        )
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">DETALLE TUTELA:</label>
+                        <input type="text" class="k-textbox" name="DetalleTutela" id="DetalleTutela" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">CONCEPTO AUDITORIA MEDICA:</label>
+                        <input type="text" class="k-textbox" name="ConceptoAuditor" id="ConceptoAuditor" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">AUDITOR MEDICO CONCURRENTE:</label>
+                        <input type="text" class="k-textbox" name="Auditor" id="Auditor" required="required" validationmessage="Este Campo es Obligatorio *" />
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="pnlGuardar" class="General">
+            <table align="center">
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                        <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn btn-success" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="Error">
+                        @Html.ValidationSummary(true, "")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="display:none">
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+    </form>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.date').datepicker({
+            autoclose: true,
+            format: 'mm/dd/yyyy',
+            orientation: "bottom",
+            todayBtn: "linked",
+            todayHighlight: false,
+        });
+
+        var container = $("#myform");
+        kendo.init(container);
+        container.kendoValidator({
+            rules: {
+                greaterdate: function (input) {
+                    if (input.is("[data-greaterdate-msg]") && input.val() != "") {
+                        var date = kendo.parseDate(input.val()),
+                            otherDate = kendo.parseDate($("[name='" + input.data("greaterdateField") + "']").val());
+                        return otherDate == null || otherDate.getTime() < date.getTime();
+                    }
+
+                    return true;
+                }
+            }
+        });
+
+    });
+
+    $(function () {
+        var validator = $("#myform").kendoValidator().data("kendoValidator");
+        var status = $(".status");
+        var Alerta = 0;
+        var mensaje = "";
+
+
+
+
+    });
+
+    $("form").submit(function (event) {
+        event.preventDefault();
+        if (validator.validate()) {
+
+            SaveAuditoria();
+
+
+        } else {
+            status.text("Oops! There is invalid data in the form.")
+                .removeClass("valid")
+                .addClass("invalid");
+        }
+    });
+
+    $("#txtFechaNacimiento").change(function () {
+
+        var fecha = document.getElementById("txtFechaNacimiento").value;
+
+        var age = calcularEdad(fecha);
+        $("#edadN").val(age);
+        $("#edadT").val(age);
+        var etareo = calcularGrupoEtareo(age);
+        $("#grupoEtario").val(etareo);
+    });
+
+    function SaveAuditoria() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("cobro_pago", $("#cobro_pago").val());
+        formData.append("cobro_conciliacion", $("#cobro_conciliacion").val());
+        formData.append("numero_lote", $("#numero_lote").val());
+
+        formData.append("nombres_apellidos_usuario", $("#nombres_apellidos_usuario").val());
+
+        LoadingShow();
+        $.ajax({
+
+            url: "/CuentasMedicas/SaveAuditoria",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    LoadingHide();
+                    alert(response.message);
+                     window.location = "@Url.Action("CuentasAuditoria", "CuentasMedicas")"
+
+                }
+                else {
+                    alert(response.message);
+                    LoadingHide();
+                }
+
+            }
+        })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                LoadingHide();
+            });
+
+    }
+
+    function CustomerSelect1(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#unidadCP").val(DataItem.id_ref_ffmm_unidad_cp);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#tipoV").val(DataItem.id_ref_ffmm_tipo_visita);
+    }
+
+    function CustomerSelect5(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#depart").val(DataItem.cod_departamento);
+
+    }
+
+    function CustomerSelect6(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#munic").val(DataItem.cod_municipio);
+
+    }
+
+    function CustomerSelect7(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#ipsP").val(DataItem.id_ref_ffmm_prestadores);
+
+    }
+
+
+    function CustomerSelect8(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#tipo_id").val(DataItem.id_ref_tipo_documental);
+    }
+
+    function CustomerSelect9(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#sexo").val(DataItem.id_ref_ffmm_sexo);
+    }
+
+    function CustomerSelect10(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#estado_afilicacion").val(DataItem.id_ref_ffmm_estado);
+    }
+
+    function CustomerSelect11(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#adscrpcion").val(DataItem.sitio_adscripcion);
+
+    }
+
+    function CustomerSelect12(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#tipo_afiliacion").val(DataItem.id_ref_ffmm_tipo_afiliacion);
+    }
+
+    function CustomerSelect13(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#grado").val(DataItem.grado);
+    }
+
+    function CustomerSelect14(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#fuerza").val(DataItem.id_ref_ffmm_fuerza);
+    }
+
+    function CustomerSelect15(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cumple_criterios").val(DataItem.id_ref_ffmm_sino);
+    }
+
+
+    function CustomerSelect16(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx1").val(DataItem.id_cie10);
+
+    }
+
+
+    function CustomerSelect17(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx1des").val(DataItem.des);
+
+    }
+
+    function CustomerSelect18(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx2").val(DataItem.id_cie10);
+
+    }
+
+    function CustomerSelect19(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#dx2des").val(DataItem.des);
+
+    }
+
+    function CustomerSelect20(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#servicio_enfermeria").val(DataItem.id_ref_ffmm_sino);
+    }
+
+    function CustomerSelect21(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#servicio_cuidador").val(DataItem.id_ref_ffmm_sino);
+    }
+
+    function calcularEdad(fecha) {
+        var hoy = new Date();
+        var cumpleanos = new Date(fecha);
+        var edad = hoy.getFullYear() - cumpleanos.getFullYear();
+        var m = hoy.getMonth() - cumpleanos.getMonth();
+
+        if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
+            edad--;
+        }
+
+        return edad;
+    }
+
+
+    function calcularGrupoEtareo(age) {
+
+        var gEtareoCalculado = "";
+
+        if (age >= 60) {
+            gEtareoCalculado = "VEJEZ";
+        } else if (age >= 29) {
+            gEtareoCalculado = "ADULTEZ";
+        } else if (age >= 18) {
+            gEtareoCalculado = "JUVENTUD";
+        } else if (age >= 12) {
+            gEtareoCalculado = "ADOLESCENCIA";
+        } else if (age >= 6) {
+            gEtareoCalculado = "INFANCIA";
+        } else {
+            gEtareoCalculado = "PRIMERA INFANCIA";
+        }
+        return gEtareoCalculado;
+    }
+
+    function restaFechas(f1, f2) {
+        var fecha1 = new Date(f1);
+        var fecha2 = new Date(f2);
+        var diasDif = fecha2.getTime() - fecha1.getTime();
+        var dias = Math.round(diasDif / (1000 * 60 * 60 * 24));
+
+        return dias;
+    }
+
+   function onSelect3(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx1des").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect4(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx1").val(dataItem.id_cie10);
+
+        }
+
+    }
+
+    function onSelect5(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx2des").val(dataItem.des);
+
+        }
+
+    }
+
+    function onSelect6(e) {
+        if (e.item) {
+            var dataItem = this.dataItem(e.item);
+
+            $("#dx2").val(dataItem.id_cie10);
+
+        }
+
+    }
+</script>
+
+
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 20px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 1.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 11px;
+    }
+
+    .control-label {
+        font-size: 12px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>

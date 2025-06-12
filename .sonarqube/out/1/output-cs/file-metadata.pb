@@ -1,0 +1,19 @@
+v
+kD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\obj\Debug\.NETFramework,Version=v4.5.2.AssemblyAttributes.csutf-8N
+ED:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\UTILOBJECTS\RsaFile.csutf-8Y
+PD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\UTILOBJECTS\MessageResponseOBJ.csutf-8c
+ZD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\UTILOBJECTS\LogerroresevaluacionripsDtll.csutf-8_
+VD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\UTILOBJECTS\Logerroresevaluacionrips.csutf-8W
+ND:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\UTILOBJECTS\DescriptionEnums.csutf-8Y
+ND:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\Properties\Settings.Designer.csutf-8R
+ID:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\Properties\AssemblyInfo.csutf-8M
+DD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\BussinesEnums.csutf-8W
+ND:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\BitacoraSeguimientoOtro.csutf-8T
+KD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\OdontTipoTratamiento.csutf-8O
+FD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\CondicionesMeta.csutf-8[
+RD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\TipoFiltroCronogramaVisitas.csutf-8K
+BD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\reporterips.csutf-8R
+ID:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\med_intermediacion.csutf-8S
+JD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENUM\BitacoraSeguimiento.csutf-8e
+ZD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENTIDADES\ECOPETROL_DataContex1.designer.csutf-8Y
+PD:\proyectos\asalud ecopetrol\ECOPETROL_COMMON\ENTIDADES\ECOPETROL_DataContex.csutf-8

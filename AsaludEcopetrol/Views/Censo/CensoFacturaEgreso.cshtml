@@ -1,0 +1,191 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Censo.censo
+
+@{
+    ViewBag.Title = "CENSO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <form id="FormFacturaEgreso" method="post" action="CensoFacturaEgreso">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">FACTURA</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Número factura</label>
+                        <input type="text" id="Numero_factura" name="Numero_factura" class="form-control" maxlength="50" required />
+                        <input type="hidden" id="id_censo" name="id_censo" value="@Model.id_censo" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Valor egreso</label>
+                        <input type="text" id="valor_egreso" name="valor_egreso" class="form-control solo-numero" maxlength="50" required />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha factura:</label>
+                        <input class="datepickerr form-control" title="Este campo es obligatorio" style="width:100%" name="fecha_factura" id="fecha_factura" required />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Fecha recepción factura:</label>
+                        <input class="datepickerr form-control" title="Este campo es obligatorio" style="width:100%" name="fecha_recepcion_factura" id="fecha_recepcion_factura" required />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center">
+                        <button id="BtnActualizar" onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">GUARDAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+        $(".k-input").attr('readonly', true);
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+    });
+
+
+    function ValidarFormulario() {
+
+        var validator = $("#FormFacturaEgreso").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formReembolso").submit();
+        }
+    }
+
+    //function change1() {
+    //    var DataItem = (kendo.toString(this.value(), 'd'));
+
+    //    $('input:text[id$=fecha_facturaok]').val(DataItem);
+
+    //}
+
+    //$(document).ready(function () {
+
+    //    $('#datepicker2').attr('disabled', 'disabled');
+
+    //});
+
+    //function change2() {
+    //    var DataItem = (kendo.toString(this.value(), 'd'));
+
+    //    $('input:text[id$=fecha_recepcion_facturaok]').val(DataItem);
+
+    //}
+
+</script>
+
+<style>
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 100%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+
+    .General {
+        font-size: 12px;
+        font-family: 'Century Gothic';
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .datepickerr label.error {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+    }
+</style>
+

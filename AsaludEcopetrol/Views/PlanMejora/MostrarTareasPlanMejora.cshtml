@@ -1,0 +1,161 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ACCIONES DE MEJORA</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idPlan</label>
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+
+        <div id="divTabla">
+
+            <div class="table-responsive">
+                <table id="tableTareas" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Id acción</th>
+                            <th class="text-center">Id plan</th>
+                            <th class="text-center">Categoría</th>
+                            <th class="text-center">Foco</th>
+                            <th class="text-center">Hallazgo</th>
+                            <th class="text-center">Acción</th>
+                            <th class="text-center">Fecha plazo</th>
+                            <th class="text-center">Responsable</th>
+                            <th class="text-center">Estado acción</th>
+                            <th class="text-center">Actualizar estado de la acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoTareas > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tablero_dtllResult item in ViewBag.listadoTareas)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@item.IdTarea</td>
+                                    <td class="text-center">@item.IdPlan</td>
+                                    <td class="text-center">@item.Nomcategoria</td>
+                                    <td class="text-center">@item.Nomfoco</td>
+                                    <td class="text-center">@item.hallazgo</td>
+                                    <td class="text-center">@item.tarea</td>
+                                    @if (item.fecha_plazo != null)
+                                    {
+                                        <td class="text-center">@item.fecha_plazo.Value.ToString("dd/MM/yyyy")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_plazo</td>
+                                    }
+                                    <td class="text-center">@item.responsable</td>
+                                    <td class="text-center">@item.nom_estado</td>
+                                    <td class="text-center">
+                                        <a class="button_Asalud_Aceptar" onclick="Actualizar(@item.IdTarea, @item.id_estado_tarea, @item.IdPlan)" data-toggle="modal" data-target="#myModalGestiones">Bitácora</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalGestiones">
+    <div class="modal-dialog modal-lg" style="width:75%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoGes"></div>
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar">CERRAR</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $.validator.messages.required = 'Este campo es obligatorio';
+
+        MostrarTablaTareas();
+
+    });
+
+
+    function MostrarTablaTareas() {
+        var conteo = "@ViewBag.conteoTareas";
+        if (conteo > 0) {
+
+            $('#tableTareas').DataTable().destroy();
+            $('#tableTareas').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+
+
+    function Actualizar(idTarea, estadoAct, idPlan) {
+
+        var laURLDeLaVista = '@Url.Action("GestionEstado")?idTarea=' + idTarea + '&estadoAct=' + estadoAct + '&idPlan=' + idPlan;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoGes').html('');
+                $('#resultadoGes').html(response);
+            }
+        });
+    }
+
+
+</script>

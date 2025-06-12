@@ -1,0 +1,273 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">Id.@ViewBag.idReembolso</a>
+            </h4>
+            <h5>
+                <input type="hidden" id="idReembolso" name="idReembolso" value="@ViewBag.idReembolso" />
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="conteoArchivos" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Ítem</th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+                            @if ((ViewBag.rol == "1" || ViewBag.rol == "30") && ViewBag.tipo == 1 || ViewBag.tipo == 3)
+                            {
+                                <th>Eliminar documento</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteoArchivos > 0)
+                        {
+                            var i = 0;
+
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_cuentas_reembolso_ArchivosResult item in ViewBag.listadoArchivos)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    @if (item.fecha_digita != null)
+                                    {
+                                        <td class="text-center">@item.fecha_digita.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.fecha_digita</td>
+                                    }
+                                    <td class="text-center">@item.nombre_archivo</td>
+                                    <td class="text-center">@item.nombreCarga</td>
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_archivo);'>Ver archivo</a>
+                                    </td>
+                                    @if ((ViewBag.rol == "1" || ViewBag.rol == "30") && ViewBag.tipo == 1 || ViewBag.tipo == 3)
+                                    {
+                                        <td class="text-center">
+                                            <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_archivo);">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+
+        <div id="divFormulario">
+            <form id="formularioArchivosIngreso">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Adjuntar:</label><span style="color:red"></span>
+                        <input type="file" class="form-control" name="fileReemAd" id="fileReemAd" onchange="ValidacionArchivo()" multiple />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="text-center">
+                        <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioArchivos()">GUARDAR</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        MostrarTabla();
+        $.validator.messages.required = 'Este campo es obligatorio';
+
+    });
+
+    function MostrarTabla() {
+        var conteo = "@ViewBag.conteoArchivos";
+        if (conteo > 0) {
+            $('#tablaArchivos').DataTable().destroy();
+            $('#conteoArchivos').DataTable({
+                "searching": true,
+                "iDisplayLength": 10,
+                "lengthChange": false,
+                "info": false,
+                "order": [[0, "asc"]],
+                responsive: true,
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar MENU registros",
+                    info: "Mostrando registros del START al END de un total de TOTAL registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de MAX registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarArchivo(idArchivo) {
+        var url = "@Url.Action("VerArchivoReembolso", "RadicacionElectonica")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+    function ValidarformularioArchivos() {
+        var validator = $("#formularioArchivosIngreso").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var idReembolso = $("#idReembolso").val();
+        var tipo = "@ViewBag.tipo";
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idReembolso", $("#idReembolso").val());
+        formData.append("idFactura", $("#idFacturaA").val());
+        formData.append("tipo", $("#idTipoA").val());
+
+
+        var archivos = $("#fileReemAd").get(0).files;
+        for (i = 0; i < archivos.length; i++) {
+            formData.append("fileReemAd", archivos[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("IngresarArchivosNuevosReembolso", "RadicacionElectonica")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                alert(data.mensaje);
+                LoadingHide();
+                MirarArchivos(idReembolso, tipo);
+            }
+        });
+    }
+
+
+    function EliminarArchivo(idArchivo) {
+        var idReembolso = $("#idReembolso").val();
+        var formData = new FormData($("form")[0]);
+        formData.append("idArchivo", idArchivo);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarArchivoReembolso", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                alert(response.mensaje);
+                LoadingHide();
+                MirarArchivos(idReembolso);
+            }
+        })
+    }
+
+    function ValidacionArchivo(tipo) {
+
+        var data = document.getElementById('archivos');
+        var listaextensiones = ["zip", "Zip", "ZIP"];
+
+        for (var i = 0; i < data.files.length; i++) {
+
+            var valida = false;
+
+            var file = data.files[i];
+            var nameext = file.name;
+            var extension = getFileExtension(nameext);
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos en pdf.");
+                $("#archivos").val("");
+            }
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 10px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #ffffff;
+    }
+
+    td {
+        padding: 8px;
+        background: #ffffff;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+</style>

@@ -1,0 +1,910 @@
+﻿@{
+    ViewBag.Title = "TABLERO PUNTO DISPENSACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var alerta = ViewBag.alerta;
+
+}
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+
+                if (alerta.Contains("CORRECTAMENTE"))
+                {
+                    <div class="alert alert-success">
+                        <strong style="font-family:'Century Gothic'">Éxito!</strong> @alerta
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        <strong style="font-family:'Century Gothic'">Error!</strong> @alerta
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">TABLERO PUNTO DISPENSACIÓN</strong>
+        </div>
+
+        <form id="divFiltro" method="post" action="TableroPuntoDispensacion" enctype="multipart/form-data">
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                    <input class="datepickerr disabled" style="width: 100%" name="fechaIni" id="fechaIni" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Periodo fecha final</label>
+                    <input class="datepickerr disabled" style="width: 100%" name="fechaFin" id="fechaFin" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" style="width:100%" name="regional" id="regional">
+                        <option value="">- Seleccione -</option>
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+                            <option value="@item.indice">@item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Nit prestador</label>
+                    <input type="text" autocomplete="off" class="form-control solo-numero" name="nitPrestador" id="nitPrestador" maxlength="100" />
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Prestador</label>
+                    <input type="text" autocomplete="off" class="form-control" name="prestador" id="prestador" maxlength="100" />
+                </div>
+                <br />
+
+                <div class="col-md-3">
+                    <button type="submit" class="button_Asalud_Aceptar"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+            </div>
+        </form>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills" style="font-size: 12px">
+                <li class="active" id="li1"><a href="#tab1" class="collapse1" data-toggle="tab">Por evaluar @ViewBag.conteoPendiente</a></li>
+                <li id="li2"><a href="#tab2" class="collapse2" data-toggle="tab">Evaluadas @ViewBag.conteoEvaluadas</a></li>
+                <li id="li3"><a href="#tab3" class="collapse3" data-toggle="tab">Construcción @ViewBag.conteoContruccion</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tableDatos1 table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Prestador</th>
+                                    <th>Dirección</th>
+                                    <th>Teléfono contacto</th>
+                                    <th>Ciudad</th>
+                                    <th>Regional</th>
+                                    <th>Farmacia</th>
+                                    <th>Fecha verificación</th>
+                                    <th>Auditor</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var i = 0;
+                                }
+
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacionResult item in ViewBag.listaPendiente)
+                                {
+                                    i++;
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@item.nit_prestador - @item.nombre_prestador</td>
+                                    <td>@item.direccion_punto_dispensacion</td>
+                                    <td>@item.contacto_telefonico</td>
+                                    <td>@item.ciudad</td>
+                                    <td>@item.regional</td>
+                                    <td>@item.nombre_farmacia</td>
+
+                                    @if (item.fecha_nuevavisita != null)
+                                    {
+                                        <td>@item.fecha_nuevavisita</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.fecha_verificacionOvisita</td>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(item.auditor_nuevo))
+                                    {
+                                        <td>@item.auditor_nuevo</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.auditor_asignado</td>
+                                    }
+
+                                    <td style="align-content:center; text-align:center;">
+                                        @if (item.motivo == "CONTRATO FINALIZADO" || item.motivo == "CONTRATO FINALIZADO")
+                                        {
+                                            <label class="text-secondary_asalud" style="color:red;">CANCELADO</label>
+                                        }
+                                        else
+                                        {
+                                            <button class='button_Asalud_Aceptar' onclick="verificacionPrueba('@item.id_cargue_verificacion')">Evaluar</button>
+                                        }
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tableDatos2 table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Evaluación</th>
+                                    <th>Prestador</th>
+                                    <th>Telefono contacto</th>
+                                    <th>Ciudad</th>
+                                    <th>Regional</th>
+                                    <th>Resultado general</th>
+                                    <th>Condiciones locativas y dotación</th>
+                                    <th>Recursos humanos</th>
+                                    <th>Procesos generales</th>
+                                    <th>Procesos especiales</th>
+                                    <th>Fecha verificación</th>
+                                    <th>Auditor</th>
+                                    <th>Repositorio</th>
+                                    <th>Evaluación</th>
+                                    <th>Exportables</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacionResult item in ViewBag.listaEvaluadas)
+                                {
+                                    <tr>
+                                        <td>@item.id_evaluacion</td>
+                                        <td>@item.nit_prestador - @item.nombre_prestador</td>
+                                        <td>@item.contacto_telefonico</td>
+                                        <td>@item.ciudad</td>
+                                        <td>@item.regional</td>
+                                        <td>@item.resultado</td>
+
+                                        <td>@item.condiciones_locativasDotacion</td>
+                                        <td>@item.recurso_humano</td>
+                                        <td>@item.procesos_generales</td>
+                                        <td>@item.procesos_especiales</td>
+
+
+                                        @if (item.fecha_verificacionOvisita != null)
+                                        {
+                                            <td>@item.fecha_verificacionOvisita.Value.ToString("dd/MM/yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.fecha_verificacionOvisita</td>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(item.auditor_nuevo))
+                                        {
+                                            <td>@item.auditor_nuevo</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.auditor_asignado</td>
+                                        }
+                                        <td>
+                                            @if (item.existeArchivo == 1)
+                                            {
+                                                <a class="btn btn-xs button_Asalud_Aceptar" onclick="MostrarArchivos('@item.id_evaluacion')" data-toggle="modal" data-target="#modalRepositorio">
+                                                    Archivos &nbsp; <i class="glyphicon glyphicon-file"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <label class="text-secondary_asalud">Sin archivos</label>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <a class='button_Asalud_Guardar' onclick="verEvalua('@item.id_cargue_verificacion', @item.id_evaluacion)">VER</a>
+                                        </td>
+
+                                        <td>
+                                            <a class='button_Asalud_descargas' onclick="exportarExcelInd('@item.id_evaluacion')">EXCEL </a>
+                                            &nbsp;
+                                            <a class='button_Asalud_Guardar' onclick='pdfEvaluacion("@item.id_evaluacion");'>PDF</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="tab3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="tableDatos3 table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>Evaluación</th>
+                                    <th>Prestador</th>
+                                    <th>Telefono contacto</th>
+                                    <th>Ciudad</th>
+                                    <th>Regional</th>
+                                    <th>Resultado general</th>
+                                    <th>Condiciones locativas y dotación</th>
+                                    <th>Recursos humanos</th>
+                                    <th>Procesos generales</th>
+                                    <th>Procesos especiales</th>
+                                    <th>Fecha verificación</th>
+                                    <th>Auditor</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacionResult item in ViewBag.listaContruccion)
+                                {
+                                    <tr>
+                                        <td>@item.id_evaluacion</td>
+                                        <td>@item.nit_prestador - @item.nombre_prestador</td>
+                                        <td>@item.contacto_telefonico</td>
+                                        <td>@item.ciudad</td>
+                                        <td>@item.regional</td>
+                                        <td>@item.resultado</td>
+
+                                        <td>@item.condiciones_locativasDotacion</td>
+                                        <td>@item.recurso_humano</td>
+                                        <td>@item.procesos_generales</td>
+                                        <td>@item.procesos_especiales</td>
+
+                                        @if (item.fecha_verificacionOvisita != null)
+                                        {
+                                            <td>@item.fecha_verificacionOvisita.Value.ToString("dd/MM/yyyy")</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.fecha_verificacionOvisita</td>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(item.auditor_nuevo))
+                                        {
+                                            <td>@item.auditor_nuevo</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.auditor_asignado</td>
+                                        }
+                                        <td>
+
+                                            <a class='button_Asalud_Guardar' onclick="continuar('@item.id_cargue_verificacion', '@item.id_evaluacion')">CONTINUAR</a>
+                                        </td>
+                                        <td>
+                                            <a class='button_Asalud_Rechazar' onclick="EliminarAutoguardada('@item.id_evaluacion')">ELIMINAR</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalGestion">
+    <div class="modal-dialog modal-lg" style="width:35%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoG"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="mi-modal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title asalud" id="myModalLabel">Confirmar</h4>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <label class="text-secondary_asalud">¿Realizar evaluación?</label>
+                <input type="hidden" id="idPunto" name="idPunto" />
+                <br />
+                <button type="button" class="btn button_Asalud_Aceptar" id="modal-btn-si">Si</button>
+                <button type="button" class="btn button_Asalud_Rechazar" id="modal-btn-no">No</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" id="modal-btn-can">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="modalRepositorio">
+    <div class="modal-dialog modal-lg" style="width:70%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultadoArchi"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script src="httpS://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $("#prestador").autocomplete({
+            source: "/Verificacion/Buscar_NombrePrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        });
+
+        $("#nitPrestador").autocomplete({
+            source: "/Verificacion/Buscar_codigoPrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 4,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        });
+
+        $("#prestadorM").autocomplete({
+            source: "/Verificacion/Buscar_NombrePrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        });
+
+        $("#nitPrestadorM").autocomplete({
+            source: "/Verificacion/Buscar_codigoPrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 4,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        });
+
+        $("#prestadorC").autocomplete({
+            source: "/Verificacion/Buscar_NombrePrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        });
+
+        $("#nitPrestadorC").autocomplete({
+            source: "/Verificacion/Buscar_codigoPrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 4,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        });
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+
+                if (tab1) {
+                    MostrarTablaPendientes();
+                }
+
+                if (tab2) {
+                    MostrarTablaEvaluadas();
+                }
+
+                if (tab3) {
+                    MostrarTablaConstruccion();
+                }
+
+            }, 100);
+        });
+
+        MostrarTablaPendientes();
+    });
+
+    function MostrarTablaPendientes() {
+        var conteoTotal = '@ViewBag.conteoPendiente';
+
+        if (conteoTotal > 0) {
+
+            $('.tableDatos1').DataTable().destroy();
+            $('.tableDatos1').DataTable({
+                "searching": true,
+                "aLengthMenu": [[10, 30, 200, 500, 1000, 5000, -1], [10, 30, 200, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 10,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaEvaluadas() {
+        var conteoTotal = '@ViewBag.conteoEvaluadas';
+
+        if (conteoTotal > 0) {
+
+            $('.tableDatos2').DataTable().destroy();
+            $('.tableDatos2').DataTable({
+                "searching": true,
+                "aLengthMenu": [[10, 30, 200, 500, 1000, 5000, -1], [10, 30, 200, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 10,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function MostrarTablaConstruccion() {
+        var conteoTotal = '@ViewBag.conteoContruccion';
+
+        if (conteoTotal > 0) {
+
+            $('.tableDatos3').DataTable().destroy();
+            $('.tableDatos3').DataTable({
+                "searching": true,
+                "aLengthMenu": [[10, 30, 200, 500, 1000, 5000, -1], [10, 30, 200, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 10,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function RealizadaExcel(id) {
+
+        location.href = "@Url.Action("ExcelExportar", "Verificacion")?id=" + id;
+    }
+
+    function verValidacion(idPunto) {
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto;
+    }
+
+    function ModaGestion(id) {
+
+        var idVerificacion = id;
+        var laUrl = '@Url.Action("_ModalGestion")?idVerificacion=' + idVerificacion ;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {},
+            success: function (response) {
+                $("#myModalTarea").modal('show');
+                $('#resultadoTarea').html('');
+                $('#resultadoTarea').html(response);
+            }
+        });
+    }
+
+    function MostrarTabla(id) {
+        $('.tableDatos' + id).DataTable().destroy();
+        $('.tableDatos' + id).DataTable({
+            "searching": true,
+            "idisplaylength": 15,
+            "lengthchange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                processing: "procesando...",
+                search: "Buscar:",
+                lengthmenu: "mostrar menu registros",
+                info: "mostrando registros del start al end de un total de total registros",
+                infoempty: "mostrando registros del 0 al 0 de un total de 0 registros",
+                infofiltered: "(filtrado de un total de max registros)",
+                infopostfix: "",
+                loadingrecords: "cargando...",
+                zerorecords: "no se encontraron resultados",
+                emptytable: "ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "primero",
+                    previous: "anterior",
+                    next: "siguiente",
+                    last: "último",
+                },
+            }
+        });
+    }
+
+    function verTablero(tipo) {
+
+        var fechaIni = $("#fechaIni").val();
+        var fechaFin = $("#fechaFin").val();
+        var regional = $("#regional").val();
+        var prestador = $("#prestador").val();
+        var nitPrestador = $("#nitPrestador").val();
+
+        $.ajax({
+            url: "@Url.Action("TableroPuntoDispensacionDatos")",
+            type: "post",
+            data: {
+                regional: regional,
+                fechaIni: fechaIni,
+                fechaFin: fechaFin,
+                prestador: prestador,
+                nitPrestador: nitPrestador,
+                tipo: tipo
+            },
+            success: function (data) {
+                var Particion = data.split("|");
+                var tabla = Particion[0];
+                var conteo = Particion[1];
+
+                $("#tabla1 tbody").empty();
+                $("#tabla1 tbody").html(tabla);
+                $("#conteo").val(conteo);
+
+                MostrarTabla(1);
+            }
+        })
+    }
+
+    function verificacionPrueba(id) {
+        $("#mi-modal").modal('show');
+        document.getElementById("idPunto").value = id;
+    }
+
+    $("#modal-btn-si").on("click", function () {
+        LoadingShow();
+
+        $("#mi-modal").modal('hide');
+        var idPunto = document.getElementById("idPunto").value;
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto;
+        LoadingHide();
+    });
+
+    $("#modal-btn-no").on("click", function () {
+        $("#mi-modal").modal('hide');
+        var idPunto = document.getElementById("idPunto").value;
+        var laUrl = "@Url.Action("_ModalGestion", "Verificacion")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idVerificacion: idPunto
+            },
+            success: function (response) {
+
+                $("#modalGestion").modal('show');
+                $('#resultadoG').html('');
+                $('#resultadoG').html(response);
+            }
+        })
+    });
+
+    $("#modal-btn-can").on("click", function () {
+        $("#mi-modal").modal('hide');
+    });
+
+    function GestionCerrar() {
+        $("#modalGestion").modal("hide");
+    }
+
+    function GestionCerrarRepositorio() {
+        $("#modalRepositorio").modal("hide");
+    }
+
+    function MostrarArchivos(idEvaluacion) {
+
+        var laUrl = "@Url.Action("_modalEvaluacionRepositorio", "Verificacion")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idEvaluacion: idEvaluacion
+            },
+            success: function (response) {
+
+                $('#resultadoArchi').empty();
+                $('#resultadoArchi').html(response);
+            }
+        })
+    }
+
+    function verEvalua(idPunto, idEvaluacion) {
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto + "&tipo=" + 1 + "&idEvaluacion=" + idEvaluacion;
+    }
+
+    function exportarExcelInd(id) {
+        location.href = "@Url.Action("ExcelExportarIndividual", "Verificacion")?id=" + id;
+    }
+
+    function exportarExcelTo() {
+        location.href = "@Url.Action("ExcelExportarTotal", "Verificacion")";
+    }
+
+    function pdfEvaluacion(idEvaluacion) {
+        var url = "@Url.Action("TraerPdf", "Verificacion")?idEvaluacion=" + idEvaluacion;
+        opupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+    }
+
+    function MostrarModal(idEvaluacion) {
+        alert(idEvaluacion);
+    }
+
+    function continuar(idPunto, idEvaluacion) {
+        LoadingShow();
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto + "&tipo=" + 2 + "&idEvaluacion=" + idEvaluacion;
+        LoadingHide();
+    }
+
+    function EliminarAutoguardada(id) {
+
+        var confirmacion = confirm("¿Seguro de eliminar esta evaluación?");
+
+        if (confirmacion) {
+
+            $.ajax({
+                url: "@Url.Action("EliminarVisitaAutoGuardada")",
+                type: "post",
+                data: {
+                    idEvaluacion: id
+                },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    location.reload();
+                }
+            });
+        }
+    }
+
+</script>
+
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+        position: absolute;
+        margin-top: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>

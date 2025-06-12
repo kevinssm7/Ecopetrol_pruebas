@@ -1,0 +1,356 @@
+﻿
+@{
+    var i = 0;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS PQR</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idPqrs</label>
+            </h5>
+            <input type="hidden" id="idPqrs" value="@ViewBag.idPqrs" />
+        </p>
+    </div>
+    <br />
+    <div class="col-md-12 text-right">
+        <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarMasivos()">Eliminar masivo</a>
+    </div>
+    <br />
+    <br />
+
+    <div class="panel-body">
+        <div id="divTabla">
+            <div class="table-responsive">
+                <table id="tableGestionDocumental" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                <input type="checkbox" id="chkSeleccionarTodos" name="chkSeleccionarTodos" />
+                            </th>
+                            <th class="text-center">Fecha de cargue</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Archivo</th>
+                            <th class="text-center">Usuario creador</th>
+                            <th class="text-center">Ver</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (ViewBag.conteo > 0)
+                        {
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_pqrs_mirarArchivosResult item in ViewBag.lista)
+                            {
+                                i++;
+
+                                <tr class="claseColorMarcacion">
+                                    <td style="text-align:center;">
+                                        <input type="checkbox" id="chekSi_@i" class="chkCargue" />
+                                        <input type="hidden" id="idArchivo_@i" value="@item.id_gestion_documental_pqrs" />
+                                    </td>
+
+                                    @if (item.cargue_fecha != null)
+                                    {
+                                        <td class="text-center">@item.cargue_fecha.Value.ToString("dd/MM/yyyy H:mm:ss")</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@item.cargue_fecha</td>
+                                    }
+
+                                    <td class="text-center">@item.descripcionTipo</td>
+                                    <td class="text-center">@item.nombreArchivo</td>
+                                    <td class="text-center">@item.nombreCargador</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:MostrarArchivo(@item.id_gestion_documental_pqrs);'>Ver archivo</a>
+                                    </td>
+
+                                    @if (ViewBag.rol == "1" || ViewBag.rol == "10" || ViewBag.rol == "34")
+                                    {
+                                        <td class="text-center">
+                                            <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_gestion_documental_pqrs, @item.id_ecop_pqr);">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @*@if (ViewBag.tipo == 1)
+                                        {
+                                            if (ViewBag.rol == "1" || ViewBag.rol == "10" || ViewBag.rol == "34")
+                                            {
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_gestion_documental_pqrs, @item.id_ecop_pqr);">
+                                                        Eliminar
+                                                    </a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (item.estadoGestion == 1)
+                                            {
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_gestion_documental_pqrs, @item.id_ecop_pqr);">
+                                                        Eliminar
+                                                    </a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                            }
+                                        }*@
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>Sin archivos.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        @if (ViewBag.tipo == 1)
+        {
+            if (ViewBag.rol == "1" || ViewBag.rol == "10")
+            {
+                <div id="divFormulario">
+                    <form id="formularioArchivosIngreso">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud">Adjuntar:</label><span style="color:red"></span>
+                                <input type="file" class="form-control" name="archivos" id="archivos" multiple required />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="text-center">
+                                <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarformularioArchivos()">CARGAR</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#tipoArchivo").find("option[value='3']").remove();
+
+        $('#tableGestionDocumental').DataTable({
+            "searching": true,
+            "iDisplayLength": 10,
+            "lengthChange": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            responsive: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar MENU registros",
+                info: "Mostrando registros del START al END de un total de TOTAL registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de MAX registros)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último",
+                },
+            }
+        });
+
+        $("#chkSeleccionarTodos").change(function () {
+            debugger
+            if ($(this).is(':checked')) {
+
+                $("#tableGestionDocumental .chkCargue").each(function () {
+                    $("#tableGestionDocumental .chkCargue").prop('checked', true);
+                })
+            }
+            else {
+
+                $("#tableGestionDocumental .chkCargue").each(function () {
+                    $("#tableGestionDocumental .chkCargue").prop('checked', false);
+                })
+            }
+        });
+
+    });
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function ValidarformularioArchivos() {
+        var validator = $("#formularioArchivosIngreso").validate();
+        if (validator.form()) {
+            GuardarArchivosNuevos();
+        }
+    }
+
+    function MostrarArchivo(idArchivo) {
+        var url = "@Url.Action("VerArchivoIngresoPqr", "Pqrs")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function GuardarArchivosNuevos() {
+
+        var formData = new FormData($("form")[0]);
+        var archivos = $("#archivos").get(0).files;
+        var idPqrs = document.getElementById("idPqrs").value;
+        formData.append("idPqrs", idPqrs);
+
+        var tipo = $("#")
+
+        formData.append("tipoArchivo", 3);
+        for (i = 0; i < archivos.length; i++) {
+            formData.append("archivos", archivos[i]);
+        }
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("InsertarArchivosRepositorio", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+            success: function (response) {
+
+                if (response.rta == 1) {
+                    LoadingHide();
+                    alert(response.mensaje);
+                    location.reload();
+                }
+                else {
+                    LoadingHide();
+                    alert(response.mensaje);
+                }
+            }
+        });
+    }
+
+    function EliminarArchivo(idArchivo, idPqrs) {
+        if (confirm('Está a punto de eliminar un archivo ¿Desea continuar?')) {
+            EliminarRegistro(idArchivo, idPqrs);
+        }
+    }
+
+    function EliminarRegistro(idArchivo, idPqrs) {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("idArchivo", idArchivo);
+        formData.append("idPqrs", idPqrs);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("EliminarArchivoPqrCierre", "Pqrs")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.success) {
+                    LoadingHide();
+                    alert(response.message);
+                    location.reload();
+                }
+                else {
+                    LoadingHide();
+                    alert(response.message);
+                }
+            }
+        })
+    }
+
+    function EliminarMasivos() {
+
+        debugger
+        validacionCheckeoIdSi();
+        if (seleccionadosSi.length > 0) {
+            var confirmar = confirm("¿Seguro(a) de eliminar estos archivos?");
+            if (confirmar == true) {
+                var idPqr = $("#idPqrs").val();
+
+                LoadingShow();
+                $.ajax({
+                    url: "@Url.Action("EliminarArchivoPqrCierreMasivo", "Pqrs")",
+                    type: "post",
+                    data: {
+                        idPqr: idPqr,
+                        listadoId: seleccionadosSi
+                    },
+                    method: 'POST',
+                    success: function (response) {
+                        alert(response.mensaje);
+                        LoadingHide();
+                        if (response.rta == 1) {
+                            location.reload();
+                        }
+                    }
+                })
+            }
+        } else {
+            alert("Seleccione archivos para eliminar");
+            return false;
+        }
+    }
+
+    function validacionCheckeoIdSi() {
+        var conteo = @i;
+        seleccionadosSi = [];
+
+        for (var i = 1; i <= conteo; i++) {
+            var valor = document.getElementById('chekSi_' + i);
+            if (valor != null) {
+                if (valor.checked) {
+                    var item = document.getElementById("idArchivo_" + i).value;
+                    seleccionadosSi.push(item);
+                }
+            }
+        }
+    }
+
+
+</script>
+

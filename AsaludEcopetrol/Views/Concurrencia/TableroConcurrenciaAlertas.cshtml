@@ -1,0 +1,272 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    ViewBag.Title = "TABLERO ALERTAS PACIENTE";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var result = ViewBag.conteo;
+    int conteo = 0;
+}
+
+<br />
+<div class="container ">
+    <div class="panel panel-default General">
+        <div class="panel-heading">
+            <strong class="text-primary-Asalud">Alertas</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario" method="post" action="TableroConcurrenciaAlertas">
+                <div class="row">
+                    <div class="col-sm-12 form-group text-right">
+                        @*<label style="width:100%;visibility:hidden" class="text-secondary_asalud">Boton buscar:</label>
+                            <button class="btn button_Asalud_Guardar" type="submit"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>*@
+                        @if (result > 0)
+                        {
+                            <a class="btn button_Asalud_descargas" href="@Url.Action("DescargarAlertas", "Concurrencia")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte alertas</a>
+                        }
+                    </div>
+                </div>
+            </form>
+
+            <table id="table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Id concurrencia</th>
+                        <th>Id censo</th>
+                        <th>Id evolución</th>
+                        <th>Alerta confirmada</th>
+                        <th>Paciente</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.management_concurrencia_alertasResult item in ViewBag.list)
+                    {
+                        conteo++;
+                        <tr>
+                            <td>@conteo</td>
+                            <td>@item.id_concurrencia</td>
+                            <td>@item.id_censo</td>
+                            <td>@item.id_evolucion</td>
+                            <td>@item.Alerta_Confirmada</td>
+                            <td>@item.documento_afiliado - @item.nombrePaciente</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $('.table').DataTable({
+            "searching": true,
+            "sSearch": "Buscar:",
+            "iDisplayLength": 1500,
+            "lengthChange": false,
+            "info": false,
+
+            responsive: true,
+
+            language: {
+                search: "Buscar",
+            }
+        });
+
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+    })
+
+</script>
+
+
+@*<style>
+
+        table {
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            font-size: 12px;
+            margin: 10px;
+            width: 500px;
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+        th {
+            font-weight: bold;
+            padding: 8px;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 2px solid #fff;
+            border-top: 1px solid transparent;
+        }
+
+        .k-grid tbody .k-button {
+            min-width: 64px;
+        }
+
+        .k-grid .k-button {
+            margin: .16em;
+        }
+
+        .k-grouping-header {
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            color: #fff;
+        }
+
+        .k-button {
+            color: white;
+            background-color: #556da2;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 3px;
+            padding-left: 8px;
+            padding-right: 8px;
+            font-family: helvetica;
+            font-size: 11px;
+            border-radius: 5px;
+            border: 2px #006505;
+            font-size: 13px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            text-align: center;
+        }
+
+            .k-button:hover {
+                color: white;
+                background-color: #b6c0d6;
+            }
+
+        .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+            background-position: 50% 50%;
+            background-color: #656363;
+        }
+
+            .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+                color: white;
+            }
+
+        .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid2-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+            background-position: 50% 50%;
+            background-color: #656363;
+        }
+
+        .floatBlock {
+            margin: 0 1.81em 0 0;
+        }
+
+        .Tamaño {
+            height: 200px;
+        }
+
+        .TamañoImag {
+            height: 200px;
+            position: center;
+        }
+
+        .TamañoDiv {
+            position: page;
+            /*width:1100px;*/
+        }
+    </style>*@
+
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .text_titulos_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #EEEDED;
+    }
+</style>

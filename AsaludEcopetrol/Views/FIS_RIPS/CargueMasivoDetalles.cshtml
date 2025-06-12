@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "CARGUE MASIVO DETALLES";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">PLANTILLA</strong>
+        </div>
+        <div class="panel-body">
+            <a class="button_Asalud_Aceptar" onclick="descargarPlantilla();">Descargar plantilla</a>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formularioIngreso">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Regional</label>
+                            <select id="regional" name="regional" class="form-control select2" required>
+                                <option value="">-Seleccione-</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-secondary_asalud">Seleccione archivo</label>
+                            <input type="file" id="archivo" name="archivo" class="form-control" onchange="ValidacionArchivo()" required />
+                        </div>
+                        <br />
+                        <div class="col-md-2">
+                            <a class="btn button_Asalud_Aceptar" onclick="ValidarCargue()">CARGAR</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+    })
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('archivo');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.xls|\.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .xls o .xlsx');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function ValidarCargue() {
+        var validacion = $("#formularioIngreso").validate();
+        if (validacion.form()) {
+            Enviardata();
+        }
+    }
+
+    function Enviardata() {
+
+        var formData = new FormData($("form")[0]);
+        formData.append("regional", $("#regional").val());
+
+        var archivo = $("#archivo").get(0).files[0];
+        formData.append("archivo", archivo); // Enviar solo el primer archivo
+
+        LoadingShow();
+        $.ajax({
+
+            url: "@Url.Action("GuardarMasivoDetalles", "FIS_RIPS")",
+            method: "post",
+            data: formData,
+            type: "post",
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                LoadingHide();
+
+                if (data.rta == 1) {
+                    mostrarModal("success", "Éxito", data.mensaje);
+                }
+                else {
+                    mostrarModal("danger", "Error", data.mensaje);
+                }
+
+                if (data.rta == 1) {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3000); // 10000 milisegundos = 10 segundos
+                }
+            }
+        })
+    }
+
+    function mostrarModal(tipo, titulo, mensaje) {
+
+        var fondo = tipo == "danger" ? "negativo" : "positivo";
+
+        var modalHtml = `
+        <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-${tipo} ${fondo} text-white">
+                        <h5 class="modal-title" id="modalLabel">${titulo}</h5>
+                    </div>
+                    <div class="modal-body text-left" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">
+                        ${mensaje}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        // Eliminar cualquier modal anterior y agregar la nueva al body
+        $("#responseModal").remove();
+        $("body").append(modalHtml);
+
+        // Mostrar la modal
+        $("#responseModal").modal('show');
+    }
+
+
+    function descargarPlantilla() {
+        var url = "@Url.Action("VerPlantillaCargueDetalles", "FIS_RIPS")";
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>

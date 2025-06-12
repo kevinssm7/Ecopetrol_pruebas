@@ -1,0 +1,350 @@
+﻿
+
+@{
+    ViewBag.Title = "TABLERO REEMBOLSOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int resultado = ViewBag.conteo;
+    int i = 0;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO REEMBOLSOS</strong>
+    </div>
+    <div class="panel-body">
+
+        <form id="formularioReembolso" action="TableroReembolsos" method="post">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select id="idRegional" name="idRegional" class="select2 form-control">
+                        <option value="">--Seleccionar</option>
+
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regionales)
+                        {
+                            <option value="@item.id_ref_regional">@item.indice - @item.nombre_regional</option>
+                        }
+                    </select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <button id="btnbuscar" class="btn button_Asalud_Aceptar" onclick="Buscar"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group text-right">
+                    @if (resultado != 0)
+                    {
+                        <a class="button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte</a>
+                    }
+                </div>
+            </div>
+            @if (resultado == 0)
+            {
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center; font-family:'Century Gothic'; color:red;">
+                        <p style="font-family:'Century Gothic'">@Html.Raw("No hay datos.")</p>
+                    </div>
+                </div>
+            }
+        </form>
+
+        <br />
+        <table id="tablaDatos" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Regional</th>
+                    <th>Unis</th>
+                    <th>Ciudad</th>
+                    <th>Tipo reembolso</th>
+                    <th>Fecha recepción</th>
+                    <th>Sad titular</th>
+                    <th>Titular</th>
+                    <th>Beneficiario</th>
+                    <th>Num factura</th>
+                    <th>SAP entidad</th>
+                    <th>Prestador</th>
+                    <th>Nit</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    @*<th>Editar</th>*@
+                    <th>Archivos</th>
+                    <th>Gestionar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.conteo > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.management_reembolsos_tableroResult item in ViewBag.lista)
+                    {
+                        i++;
+                        <tr>
+
+                            <td>@item.id_reembolso</td>
+                            <td>@item.indice</td>
+                            <td>@item.nom_adherencia_unis</td>
+                            <td>@item.nombreCiudad</td>
+                            <td>@item.descripcionTipoReembolso</td>
+                            <td>@item.fecha_recepcion.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@item.sad_titular</td>
+                            <td>@item.titular</td>
+                            <td>@item.identificacion_beneficiario - @item.beneficiario</td>
+                            <td>@item.num_factura</td>
+                            <td>@item.sap_entidad</td>
+                            <td>@item.prestador</td>
+                            <td>@item.nit</td>
+                            <td>@item.valor - @item.descripcionMoneda</td>
+                            <td>@item.ultimoEstado</td>
+                            @*<td>
+                                <a class="btn-sm button_Asalud_Guardar" href="@Url.Action("CreacionRembolsos", "RadicacionElectonica", new { idReembolso = item.id_reembolso})">
+                                    Enviar
+                                </a>
+                            </td>*@
+                            <td>
+                                @*@if (item.existeArchivo == 1)
+                                    {
+                                        <a class="btn-sm button_Asalud_Aceptar" onclick="MirarArchivos(@item.id_reembolso);" data-toggle="modal" data-target="#myModalArchivos">
+                                            Ver
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a>Sin archivos</a>
+                                    }*@
+
+                                <a class="btn-sm button_Asalud_Aceptar" onclick="MirarArchivos(@item.id_reembolso, 1);" data-toggle="modal" data-target="#myModalArchivos">
+                                    Ver
+                                </a>
+
+                            </td>
+                            <td>
+                                <a class="btn-sm button_Asalud_Guardar" onclick="VistaGestion(@item.id_reembolso);" data-toggle="modal" data-target="#myModalGestion">
+                                    Gestionar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="myModalGestion">
+    <div class="modal-dialog modal-lg" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Gestionar</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalArchivos">
+    <div class="modal-dialog modal-lg" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Archivos</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        MostrarTabla();
+    })
+
+    function MostrarTabla() {
+
+        var conteo = "@ViewBag.conteo";
+
+        if (conteo > 0) {
+
+            $('#tablaDatos').DataTable().destroy();
+            $('#tablaDatos').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function VistaGestion(idReembolso) {
+
+        var urlVista = '@Url.Action("_GestionRrembolso")?idReembolso=' + idReembolso;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: urlVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        });
+    }
+
+    function MirarArchivos(idReembolso, tipo) {
+
+        var urlVista = '@Url.Action("ModalArchivosReembolso")?idReembolso=' + idReembolso + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: urlVista,
+            data: {},
+            success: function (response) {
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        });
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReporteReembolsos", "RadicacionElectonica")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+

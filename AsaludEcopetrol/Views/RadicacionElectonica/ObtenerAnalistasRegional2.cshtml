@@ -1,0 +1,299 @@
+﻿
+@{
+    ViewBag.Title = "ObtenerAnalistasRegional2";
+
+}
+
+
+<div class="tab-content">
+
+
+    <div class="tab-pane active" id="1b">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">Ingreso gestión</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form class="animated fadeInDown" id="formularioMasivo">
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <label class="text-secondary_asalud">Seleccionar analista:</label>
+                            <select class="form-control select2" required id="id_analista_asig" name="id_analista_asig">
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.vw_analistas_recepcion item in ViewBag.lista)
+                                {
+                                    <option value="@item.id_usuario">@item.nom_analista</option>
+                                }
+
+                            </select>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+
+                        <div class="col-sm-12" align="center">
+                            <button class="button_Asalud_Guardar" type="button" onclick="finalizar()">Guardar</button>
+                        </div>
+
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_cargue_dtll" id="id_cargue_dtll" value="@ViewBag.id_cargue_dtll" />
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+       var Lista = JSON.parse('@Html.Raw(Json.Encode(ViewBag.cargue_base))');
+    })
+
+    function finalizar() {
+        var validator = $("#formularioMasivo").validate();
+        if (validator.form()) {
+
+            FinalizarDatos();
+        }
+    }
+    function FinalizarDatos() {
+        var Lista = JSON.parse('@Html.Raw(Json.Encode(ViewBag.cargue_base))');
+        var SelectedList = new Array();
+        var SelectedList = Lista;
+
+        var formData = new FormData($("form")[0]);
+        formData.append("id_auditor", $("#id_analista_asig").val());
+        for (var i = 0; i < SelectedList.length; i++) {
+            formData.append('SelectedList', SelectedList[i]);
+        }
+       
+        LoadingShow();
+        $.ajax({
+           url: "@Url.Action("SaveAsignacionMasivo", "RadicacionElectonica")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  alert(response.message);
+                  LoadingHide();
+                  location.reload();
+              }
+              else
+              {
+                     alert(response.message);
+                     LoadingHide();
+              }
+
+            }
+        })
+    }
+
+</script>
+
+<style>
+    .big-checkbox {
+        width: 20px;
+        height: 30px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+</style>
+
+
+
+
+
+
+
+

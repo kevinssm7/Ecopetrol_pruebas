@@ -1,0 +1,236 @@
+﻿
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+
+
+@{ string alerta = (string)ViewData["alerta"];
+}
+
+<div class="tab-content">
+    <div class="tab-pane active" id="1b">
+        <div>
+            <label class="text-secondary_asalud">Total en construcción: <input type="text" name="conteoc" id="conteoc" style="background-color:transparent; border:0px;" disabled /> </label>
+        </div>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="table-responsive">
+
+                    <form action="_CONSTRUCCION" method="post" id="formM">
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaIniC" id="fechaIniC" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha final</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaFinC" id="fechaFinC" />
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2 " style="width:100%" name="regionalC" id="regionalC">
+                                    <option value="">- Seleccione -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        <option value="@item.indice">@item.nombre_regional</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Nit prestador</label>
+                                <input type="text" autocomplete="off" class="form-control solo-numero" name="nitPrestadorC" id="nitPrestadorC" maxlength="100" />
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <input type="text" autocomplete="off" class="form-control" name="prestadorC" id="prestadorC" maxlength="100" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 form-group text-right">
+                                <button type="button" onclick="verTablero3(1)" class="button_Asalud_Guardar"> <i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table id="tabla3" class="table3 table-bordered table-condensed" style="font-size:10px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Evaluación</th>
+                                <th>Prestador</th>
+                                <th>Telefono contacto</th>
+                                <th>Ciudad</th>
+                                <th>Regional</th>
+                                <th>Resultado general</th>
+                                <th>Recursos humanos</th>
+                                <th>Instalaciones fisicas / dotaciones</th>
+                                <th>Procesos procedimientos</th>
+                                <th>Fecha verificación</th>
+                                <th>Auditor</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function continuar(idPunto, idEvaluacion) {
+        LoadingShow();
+        location.href = "@Url.Action("EvaluacionDispensacion", "Verificacion")?idPunto=" + idPunto + "&tipo=" + 2 + "&idEvaluacion=" + idEvaluacion;
+        LoadingHide();
+    }
+
+
+    function verTablero3(tipo) {
+
+        var fechaIniC = $("#fechaIniC").val();
+        var fechaFinC = $("#fechaFinC").val();
+        var regionalC = $("#regionalC").val();
+        var prestadorC = $("#prestadorC").val();
+        var nitPrestadorC = $("#nitPrestadorC").val();
+
+        $.ajax({
+            url: "@Url.Action("_CONSTRUCCIONDatos")",
+            type: "post",
+            data: {
+                regionalC: regionalC,
+                fechaIniC: fechaIniC,
+                fechaFinC: fechaFinC,
+                prestadorC: prestadorC,
+                nitPrestadorC: nitPrestadorC,
+            },
+            success: function (data) {
+                var Particion = data.split("|");
+                var tabla = Particion[0];
+                var conteo = Particion[1];
+
+                $("#tabla3 tbody").empty();
+                $("#tabla3 tbody").html(tabla);
+                $("#conteoc").val(conteo);
+            }
+        })
+    }
+
+    function EliminarAutoguardada(id) {
+
+        var confirmacion = confirm("¿Seguro de eliminar esta evaluación?");
+
+        if (confirmacion) {
+
+            $.ajax({
+                url: "@Url.Action("EliminarVisitaAutoGuardada")",
+                type: "post",
+                data: {
+                    idEvaluacion: id
+                },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    verTablero(1);
+                    verTablero3(1);
+                }
+            });
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla3 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla3 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla3 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla3 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

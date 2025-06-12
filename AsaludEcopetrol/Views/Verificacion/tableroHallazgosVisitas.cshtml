@@ -1,0 +1,414 @@
+﻿@{
+    ViewBag.Title = "TABLERO HALLAZGOS EVALUACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var alerta = ViewBag.alerta;
+}
+
+<br />
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="font-family:'Century Gothic'">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+
+                if (alerta.Contains("CORRECTAMENTE"))
+                {
+                    <div class="alert alert-success">
+                        <strong style="font-family:'Century Gothic'">Éxito!</strong> @alerta
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        <strong style="font-family:'Century Gothic'">Error!</strong> @alerta
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <ul class="nav nav-pills" style="font-size: 10px">
+        <li class="active">
+            <a class="text-secondary_asalud" href="#1a" id="tab3" data-toggle="tab">NO SUBSANADAS</a>
+        </li>
+        <li>
+            <a class="text-secondary_asalud" href="#1b" id="tab2" data-toggle="tab">SUBSANADAS</a>
+        </li>
+    </ul>
+
+    <div class="reporte">
+        <a class="btn button_Asalud_descargas" onclick="exportarExcelTo();" style="text-align:right;"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte total</a>
+    </div>
+    <div class="tab-content">
+        <div class="tab-pane active" id="1a">
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form action="tableroHallazgosVisitas" method="post" id="form">
+
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha inicio</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaIni" id="fechaIni" />
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="text-secondary_asalud">Periodo fecha final</label>
+                                <input class="datepickerr" style="width: 100%" name="fechaFin" id="fechaFin" />
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Regional</label>
+                                <select class="form-control select2" style="width:100%" name="regional" id="regional">
+                                    <option value="">- Seleccione -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        <option value="@item.indice">@item.nombre_regional</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Nit prestador</label>
+                                <input type="text" autocomplete="off" class="form-control solo-numero" name="nitPrestador" id="nitPrestador" maxlength="100" />
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+                            <div class="col-sm-3 form-group">
+                                <label class="text-secondary_asalud">Prestador</label>
+                                <input type="text" autocomplete="off" class="form-control" name="prestador" id="prestador" maxlength="100" />
+                            </div>
+                            <br />
+                            <div class="col-md-6 form-group">
+                                <label class="text-secondary_asalud">Total hallazgos sin subsanar: @ViewBag.total</label>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 form-group text-right">
+                                <button type="button" onclick="validarformulario()" class="button_Asalud_Guardar"> <i class="glyphicon glyphicon-search" aria-hidden="true"></i> Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+
+                        <table id="tabla1" class="table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                            <thead>
+                                <tr>
+                                    <th>ítem</th>
+                                    <th>Evaluación</th>
+                                    <th>Prestador</th>
+                                    <th>Peso total</th>
+                                    <th>Resultado</th>
+                                    <th>Resultado total</th>
+                                    <th>Fecha visita</th>
+                                    <th>Recursos humanos</th>
+                                    <th>Condiciones locativas y dotación</th>
+                                    <th>Procesos especiales</th>
+                                    <th>Procesos generales</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    if (ViewBag.total != 0)
+                                    {
+                                        var i = 0;
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_evaluacionRelacion_hallazgoResult item in ViewBag.dispenEvalu)
+                                        {
+                                            if (item.estado == 1)
+                                            {
+                                                i++;
+                                                <tr>
+                                                    <td class="text-center">@i</td>
+                                                    <td class="text-center">@item.id_evaluacion</td>
+                                                    <td>@item.nit_prestador - @item.nombre_prestador</td>
+                                                    <td>@item.total_peso</td>
+                                                    <td>@item.total_resultado</td>
+                                                    <td>@item.resultado</td>
+                                                    <td>@item.fechaVisita</td>
+                                                    <td>@item.recurso_humano</td>
+                                                    <td>@item.condiciones_locativasDotacion</td>
+                                                    <td>@item.procesos_especiales</td>
+                                                    <td>@item.procesos_generales</td>
+
+                                                    <td>
+                                                        <a class="button_Asalud_Aceptar" onclick="validacion(@item.id_evaluacion, 1);">Gestionar</a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="12" style="text-align:center; font-size:15px;">
+                                                <label>No hay hallazgos por subsanar</label>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="1b">
+            @Html.Action("_VISITASCERRADAS", "Verificacion")
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalGestion">
+    <div class="modal-dialog modal-lg" style="width:85%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar()">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="modalGestion2">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div id="resultado2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" onclick="GestionCerrar2()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        hallazgosBus2(2);
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $("#prestador").autocomplete({
+            source: "/Verificacion/Buscar_NombrePrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nitPrestador").autocomplete({
+            source: "/Verificacion/Buscar_codigoPrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 4,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+
+        $("#prestadorM").autocomplete({
+            source: "/Verificacion/Buscar_NombrePrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 0,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nombre);
+                }
+            }
+        })
+
+        $("#nitPrestadorM").autocomplete({
+            source: "/Verificacion/Buscar_codigoPrestador",
+            type: "POST",
+            dataType: "json",
+            minLenght: 4,
+            change: function (evento, ui) {
+                if (ui.item != null) {
+                    $(this).val(ui.item.nit);
+                }
+            }
+        })
+    });
+
+    function validacion(id, tipo) {
+        var idPunto = id;
+        var laUrl = "@Url.Action("_modalHallazgos", "Verificacion")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idEvaluacion: idPunto,
+                tipo: tipo
+            },
+            success: function (response) {
+
+                $("#modalGestion").modal('show');
+                $('#resultado').html('');
+                $('#resultado').html(response);
+            }
+        })
+    }
+
+    function GestionCerrar() {
+        $("#modalGestion").modal("hide");
+    }
+
+     function validacion2(idTotal, tipoCriterio) {
+
+         var laUrl = "@Url.Action("_modalHallazgosCerrar", "Verificacion")";
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laUrl,
+            data: {
+                idTotal: idTotal,
+                tipoCriterio: tipoCriterio
+            },
+            success: function (response) {
+
+                $("#modalGestion2").modal('show');
+                $('#resultado2').html('');
+                $('#resultado2').html(response);
+            }
+        })
+    }
+
+    function GestionCerrar2() {
+        $("#modalGestion2").modal("hide");
+    }
+
+    function validarformulario() {
+        var validator = $("#form").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#form").submit();
+        }
+    }
+      function exportarExcelTo() {
+         location.href = "@Url.Action("ExcelExportarTotalHallazgo", "Verificacion")";
+    }
+
+</script>
+
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 10px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #636363;
+            border-top: 2px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+        background-color: #556da2;
+    }
+
+    .reporte {
+        position: relative;
+        text-align: right;
+        margin-top: -20px;
+    }
+</style>
+

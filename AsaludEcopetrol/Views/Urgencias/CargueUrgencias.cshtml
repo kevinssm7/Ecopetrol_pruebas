@@ -1,0 +1,185 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE URGENCIAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+@{ string alerta = (string)ViewData["alerta"];
+}
+
+<br />
+
+<div class="container">
+    <div class="panel-body">
+        <div class="col-sm-12 row">
+            @if (!String.IsNullOrEmpty(alerta))
+            {
+                @Html.Raw(alerta);
+            }
+            else
+            {
+                <div class="alert alert-info row">
+                    <strong>Cargue masivo de urgencias:</strong> Seleccione el archivo correspondiente (xls, xlxs) y luego oprima el boton cargar.
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <form id="formurgencias" name="formurgencias" action="/Urgencias/CargueUrgencias" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud"> Seleccione El archivo correspondiente *</label>
+                        <input type="file" name="file" id="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="form-control" required />
+                    </div>
+                    <br />
+                    <br />
+
+                    <div class="col-md-6">
+                        <a class="button_Asalud_Aceptar" onclick="validarForm()">Cargar urgencias</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        $("#file").change(function () {
+            var data = document.getElementById('file');
+            var nameext = data.files[0].name;
+            var extension = getFileExtension3(nameext);
+
+            var listaextensiones = ["xlsx", "xlsm", "xlsb", "xltx", "xltm", "xls"];
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extension no es valida");
+                $("#file").val("");
+            }
+
+        });
+
+        //$("form[name='formurgencias']").validate({
+        //    lang: 'Es',
+        //    rules: {
+        //        file: "required",
+        //    },
+        //    messages: {
+        //        file: 'No se ha seleccionado ningun archivo*'
+        //    },
+        //    submitHandler: function (form) {
+        //        LoadingShow();
+        //        form.submit();
+        //    }
+        //});
+
+    })
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function validarForm() {
+        var validacion = $("#formurgencias").validate();
+        if (validacion.form()) {
+            $("#formurgencias").submit();
+        }
+    }
+
+</script>
+
+
+<style>
+
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+</style>
+

@@ -1,0 +1,318 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.PQRS.GestionPqrs
+@{
+    ViewBag.Title = "TABLERO CONTROL PQRS AUDITOR";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<br />
+@using (Html.BeginForm())
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div>
+                @*@if (Model.LstPQRSTotales.Count != 0)
+                    {
+                        <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("DescargarPqrs", "Pqrs")'">DESCARGAR</button>
+                    }*@
+
+            </div>
+        </div>
+        <div class="col-md-4 col-md-offset-4">  <input class="form-control" id="myInput" type="text" placeholder="Buscar.."></div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-2">
+            <div style="background-color:#D9DBDE" class="contenedor1">
+                Total casos: @Model.total_casos
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div style="background-color:#FFEDED" class="contenedor1">
+                Casos vencidos: @Model.vencidas
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div style="background-color:#FFFAE0" class="contenedor1">
+                Casos por vencer: @Model.porvencer
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div style="background-color:#DCF2D2" class="contenedor1">
+                Casos en tiempos: @Model.restantes
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div style="background-color:#CF9CE3" class="contenedor1">
+                Caso con ampliaciòn: @Model.ampliacion
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div style="background-color:#E88693" class="contenedor1">
+                ampliaciòn vencidos: @Model.ampliacionVen
+            </div>
+        </div>
+
+    </div>
+
+    <table class="table table-hover display table-striped table-condensed table-bordered" style="width:100%; font-size:10px;">
+        <thead>
+            <tr>
+                <th style='display:none;'>ID CENSO</th>
+                <th>Numero Caso</th>
+                <th>Ciudad</th>
+                <th>Asignacion</th>
+                <th>Ingreso SalesForce</th>
+                <th>Vencimiento 10 Dìas Habiles SalesForce </th>
+                <th>Semaforo SalesForce </th>
+                <th>Ingreso Buzòn Asalud </th>
+                <th>Vencimiento 5 Dìas Habiles Buzòn Asalud </th>
+                <th>Semaforo Buzòn Asalud </th>
+                <th>Ultima Observaciòn</th>
+                <th>Analista Asignado</th>
+                <th>Prestador</th>
+                <th>Nombre Auditor</th>
+
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody id="myTable">
+
+            @foreach (var order in Model.LstPQRSTotales)
+            {
+
+                <tr>
+                    <td style='display:none;'>@order.id_ecop_PQRS</td>
+                    <td>@order.numero_caso</td>
+                    <td>@order.ciudad_del_caso_descripcion</td>
+                    <td>@order.fecha_asignacion.Value.ToString("dd/MM/yyyy")</td>
+                    <td>@order.fecha_ingreso_salesforce.Value.ToString("dd/MM/yyyy")</td>
+                    <td>@order.fecha_respuesta_programada10sales.Value.ToString("dd/MM/yyyy")</td>
+
+                    @if (order.estado_gestion == 4)
+                    {
+                        if (order.dias_restantesAmpli <= 2)
+                        {
+                            <td>
+                                <div style="background-color:#E88693">
+                                    <b>
+                                        Caso con ampliaciòn fecha pronto a vencer:
+                                        @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                    </b>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <div style="background-color:#CF9CE3">
+                                    <b>
+                                        Caso con ampliaciòn fecha:
+                                        @order.fecha_ampliacion.Value.ToString("dd/MM/yyyy")
+                                    </b>
+                                </div>
+                            </td>
+                        }
+
+                    }
+                    else
+                    {
+                        if (order.dias_restantes10sales > 8)
+                        {
+                            <td>
+                                <div class="alert alert-success" role="alert">
+
+                                </div>
+                            </td>
+                        }
+                        else if (order.dias_restantes10sales >= 4 && order.dias_restantes10sales <= 8)
+                        {
+                            <td>
+                                <div class="alert alert-warning" role="alert">
+
+                                </div>
+                            </td>
+                        }
+                        else if (order.dias_restantes10sales <= 3)
+                        {
+                            <td>
+                                <div class="alert alert-danger" role="alert">
+
+                                </div>
+
+                            </td>
+                        }
+                    }
+
+                    <td>@order.fecha_ingreso_buzon_asalud.Value.ToString("dd/MM/yyyy")</td>
+                    <td>@order.fecha_respuesta_programada5Buzon.Value.ToString("dd/MM/yyyy")</td>
+                    @if (order.dias_restantes5Buzon >= 5)
+                    {
+                        <td>
+                            <div class="alert alert-success" role="alert">
+
+                            </div>
+                        </td>
+                    }
+                    else if (order.dias_restantes5Buzon == 3 || order.dias_restantes5Buzon == 4)
+                    {
+                        <td>
+                            <div class="alert alert-warning" role="alert">
+
+                            </div>
+                        </td>
+                    }
+                    else if (order.dias_restantes5Buzon <= 2)
+                    {
+                        <td>
+                            <div class="alert alert-danger" role="alert">
+
+                            </div>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                        </td>
+                    }
+                    <td>@order.ultima_obs</td>
+                    <td>@order.usuario_asignado_descrip</td>
+                    <td>@order.prestador_nom</td>
+                    <td>@order.nombre_auditor_des</td>
+                    @if (ViewBag.rol != "13")
+                    {
+                        <td>
+                            <a class="btn btn-primary" href="@Url.Action("GestionPQRSCoordinador", "Pqrs", new { idPqrs = order.id_ecop_PQRS})">
+                                VER
+                            </a>
+                        </td>
+                    }
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+}
+
+<script type="text/javascript">
+
+    $('.table').DataTable({
+        "searching": false,
+        "sSearch": "Buscar:",
+        "iDisplayLength": 25,
+        "lengthChange": false,
+        "info": false,
+        responsive: true,
+    });
+
+    $('#close').on('click', function () {
+        $('#popup').fadeOut('slow');
+        $('.popup-overlay').fadeOut('slow');
+        return false;
+    });
+
+
+    $("#myInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+</script>
+<style>
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 11px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #212020;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #1a23a3;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .contenedor1 {
+        border-radius: 10px;
+        height: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+

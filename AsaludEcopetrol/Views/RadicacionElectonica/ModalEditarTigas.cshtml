@@ -1,0 +1,106 @@
+﻿
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">
+            ACTUALIZAR TIGA
+        </strong>
+    </div>
+    <div class="panel-body">
+        <form id="formTig">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="text-secondary_asalud">TIGA</label>
+                    <input type="text" class="form-control solo-numero" name="codigo_tiga" id="codigo_tiga" maxlength="50" />
+                </div>
+                <div class="col-md-8">
+                    <label class="text-secondary_asalud">Descripción TIGA</label>
+                    <input type="text" class="form-control" name="descripcion_tiga" id="descripcion_tiga" maxlength="500" readonly/>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <a class="btn button_Asalud_Guardar" onclick="actualizarTiga();">ACTUALIZAR</a>
+                </div>
+            </div>
+            <br />
+        </form>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $("#codigo_tiga").autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 0) {
+                    $.ajax({
+                        url: "/RadicacionElectonica/BuscarTigas",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data.length > 0 && data != null) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id // O item.value, dependiendo de cómo estén estructurados los datos en tu JSON
+                                    };
+                                }));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            },
+            select: function (event, ui) {
+                var detalle = ui.item.label;
+                var descomposicion = detalle.split('-');
+                var descripcion = descomposicion[1];
+                $("#descripcion_tiga").val(descripcion);
+            }
+        });
+    });
+
+    function actualizarTiga() {
+        var valida = $("#formTig").validate();
+        if (valida.form()) {
+
+            var tiga = $("#codigo_tiga").val();
+            var descripcion_tiga = $("#descripcion_tiga").val();
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("ActualizarTigaMasivo")",
+                method: "post",
+                data: {
+                    tiga: tiga,
+                    descripcion_tiga: descripcion_tiga,
+                    seleccionados: "@ViewBag.seleccionados",
+                    idFactura: "@ViewBag.idFactura"
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        $("#ModalEditarTiga").modal("hide");
+                        desenglosasIdsGestionMasivos("@ViewBag.seleccionados");
+                    }
+                }
+            });
+        }
+    }
+
+
+
+</script>

@@ -1,0 +1,927 @@
+﻿@using Kendo.Mvc.UI;
+@model  AsaludEcopetrol.Models.Evolucion.Eventos_en_salud
+@{
+    ViewBag.Title = "ANALISIS DE CASOS EVENTOS EN SALUD";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+@{ string alerta = (string)ViewData["alerta"];
+    int countotrosi = (int)ViewData["cant_otrossi"];
+    int? view = (int?)ViewData["vista"];
+    int añoactual = DateTime.Now.Year;
+    int añoanterior = DateTime.Now.Year - 10;
+    int? nitprove = (int?)ViewBag.nit;
+}
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.11.0/build/css/alertify.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.11.0/build/alertify.min.js"></script>
+
+<br />
+
+@using (Html.BeginForm())
+{
+
+    <div class="container">
+        @if (!String.IsNullOrEmpty(alerta))
+        {
+            <div class=" text-center">
+                <a href="@Url.Action("CrearPdfCartaAnalisisCasoEventoSalud", "AnalisisCaso", new { idConcurrencia = Model.id_concurrencia , idanalisis = Model.id_ecop_concurrencia_eventos_en_asalud }, null)">
+                    DESCARGAR REPORTE
+                </a>
+            </div>
+            @Html.Raw(alerta);
+
+
+        }
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">INGRESAR</strong>
+            </div>
+
+            <div class="panel-body" id="panel_formulario">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5> <span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_analisis)</span> </h5>
+
+                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_analisis)
+                            .Name("datepicker")
+                            .Format("dd/MM/yyyy")
+                            .Events(e =>
+                            {
+                            e.Change("change");
+                            })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+                            )
+
+                            @Html.ValidationMessageFor(u => u.fecha_analisis, null, new { @class = "label label-danger" })
+
+                        </div>
+                        <div class="col-sm-8">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.examenes_hallazgos)</span></h5>
+                            @Html.TextAreaFor(p => p.examenes_hallazgos, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.examenes_hallazgos, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.cie10_resultado_evento)</span></h5>
+                            @(Html.Kendo().AutoComplete()
+                            .Name("dx0")
+                            .Placeholder("Seleccione...")
+                            .HtmlAttributes(new { style = "width:300px" })
+                            .DataTextField("des")
+                            .Events(events => events.Select("CustomerSelect3"))
+                            .Filter(FilterType.Contains)
+
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                });
+                            })
+                        )
+                            @Html.HiddenFor(x => x.cie10_resultado_evento)
+                            @Html.ValidationMessageFor(u => u.cie10_resultado_evento, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.cie10_antes_del_evento)</span></h5>
+                            @(Html.Kendo().AutoComplete()
+                            .Name("dx1")
+                            .Placeholder("Seleccione...")
+                            .HtmlAttributes(new { style = "width:300px" })
+                            .DataTextField("des")
+                            .Events(events => events.Select("CustomerSelect4"))
+                            .Filter(FilterType.Contains)
+
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetCie10EgresoPrincipal", "Concurrencia");
+                                });
+
+                            })
+                         )
+                            @Html.HiddenFor(x => x.cie10_antes_del_evento)
+                            @Html.ValidationMessageFor(u => u.cie10_antes_del_evento, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.conducta_inmediata)</span></h5>
+                            @Html.TextAreaFor(p => p.conducta_inmediata, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.conducta_inmediata, null, new { @class = "label label-danger" })
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_categoria)</span></h4>
+
+                            @Html.HiddenFor(x => x.id_categoria)
+                            @(Html.Kendo().DropDownListFor(m => m.id_categoria)
+                                                                                  .Name("categoria")
+                                                                                  .HtmlAttributes(new { style = "width:100%" })
+
+                                                                                  .DataTextField("descripcion")
+                                                                                  .DataValueField("id_ref_categorias_eventos_adv")
+                                                                                  .Filter(FilterType.Contains)
+                                                                                  .Events(events => events.Select("CustomerSelect"))
+                                                                                   .DataSource(source =>
+                                                                                   {
+                                                                                       source.Read(read =>
+                                                                                       {
+                                                                                           read.Action("GetCascadeCategoria", "EventoAdverso");
+                                                                                       });
+                                                                                   })
+                    )
+
+                            @Html.ValidationMessageFor(u => u.id_categoria)
+                        </div>
+
+                        <div class="col-sm-4">
+
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ref_evento_adv)</span></h4>
+
+                            @(Html.Kendo().DropDownListFor(m => m.id_ref_evento_adv)
+                                                                                  .Name("evento")
+                                                                                  .HtmlAttributes(new { style = "width:100%" })
+
+                                                                                  .DataTextField("nombre")
+                                                                                  .DataValueField("id_ref_evento_adv")
+                                                                                  .Filter(FilterType.Contains)
+                                                                                  .Events(events => events.Select("CustomerSelect2"))
+                                                                                  .DataSource(source =>
+                                                                                  {
+                                                                                      source.Read(read =>
+                                                                                      {
+                                                                                          read.Action("GetCascadeEventosAdv", "EventoAdverso")
+                                                                                          .Data("filterProducts");
+                                                                                      })
+                                                                                      .ServerFiltering(true);
+                                                                                  })
+
+                                                                                  .CascadeFrom("categoria")
+                    )
+                            <script>
+                                function filterProducts() {
+                                    return {
+                                        categoria: $("#categoria").val()
+                                    };
+
+                                }
+                            </script>
+                            @Html.ValidationMessageFor(u => u.id_ref_evento_adv, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.acciones_inseguras)</span></h5>
+                            @Html.RadioButtonFor(model => model.acciones_inseguras, "SI", new { @onclick = "mostrar()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.acciones_inseguras, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.acciones_inseguras, "NO", new { @onclick = "mostrar1()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.acciones_inseguras, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+
+                    <div id='pnlinseguras' style='display:none;' class="General">
+
+                        <div class="row">
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_decisiones)</span></h5>
+                                @Html.DropDownListFor(model => model.id_decisiones, new SelectList(Model.LstDecision, "id_ref_eventos_decision", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_decisiones, null, new { @class = "label label-danger" })
+                            </div>
+
+
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_habilidad)</span></h5>
+                                @Html.DropDownListFor(model => model.id_habilidad, new SelectList(Model.LstHabilidad, "id_ref_eventos_habilidad", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_habilidad, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_percepcion)</span></h5>
+                                @Html.DropDownListFor(model => model.id_percepcion, new SelectList(Model.LstPercepcion, "id_ref_eventos_percepcion", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_percepcion, null, new { @class = "label label-danger" })
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_rutinaria)</span></h5>
+                                @Html.DropDownListFor(model => model.id_rutinaria, new SelectList(Model.LstRutinaria, "id_ref_eventos_rutinaria", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_rutinaria, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-4">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_excepcionales)</span></h5>
+                                @Html.DropDownListFor(model => model.id_excepcionales, new SelectList(Model.LstExcep, "id_ref_eventos_excepcionales", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_excepcionales, null, new { @class = "label label-danger" })
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.otro_general_accion_inseguras)</span></h5>
+                                @Html.TextAreaFor(p => p.otro_general_accion_inseguras, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.otro_paciente, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.factores_contributivos)</span></h4>
+                            @Html.RadioButtonFor(model => model.factores_contributivos, "SI", new { @onclick = "mostrar2()" })@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.factores_contributivos, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.factores_contributivos, "NO", new { @onclick = "mostrar3()" })@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.factores_contributivos, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+
+                        </div>
+                        <div class="col-sm-4">
+
+                        </div>
+
+                    </div>
+
+                    <div id='pnlContributivos' style='display:none;' class="General">
+                        <div class="row">
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_paciente)</span></h5>
+                                @Html.DropDownListFor(model => model.id_paciente, new SelectList(Model.LstPaciente, "id_ref_eventos_paciente", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_paciente, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_tarea_tecnologia)</span></h5>
+                                @Html.DropDownListFor(model => model.id_tarea_tecnologia, new SelectList(Model.LstTarea, "id_ref_eventos_tarea_tec", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_tarea_tecnologia, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_equipo_trabajo)</span></h5>
+                                @Html.DropDownListFor(model => model.id_equipo_trabajo, new SelectList(Model.LstEquipo, "id_ref_eventos_equipo", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_equipo_trabajo, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_individuo)</span></h5>
+                                @Html.DropDownListFor(model => model.id_individuo, new SelectList(Model.LstIndividuo, "id_ref_eventos_individuo", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_individuo, null, new { @class = "label label-danger" })
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_ambiente_trabajo)</span></h5>
+                                @Html.DropDownListFor(model => model.id_ambiente_trabajo, new SelectList(Model.LstAmbiente, "id_ref_ambiente_tra", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_ambiente_trabajo, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_organizacion_gerencia)</span></h5>
+                                @Html.DropDownListFor(model => model.id_organizacion_gerencia, new SelectList(Model.LstOrganizacion, "id_ref_eventos_organizacion", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_organizacion_gerencia, null, new { @class = "label label-danger" })
+                            </div>
+
+                            <div class="col-sm-3">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_contexto)</span></h5>
+                                @Html.DropDownListFor(model => model.id_contexto, new SelectList(Model.LisEventosContexto, "id_ref_eventos_contexto", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.id_contexto, null, new { @class = "label label-danger" })
+                            </div>
+
+
+                        </div>
+
+                        <div class="row">
+
+
+
+                            <div class="col-sm-12">
+                                <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.otro_general_factores_contributivos)</span></h5>
+                                @Html.TextAreaFor(p => p.otro_general_factores_contributivos, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(u => u.otro_general_factores_contributivos, null, new { @class = "label label-danger" })
+                            </div>
+
+
+
+
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.falla_activa_final)</span></h5>
+                            @Html.TextAreaFor(p => p.falla_activa_final, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.falla_activa_final, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_severidad)</span></h5>
+                            @Html.DropDownListFor(model => model.id_severidad, new SelectList(Model.LstSeveridad, "id_ref_eventos_severidad", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.id_severidad, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.probabilidad_repeticion)</span></h5>
+                            @Html.DropDownListFor(model => model.probabilidad_repeticion, new SelectList(Model.LstRepeticion, "id_ref_eventos_repeticion", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.probabilidad_repeticion, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+                    <br />
+
+
+
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.id_tipo_evento)</span></h5>
+                            @Html.DropDownListFor(model => model.id_tipo_evento, new SelectList(Model.LstTipoEvento, "id_ref_eventos_tipo_evento", "descripcion"), "Seleccione...", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.id_tipo_evento, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.prevenible)</span></h5>
+                            @Html.RadioButtonFor(model => model.prevenible, "SI")@Html.Label("SI")
+                            @Html.ValidationMessageFor(u => u.prevenible, null, new { @class = "label label-danger" })
+                            &nbsp;
+                            @Html.RadioButtonFor(model => model.prevenible, "NO")@Html.Label("NO")
+                            @Html.ValidationMessageFor(u => u.prevenible, null, new { @class = "label label-danger" })
+                        </div>
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.concluciones)</span></h5>
+                            @Html.TextAreaFor(p => p.concluciones, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.concluciones, null, new { @class = "label label-danger" })
+                        </div>
+
+                    </div>
+
+                    <br />
+
+
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading panel-primary">PLAN DE ACCION</div>
+                        <div class="row p-1" id="divotrosi">
+                            <input type="hidden" id="countotrosi" name="countotrosi" value="@countotrosi" />
+                            <div id="panelotrosi" style="margin-left:1%;margin-right:1%">
+                                <table class="table table-bordered table-condensed" width="100" id="tblotroSi">
+                                    <thead>
+                                        <tr style="background-color:darkgray;color:white">
+                                            <th>#</th>
+                                            <th>Accion Mejora</th>
+                                            <th>Responsable</th>
+                                            <th>Fecha Cumplimiento</th>
+                                            <th>Seguimiento</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (countotrosi > 0)
+                                        {
+                                            int count = 0;
+                                            foreach (ECOPETROL_COMMON.ENTIDADES.ecop_concurrencia_eventos_en_salud_detalle item in ViewBag.listadoOtroSi)
+                                            {
+                                                count = count + 1;
+                                                <tr>
+                                                    <td>@count</td>
+                                                    <td style="display:none">@item.id_ecop_concurrencia_eventos_en_salud_detalle</td>
+                                                    <td>@item.accion_mejora</td>
+                                                    <td>@item.fecha_cumplimieto</td>
+                                                    <td>@item.seguimiento</td>
+                                                    <td>@item.responsable</td>
+                                                    <td class="text-center"><a class="button_Asalud_Aceptar" title="Actualizar Otro Si" href='javascript:actualizarotrosi(@item.id_ecop_concurrencia_eventos_en_salud_detalle,@item.accion_mejora,@item.responsable,@item.fecha_cumplimieto,@item.seguimiento)'><i class='glyphicon glyphicon-pencil'></i></a></td>
+                                                    <td class="text-center"><a class="button_Asalud_Rechazar" title="Remover Otro Si" href='javascript:removerotrosi(@count,@item.id_ecop_concurrencia_eventos_en_salud_detalle)'><i class='glyphicon glyphicon-trash'></i></a></td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="5" style="text-align:center">No se han agregado Modificaciones.</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div id="formulario_addotrosi" style="display:none">
+
+                                <div class="col-sm-12 row">
+
+                                    <div class="col-sm-6 form-group">
+                                        <label class="text-secondary_asalud" style="font-weight:bold">Accion Mejora:</label>
+                                        <textarea class="form-control" style="min-width:100% !important" rows="3" name="planaccion_amejora" id="planaccion_amejora" placeholder="..."></textarea>
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="text-secondary_asalud" style="font-weight:bold">Responsable:</label>
+                                        <textarea class="form-control" style="min-width:100% !important" rows="3" name="planaccion_responsable" id="planaccion_responsable" placeholder="..."></textarea>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-secondary_asalud" style="font-weight:bold">Fecha Finalizacion</label>
+                                        <br />
+                                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_cumplimiento)
+                                                                             .Name("datepicker4")
+                                                                            .Format("dd/MM/yyyy")
+                                                                             .Events(e =>
+                                                                             {
+                                                                                 e.Change("change2");
+                                                                             })
+                                                                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+
+                                )
+                                        @Html.ValidationMessageFor(u => u.fecha_cumplimiento, null, new { @class = "label label-danger" })
+                                    </div>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="text-secondary_asalud" style="font-weight:bold">Seguimiento</label>
+                                        <textarea class="form-control" style="min-width:100% !important" rows="3" name="planaccion_seguimiento" id="planaccion_seguimiento" placeholder="..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 form-group text-right">
+                                    <button type="button" id="btnGuardarOtroSi" onclick="GuardarDetalle()" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span>&nbsp; Guardar</button>
+                                    <button type="button" id="btnCancelarOtroSi" onclick="CancelarOtroSi()" class="btn btn-default">Cancelar</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 form-group" id="divbtnaddotrosi">
+                                <button type="button" id="btnaddotrosi" class="btn button_Asalud_Aceptar" onclick="AddOtroSi()"><span class="glyphicon glyphicon-plus"></span>&nbsp; Añadir Plan de Accion</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.seguimiento_auditoria)</span></h5>
+                            @Html.TextAreaFor(p => p.seguimiento_auditoria, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.seguimiento_auditoria, null, new { @class = "label label-danger" })
+                        </div>
+
+                        <div class="col-sm-4">
+                            <h5><span class="text-secondary_asalud">@Html.LabelFor(p => p.equipo_analisis)</span></h5>
+                            @Html.TextAreaFor(p => p.equipo_analisis, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(u => u.equipo_analisis, null, new { @class = "label label-danger" })
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            @if (ViewBag.usuario == "14")
+                            {
+
+                            }
+                            else
+                            {
+                                if (Model.opc != 3)
+                                {
+                                    if (Model.id_ecop_concurrencia_eventos_en_asalud == 0)
+                                    {
+                                        <input id="BtnActualizar" type="submit" value="INGRESAR" class="btn button_Asalud_Guardar" />
+                                    }
+                                    else
+                                    {
+                                        <input id="BtnActualizar" type="submit" value="ACTUALIZAR" class="btn button_Asalud_Guardar" />
+                                    }
+                                }
+                                else
+                                {
+                                    <br />
+                                    <a role="button" href="javascript:Gestionar EstadoCaso(1, 3, @Model.id_ecop_concurrencia_eventos_en_asalud, @Model.id_concurrencia)" class="btn button_Asalud_Guardar">
+                                        APROBAR
+                                    </a>
+                                    <a role="button" href="javascript:JustificacionRechazo()" class="btn button_Asalud_Rechazar">
+                                        Rechazar
+                                    </a>
+                                    <br />
+                                }
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="hidden">
+                        @Html.TextBoxFor(u => u.id_concurrencia)
+                        @Html.TextBoxFor(u => u.id_ecop_concurrencia_eventos_en_asalud)
+                        @Html.TextBoxFor(u => u.fecha_analisisok)
+                        @Html.TextBoxFor(u => u.opc)
+                        @Html.TextBoxFor(u => u.id_categoria)
+                        @Html.TextBoxFor(u => u.id_ref_evento_adv)
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<div class="modal fade" id="ModalRechazo" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Debe justificar el rechazo de este caso</h4>
+            </div>
+            <div class="modal-body row">
+                <div class="col-sm-12">
+                    <span class="text-secondary_asalud">Justificación:* </span>
+                    <textarea class="form-control" id="txtjustificacion" rows="4" placeholder="- Escribir aqui su observacion frente al analisis -"></textarea>
+                    <span class="label label-danger" id="mensajeerror" style="display:none">- ¿por que deseas rechazar este caso? -</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a role="button" href="javascript:GestionarEstadoCaso(2, 3, @Model.id_ecop_concurrencia_eventos_en_asalud, @Model.id_concurrencia)" class="btn button_Asalud_Guardar">
+                    Rechazar
+                </a>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<script src="~/Scripts/ViewModels/AnlisisCreateViewModel.js"></script>
+<script src="~/Scripts/knockout-2.2.1.js"></script>
+<script src="~/Scripts/knockout.validation.js"></script>
+
+<script type="text/javascript">
+
+    var viewModel = new AnalisisViewModel();
+
+    // inicializamos la validación de knockout.
+    ko.validation.init({ insertMessages: false, parseInputAttributes: true });
+
+    // aplicamos el viewModel a nuestra vista.
+    ko.applyBindings(viewModel);
+
+
+
+
+
+    $(document).ready(function () {
+
+        $('#datepicker').attr('disabled', 'disabled');
+        $('#datepicker2').attr('disabled', 'disabled');
+        $('#datepicker3').attr('disabled', 'disabled');
+        $('#datepicker4').attr('disabled', 'disabled');
+
+
+        if ('@Model.acciones_inseguras' != "")
+        {
+            if ('@Model.acciones_inseguras' == 'SI') {
+                mostrar();
+            }
+        }
+
+        if ('@Model.factores_contributivos' != '') {
+             if ('@Model.factores_contributivos' == 'SI') {
+                mostrar2();
+            }
+        }
+
+           if ('@Model.opc' != '')
+        {
+            if ('@Model.opc' == 3) {
+                $("textarea").attr('disabled', 'true');
+                $("input[type='text']").attr('disabled', 'true');
+                $(".k-icon .k-i-close").prop('disabled', 'true');
+                $("span.k-widget.k-autocomplete.k-header.k-state-default").css('pointer-events', 'none');
+                $("span.k-widget.k-dropdown.k-header").css('pointer-events', 'none');
+                $("span.k-select").css('pointer-events', 'none');
+                $("select").prop('disabled', 'true');
+                $("input[type='radio']").css('pointer-events', 'none');
+
+            }
+        }
+
+
+    });
+
+    function change() {
+        var DataItem = (kendo.toString(this.value(), 's'));
+
+        $('input:text[id$=fecha_analisisok]').val(DataItem);
+
+    }
+     function change2() {
+        var DataItem = (kendo.toString(this.value(), 's'));
+
+        $('input:text[id$=fecha_cumplimientoOK]').val(DataItem);
+
+    }
+
+
+    function CustomerSelect(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_categoria").val(DataItem.id_ref_categorias_eventos_adv);
+    }
+
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#id_ref_evento_adv").val(DataItem.id_ref_evento_adv);
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie10_resultado_evento").val(DataItem.id_cie10);
+    }
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#cie10_antes_del_evento").val(DataItem.id_cie10);
+    }
+
+
+
+    function mostrar() {
+
+        document.getElementById('pnlinseguras').style.display = 'block';
+
+    };
+    function mostrar1() {
+
+        document.getElementById('pnlinseguras').style.display = 'none';
+
+    };
+
+    function mostrar2() {
+
+        document.getElementById('pnlContributivos').style.display = 'block';
+    };
+    function mostrar3() {
+
+        document.getElementById('pnlContributivos').style.display = 'none';
+
+    };
+
+
+    function JustificacionRechazo() {
+        $("#txtjustificacion").val('');
+        $("#txtjustificacion").prop('disabled', false);
+        $("#ModalRechazo").modal('show');
+    }
+
+    function GestionarEstadoCaso(a, b, c, d)
+    {
+        var opcionarealizar = a; // decide que opcion se va a realizar
+        var tipoanalisis = b;
+        var idanalisis = c;
+        var idconcurrencia = d;
+        var justificacion = $("#txtjustificacion").val();
+
+        var mensaje;
+        if (opcionarealizar == 1)
+        {
+            mensaje = "¿Seguro que desea aprobar este caso?";
+        } else {
+            mensaje = "¿Seguro que desea rechazar este caso?";
+        }
+
+        var opcion = confirm(mensaje);
+
+        if (opcion == true)
+        {
+            $.ajax({
+                url: "@Url.Action("GestionarEstadoCaso")",
+                type: "post",
+                data:
+                {
+                    opcionrealizar: opcionarealizar,
+                    idtipoanalisis: tipoanalisis,
+                    idanalisiscaso: idanalisis,
+                    idconcurrencia: idconcurrencia,
+                    justificacion: justificacion
+                },
+                success: function (data)
+                {
+                    var url = data.url;
+
+                    if (data.opcionrealizar == 1)
+                    {
+                        downloadURI(url);
+                    }
+                    window.location = "@Url.Action("TableroControl", "AnalisisCaso")"
+                },
+                error: function (data)
+                {
+                    alert("error al momento de realizar el procedimiento")
+                }
+            })
+
+        } else
+        {
+
+        }
+
+    }
+
+
+    function GuardarDetalle() {
+        var accionmejora = $("#planaccion_amejora").val();
+        var responsable = $("#planaccion_responsable").val();
+        var fechacumplimiento = $("#datepicker4").val();
+        var seguimiento = $("#planaccion_seguimiento").val();
+
+
+
+        $.ajax({
+            url: "@Url.Action("Agregarotrosi")",
+            type: "post",
+            data:
+            {
+                accionmejora: accionmejora,
+                responsable: responsable,
+                fechacumplimiento: fechacumplimiento,
+                seguimiento: seguimiento,
+
+
+            },
+            success: function (data) {
+                $("#tblotroSi tbody").empty();
+                $("#tblotroSi tbody").html(data);
+                $("#formulario_addotrosi").css('display', 'none');
+                $("#divbtnaddotrosi").css('display', 'block');
+            }
+        })
+    }
+
+    function downloadURI(uri) {
+        var link = document.createElement("a");
+        link.download = "ejemplodescarga.pdf";
+        link.href = uri;
+        link.click();
+    }
+
+     function AddOtroSi() {
+        $("#planaccion_seguimiento").val("");
+        $("#planaccion_amejora").val("");
+        $("#planaccion_responsable").val("");
+        $("#planaccion_fcumplimiento").val("");
+
+        $("#formulario_addotrosi").removeAttr('Style');
+        $("#divbtnaddotrosi").css('display', 'none');
+
+    }
+
+    function CancelarOtroSi() {
+        $("#formulario_addotrosi").css('display', 'none');
+        $("#divbtnaddotrosi").css('display', 'block');
+    }
+
+
+    function removerotrosi(idotrosi,iddetalle) {
+        alertify.confirm("¿Esta seguro que desea eliminar esta modificacion?.",
+        function () {
+            $.ajax({
+                url: "@Url.Action("RemoverOtroSi")",
+                type: "post",
+                data:
+                {
+                    posicion: idotrosi,
+                    iddetalle: iddetalle
+                },
+                success: function (data) {
+                    $("#tblotroSi tbody").empty();
+                    $("#tblotroSi tbody").html(data);
+                }
+            })
+        },
+        function () {
+
+
+        });
+    }
+
+
+
+
+
+</script>
+<style>
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    .th {
+        background: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .td {
+        padding: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .row {
+        margin-right: 1px;
+        margin-left: -2px;
+    }
+</style>
+
+

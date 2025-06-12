@@ -1,0 +1,366 @@
+﻿@{
+    ViewBag.Title = "CONSULTA RESULTADOS ADHERENCIA";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CONSULTA DE RESULTADOS ADHERENCIA</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario">
+                <div class="row form-group" style="margin-bottom:3%">
+                    <div class="col-sm-4">
+                        <label class="text-secondary_asalud">Filtrar por:</label>
+                        <select class="form-control" onchange="filtropor($(this).val())">
+                            <option selected value="1">Fecha evaluación</option>
+                            <option value="2">Periodo evaluación</option>
+                            <option value="3">Fecha historia clinica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Tipo adherencia:</label>
+                        <select class="form-control select2" id="tipoadh" name="tipoadh" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cohortes item in ViewBag.reftipocohorte)
+                            {
+                                <option value="@item.id_ref_cohortes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Regional:</label>
+                        <select class="form-control select2" id="Regional" name="Regional" onchange="ObtenerUnis($(this).val())">
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                <option value="@item.id_ref_regional">@item.indice</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-xs-12 form-group">
+                        <label class="text-secondary_asalud">Unis</label>
+                        <select class="form-control select2" id="unis" name="unis" onchange="ObtenerCiudades($(this).val())">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-xs-12 form-group">
+                        <label class="text-secondary_asalud">Ciudad</label>
+                        <select class="form-control select2" id="ciudad" onchange="ObtenerPrestadores($(this).val())" name="ciudad">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-xs-12 form-group">
+                        <label class="text-secondary_asalud">Prestador</label>
+                        <select class="form-control select2" id="prestador" name="prestador" onchange="ObtenerProfesionales($(this).val())">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-xs-12 form-group">
+                        <label class="text-secondary_asalud">Profesional</label>
+                        <select class="form-control select2" id="profesional" name="profesional">
+                            <option value="">- Seleccionar -</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3" id="fechaevaini">
+                        <label class="text-secondary_asalud">Fecha evaluación inicio</label>
+                        <input class="datepickerr" value="" style="width: 100%" name="FechaInicialfiltro" id="FechaInicialfiltro" required/>
+                    </div>
+                    <div class="col-sm-3" id="fechaevafin" >
+                        <label class="text-secondary_asalud">Fecha evaluación fin</label>
+                        <input class="datepickerr" value="" style="width: 100%" name="FechaFinalfiltro" id="FechaFinalfiltro" required/>
+                    </div>
+                    <div class="col-sm-3 form-group" id="periodo_ini" style="display:none">
+                        <label class="text-secondary_asalud">Periodo evaluación inicio</label>
+                        <div class="input-group" style="width:100%">
+                            <div class="col-sm-6" style="padding:0">
+                                <select class="form-control select2" name="mes_ini" id="mes_ini" required>
+                                    <option value="">- MES -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-6" style="padding:0">
+                                <input autocomplete="off" style="height: 2.8rem;" type="text" placeholder="- AÑO -" class="form-control solo-numero year" maxlength="4" name="año_ini" id="año_ini" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 form-group" id="periodo_fin" style="display:none">
+                        <label class="text-secondary_asalud">Periodo evaluación final</label>
+                        <div class="input-group" style="width:100%">
+                            <div class="col-sm-6" style="padding:0">
+                                <select class="form-control select2" name="mes_fin" id="mes_fin" required>
+                                    <option value="">- MES -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                                    {
+                                        <option value="@item.id_mes">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-6" style="padding:0">
+                                <input autocomplete="off" style="height: 2.8rem;" type="text" placeholder="- AÑO -" class="form-control solo-numero year" maxlength="4" name="año_fin" id="año_fin" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3" id="fechahcini" style="display:none">
+                        <label class="text-secondary_asalud">Fecha historica clinica inicio</label>
+                        <input class="datepickerr" value="" style="width: 100%" name="FechaHcInicialfiltro" id="FechaHcInicialfiltro" required />
+                    </div>
+                    <div class="col-sm-3" id="fechahcfin" style="display:none">
+                        <label class="text-secondary_asalud">Fecha historica clinica fin</label>
+                        <input class="datepickerr" value="" style="width: 100%" name="FechaHcFinalfiltro" id="FechaHcFinalfiltro" required />
+                    </div>
+
+                    <div class="col-sm-12 text-center">
+                        <label class="text-secondary_asalud" style="width:100%;visibility:hidden">DESCARGAR RESULTADOS BOTON</label>
+                        <button class="btn button_Asalud_descargas" type="button" onclick="ValidarFormulario()">Descargar resultados &nbsp;<i class="glyphicon glyphicon-download"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $("#unis").change(function ()
+        {
+            var valor = $(this).val();
+            if (valor != "")
+            {
+                $("#ciudad").prop("required", true);
+                $("#prestador").prop("required", true);
+                $("#profesional").prop("required", true);
+            }
+            else
+            {
+                $("#ciudad").prop("required", false);
+                $("#prestador").prop("required", false);
+                $("#profesional").prop("required", false);
+            }
+
+            $("#ciudad").val("");
+            $("#prestador").val("");
+            $("#profesional").val("");
+        })
+
+    });
+
+    function ObtenerUnis(a) {
+        if (a != "")
+        {
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "post",
+            data: { idregional: a },
+            success: function (data) {
+                $("#unis").empty();
+                $("#unis").html(data);
+                $("#unis").val("").trigger("change");
+            }
+            })
+        }
+    }
+
+    function ObtenerCiudades(a) {
+        if (a != "")
+        {
+            $.ajax({
+                url: "@Url.Action("ObtenerCiudades")",
+                type: "post",
+            data: { idunis: a },
+            success: function (data) {
+                $("#ciudad").empty();
+                $("#ciudad").html(data);
+                $("#ciudad").val("").trigger("change");
+                
+                }
+            })
+        }
+    }
+
+    function ObtenerPrestadores(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerPrestadores")",
+                type: "post",
+            data: { Ciudad: a },
+            success: function (data) {
+                $("#prestador").empty();
+                $("#prestador").html(data);
+                $("#prestador").val("").trigger("change");
+            }
+        })
+        }
+    }
+
+    function ObtenerProfesionales(a) {
+        if (a != "") {
+            $.ajax({
+                url: "@Url.Action("ObtenerProfesionales")",
+                type: "post",
+            data: { idprestador: a },
+            success: function (data) {
+                $("#profesional").empty();
+                $("#profesional").html(data);
+            }
+        })
+        }
+    }
+
+    function ValidarFormulario()
+    {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            var id = $("#tipoadh").val();
+            var regional = $("#Regional").val();
+            var fecha1 = $("#FechaInicialfiltro").val();
+            var fecha2 = $("#FechaFinalfiltro").val();
+            var mesini = $("#mes_ini").val();
+            var mesfin = $("#mes_fin").val();
+            var añoini = $("#año_ini").val();
+            var añofin = $("#año_fin").val();
+            var fechahc1 = $("#FechaHcInicialfiltro").val();
+            var fechahc2 = $("#FechaHcFinalfiltro").val();
+            var unis = $("#unis").val();
+            var ciudad = $("#ciudad").val();
+            var prestador = $("#prestador").val();
+            var profesional = $("#profesional").val();
+
+            var url = "@Url.Action("DescargarResultadosAdherencia","Adherencia")?idtipodh=" + id + "&Regional=" + regional + "&fechainicio=" + fecha1 + "&fechafinal=" + fecha2 + "&mesini=" + mesini
+            + "&mesfin=" + mesfin + "&añoini=" + añoini + "&añofin=" + añofin + "&fechahcinicio=" + fechahc1 + "&fechahcfinal=" + fechahc2 + "&unis=" + unis + "&ciudad=" + ciudad + "&prestador=" + prestador + "&profesional=" + profesional;
+            location.href = url;
+        }
+    }
+
+    function filtropor(a)
+    {
+        switch (a)
+        {
+            case "1":
+                $("#fechaevaini").css('display', 'block');
+                $("#fechaevafin").css('display', 'block');
+
+                $("#mes_ini").val("");
+                $("#mes_fin").val("");
+                $("#año_ini").val("");
+                $("#año_fin").val("");
+
+                $("#fechahcini").css('display', 'none');
+                $("#fechahcfin").css('display', 'none');
+                $("#periodo_ini").css('display', 'none');
+                $("#periodo_fin").css('display', 'none');
+
+                break;
+            case "2":
+
+                $("#FechaInicialfiltro").val("");
+                $("#FechaFinalfiltro").val("");
+
+                $("#fechaevaini").css('display', 'none');
+                $("#fechaevafin").css('display', 'none');
+                $("#fechahcini").css('display', 'none');
+                $("#fechahcfin").css('display', 'none');
+                $("#periodo_ini").css('display', 'block');
+                $("#periodo_fin").css('display', 'block');
+                break;
+            case "3":
+
+                $("#FechaHcInicialfiltro").val("");
+                $("#FechaHcFinalfiltro").val("");
+
+                $("#fechahcini").css('display', 'block');
+                $("#fechahcfin").css('display', 'block');
+                $("#fechaevaini").css('display', 'none');
+                $("#fechaevafin").css('display', 'none');
+                $("#periodo_ini").css('display', 'none');
+                $("#periodo_fin").css('display', 'none');
+                break;
+        }
+    }
+
+</script>
+
+<style>
+  
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    label.error{
+        float:right
+    }
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #FFF;
+    }
+</style>

@@ -1,0 +1,824 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.Management_Consulta_Cronograma_VisitasResult>
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "ADMINISTRAR VISITAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewBag.rta;
+}
+
+@{ int tipofiltro = (int)ViewData["filtro"]; }
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
+
+<br />
+@if (rta == 1)
+{
+    <div class="alert alert-success" role="alert">Visita actualizada correctamente!</div>
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">ADMINISTRACION DE VISITAS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <form id="formbuscar" action="AdminVisitas" method="post">
+                <div class="col-md-12 row">
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Tipo filtro</label>
+                        <select class="form-control select2" name="tipofiltro" required style="width:100%" id="tipofiltro" onchange="validarTituloCamposDeFecha()">
+                            <option value="">Selecccione...</option>
+                            @foreach (var item in ViewBag.tipofiltro)
+                            {
+                                if (tipofiltro == int.Parse(item.Value))
+                                {
+                                    <option value="@item.Value" selected="selected">@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Regional</label>
+                        <select class="form-control select2" style="width:100%" name="idregional">
+                            <option value="">- Seleccione -</option>
+                            @{ int? idreg = (int?)ViewBag.idregional;}
+
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                if (idreg != null)
+                                {
+                                    if (idreg == item.id_ref_regional)
+                                    {
+                                        <option selected="selected" value="@item.id_ref_regional">@item.indice</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.id_ref_regional">@item.indice</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@item.id_ref_regional">@item.indice</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Nro contrato</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero" value="@ViewBag.numcontrato" name="numcontrato" maxlength="11" />
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Auditor</label>
+                        <select class="form-control select2" style="width:100%" name="auditor" id="auditor">
+                            <option value="">Seleccione...</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.responsables)
+                            {
+                                <option value="@item.usuario">@item.nombre</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud" id="lblFechaInicio">Fecha programada desde</label>
+                        <input class="datepickerr" value="@ViewBag.fechainicial" title="datepicker" style="width: 100%" name="FechaInicialfiltro" id="txtfechavisita" />
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud" id="lblFechaFin">Fecha programada hasta</label>
+                        <input class="datepickerr" value="@ViewBag.fechafinal" title="datepicker" style="width: 100%" name="FechaFinalfiltro" id="txtfechavisita2" />
+                    </div>
+                    <div class="col-sm-2 form-group">
+                        <label class="text-secondary_asalud">Cargo acta?</label>
+                        <select class="form-control" id="cargo_acta" name="cargo_acta">
+                            <option value="">- Seleccionar -</option>
+                            <option value="1">Si</option>
+                            <option value="2">No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" style="margin-top:2%">
+                        <div class="row">
+                            <div class="col-sm-6 text-right">
+                                <button type="button" onclick="validarformularioVisitas()" class="button_Asalud_Guardar"> Buscar</button>
+                            </div>
+                            @*<div class="col-sm-6 text-right">
+                                <button type="submit" class="btn button_Asalud_Aceptar">Buscar</button>
+                                </div>*@
+                            @if (ViewBag.countresultados > 0)
+                            {
+                                <div class="col-sm-6">
+                                    <a role="button" href="@Url.Action("ExcelReporteVisitas")" class="btn button_Asalud_descargas"><i class="glyphicon glyphicon-save"></i>&nbsp;Reporte de resultados</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <table class="table table-hover table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id visita</th>
+                        <th>Regional</th>
+                        <th>NIT</th>
+                        <th>Razón social</th>
+                        <th>Especialidad </th>
+                        <th>Fecha programada visita</th>
+                        <th>Fecha final visita</th>
+                        <th>Tipo</th>
+                        <th>No contrato</th>
+                        <th>Auditor responsable</th>
+                        @if (tipofiltro == 2)
+                        {
+                            <th style="max-width:25px"></th>
+                            <th></th>
+                            <th>Informe operativo</th>
+                        }
+                        @if (tipofiltro == 3)
+                        {
+                            <th style="max-width:25px">Novedad</th>
+                            <th>Fecha novedad</th>
+                        }
+                        <th>Opciones</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.Management_Consulta_Cronograma_VisitasResult item in Model)
+                    {
+                        <tr>
+                            <td>@item.id_cronograma_visitas</td>
+                            <td>@item.nombre_regional</td>
+                            <td>@item.no_id_prestador</td>
+                            <td>@item.razon_social</td>
+                            <td>@item.descripcion</td>
+                            <td>@item.fecha_visita.Value.ToString("dd/MM/yyyy")</td>
+                            @if (item.fecha_final_visita != null)
+                            {
+                                <td>@item.fecha_final_visita.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@item.nom_tipo_prestador</td>
+                            <td>@item.num_contrato</td>
+                            <td>@item.nombre</td>
+                            @if (tipofiltro == 2)
+                            {
+                                if (item.calificacion_final_visita != null)
+                                {
+                                    <td style="max-width:25px">@item.calificacion_final_visita</td>
+                                    if (item.calificacion_final_visita < 90)
+                                    {
+                                        <td class="text-center" style="background-color:#E88693; color:white">Requiere plan de mejora</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center" style="background-color:#DCF2D2; color:black">Buena calificación</td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                }
+                                <td>
+
+                                    @if (item.idInformeOperativo == null)
+                                    {
+                                        <a class="btn button_Asalud_Aceptar btn-xs" style="margin:1%" role="button" onclick="SubirdocumentoInforme(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-upload"></i>&nbsp;  Cargar informe </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn button_Asalud_descargas btn-xs" style="margin:1%" role="button" onclick="AbiriDocumentoInforme(@item.idInformeOperativo)"><i class="glyphicon glyphicon-download"></i>&nbsp; Ver Informe </a>
+                                        if (ViewBag.idUser == 478 || ViewBag.idUser == 48 || ViewBag.idUser == 50 || ViewBag.idUser == 396 || ViewBag.idUser == 2631)
+                                        {
+                                            <a class="btn button_Asalud_Rechazar btn-xs" style="margin:1%" role="button" onclick="EliminarInforme(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-trash"></i>&nbsp;  Eliminar informe </a>
+                                        }
+                                    }
+
+                                </td>
+                            }
+
+                            @if (tipofiltro == 3)
+                            {
+                                if (!string.IsNullOrEmpty(item.otra_novedad))
+                                {
+                                    <td class="text-center">@item.otra_novedad</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@item.nom_tipo_novedad</td>
+                                }
+                                <td>@item.fecha_novedad.Value.ToString("dd/MM/yyyy")</td>
+                            }
+
+                            <td class="text-center">
+                                @if (item.Realizo_evaluacion == true)
+                                {
+                                    if (item.num_documento > 0 || item.num_documentos_docs > 0)
+                                    {
+                                        <a class="btn button_Asalud_Aceptar btn-xs" style="margin:1%" role="button" href="javascript:abrirducumento(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-eye-open"></i>&nbsp; Ver acta </a>
+                                        if (ViewBag.idUser == 478 || ViewBag.idUser == 48 || ViewBag.idUser == 50 || ViewBag.idUser == 396 || ViewBag.idUser == 2631)
+                                        {
+                                            <a class="btn button_Asalud_Rechazar btn-xs" style="margin:1%" role="button" href="javascript:EliminarActa(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-trash"></i>&nbsp; Eliminar acta </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="btn button_Asalud_Aceptar btn-xs" style="margin:1%" role="button" href="javascript:Subirdocumento(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-upload"></i>&nbsp;  Cargar acta </a>
+                                    }
+                                    <a class="btn button_Asalud_descargas btn-xs" style="margin:1%" role="button" href="javascript:AbiriDocumentoEvaluacionVisitas(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-download"></i>&nbsp;Evaluación</a>
+                                    @*<a class="btn button_Asalud_descargas btn-xs" style="margin:1%" role="button" href="javascript:AbirEvaluacion(@item.id_prestador,@item.id_cronograma_visitas,@item.id_regional,@item.tipo_prestador)"><i class="glyphicon glyphicon-download"></i>&nbsp;Evaluación</a>*@
+                                }
+                                else
+                                {
+                                    <a role="button" class="btn button_Asalud_Aceptar btn-xs" href="javascript:EditarInformacionGet(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Actualizar</a>
+                                    if (item.id_cronograma_novedades == null)
+                                    {
+                                        <a role="button" class="btn button_Asalud_Aceptar btn-xs" href="javascript:AñadirNovedad(@item.id_cronograma_visitas)"><i class="glyphicon glyphicon-inbox"></i>&nbsp;Novedades</a>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ModalDocumento" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario" name="formulario">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal">Cargar acta digital</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" id="idvisita" name="idvisita" />
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Subir documento:</label>
+                            <input type="file" class="form-control" id="file" onchange="ValidacionArchivo()" required name="file" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn button_Asalud_Guardar" type="button" id="btnguardardocumento" onclick="CargarDocumento()">Guardar</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ModalDocumentoInforme" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario" name="formulario">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal">Cargar informe operativo</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" id="idvisita" name="idvisita" />
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Subir documento:</label>
+                            <input type="file" class="form-control" id="fileInforme" onchange="ValidacionArchivoInforme()" required name="fileInforme" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn button_Asalud_Guardar" type="button" id="btnguardardocumento" onclick="CargarDocumentoInforme()">Guardar</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Actualizar visita</h4>
+            </div>
+            <div class="modal-body row">
+                <form id="form_modal" method="post" action="@Url.Action("ActualizarVisita","ProcesosInternos")" enctype="multipart/form-data">
+                    <input type="hidden" name="idcronograma" id="txtidcronograma" />
+                    <input type="hidden" name="FechaInicial" id="fechainiciofiltro" />
+                    <input type="hidden" name="FechaFinal" id="fechafinfiltro" />
+                    <input type="hidden" name="txtidtipoFiltro" id="txtidtipoFiltro" />
+                    <div class='col-sm-6 form-group'>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Fecha estimada de visita</label>
+                            <input class="datepickerr" value="" title="datepicker" style="width: 100%" name="FechaEstimadaVisita" id="txtfechavisitamodal" required />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 form-group" id="cbxauditorresponsable">
+                        <label class="text-secondary_asalud">Auditor Responsable</label>
+                        <select class="form-control select2" style="width:100%" name="responsable" id="txtresponsable" required>
+                            <option value="">Seleccione...</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.sis_usuario item in ViewBag.responsables)
+                            {
+                                <option value="@item.usuario">@item.nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class='col-sm-12 form-group'>
+                        <label class="text-secondary_asalud">Motivo del cambio*</label>
+                        <textarea class="form-control" rows="3" id="txtmotivo" name="motivocambio" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn button_Asalud_Guardar" type="button" id="btnformmodal">Guardar</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal2" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Añadir una novedad</h4>
+            </div>
+            <div class="modal-body row">
+                <form id="formulario_novedades" method="post" action="" enctype="multipart/form-data">
+                    <input type="hidden" id="visita_id" name="visita_id" />
+                    <div class='col-sm-12 form-group'>
+                        <div class="form-group">
+                            <label class="text-secondary_asalud">Elegir la novedad</label>
+                            <select class="form-control select2" id="tipo_novedad" name="tipo_novedad" required>
+                                <option value="">- Seleccionar -</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cronograma_visitas_novedades item in ViewBag.tiponovedad)
+                                {
+                                    <option value="@item.id_ref_novedades">@item.nom_tipo_novedad</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 form-group" id="divotranovedad" style="display:none">
+                        <label class="text-secondary_asalud">Descripción de la novedad</label>
+                        <textarea class="form-control" rows="4" id="txtnovedad" required name="txtnovedad"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn button_Asalud_Guardar" type="button" id="guardar" onclick="validarformularionovedades()">Guardar</button>
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+    $(document).ready(function () {
+
+        var auditor = "@ViewBag.auditor";
+        if (auditor != "") {
+            $("#auditor").val(auditor).trigger('change');
+        }
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".dropdownlist").kendoDropDownList({
+            width: '100%',
+            filter: "contains",
+            filtering: function (e) {
+                var filter = e.filter;
+
+                if (!filter.value) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        var cargo = "@ViewBag.cargoacta";
+        if (cargo != "") {
+            $("#cargo_acta").val(cargo);
+        }
+
+        $('.table').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 50,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+
+        $("#btnformmodal").click(function () {
+            var validator = $("#form_modal").validate();
+            if (validator.form()) {
+                $("#form_modal").submit();
+            }
+        })
+
+        $("#tipo_novedad").change(function () {
+            var valor = $(this).val();
+            if (valor != "" && valor == 3) {
+                $("#divotranovedad").css('display', 'block');
+            }
+            else {
+                $("#txtnovedad").val("");
+                $("#divotranovedad").css('display', 'none');
+            }
+        })
+
+
+
+    })
+
+    function validarTituloCamposDeFecha()
+    {
+        var value = $("#tipofiltro").val();
+
+        switch (value)
+        {
+            case "2":
+                $("#lblFechaInicio").text("Fecha final desde");
+                $("#lblFechaFin").text("Fecha final hasta");
+                break;
+            default:
+                $("#lblFechaInicio").text("Fecha programada desde");
+                $("#lblFechaFin").text("Fecha programada hasta");
+                break;
+        }
+    }
+
+    function EditarInformacionGet(a)
+    {
+        var idcronograma = a;
+
+        $.ajax({
+            url: "@Url.Action("getcronograma","ProcesosInternos")",
+            type: 'post',
+            data: { idcronograma: idcronograma },
+            success: function (data) {
+                $("#txtfechavisitamodal").val(data.fechaesvisita);
+                $("#fechainiciofiltro").val("@ViewBag.fechainicial");
+                $("#fechafinfiltro").val("@ViewBag.fechafinal");
+                $("#txtresponsable").val(data.res).trigger('change');
+                $("#txtmotivo").val(data.observaciones);
+                $("#txtidcronograma").val(idcronograma);
+                $("#txtidtipoFiltro").val($("#tipofiltro").val())
+                $("#Modal").modal('show');
+            }
+        })
+    }
+
+    function Subirdocumento(a) {
+        $("#idvisita").val(a);
+        $("#ModalDocumento").modal('show');
+    }
+
+    function SubirdocumentoInforme(a) {
+        $("#idvisita").val(a);
+        $("#ModalDocumentoInforme").modal('show');
+    }
+
+    function CargarDocumento() {
+        $("#ModalDocumento").modal('hide');
+        LoadingShow();
+
+        var formData = new FormData();
+        formData.append('documentovisita', $('#file')[0].files[0]);
+        formData.append('idvisita', $("#idvisita").val());
+
+        $.ajax({
+            url: "@Url.Action("CargarActaVisita")",
+            type: "post",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (data)
+            {
+                if (data.success)
+                {
+                    alert(data.mensaje);
+                    location.reload();
+
+                }
+                else
+                {
+                    alert(data.mensaje);
+                    LoadingHide();
+                }
+            },
+            error: function (data)
+            {
+                alert(data);
+                LoadingHide();
+            }
+        })
+    }
+
+    function CargarDocumentoInforme() {
+        $("#ModalDocumentoInforme").modal('hide');
+        LoadingShow();
+
+        var formData = new FormData();
+        formData.append('documentovisitaInforme', $('#fileInforme')[0].files[0]);
+        formData.append('idvisita', $("#idvisita").val());
+
+        $.ajax({
+            url: "@Url.Action("CargarInformeOperativo")",
+            type: "post",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (data)
+            {
+                if (data.success)
+                {
+                    alert(data.mensaje);
+                    location.reload();
+
+                }
+                else
+                {
+                    alert(data.mensaje);
+                    LoadingHide();
+                }
+            },
+            error: function (data)
+            {
+                alert(data);
+                LoadingHide();
+            }
+        })
+    }
+
+    function ValidacionArchivo() {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.pdf)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .pdf');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function ValidacionArchivoInforme() {
+        var fileInput = document.getElementById('fileInforme');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.pdf)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos que contengan la extension .pdf');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+
+    function abrirducumento(param) {
+        var url = "@Url.Action("VerActaVisita", "ProcesosInternos")?idvisita=" + param
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function AbiriDocumentoEvaluacionVisitas(idCronograma)
+    {
+        var url = "@Url.Action("AbiriDocumentoEvaluacionVisitas", "ProcesosInternos")?idcronograma=" + idCronograma;
+        window.open(url, '', 'width =700,height =300,left =50,top =50,toolbar =yes');
+    }
+
+    function AbiriDocumentoInforme(idArchivo)
+    {
+        var url = "@Url.Action("VerArchivoinformeOperativo", "ProcesosInternos")?idArchivo=" + idArchivo;
+        window.open(url, '', 'width=400,height =300,left =20,top =400,toolbar =yes');
+    }
+
+    function AbirEvaluacion(idprestador, idcronograma, idregional, tipoindicador)
+    {
+        var url = "@Url.Action("Pdf", "ProcesosInternos")?idprestador=" + idprestador + "&idcronograma=" + idcronograma + "&idregional=" + idregional + "&tipoindicador=" + tipoindicador;
+        window.open(url, '', 'width =700,height =300,left =50,top =50,toolbar =yes');
+    }
+
+    function AñadirNovedad(id) {
+        $("#visita_id").val(id);
+        $("#tipo_novedad").val("").trigger('change');
+        $("#txtnovedad").val("");
+        $("#divotranovedad").css('display', 'none');
+        $("#Modal2").modal('show');
+    }
+
+    function validarformularionovedades() {
+        $("#Modal2").modal('hide');
+        LoadingShow();
+        var validator = $("#formulario_novedades").validate();
+        var visitaid = $("#visita_id").val();
+        var tiponovedad = $("#tipo_novedad").val();
+        var novedad = $("#txtnovedad").val();
+
+        if (validator.form()) {
+            $.ajax({
+                url: "@Url.Action("GuardarNovedadVisita")",
+                type: "post",
+                data: {
+                    visitaid: visitaid,
+                    tiponovedad: tiponovedad,
+                    novedad: novedad
+                },
+                success: function (data) {
+                    if (data.rta == 1) {
+                        alert("Novedad ingesada exitosamente!");
+                    }
+                    else {
+                        alert("Hubo un error ingresando la novedad de la visita " + visitaid + " Mensaje de error: " + data.Msg);
+                    }
+                    LoadingHide();
+                    location.reload();
+                },
+                error: function (data) {
+                    alert("Hubo un error ingresando la novedad de la visita " + visitaid);
+                    LoadingHide();
+                }
+            })
+        }
+    }
+
+    function validarformularioVisitas()
+    {
+        var validator = $("#formbuscar").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formbuscar").submit();
+        }
+    }
+
+
+    function EliminarActa(idCrono) {
+        var mensaje = confirm("¿Seguro(a) de eliminar esta acta?");
+        if (mensaje == true) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarActaVisitas")",
+                type: "post",
+                data: {
+                    idCrono: idCrono
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+
+            });
+        }
+    }
+
+    function EliminarInforme(idCrono) {
+         var mensaje = confirm("¿Seguro(a) de eliminar este informe?");
+        if (mensaje == true) {
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarInformeOperativo")",
+                type: "post",
+                data: {
+                    idCrono: idCrono
+                },
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+
+            });
+        }
+    }
+
+</script>
+
+<style>
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .btn-xs {
+        margin-bottom: 2%;
+    }
+</style>
+

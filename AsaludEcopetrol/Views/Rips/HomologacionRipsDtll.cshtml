@@ -1,0 +1,876 @@
+﻿@using Kendo.Mvc.UI
+
+@{
+    ViewBag.Title = "HOMOLOGACIÓN";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">Datos AF</strong>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="grid1"></table>
+        </div>
+
+    </div>
+    <br />
+    <div id="pnldetalle">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="button_Asalud_Aceptar" type="button" onclick="agrupar()">AGRUPAR</button>
+            </div>
+        </div>
+       
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Detalle</strong>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="grid5"></table>
+            </div>
+
+        </div>
+    </div>
+    <div id="pnlAgrupado" style="display:none">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="button_Asalud_Guardar" type="button" onclick="detalle()">DETALLE</button>
+            </div>
+        </div>
+        
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">Agrupado</strong>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="grid6"></table>
+            </div>
+
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12" align="center">
+            <button class="button_Asalud_Guardar" type="button" onclick="finalizar2()">Finalizar</button>
+        </div>
+    </div>
+
+    <div style="display:none">
+        <input class="form-control" type="text" name="num_fac" id="num_fac" value="@ViewBag.num_fac" />
+        <input class="form-control" type="text" name="id_rips" id="id_rips" value="@ViewBag.id_rips" />
+        <input class="form-control" type="text" name="tipo" id="tipo" value="@ViewBag.tipo" />
+        <input class="form-control" type="text" name="documento" id="documento" value="@ViewBag.documento" />
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="ModalAsignacion" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="formulario">
+                    <div class="row">
+                        <input type="hidden" id="id_rips_homologacion_dtll" name="id_rips_homologacion_dtll" />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Código de homologación</label>
+
+                                @(Html.Kendo().AutoComplete()
+                                 .Name("id_Thomologacion")
+                                 .Placeholder("Seleccione...")
+                                 .HtmlAttributes(new { style = "width:600px" })
+                                 .DataTextField("des")
+
+                                 .Filter(FilterType.Contains)
+
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetHologacionTarifario", "Rips");
+                                      });
+
+                                  })
+                               )
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="ThomologacionF" id="ThomologacionF" />
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="ValidarFormulario()">Guardar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ModalGlosa" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Ingresar Glosa</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario2">
+                    <input type="hidden" id="id_rips_Hglosa" name="id_rips_Hglosa" />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Tiene glosa</label>
+                            <select class="form-control select" required id="TieneGlosa" name="TieneGlosa" onchange="Habilitar($(this).val())">
+                                <option value="">- Seleccionar -</option>
+                                <option value=1>SI</option>
+                                <option value=0>NO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="pnlGlosa" style="display:none">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Tipo Glosa</label>
+                                <select class="form-control select2" id="TipoGlosa" name="TipoGlosa" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_md_ref_glosa item in ViewBag.ListaGlosa)
+                                    {
+                                        <option value="@item.id_md_ref_glosa">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Observación glosa</label>
+                                <textarea class="form-control" id="obsGlosa" name="obsGlosa" rows="4" placeholder="Observación Competencia" maxlength="2000" required></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="display:none">
+                        <input class="form-control" type="text" name="id_rips_Hglosa2" id="id_rips_Hglosa2" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="ValidarFormulario2()">Guardar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="ModalGlosaGeneral" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Ingresar Glosa General</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formulario3">
+                    <input type="hidden" id="id_rips_Hglosa3" name="id_rips_Hglosa3" />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="text-secondary_asalud">Tiene glosa</label>
+                            <select class="form-control select" required id="TieneGlosaG" name="TieneGlosaG" onchange="HabilitarG($(this).val())">
+                                <option value="">- Seleccionar -</option>
+                                <option value=1>SI</option>
+                                <option value=0>NO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="pnlGlosaG" style="display:none">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Tipo Glosa</label>
+                                <select class="form-control select2" id="TipoGlosaG" name="TipoGlosaG" required>
+                                    <option value="">- Seleccionar -</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.vw_md_ref_glosa item in ViewBag.ListaGlosa)
+                                    {
+                                        <option value="@item.id_md_ref_glosa">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="text-secondary_asalud">Observación glosa</label>
+                                <textarea class="form-control" id="obsGlosaG" name="obsGlosaG" rows="4" placeholder="Observación Competencia" maxlength="2000" required></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="display:none">
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                <button class="btn button_Asalud_Aceptar" type="button" onclick="ValidarFormulario3()">Guardar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script type="text/javascript">
+
+
+    function cargarDetalle()
+    {
+
+
+    }
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+
+        });
+        $("#id_Thomologacion").change(function () {
+            var au = $("#id_Thomologacion").data("kendoAutoComplete");
+            var selected = au.listView.selectedDataItems();
+            if (selected.length > 0) {
+                $("#ThomologacionF").val(selected[0].id_rips_homologacion_tarifario);
+            } else {
+                $("#ThomologacionF").val("");
+            }
+
+
+        });
+
+
+        data1 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_homologacionAF",
+                    data: getRequestParameters2,
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+
+            pageSize: 20,
+            schema: {
+                model: {
+                    id: "id_rips_homologacion"
+                }
+            }
+
+        });
+
+
+        var grid1 = "";
+        grid1 = $("#grid1").kendoGrid({
+            locale: 'es-es',
+            dataSource: data1,
+            toolbar: ["search"],
+            pageable: true,
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            dataBound: OnGridDataBound,
+            columns: [
+
+                { field: 'id_rips', title: 'Id' },
+                { field: 'fecha_cargue', title: 'Fecha cargue', template: "#= kendo.toString(kendo.parseDate(fecha_cargue, 'yyyy-MM-dd'), 'dd/MM/yyyy') #" },
+                { field: 'nombre_regional', title: 'nombre regional' },
+                { field: 'num_id_prestador', title: 'numero prestador' },
+                { field: 'nombre_prestador', title: 'nombre prestador' },
+                { field: 'num_factura', title: 'Numero factura' },
+                { field: 'total_af', title: 'Valor AF' },
+                { field: 'total_dtll', title: 'Valor detalle' },
+                { field: 'tiene_glosa', title: 'Tiene glosa' },
+                {
+                    width: 80,
+                    title: "Glosa General",
+                    command: [{
+
+                        name: "GLOSAR",
+                        visible: function (dataItem) {
+                            return dataItem.tiene_glosa === "NO"
+                        },
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial2(data.id_rips_homologacion)
+                        }
+                    }]
+                },
+
+            ],
+
+        }).data("kendoGrid");
+        grid1.refresh();
+
+
+        data5 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_AnalistaTotal",
+                    cache: false,
+                    data: getRequestParameters,
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+
+            pageSize: 20,
+            schema: {
+                model: {
+                    id: "id_rips_homologacion_dtll"
+                }
+            }
+
+        });
+
+        var grid5 = "";
+        grid5 = $("#grid5").kendoGrid({
+            locale: 'es-Co',
+            dataSource: data5,
+            toolbar: ["search"],
+            pageable: true,
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            columns: [
+
+                { field: 'id_rips_homologacion_dtll', title: 'Id' },
+                { field: 'tipo_rips', title: 'Tipo' },
+                { field: 'descripcion_rips', title: 'Des-Rips' },
+                { field: 'valorT', title: 'Valor Rips' },
+                { field: 'cod_rips', title: 'Cód Rips' },
+                { field: 'descripcion_homologacion', title: 'Des-Homologación' },
+                { field: 'valorH', title: 'Valor Homologación' },
+                { field: 'cod_homologacion', title: 'Cód homologación' },
+                { field: 'tiene_glosa', title: 'Glosa' },
+                { field: 'descripcionGlosa', title: 'Des-Glosa' },
+                {
+                    width: 80,
+                    title: "Homologar",
+                    command: [{
+
+                        name: "Homologar",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            homologar(data.id_rips_homologacion_dtll)
+                        }
+                    }]
+                },
+                {
+                    command: [{
+                        title: "Glosa",
+                        name: "GLOSAR",
+                        click: function (e) {
+                            e.preventDefault();
+                            var tr = $(e.target).closest("tr");
+                            var data = this.dataItem(tr);
+                            llamarVistaParcial(data.id_rips_homologacion_dtll)
+                        }
+                    }]
+                },
+
+            ],
+
+        }).data("kendoGrid");
+        grid5.refresh();
+
+        data6 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "Selection_Agrupado",
+                    cache: false,
+                    data: getRequestParameters,
+                    dataType: "json",
+                    type: "POST",
+                }
+            },
+
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "cod_homologacion"
+                }
+            }
+
+        });
+
+        var grid6 = "";
+        grid6 = $("#grid6").kendoGrid({
+            locale: 'es-Co',
+            dataSource: data6,
+            toolbar: ["search"],
+            pageable: true,
+            scrollable: false,
+            persistSelection: true,
+            sortable: true,
+            columns: [
+                { field: 'descripcion_rips', title: 'Des-Rips' },
+                { field: 'cod_rips', title: 'Cód Rips' },
+                { field: 'Count', title: 'Numero casos' },
+                { field: 'TotalValor', title: 'Total valor' },
+            ],
+
+        }).data("kendoGrid");
+        grid6.refresh();
+
+    })
+
+    function refresh () {
+        $('#grid5').data('kendoGrid').dataSource.read();
+    };
+
+   
+    function getRequestParameters() {
+        return {
+            num_factura: $('#num_fac').val(),
+            id_rips: $('#id_rips').val()
+        };
+    }
+
+    function getRequestParameters2() {
+        return {
+            num_factura: $('#num_fac').val(),
+            tipo_id_prestador: $('#tipo').val(),
+            num_id_prestador: $('#documento').val(),
+            id_rips: $('#id_rips').val()
+        };
+    }
+
+
+    function homologar(id)
+    {
+        $("#id_rips_homologacion_dtll").val(id);
+        $("#ModalAsignacion").modal('show');
+    }
+
+    function ValidarFormulario() {
+
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_rips_homologacion_dtll", $("#id_rips_homologacion_dtll").val());
+        formData.append("id_rips_homologacion_tarifario", $("#ThomologacionF").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavegestionHomologacion", "Rips")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                  refresh();
+                  $('#ModalAsignacion').modal('hide');
+              }
+              else
+              {
+                  alert(response.message);
+                  LoadingHide();
+
+              }
+
+            }
+        })
+    }
+
+    function llamarVistaParcial(id) {
+        $("#id_rips_Hglosa").val(id);
+        $("#id_rips_Hglosa2").val(id);
+        var TipoGlosa = "";
+        $("#TipoGlosa").val(TipoGlosa).trigger('change');
+        $("#obsGlosa").val("");
+
+        $("#ModalGlosa").modal('show');
+    }
+
+    function ValidarFormulario2() {
+
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            GuardarDatos2();
+        }
+    }
+
+    function GuardarDatos2()
+    {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_rips_homologacion_dtll2", $("#id_rips_Hglosa").val());
+        formData.append("tiene_glosa", $("#TieneGlosa").val());
+        formData.append("obsGlosa", $("#obsGlosa").val());
+        formData.append("TipoGlosa", $("#TipoGlosa").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavegestionGlosa", "Rips")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                 /* alert(response.message);*/
+                  refresh();
+                  $('#ModalGlosa').modal('hide');
+              }
+              else
+              {
+                  alert(response.message);
+                  LoadingHide();
+
+              }
+
+            }
+        })
+    }
+
+
+    function Habilitar(a)
+    {
+        var Valor = a;
+        if (Valor == 1) {
+            document.getElementById('pnlGlosa').style.display = 'block';
+        } else {
+            var TipoGlosa = "";
+            $("#TipoGlosa").val(TipoGlosa).trigger('change');
+            $("#obsGlosa").val("");
+
+            document.getElementById('pnlGlosa').style.display = 'none';
+        }
+    }
+
+
+    function OnGridDataBound(e) {
+
+        var grid = $("#grid1").data("kendoGrid");
+        var gridData = grid.dataSource.view();
+        for (var i = 0; i < gridData.length; i++) {
+            var currentUid = gridData[i].uid;
+            if (gridData[i].total_af != gridData[i].total_dtll) {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FFEDED');
+            }
+            else {
+                var currentRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                currentRow.css('background-color', '#FEFEFE');
+            }
+        }
+    }
+
+    function llamarVistaParcial2(id) {
+
+        $("#id_rips_Hglosa3").val(id);
+        var TipoGlosa = "";
+        $("#TipoGlosaG").val(TipoGlosa).trigger('change');
+        $("#obsGlosaG").val("");
+
+        $("#ModalGlosaGeneral").modal('show');
+    }
+
+       function ValidarFormulario3() {
+
+        var validator = $("#formulario3").validate();
+        if (validator.form()) {
+            GuardarDatos3();
+        }
+    }
+
+
+    function GuardarDatos3()
+    {
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_rips_homologacion_dtllG", $("#id_rips_Hglosa3").val());
+        formData.append("tiene_glosaG", $("#TieneGlosaG").val());
+        formData.append("obsGlosaG", $("#obsGlosaG").val());
+        formData.append("TipoGlosaG", $("#TipoGlosaG").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("SavegestionGlosaGeneral", "Rips")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+              if (response.success)
+              {
+                  LoadingHide();
+                 /* alert(response.message);*/
+                  refresh2();
+                  $('#ModalGlosaGeneral').modal('hide');
+              }
+              else
+              {
+                  alert(response.message);
+                  LoadingHide();
+
+              }
+
+            }
+        })
+    }
+
+    function HabilitarG(a) {
+        var Valor = a;
+        if (Valor == 1) {
+            document.getElementById('pnlGlosaG').style.display = 'block';
+        } else {
+            var TipoGlosaG = "";
+            $("#TipoGlosaG").val(TipoGlosa).trigger('change');
+            $("#obsGlosaG").val("");
+
+            document.getElementById('pnlGlosaG').style.display = 'none';
+        }
+    }
+    function refresh2() {
+        $('#grid1').data('kendoGrid').dataSource.read();
+    };
+
+
+    function agrupar()
+    {
+        document.getElementById('pnlAgrupado').style.display = 'block';
+        document.getElementById('pnldetalle').style.display = 'none';
+        $('#grid6').data('kendoGrid').dataSource.read();
+    }
+
+    function detalle() {
+        document.getElementById('pnldetalle').style.display = 'block';
+        document.getElementById('pnlAgrupado').style.display = 'none';
+        $('#grid5').data('kendoGrid').dataSource.read();
+    }
+</script>
+<style>
+
+    TABLE.gj-grid {
+        text-align: center;
+        margin: 10px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .gj-grid-md {
+        position: relative;
+        border: 1px solid #e0e0e0;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        background-color: #fff;
+    }
+
+
+        .gj-grid-md th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            position: relative;
+            vertical-align: bottom;
+            font-weight: 700;
+            line-height: 31px;
+            letter-spacing: 0;
+            height: 56px;
+            font-size: 12px;
+            color: #FDF9F9;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            background: #636363;
+        }
+
+        .gj-grid-md td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            position: relative;
+            height: 48px;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            color: rgba(0,0,0,.87);
+        }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 2px solid #fff;
+        border-top: 1px solid transparent;
+    }
+
+    .sinDevolucion {
+        background-color: white;
+    }
+
+    .conDevolucion {
+        background-color: #f2dede;
+    }
+
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+        label.error {
+            background-color: indianred;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            float: left;
+            width: 100%;
+            text-align: justify;
+            font-weight: bold;
+        }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .k-grid tbody .k-button {
+        min-width: 64px;
+    }
+
+    .k-grid .k-button {
+        margin: .16em;
+    }
+
+    .k-button {
+        color: white;
+        background-color: #556da2;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        font-family: helvetica;
+        font-size: 11px;
+        border-radius: 5px;
+        border: 2px #006505;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        text-align: center;
+    }
+
+        .k-button:hover {
+            color: white;
+            background-color: #b6c0d6;
+        }
+
+
+
+    .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-grid-header, .k-grouping-header, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-toolbar {
+        background-position: 50% 50%;
+        background-color: #656363;
+    }
+
+        .k-grid-header .k-header > .k-link, .k-header, .k-treemap-title {
+            color: white;
+        }
+</style>
+

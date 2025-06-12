@@ -1,0 +1,485 @@
+﻿
+
+@{
+    ViewBag.Title = "TABLERO ";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    var i = 0;
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">Filtrado</strong>
+        </div>
+
+        <div class="panel-body">
+            <form id="formFiltro" action="TableroEliminarDetallesFactura" method="post">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Id factura</label>
+                        <input type="text" class="form-control solo-numero" id="idDetalle" name="idDetalle" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Número factura</label>
+                        <input type="text" class="form-control" id="numFactura" name="numFactura" />
+                    </div>
+                    <br />
+
+                    <div class="col-md-2">
+                        <a class="btn button_Asalud_Aceptar" onclick="ValidarBusqueda();">Buscar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">Datos</strong>
+        </div>
+        @if (ViewBag.conteo > 0)
+        {
+            <br />
+            <div class="col-md-12 text-right">
+                <a class="button_Asalud_Rechazar" onclick="EliminarSeleccionados();">ELIMINAR SELECCIONADOS</a>
+            </div>
+            <br />
+        }
+        <div class="panel-body">
+            <table id="tablaDetalle" class="table table-bordered table-responsive">
+                <thead>
+                    <tr>
+                        <th>ítem</th>
+                        <th title="Solo se seleccionen los que se muestran por pantalla">Sel todos<input type="checkbox" id="chkTodos" onchange="MarcarTodos()" title="Solo se seleccionen los que se muestran por pantalla" /></th>
+                        <th>Id factura</th>
+                        <th>Num factura</th>
+                        <th>Documento usuario</th>
+                        <th>Usuario</th>
+                        <th>Código CUPS-CUMS</th>
+                        <th>Descripción CUPS-CUMS</th>
+                        <th>Fecha prestación</th>
+                        <th>Cantidad</th>
+                        <th>Valor unitario</th>
+                        <th>valor total detalle</th>
+                        <th>Tipo IVA</th>
+                        <th>Valor con IVA</th>
+                        <th>TIGA</th>
+                        <th>Descripción TIGA</th>
+                        <th>Glosa automática tarifas</th>
+                        <th>Opción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.conteo > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_facturasCuv_tableroEliminarResult item in ViewBag.listado)
+                        {
+                            i++;
+                            <tr>
+                                <td>@item.id_registro</td>
+                                <td class="text-center">
+                                    <input type="checkbox" id="check_@item.id_registro" name="check_@item.id_registro" />
+                                    <input type="hidden" id="cups_@item.id_registro" value="@item.cod_cups" />
+                                    <input type="hidden" id="idFactura_@item.id_registro" value="@item.id_factura" />
+                                </td>
+                                <td>@item.id_factura</td>
+                                <td>@item.num_factura</td>
+                                <td>@item.documentoUsuario</td>
+                                <td>@item.nombreUsuario</td>
+                                <td>@item.cod_cups</td>
+                                <td>@item.descripcion_cuvs</td>
+                                <td>@item.fecha_prestacion</td>
+                                <td>@item.conteo_cups</td>
+                                <td>@item.valor_individual</td>
+                                <td>@item.valor_cups</td>
+                                <td>@item.tipo_iva</td>
+                                <td>@item.ValorNetoConIVA</td>
+                                <td>@item.codigo_tiga</td>
+                                <td>@item.descripcion_tiga</td>
+                                <td>@item.glosa_automatica</td>
+                                <td>
+                                    <a class="btn button_Asalud_Rechazar" onclick="EliminarRegistro(@item.id_registro)">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="18" style="width:100%; text-align:center">SIN DATOS</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    const checkboxStates = {};
+
+    $(document).ready(function () {
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        MostrarTabla();
+    })
+
+    function MostrarTabla() {
+        var conteo = "@ViewBag.conteo";
+        if (conteo > 0) {
+            $('#tablaDetalle').DataTable({
+                "searching": true,
+                "aLengthMenu": [[50, 100, 250, 500, 1000, 5000, -1], [50, 100, 250, 500, 1000, 5000, "Todos"]],
+                "iDisplayLength": 500,
+                "lengthchange": false,
+                "info": false,
+                "responsive": true,
+                "zeroRecords": "No se encontraron resultados",
+                responsive: true,
+                language: {
+                    sLengthMenu: "Ver _MENU_ registros",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthmenu: "Mostrar menu registros",
+                    info: "Mostrando registros del start al end de un total de total registros",
+                    infoempty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infofiltered: "(Filtrado de un total de max registros)",
+                    loadingrecords: "Cargando...",
+                    zerorecords: "No se encontraron resultados",
+                    emptytable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Ultimo",
+                    },
+                }
+            });
+        }
+    }
+
+    function ValidarBusqueda() {
+        var valida = $("#formFiltro").validate();
+        if (valida.form()) {
+            $("#formFiltro").submit();
+        }
+    }
+
+    function MarcarTodos() {
+        const chkPrincipal = document.getElementById("chkTodos");
+        const checkboxes = document.querySelectorAll("input[type='checkbox'][id^='check_']");
+
+        // Iterar sobre todos los checkboxes dinámicos y ajustarlos al estado del principal
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = chkPrincipal.checked;
+        });
+    }
+
+    function EliminarSeleccionados() {
+        var arrayEliminar = "";
+        const checkboxes = document.querySelectorAll("input[type='checkbox'][id^='check_']");
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var idCampo = compuesto[1];
+                var cups = $("#cups_" + idCampo).val();
+                var idFactura = $("#idFactura_" + idCampo).val();
+
+                if (arrayEliminar == "") {
+                    arrayEliminar = idCampo + "-" + cups + "-" + idFactura;
+                } else {
+                    arrayEliminar += "|" + idCampo + "-" + cups + "-" + idFactura;;
+                }
+            }
+        });
+
+        if (arrayEliminar == "") {
+            alert("Seleccione registros para eliminar");
+            return false;
+        }
+        var confirmar = confirm("¿Seguro(a) de eliminar estos registros?");
+        if (confirmar == true) {
+
+            LoadingShow();
+
+            var idFac = "@ViewBag.idDetalle";
+            var numFactura = "@ViewBag.numFactura";
+
+            $.ajax({
+                url: "@Url.Action("EliminarMasivo")",
+                type: "post",
+                data: {
+                    datos: arrayEliminar,
+                    idFac: idFac,
+                    numFactura: numFactura
+                },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+    }
+
+    function EliminarRegistro(idRegistro) {
+
+        var cups = $("#cups_" + idRegistro).val();
+        var idFactura = $("#idFactura_" + idRegistro).val();
+
+        var confirma = confirm("¿Seguro(a) de eliminar este registro");
+        if (confirma == true) {
+            LoadingShow();
+           $.ajax({
+                url: "@Url.Action("EliminarRegistroUnico")",
+                type: "post",
+                data: {
+                    idRegistro: idRegistro,
+                    cups: cups,
+                    idFactura: idFactura
+                },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+
+    }
+
+</script>
+
+
+
+<style>
+
+
+    .control-label {
+        font-size: 15px;
+        color: #357ebd;
+    }
+
+    .letra {
+        font-size: 15px
+    }
+
+    .error {
+        color: indianred;
+        font-size: 13px;
+    }
+
+    .control-label {
+        font-size: 15px;
+    }
+
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        float: left;
+    }
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    .contentErr {
+        width: 50%;
+        background: white;
+        position: fixed;
+        top: 20%;
+        left: 25%;
+        padding: 15px;
+    }
+
+    .showErroneos {
+        background: rgba(0,0,0,0.4);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .cortinilla {
+        background: rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+
+    .ventana {
+        width: 15%;
+        height: 25%;
+        padding: 1%;
+        background-image: url(../../Resources/cargando.gif);
+        background-size: 100% 100%;
+        top: 40%;
+        left: 42.5%;
+        position: relative;
+    }
+
+    .k-autocomplete.k-header {
+        width: 300px;
+    }
+
+    .Acordion {
+        width: 820px;
+    }
+
+    .AcordionVentana {
+        width: 100px;
+        height: 100px;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Info {
+        color: #800000;
+        font-size: small;
+        text-align: justify;
+        font-weight: bold;
+        width: 700px;
+    }
+
+    .Enca {
+        width: 700px;
+        text-align: center;
+        background-color: #284775;
+        color: #ffffff;
+    }
+
+    .ListCaja {
+        width: 50%;
+        border-collapse: collapse;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .General {
+        font-size: x-small;
+        font-family: Calibri;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .text-secondary_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #556da2;
+    }
+
+    input:read-only {
+        background-color: #636363;
+        color: #357ebd;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        .table td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

@@ -1,0 +1,155 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE MASIVO GRPC";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    string alerta = (string)ViewData["alerta"];
+
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">CARGUE DATOS</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formulario">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Archivo</label>
+                        <input type="file" name="file" id="file" class="form-control" required multiple />
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Tipo:</label>
+                        <select class="form-control select2" id="id_tipo" name="id_tipo" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_cargue_vigilanciaCohortes_tipos item in ViewBag.tipo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Mes:</label>
+                        <select class="form-control select2" id="mes" name="mes" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.mes)
+                            {
+                                <option value="@item.id_mes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                        <label class="text-secondary_asalud">Año:</label>
+                        <input autocomplete="off" type="text" class="form-control solo-numero solo-numero2 solo-numero3 year" id="año" name="año" maxlength="4" required />
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label style="visibility:hidden;width:100%" class="text-secondary_asalud">boton</label>
+                        <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar registros</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+
+
+<script>
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    var lecturaArchivo = [];
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $(".k-input").attr('readonly', true);
+    });
+
+    $("#file").change(function () {
+        var data = document.getElementById('file');
+        var distintosArchivos = data.files;
+        var contador = 0;
+
+        if (distintosArchivos.length < 30) {
+
+            for (contador; contador < distintosArchivos.length; contador++) {
+
+                var nameext = data.files[contador].name;
+                var extension = getFileExtension3(nameext);
+
+                var listaextensiones = ["xlsx", "xlsm", "xlsb", "xltx", "xltm", "xls"];
+
+                var valida = false;
+
+                jQuery.each(listaextensiones, function (i, val) {
+                    if (extension == val) {
+                        valida = true;
+                    }
+                });
+
+                if (valida == false) {
+                    alert("La extensión " + extension + " no es válida. Por favor, solo subir archivos EXCEL.");
+                    $("#file").val("");
+                }
+            }
+        }
+        else {
+            alert("Solo se pueden subir 30 archivos.");
+            $("#file").val("");
+            return false;
+        }
+    });
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+        var formData = new FormData($("form")[0]);
+        formData.append("archivo", $("input[type=file]")[0].files[0]);
+        formData.append("mes", $("#mes").val());
+        formData.append("año", $("#año").val());
+        formData.append("tipo", $("#id_tipo").val());
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarDatosMasivos", "Cohortes")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (data) {
+
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta == 1) {
+                    location.reload();
+                }
+            }
+        })
+    }
+
+</script>
+

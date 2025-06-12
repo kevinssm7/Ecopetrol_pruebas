@@ -1,0 +1,156 @@
+﻿
+@{
+    ViewBag.Title = "CARGUE EVENTOS ADVERSOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int rta = (int)ViewData["rta"];
+    string Msg = (string)ViewData["Msg"];
+}
+
+
+<br />
+
+@if(rta != 0)
+{
+    if(rta == 1)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Éxito </strong>@Msg
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error </strong>@Msg
+        </div>
+    }
+    <br />
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">CARGUE MASIVO DE EVENTOS ADVERSOS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="CargueEventos" enctype="multipart/form-data" >
+            <div class="row">
+                <div class="col-sm-6 form-group">
+                    <label class="text-secondary_asalud">Seleccionar archivo:</label>
+                    <input type="file" class="form-control" id="file" name="file" required onchange="ValidacionArchivo()" />
+                </div>
+                <div class="col-sm-12 text-center">
+                    <label style="width:100%; visibility:hidden" class="text-secondary_asalud">Seleccionar archivo:</label>
+                    <button class="btn button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">Cargar registros</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/Scripts/validate.js"></script>
+<script>
+    function ValidarFormulario()
+    {
+        var validator = $("#formulario").validate();
+        if (validator.form())
+        {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+
+
+    function ValidacionArchivo()
+    {
+        var fileInput = document.getElementById('file');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(.xls|.xlsx)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Por favor, solo subir archivos excel');
+            fileInput.value = '';
+            return false;
+        } else {
+            return true
+        }
+    }
+</script>
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

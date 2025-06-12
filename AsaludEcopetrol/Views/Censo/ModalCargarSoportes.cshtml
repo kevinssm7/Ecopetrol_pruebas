@@ -1,0 +1,134 @@
+﻿
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-secondary_asalud">Lista soportes</strong>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+            <thead>
+                <tr>
+                    <th class="text-center">Nombre archivo</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Gestión</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (ECOPETROL_COMMON.ENTIDADES.alerta_epidemiologica_gestion_archivos item in ViewBag.listadoArchivos)
+                {
+                    <tr>
+                        <td>@item.nombre_archivo</td>
+                        <td>@item.fecha_digita.Value.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (ViewBag.cerrada != 1 || ViewBag.tipoIngreso == 1)
+                            {
+                                <a class="button_Asalud_Rechazar" onclick="EliminaArchivo(@item.id_registro)">
+                                    Eliminar
+                                </a>
+                            }
+                            &nbsp;
+                            <a class="button_Asalud_Aceptar" onclick="VerArchivo(@item.id_registro)">
+                                Ver
+                            </a>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@if (ViewBag.cerrada != 1 || ViewBag.tipoIngreso == 1)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">Cargar soportes</strong>
+        </div>
+        <div class="panel-body">
+            <form id="formCargueSoporte">
+                <div class="row">
+                    <input type="hidden" id="idRegistro" name="idRegistro" value="@ViewBag.idRegistro" />
+                    <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+
+                    <div class="col-md-12">
+                        <label class="text-secondary_asalud">Soporte</label>
+                        <input type="file" id="soporte" name="soporte" multiple required class="form-control" />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row text-center">
+                    <a class="button_Asalud_Guardar" onclick="GuardarSoportes();">Guardar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<script>
+
+    function GuardarSoportes() {
+        var validar = $("#formCargueSoporte").validate();
+        if (validar.form()) {
+
+            var formData = new FormData($("#formCargueSoporte")[0]);
+            formData.append("tipo", $("#tipo").val());
+            formData.append("idRegistro", $("#idRegistro").val());
+
+            var archivos = $("#soporte").get(0).files;
+            for (i = 0; i < archivos.length; i++) {
+                formData.append("archivos", archivos[i]);
+            }
+
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("GuardarSoportesGE")",
+                method: "post",
+                type: "post",
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        CargarSoportes($("#tipo").val(), $("#idRegistro").val());
+                    }
+                }
+            });
+        }
+    }
+
+    function EliminaArchivo(id) {
+        var confirma = confirm("¿Seguro(a) de eliminar este archivo?")
+        if (confirma == true) {
+
+            LoadingShow();
+            $.ajax({
+
+                url: "@Url.Action("EliminarArchivo")",
+                data: { id: id },
+                method: "post",
+                success: function (data) {
+                    alert(data.mensaje);
+                    LoadingHide();
+                    if (data.rta == 1) {
+                        CargarSoportes($("#tipo").val(), $("#idRegistro").val());
+                    }
+                }
+            });
+        }
+    }
+
+    function VerArchivo(id) {
+
+        var url = "@Url.Action("VerArchivoEpidemiologico", "Censo")?id=" + id;
+        popupWindow = window.open(url, '', 'height=150,width=400,left=20,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+</script>

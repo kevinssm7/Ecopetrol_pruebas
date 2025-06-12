@@ -1,0 +1,495 @@
+﻿@using Kendo.Mvc.UI;
+@model AsaludEcopetrol.Models.Odontologia.PlanMejora
+@{
+    ViewBag.Title = "REALIZAR PLAN DE MEJORA BENEFICIARIO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.fecha_seguimiento)</span></h4>
+            @(Html.Kendo().DateTimePickerFor(p => p.fecha_seguimiento)
+                             .Name("datepicker1")
+                            .Format("dd/MM/yyyy")
+                             .Events(e =>
+                             {
+                                 e.Change("change1");
+                             })
+                            .HtmlAttributes(new { style = "width: 70%", title = "Vigencia desde" })
+
+            )
+            @Html.ValidationMessageFor(u => u.fecha_seguimiento, null, new { @class = "label label-danger" })
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.accion_mejora)</span></h4>
+            @(Html.Kendo().DropDownListFor(m => m.accion_mejora)
+                .Name("accion_mejora")
+                .HtmlAttributes(new { style = "width:100%" })
+                .OptionLabel("Seleccione...")
+                .DataTextField("descripcion")
+                .DataValueField("id_ref_acciones_mejora")
+                .Filter(FilterType.Contains)
+                .Events(events => events.Select("CustomerSelect3"))
+                 .DataSource(source =>
+                 {
+                     source.Read(read =>
+                     {
+                         read.Action("GetCascadeAccionesMejoras", "odontologia");
+                     });
+                 })
+            )
+            @Html.ValidationMessageFor(u => u.accion_mejora, null, new { @class = "label label-danger" })
+        </div>
+
+        <div class="col-sm-6">
+            <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.estado)</span></h4>
+            @(Html.Kendo().DropDownListFor(m => m.estado)
+              .Name("estado")
+              .HtmlAttributes(new { style = "width:100%" })
+              .OptionLabel("Seleccione...")
+              .DataTextField("descripcion")
+              .DataValueField("descripcion")
+              .Filter(FilterType.Contains)
+              .Events(events => events.Select("CustomerSelect4"))
+               .DataSource(source =>
+               {
+                   source.Read(read =>
+                   {
+                       read.Action("GetCascadeEstadoAccionesMejoras", "odontologia");
+                   });
+               })
+            )
+            @Html.ValidationMessageFor(u => u.estado, null, new { @class = "label label-danger" })
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <br />
+            <button type="submit" id="btnSave3" class="btn btn-primary" onclick="validarformulario()">INGRESAR</button>
+        </div>
+    </div>
+
+
+    <br />
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="gj-clear-both"></div>
+            <div class="gj-margin-top-10">
+                <table id="grid"></table>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <br />
+    @if (Model.Observacion == null)
+    {
+        <div class="row">
+
+            <div class="col-sm-12">
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.Observacion)</span></h4>
+                @Html.TextAreaFor(p => p.Observacion, new { @class = "form-control" })
+                @Html.ValidationMessageFor(u => u.Observacion, null, new { @class = "label label-danger" })
+            </div>
+
+        </div>
+        <br />
+        <div class="row">
+
+            <div class="col-sm-12">
+
+                <button type="submit" id="btnSave4" class="btn btn-primary" onclick="Save5()">Guardar Plan de Mejora</button>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="row">
+
+            <div class="col-sm-12">
+                <h4><span class="text-secondary_asalud">@Html.LabelFor(p => p.Observacion)</span></h4>
+                @Html.TextAreaFor(p => p.Observacion, new { @class = "form-control", @readonly = "readonly" })
+                @Html.ValidationMessageFor(u => u.Observacion, null, new { @class = "label label-danger" })
+            </div>
+        </div>
+        <br />
+        <div class="row">
+
+            <div class="col-sm-12">
+                <a class="btn btn-default" role="button" href="@Url.Action("TableroPlandeMejoraBeneficiario", "odontologia")">Volver</a>
+                <button type="submit" id="btnSave4" class="btn btn-primary" onclick="cerrar()">Cerrar Plan de Mejora</button>
+
+            </div>
+
+        </div>
+
+
+
+    }
+
+</div>
+
+<br />
+<div style="display:none">
+
+    @Html.TextBoxFor(u => u.fecha_seguimientoOK)
+    @Html.TextBoxFor(u => u.id_odont_plan_mejora_beneficiario)
+
+</div>
+<script>
+
+    $(document).ready(function () {
+
+        $('#datepicker1').attr('disabled', 'disabled');
+        CargarPlanM();
+    });
+
+    function change1() {
+        var DataItem = (kendo.toString(this.value(), 'd'));
+
+        $('input:text[id$=fecha_seguimientoOK]').val(DataItem);
+
+    }
+
+    function CustomerSelect3(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#accion_mejora").val(DataItem.id_ref_acciones_mejora);
+    }
+
+
+    function CustomerSelect4(e) {
+        var DataItem = this.dataItem(e.item.index());
+        $("#estado").val(DataItem.id_estado_accion_mejora);
+    }
+
+
+    function validarformulario() {
+
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_odont_plan_mejora_beneficiario", $("#id_odont_plan_mejora_beneficiario").val());
+        formData.append("fecha_seguimiento", $("#fecha_seguimientoOK").val());
+        formData.append("accion_mejora", $("#accion_mejora").val());
+        formData.append("estado", $("#estado").val());
+
+         LoadingShow();
+        $.ajax({
+
+            url: "/odontologia/Save4",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+                LoadingHide();
+                location.reload();
+
+            }
+        })
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                LoadingHide();
+
+            });
+    }
+
+    function CargarPlanM() {
+
+        var textBox1 = $('input:text[id$=id_odont_plan_mejora_beneficiario]').keyup();
+        var value2 = textBox1.val();
+
+
+        var valores = ['CUMPLIDA', 'NO CUMPLIDA', 'CUMPLIDA PARCIALMENTE'];
+
+        var grid;
+        grid = $('#grid').grid({
+
+            locale: 'es-es',
+            dataSource: '/odontologia/Get3/' + value2,
+            uiLibrary: 'bootstrap4',
+            primaryKey: 'id_odont_plan_mejora_beneficiario_dtll',
+            inlineEditing: { mode: 'command' },
+            columns: [
+
+                { field: 'id_odont_plan_mejora_beneficiario_dtll', title: 'ID', width: 50 },
+                { field: 'fecha_seguimiento', title: 'FECHA', type: 'date' },
+                { field: 'accion_mejora', width: 400, title: 'ACCION DE MEJORA' },
+                { field: 'estado', title: 'ESTADO', width: 150, type: 'dropdown', editor: { dataSource: valores } },
+
+            ],
+
+            pager: { limit: 10 }
+
+        });
+        grid.on('rowDataChanged', function (e, id, record) {
+
+            var data = $.extend(true, {}, record);
+
+            $.ajax({
+
+                url: '/odontologia/Update2',
+                data: { record: data },
+                method: 'POST',
+                success: function (data) {
+                    grid.reload();
+                }
+            })
+
+                .fail(function () {
+                    alert('Failed to save.');
+                });
+
+        });
+
+        grid.on('rowRemoving', function (e, $row, id, record) {
+            if (confirm('Esta seguro de eliminar este registro?')) {
+                $.ajax({ url: '/odontologia/Delete2', data: { id: id }, method: 'POST' })
+                    .done(function () {
+                        grid.reload();
+                    })
+                    .fail(function () {
+                        alert('Failed to delete.');
+                    });
+            }
+        });
+
+        grid.appendTo('#Grid');
+
+
+    }
+
+    function Save5()
+    {
+
+        var textBox1 = $('input:text[id$=id_odont_plan_mejora_beneficiario]').keyup();
+        var value2 = textBox1.val();
+
+        var formData = new FormData($("form")[0]);
+
+        formData.append("id_odont_plan_mejora_beneficiario", $("#id_odont_plan_mejora_beneficiario").val());
+        formData.append("Observacion", $("#Observacion").val());
+         LoadingShow();
+        $.ajax({
+
+            url: "/odontologia/Save5",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                 LoadingHide();
+                alert('SE INGRESO CORRECTAMENTE....');
+
+                window.location.href = '@Url.Action("TableroPlandeMejoraBeneficiario", "odontologia", new { })';
+            }
+
+        })
+
+            .fail(function () {
+                alert('ERROR AL GUARDAR.');
+                dialog2.close();
+                LoadingHide();
+            });
+
+    }
+
+      function  cerrar() {
+
+           var opcion = confirm("¿ Está seguro que quiere cerrar este plan de mejora ?.");
+
+        if (opcion == true) {
+
+        var formData = new FormData($("form")[0]);
+
+
+        formData.append("id_odont_plan_mejora_beneficiario", $("#id_odont_plan_mejora_beneficiario").val());
+        LoadingShow();
+        $.ajax({
+
+            url: "/odontologia/cierre2",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+
+            success: function (response)
+            {
+
+                if (response.success)
+                {
+                    LoadingHide();
+                     alert(response.message);
+                     window.location.href = '@Url.Action("TableroPlandeMejoraBeneficiario", "odontologia", new { })';
+                }
+                else
+                {
+                    LoadingHide();
+                     alert(response.message);
+                }
+
+            }
+        })
+            .fail(function () {
+                LoadingHide();
+                alert('ERROR AL GUARDAR.');
+            });
+
+
+        } else {
+
+        }
+
+
+    }
+
+</script>
+
+<style>
+
+    #fieldlist {
+        margin: 0 0 -1.5em;
+        padding: 1px;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: 2.5em;
+        }
+
+        #fieldlist label {
+            display: contents;
+            padding-bottom: .6em;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+
+    .Info {
+        color: #800000;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 150px;
+    }
+
+    .TamañoImag {
+        height: 150px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .mywidth {
+        width: 35em;
+        font-family: Verdana;
+        font-size: 1em;
+    }
+
+    #table2 {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 990px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #table2 th {
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px;
+            background: #9598A0;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #524e4e;
+        }
+
+        #table2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #000000;
+            border-top: 1px solid transparent;
+        }
+
+
+
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 10px;
+        margin: 7px;
+        width: 600px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: normal;
+        padding: 8px;
+        background: #D0CECE;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #524e4e;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #000000;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .gj-dialog-md-close span {
+        display: none;
+    }
+</style>
+

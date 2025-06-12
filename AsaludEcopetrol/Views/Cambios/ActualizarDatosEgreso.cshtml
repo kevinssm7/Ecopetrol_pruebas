@@ -1,0 +1,355 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.vw_tablero_levante_egreso>
+@{
+    ViewBag.Title = "EDITAR DATOS EGRESO";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+    int? rta = (int?)ViewData["rta"];
+    string msg = (string)ViewData["msg"];
+}
+
+<br />
+
+@if (rta != null)
+{
+    <br />
+    if (rta == 1)
+    {
+        <div class="alert alert-success" role="alert">@msg</div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">@msg</div>
+    }
+}
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+
+        <p class="text-primary_asalud">DETALLE CASO POR DOCUMENTO PACIENTE</p>
+
+    </div>
+
+    <div class="panel-body ">
+        <table class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+
+            <thead>
+                <tr>
+                    <th class="text-center ">ID</th>
+                    <th class="text-center ">Documento</th>
+                    <th class="text-center ">Nombre</th>
+                    <th class="text-center ">Auditor</th>
+                    <th class="text-center ">IPS</th>
+                    <th class="text-center ">Fecha ingreso</th>
+                    <th class="text-center ">Fecha egreso censo</th>
+                    <th class="text-center ">Fecha egreso </th>
+                    <th class="text-center " colspan="2">Opción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (ECOPETROL_COMMON.ENTIDADES.vw_tablero_levante_egreso item in Model)
+                    {
+                <tr>
+                    <td class="text-center">@item.id_concurrencia</td>
+                    <td class="text-center">@item.id_afi</td>
+                    <td class="text-center">@item.afi_nom</td>
+                    <td class="text-center">@item.Nombre_usuario </td>
+                    <td class="text-center">@item.nombre_ips </td>
+                    @if (item.fecha_ingreso != null)
+                            {
+                            <td class="text-center">@item.fecha_ingreso.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                            <td></td>
+                            }
+                    @if (item.fecha_egreso_censo != null)
+                            {
+                            <td class="text-center">@item.fecha_egreso_censo.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                            <td class="text-center">No tiene fecha egreso censo</td>
+                            }
+                    @if (item.fecha_egreso != null)
+                            {
+                            <td class="text-center">@item.fecha_egreso.Value.ToString("dd/MM/yyyy")</td>
+                            }
+                            else
+                            {
+                            <td class="text-center">No tiene egreso</td>
+                            }
+
+                    @if (item.fecha_egreso_censo != null)
+                            {
+                            <td class="text-center">
+                                <a class="button_Asalud_Guardar" href='javascript:ObtenerDatosEgreso(@item.id_censo,@item.id_concurrencia,1)'>
+                                    EDITAR EGRESO CENSO
+                                </a>
+                            </td>
+                            }
+                            else
+                            {
+                            <td class="text-center"></td>
+                            }
+
+
+
+                    @if (item.fecha_egreso != null)
+                            {
+                            <td class="text-center">
+                                <a class="button_Asalud_Guardar" href='javascript:ObtenerDatosEgreso(@item.id_censo,@item.id_concurrencia,2)'>
+                                    EDITAR EGRESO
+                                </a>
+                            </td>
+                            }
+                            else
+                            {
+                            <td class="text-center"></td>
+                            }
+                </tr>
+                    }
+                }
+                else
+                {
+                <tr>
+                    <td class="text-center" colspan="10">No se ha encontrado ningún egreso</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        <br />
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <a role="button" class="btn button_Asalud_Rechazar btn-sm" href="@Url.Action("GestionAuditor", "Cambios")">Volver</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="ModalFechaEgresoCenso" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario" name="formulario" method="post" action="ActualizarFechaEgresoCensov">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal">Actualizar fecha de egreso censo</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="numdocumento" id="numdocumento" value="@ViewBag.numdocumento" />
+                    <input type="hidden" name="txtidconcurrencia" id="txtidconcurrencia" />
+                    <input type="hidden" name="txtidcenso" id="txtidcenso" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group" style="pointer-events:none">
+                            <label class="text-secondary_asalud">Fecha de egreso censo anterior:</label>
+                            <input class="datepickerr" style="width: 100%" name="fechaegresocensoant" id="fechaegresocensoant" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Nueva fecha de egreso censo:</label>
+                            <input class="datepickerr" style="width: 100%" name="fechaegresocensonew" id="fechaegresocensonew" required />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn button_Asalud_Guardar" type="button" id="btnguardardocumento" onclick="ValidarFormulario()">Guardar</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalFechaEgreso" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formulario2" name="formulario2" method="post" action="ActualizarFechaEgresov">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="titlemodal">Actualizar fecha de egreso</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="numdocumento2" id="numdocumento2" value="@ViewBag.numdocumento" />
+                    <input type="hidden" name="txtidconcurrenciav2" id="txtidconcurrenciav2" />
+                    <input type="hidden" name="txtidcensov2" id="txtidcensov2" />
+                    <div class="row">
+                        <div class="col-sm-12 form-group" style="pointer-events:none">
+                            <label class="text-secondary_asalud">Fecha de egreso anterior:</label>
+                            <input class="datepickerr" style="width: 100%" name="fechaegresoant" id="fechaegresoant" />
+                        </div>
+                        <div class="col-sm-12 form-group">
+                            <label class="text-secondary_asalud">Nueva fecha de egreso:</label>
+                            <input class="datepickerr" style="width: 100%" name="fechaegresonew" id="fechaegresonew" required />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn button_Asalud_Guardar" type="button" id="btnguardardocumento" onclick="ValidarFormulario2()">Guardar</button>
+                    <button type="button" class="btn button_Asalud_Rechazar" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy"
+        });
+
+        $(".k-input").attr('readonly', true);
+    })
+
+    function ObtenerDatosEgreso(idcenso, idconcurrencia, opcion) {
+        $.ajax({
+            url: "@Url.Action("ObtenerFechasEgreso")",
+            type: "post",
+            data: { idcenso: idcenso, idconcurrencia: idconcurrencia },
+            success: function (data) {
+                if (opcion == 1) {
+                    $("#txtidconcurrencia").val(idconcurrencia);
+                    $("#txtidcenso").val(idcenso);
+                    $("#fechaegresocensoant").val(data.fecha_egreso_censo);
+                    $("#ModalFechaEgresoCenso").modal('show');
+                }
+                else {
+                    $("#txtidconcurrenciav2").val(idconcurrencia);
+                    $("#txtidcensov2").val(idcenso);
+                    $("#fechaegresoant").val(data.fecha_egreso);
+                    $("#ModalFechaEgreso").modal('show');
+                }
+
+            }
+        })
+    }
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            $("#formulario").submit();
+        }
+    }
+
+    function ValidarFormulario2() {
+        var validator = $("#formulario2").validate();
+        if (validator.form()) {
+            $("#formulario2").submit();
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+
+
+    .letra {
+        font-size: 15px;
+        font-family: 'Century Gothic';
+        color: #556da2;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+
+
+    .alert-new {
+        color: #012f51;
+        background-color: #dcdcdc;
+        border-color: #8c8c8c;
+        margin-right: 1%;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+        font-family: 'Century Gothic';
+    }
+
+    .container {
+        padding-left: 0px;
+    }
+</style>

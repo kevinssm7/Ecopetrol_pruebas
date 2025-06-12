@@ -1,0 +1,296 @@
+﻿@model List<ECOPETROL_COMMON.ENTIDADES.ManagementMedicamentosFacturacionResult>
+@{
+    ViewBag.Title = "TABLERO DE CONTROL MEDICAMENTOS FACTURACION";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<br />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">TABLERO DE MEDICAMENTOS FACTURACION</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formulario" method="post" action="TableroControlMdFacturacion">
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label class="control-label text-secondary_asalud col-sm-12">Periodo inicio</label>
+                    <div class="col-sm-6">
+                        <select class="form-control select2" style="width:100%" name="mesinicio" id="mesinicio">
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                            {
+                                <option value="@item.id_mes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <input name="añoinicio" id="añoinicio" maxlength="4" placeholder="-AÑO-" type="text" class="form-control solo-numero year" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="control-label text-secondary_asalud col-sm-12">Periodo final</label>
+                    <div class="col-sm-6">
+                        <select class="form-control select2" style="width:100%" name="mesfinal" id="mesfinal">
+                            <option value="">- Seleccione -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
+                            {
+                                <option value="@item.id_mes">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <input name="añofin" id="añofin" maxlength="4" placeholder="-AÑO-" type="text" class="form-control solo-numero year" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label class="text-secondary_asalud">Regional</label>
+                    <select class="form-control select2" style="width:100%" name="regional" id="regional" onchange="ObtenerUnis($(this).val())">
+                        <option value="">- Seleccione -</option>
+                        @{  string reg = (string)ViewBag.reg;}
+                        @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                        {
+                            if (!string.IsNullOrEmpty(reg))
+                            {
+                                if (reg == item.indice)
+                                {
+                                    <option selected value="@item.indice">@item.nombre_regional</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.indice">@item.nombre_regional</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="@item.indice">@item.nombre_regional</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="col-sm-12 form-group text-right">
+                    <button id="btnSearch" type="button" class="button_Asalud_Aceptar">Buscar</button>
+                    <button id="btnClear" type="button" class="button_Asalud_Rechazar">Limpiar</button>
+                    <a class="btn btn-xs button_Asalud_descargas" href="@Url.Action("DescargarResultadosMdFacturacion","medicamentos")"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar reporte completo</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div class="table-responsive">
+    <table class="table table-bordered table-condensed table-striped datatable" id="grid"></table>
+    <br />
+    <br />
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        var grid = $('#grid').grid({
+            locale: 'es-es',
+            primaryKey: 'id_medicamentos_facturacion',
+            dataSource: '/medicamentos/GetTableromedfacturacion/',
+            columns: [
+                { field: 'regional', title: 'Regional' },
+                { field: 'unis', title: 'Unis' },
+                { field: 'localidad', title: 'Localidad' },
+                { field: 'concepto', title: 'Concepto' },
+                { field: 'cantidad', title: 'Cantidad' },
+                { field: 'numero_factura', title: 'Numero factura' },
+                { field: 'valor', title: 'Valor' },
+            ],
+
+            pager: { limit: 10 },
+
+        });
+        $('#btnSearch').on('click', function () {
+            grid.reload({ page: 1, mesinicio: $('#mesinicio').val(), añoinicio: $('#añoinicio').val(), mesfinal: $('#mesfinal').val(), añofin: $('#añofin').val(), regional: $('#regional').val() });
+
+        });
+
+        $('#btnClear').on('click', function () {
+            $('#mesinicio').val('');
+            $('#añoinicio').val('');
+            $('#mesfinal').val('');
+            $('#añofin').val('');
+            $('#regional').val('');
+
+            grid.reload({ mesinicio: '', añoinicio: '', mesfinal: '', añofin: '', regional: '' });
+
+              $.ajax({
+                url: "@Url.Action("GetCascadeMes", "medicamentos")",
+                type: "post",
+                data: { },
+                success: function (data) {
+                    $("#mesinicio").empty();
+                    $("#mesfinal").empty();
+                    $("#mesinicio").append("<option value=''> - Seleccionar - </option>");
+                    $("#mesfinal").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#mesinicio").append("<option value='" + b.id_mes + "'>" + b.nombre + "</option>");
+                        $("#mesfinal").append("<option value='" + b.id_mes + "'>" + b.nombre + "</option>");
+                    });
+                }
+              })
+
+            $.ajax({
+                url: "@Url.Action("GetCascadeRegional", "medicamentos")",
+                type: "post",
+                data: { },
+                success: function (data) {
+                    $("#regional").empty();
+                    $("#regional").append("<option value=''> - Seleccionar - </option>");
+                    data.forEach(function (b) {
+                        $("#regional").append("<option value='" + b.id_ref_regional + "'>" + b.nombre + "</option>");
+                    });
+                }
+              })
+
+        });
+
+    })
+
+
+    function ValidarFormulario() {
+        var validator = $("#formulario").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#formulario").submit();
+        }
+    }
+</script>
+
+<style>
+
+    TABLE.gj-grid {
+        text-align: center;
+        margin: 10px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .gj-grid-md {
+        position: relative;
+        border: 1px solid #e0e0e0;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        background-color: #fff;
+    }
+
+
+        .gj-grid-md th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+            position: relative;
+            vertical-align: bottom;
+            font-weight: 700;
+            line-height: 31px;
+            letter-spacing: 0;
+            height: 56px;
+            font-size: 12px;
+            color: #FDF9F9;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            background: #636363;
+        }
+
+        .gj-grid-md td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            position: relative;
+            height: 48px;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            box-sizing: border-box;
+            color: rgba(0,0,0,.87);
+        }
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>

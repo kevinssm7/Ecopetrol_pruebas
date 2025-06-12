@@ -1,0 +1,838 @@
+﻿
+@{
+    List<ECOPETROL_COMMON.ENTIDADES.ref_AE_tiposDemoras_detallado> listadoDetallado = ViewBag.listadoAEDetallado;
+    ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_tableroControl_idGestionResult gestion = ViewBag.gestionCompleta;
+
+    List<ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_alerta_epidemiologica_gestion_gestionAnalisisDetalladoResult> listaDemoras = ViewBag.listaDemoras;
+    ECOPETROL_COMMON.ENTIDADES.alerta_epidemiologica_gestion_gestionAnalisis datosGestion = ViewBag.gestion;
+
+    var conteoTitulos = 0;
+    var conteoTitulosDetallados = 0;
+}
+
+<div class="floating-buttons">
+    <a class="button_Asalud_Guardar" onclick="ValidarFormRA();">Guardar</a>
+    <a class="button_Asalud_Aceptar" onclick="GuardadoAutomatico();">Guardar parcial</a>
+</div>
+
+
+@*<div class="row text-center">
+        <div class="col-md-6">
+            <a class="button_Asalud_Guardar" onclick="ValidarFormRA();">Guardar</a>
+        </div>
+        <div class="col-md-6">
+            <a class="button_Asalud_Aceptar" onclick="GuardadoAutomatico();">Guardar parcial</a>
+        </div>
+    </div>*@
+
+
+<div class="panel panel-default ">
+
+    <form id="FormRA">
+        <input type="hidden" id="id_gestion" name="id_gestion" value="@ViewBag.idGestion" />
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">REQUIERE ANALÍSIS</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <input type="hidden" id="id_gestionAnalisis" name="id_gestionAnalisis" value="@ViewBag.id_gestionAnalisis" />
+                    <label class="text-secondary_asalud">Fecha del analísis:</label>
+                    <input type="text" class="datepickerr form-control" id="fecha_analisisMostrar" name="fecha_analisisMostrar" style="width:100%;" required value="@DateTime.Now.ToString("dd/MM/yyy")" readonly />
+                    <input type="text" class="datepickerr form-control hidden" id="fecha_analisis" name="fecha_analisis" style="width:100%;" required value="@DateTime.Now" readonly />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Nombre y apellidos del beneficiario:</label>
+                    <input type="text" class="form-control" id="nombres_beneficiario" name="nombres_beneficiario" value="@gestion.afi_nom" maxlength="300" @(gestion.afi_nom != "" ? "readonly" : "") />
+                </div>
+
+                <div class="col-md-4 form-group">
+                    @if (gestion.tipo_salud == null)
+                    {
+                        <label class="text-secondary_asalud" id="tipoBeneficiarioLabel">
+                            Tipo de beneficiario:
+                            <span class="alerta-beneficiario" style="display: none; color: red; margin-left: 5px;">&#9888;</span>
+                        </label>
+
+                        <select id="tipo_beneficiario" name="tipo_beneficiario" class="form-control select2" required>
+                            <option value="">-Seleccione-</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_tipo_beneficiario item in ViewBag.tipoBen)
+                            {
+                                <option value="@item.descripcion">@item.descripcion</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <label class="text-secondary_asalud">
+                            Tipo de beneficiario:
+                        </label>
+
+                        <input type="text" class="form-control" id="tipo_beneficiario" name="tipo_beneficiario" maxlength="300" value="@gestion.tipo_salud" required />
+                    }
+                </div>
+
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Identificación:</label>
+                    <input type="text" class="form-control solo-numero" id="identificacion_beneficiario" name="identificacion_beneficiario" maxlength="50" value="@gestion.Documento_Afiliado" required readonly />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Fecha de inicio de servicios:</label>
+                    <input type="text" class="datepickerrHoy form-control" id="fecha_inicio_servicio" name="fecha_inicio_servicio" style="width:100%;" required />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Edad al momento del evento:</label>
+                    <input type="text" class="form-control solo-numero" id="edad_momento_evento" name="edad_momento_evento" maxlength="3" value="@gestion.edad" required readonly />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Tipo de evento:</label>
+                    <input type="text" class="form-control" id="tipo_evento" name="tipo_evento" required maxlength="300" value="@gestion.Tipo_Evento" readonly />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Fecha ocurrencia del evento:</label>
+                    <input type="text" class="datepickerrFiltrada form-control" id="fecha_ocurrencia_evento" name="fecha_ocurrencia_evento" style="width:100%;" required />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Fecha fin del evento:</label>
+                    <input type="text" class="datepickerrFiltrada form-control" id="fecha_fin_evento" name="fecha_fin_evento" style="width:100%;" required />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Fuente del Reporte:</label>
+                    <input type="text" class="form-control" id="fuente_reporte" name="fuente_reporte" value="CONCURRENCIA HOSPITALARIA" readonly required />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Nombre del reportante:</label>
+                    <input type="text" class="form-control" id="nombre_reportante" name="nombre_reportante" maxlength="300" required />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Nombre Prestador donde ocurre el evento:</label>
+                    <input type="text" class="form-control" id="nombre_prestador_ocurre_evento" name="nombre_prestador_ocurre_evento" maxlength="300" value="@gestion.Nombre_Ips" required readonly />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Nit del prestador:</label>
+                    <input type="text" class="form-control" id="nit_prestador" name="nit_prestador" maxlength="300" value="@gestion.Nit_Ips" required readonly />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Profesionales o Entidades responsables del paciente (Primer Nivel):</label>
+                    <input type="text" class="form-control" id="profesionales_entidadesresponsables_nivel1" maxlength="300" name="profesionales_entidadesresponsables_nivel1" required />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label class="text-secondary_asalud">Diagnósticos:</label>
+                    <input type="text" class="form-control" id="diagnosticos" name="diagnosticos" maxlength="5000" value="@gestion.diagnosticosCompletos" readonly />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Objetivo de la auditoria:</label>
+                    <textarea type="text" class="form-control char-count" id="objetivo_auditoria" name="objetivo_auditoria" cols="6" maxlength="1000" required></textarea>
+                    <p class="charCount">Te quedan 1000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Descripción del evento (Resumen secuencial del caso):</label>
+                    <textarea type="text" class="form-control char-count" id="descripcion_evento" name="descripcion_evento" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Ámbito donde sucedió el evento:</label>
+                    <textarea type="text" class="form-control char-count" id="ambito_sucedio_evento" name="ambito_sucedio_evento" cols="6" maxlength="1000" required></textarea>
+                    <p class="charCount">Te quedan 1000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Análisis clínico del caso: </label>
+                    <textarea type="text" class="form-control char-count" id="analisis_critico_caso" name="analisis_critico_caso" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud">IDENTIFICACIÓN DE DEMORAS</strong>
+        </div>
+        <br />
+
+        <div class="panel-body">
+            <table id="tablaRA" class="tablaRA table-bordered table-condensed table-responsive" style="font-size:12px; width:96%;">
+                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_AE_tiposDemoras item in ViewBag.listadoAE)
+                {
+
+                    <thead>
+                        <tr class="tituladoAe form-group">
+                            <th>@item.nro_demora - @item.descripcion</th>
+                            <th>Si</th>
+                            <th>No</th>
+                            <th>NA</th>
+                            <th>SD</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @if (ViewBag.id_gestionAnalisis != null)
+                        {
+                            List<ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_alerta_epidemiologica_gestion_gestionAnalisisDetalladoResult> listado = listaDemoras.Where(x => x.id_ref == item.id_ref).ToList();
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_alertas_epidemiologicas_alerta_epidemiologica_gestion_gestionAnalisisDetalladoResult item2 in listado)
+                            {
+                                @*<tr>
+                                        <td class="text-left">
+                                            @item2.descripcion
+                                            <input type="hidden" id="idDet_@conteoTitulosDetallados" name="idDet_@conteoTitulosDetallados" value="@item2.id_refDetallado" />
+                                            <input type="hidden" id="idRef_@conteoTitulosDetallados" name="idRef_@conteoTitulosDetallados" value="@item2.id_ref" />
+                                        </td>
+
+                                        <td class="text-left">
+                                            <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="Si" type="radio" required />
+                                        </td>
+                                        <td class="text-left">
+                                            <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="No" type="radio" required />
+                                        </td>
+                                        <td class="text-left">
+                                            <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="NA" type="radio" required />
+                                        </td>
+                                        <td class="text-left">
+                                            <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="SD" type="radio" required />
+                                        </td>
+                                        <td class="text-left">
+                                            <textarea id="observacionesgestion_@conteoTitulosDetallados" name="observacionesgestion_@conteoTitulosDetallados" class="form-control char-count" maxlength="5000" contextmenu="@item2.observaciones"></textarea>
+                                            <p class="charCount">Te quedan 5000 caracteres.</p>
+                                        </td>
+                                    </tr>
+
+                                    conteoTitulosDetallados++;*@
+
+                                <tr>
+                                    <td class="text-left">
+                                        @item2.descripcion
+                                        <input type="hidden" id="idDet_@conteoTitulosDetallados" name="idDet_@conteoTitulosDetallados" value="@item2.id_refDetallado" />
+                                        <input type="hidden" id="idRef_@conteoTitulosDetallados" name="idRef_@conteoTitulosDetallados" value="@item2.id_ref" />
+                                    </td>
+
+                                    <td class="text-left">
+                                        <input id="radio_si_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="Si" type="radio" required
+                                               @(item2.respuesta_demora == "Si" ? "checked" : "") />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_no_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="No" type="radio" required
+                                               @(item2.respuesta_demora == "No" ? "checked" : "") />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_na_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="NA" type="radio" required
+                                               @(item2.respuesta_demora == "NA" ? "checked" : "") />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_sd_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="SD" type="radio" required
+                                               @(item2.respuesta_demora == "SD" ? "checked" : "") />
+                                    </td>
+                                    <td class="text-left">
+                                        <textarea id="observacionesgestion_@conteoTitulosDetallados" name="observacionesgestion_@conteoTitulosDetallados"
+                                                  class="form-control char-count" maxlength="5000">@item2.observaciones</textarea>
+                                        <p class="charCount">Te quedan 5000 caracteres.</p>
+                                    </td>
+                                </tr>
+                                conteoTitulosDetallados++;
+
+                            }
+                        }
+                        else
+                        {
+                            List<ECOPETROL_COMMON.ENTIDADES.ref_AE_tiposDemoras_detallado> listado = listadoDetallado.Where(x => x.id_ref == item.id_ref).ToList();
+                            foreach (ECOPETROL_COMMON.ENTIDADES.ref_AE_tiposDemoras_detallado item2 in listado)
+                            {
+
+                                <tr>
+                                    <td class="text-left">
+                                        @item2.descripcion
+                                        <input type="hidden" id="idDet_@conteoTitulosDetallados" name="idDet_@conteoTitulosDetallados" value="@item2.id_desglose" />
+                                        <input type="hidden" id="idRef_@conteoTitulosDetallados" name="idRef_@conteoTitulosDetallados" value="@item2.id_ref" />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="Si" type="radio" required />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="No" type="radio" required />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="NA" type="radio" required />
+                                    </td>
+                                    <td class="text-left">
+                                        <input id="radio_@conteoTitulosDetallados" name="radio_@conteoTitulosDetallados" value="SD" type="radio" required />
+                                    </td>
+                                    <td class="text-left">
+                                        <textarea id="observacionesgestion_@conteoTitulosDetallados" name="observacionesgestion_@conteoTitulosDetallados" class="form-control char-count" maxlength="5000"></textarea>
+                                        <p class="charCount">Te quedan 5000 caracteres.</p>
+                                    </td>
+                                </tr>
+
+                                conteoTitulosDetallados++;
+                            }
+                        }
+                    </tbody>
+                    conteoTitulos++;
+                }
+            </table>
+        </div>
+        <br />
+
+        <div class="panel-heading">
+            <strong class="text-secondary_asalud"></strong>
+        </div>
+        <br />
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Concepto sobre resolutividad del primer nivel de atención (acción integradora del mepa):</label>
+                    <textarea type="text" class="form-control char-count" id="concepto_resolutividad_primer_nivel" name="concepto_resolutividad_primer_nivel" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Aplicación de guías terapéuticas según patología:</label>
+                    <textarea type="text" class="form-control char-count" id="aplicacion_guias_terapeuticas" name="aplicacion_guias_terapeuticas" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Periodicidad de los controles médicos:</label>
+                    <textarea type="text" class="form-control char-count" id="periodicidad_controles_medicos" name="periodicidad_controles_medicos" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Aplicación de pruebas diagnósticas de monitoreo:</label>
+                    <textarea type="text" class="form-control char-count" id="aplicacion_pruebas_diagnosticos_monitoreo" name="aplicacion_pruebas_diagnosticos_monitoreo" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Información al paciente y cuidadores sobre plan terapéutico y cumplimiento del tratamiento por parte del paciente:</label>
+                    <textarea type="text" class="form-control char-count" id="informacion_paciente_cuidadores_plan_terapeutico" name="informacion_paciente_cuidadores_plan_terapeutico" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Descripción de eventuales causas de la muerte relacionadas con la atención brindada a nivel ambulatorio y hospitalario (mortalidad en eventos de interés en salud pública, casos centinela y/o eventos trazadores según aplique):</label>
+                    <textarea type="text" class="form-control char-count" id="descripcion_eventuales_Causasmuerte_relacionadas" name="descripcion_eventuales_Causasmuerte_relacionadas" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Conclusiones del análisis del caso</label>
+                    <textarea type="text" class="form-control char-count" id="conclusiones_analisis_caso" name="conclusiones_analisis_caso" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Concepto de auditoria (evento prevenible o no prevenible):</label>
+                    <textarea type="text" class="form-control char-count" id="concepto_auditoria_evento_prevenible" name="concepto_auditoria_evento_prevenible" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="text-secondary_asalud">Propuesta de acciones de mejora:</label>
+                    <textarea type="text" class="form-control char-count" id="propuesta_acciones_mejora" name="propuesta_acciones_mejora" cols="6" maxlength="5000" required></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Relación de anexos</label>
+                    <input type="file" class="form-control" id="anexos" name="anexos" multiple />
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Firma evaluador:</label>
+                    <input type="file" class="form-control" id="firma_evaluador" name="firma_evaluador" />
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Firma evaluado</label>
+                    <input type="file" class="form-control" id="firma_evaluado" name="firma_evaluado" />
+                </div>
+            </div>
+            <br />
+
+
+
+        </div>
+    </form>
+</div>
+
+<div id="alertModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atención</h5>
+            </div>
+            <div class="modal-body">
+                <p id="alertMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Aceptar" onclick="HideAlert();" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>*@
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    var arrayDemoras = [];
+
+    $(document).ready(function () {
+
+        const label = document.getElementById("tipoBeneficiarioLabel");
+        const alerta = document.querySelector(".alerta-beneficiario");
+
+        // Añade los eventos de mouseover y mouseout al label
+        label.addEventListener("mouseover", function () {
+            alerta.style.display = "inline";
+        });
+
+        label.addEventListener("mouseout", function () {
+            alerta.style.display = "none";
+        });
+
+        $(".datepickerr").kendoDatePicker({
+            format: "MM/dd/yyyy",
+        });
+
+        $(".datepickerrHoy").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            max: new Date(),
+        });
+
+        var fechainicioCon = "@gestion.fechaIngresoConcu";
+        var fechaFinCon = "@gestion.fechaEgresoConcu";
+
+        $(".datepickerrFiltrada").kendoDatePicker({
+            format: "MM/dd/yyyy",
+            min: convertirFecha(fechainicioCon),
+            max: convertirFecha(fechaFinCon),
+        });
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $(".k-input").attr('readonly', true);
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+
+
+        var id = "@ViewBag.id_gestionAnalisis";
+        if (id != "" && id != 0) {
+            PintarDatos();
+        }
+
+        //setInterval(GuardadoAutomatico, 90000);
+
+    });
+
+    function PintarDatos() {
+
+        $("#fecha_analisis").val("@datosGestion.fecha_analisis").trigger("change");
+        $("#nombres_beneficiario").val("@datosGestion.nombres_beneficiario").trigger("change");
+        $("#tipo_beneficiario").val("@datosGestion.tipo_beneficiario").trigger("change");
+        $("#identificacion_beneficiario").val("@datosGestion.identificacion_beneficiario").trigger("change");
+        $("#fecha_inicio_servicio").val("@datosGestion.fecha_inicio_servicio").trigger("change");
+        $("#edad_momento_evento").val("@datosGestion.edad_momento_evento").trigger("change");
+        $("#tipo_evento").val("@datosGestion.tipo_evento").trigger("change");
+        $("#fecha_ocurrencia_evento").val("@datosGestion.fecha_ocurrencia_evento").trigger("change");
+        $("#fecha_fin_evento").val("@datosGestion.fecha_fin_evento").trigger("change");
+        $("#fuente_reporte").val("@datosGestion.fuente_reporte").trigger("change");
+        $("#nombre_reportante").val("@datosGestion.nombre_reportante").trigger("change");
+        $("#nombre_prestador_ocurre_evento").val("@datosGestion.nombre_prestador_ocurre_evento").trigger("change");
+        $("#nit_prestador").val("@datosGestion.nit_prestador").trigger("change");
+        $("#profesionales_entidadesresponsables_nivel1").val("@datosGestion.profesionales_entidadesresponsables_nivel1").trigger("change");
+        @*$("#diagnosticos").val("@datosGestion.diagnosticos").trigger("change");*@
+        $("#objetivo_auditoria").val("@datosGestion.objetivo_auditoria").trigger("change");
+        $("#descripcion_evento").val("@datosGestion.descripcion_evento").trigger("change");
+        $("#ambito_sucedio_evento").val("@datosGestion.ambito_sucedio_evento").trigger("change");
+        $("#analisis_critico_caso").val("@datosGestion.analisis_critico_caso").trigger("change");
+        $("#concepto_resolutividad_primer_nivel").val("@datosGestion.concepto_resolutividad_primer_nivel").trigger("change");
+        $("#aplicacion_guias_terapeuticas").val("@datosGestion.aplicacion_guias_terapeuticas").trigger("change");
+        $("#periodicidad_controles_medicos").val("@datosGestion.periodicidad_controles_medicos").trigger("change");
+        $("#aplicacion_pruebas_diagnosticos_monitoreo").val("@datosGestion.aplicacion_pruebas_diagnosticos_monitoreo").trigger("change");
+        $("#informacion_paciente_cuidadores_plan_terapeutico").val("@datosGestion.informacion_paciente_cuidadores_plan_terapeutico").trigger("change");
+        $("#descripcion_eventuales_Causasmuerte_relacionadas").val("@datosGestion.descripcion_eventuales_Causasmuerte_relacionadas").trigger("change");
+        $("#conclusiones_analisis_caso").val("@datosGestion.conclusiones_analisis_caso").trigger("change");
+        $("#concepto_auditoria_evento_prevenible").val("@datosGestion.concepto_auditoria_evento_prevenible").trigger("change");
+        $("#propuesta_acciones_mejora").val("@datosGestion.propuesta_acciones_mejora").trigger("change");
+
+    }
+
+    function convertirFecha(fechaStr) {
+        // Si la fecha es válida, convierte a un objeto Date
+        return fechaStr ? new Date(fechaStr.split(" ")[0]) : null; // Tomamos solo la parte "yyyy-MM-dd"
+    }
+
+    function ValidarFormRA() {
+        var validar = $("#FormRA").validate();
+        if (validar.form()) {
+            EnviarInfo();
+        }
+        else {
+            ValidarFormRAmensajes();
+        }
+    }
+
+    function ValidarFormRAmensajes() {
+        var camposRequeridos = $("#FormRA").find("[required]");
+        var mensajeAlerta = "";
+
+        camposRequeridos.each(function () {
+            var campo = $(this);
+            if (!campo.val().trim()) {
+                var label = campo.closest(".form-group").find("label").text().trim();
+                label = label.replace(/:$/, "");
+                mensajeAlerta += `- ${label || campo.attr("id") || campo.attr("name")}\n`;
+            }
+        });
+
+        if (mensajeAlerta) {
+            showAlert("Por favor, complete los siguientes campos:\n" + mensajeAlerta.replace(":", ""));
+        }
+    }
+
+    function showAlert(mensaje) {
+        // Inserta el mensaje en el modal
+        $("#alertMessage").html(mensaje.replace(/\n/g, "<br>"));
+
+        // Muestra el modal
+        $("#alertModal").modal("show");
+    }
+
+    function HideAlert() {
+        $("#alertModal").modal("hide");
+    }
+
+    function DevolverArrayDemoras() {
+        var conteoTitulos = "@conteoTitulos";
+        var conteoTiulosDetallados = "@conteoTitulosDetallados";
+
+        var resultado = "";
+
+        for (var i = 0; i < conteoTiulosDetallados; i++) {
+            var idRef = $("#idRef_" + i).val();
+            var idDet = $("#idDet_" + i).val();
+            //var radio = $("#radio_" + i).val();
+            var observacion = $("#observacionesgestion_" + i).val();
+
+            var radioSeleccionado = document.querySelector(`input[name="radio_${i}"]:checked`);
+            var radio = radioSeleccionado ? radioSeleccionado.value : ""; // Tomamos el valor del radio, o una cadena vacía si no hay selección
+
+            if (resultado == "") {
+                resultado += idRef + "-" + idDet + "-" + radio + "-" + observacion;
+            } else {
+                resultado += "|" + idRef + "-" + idDet + "-" + radio + "-" + observacion;
+            }
+        }
+
+        return resultado;
+    }
+
+    function EnviarInfo() {
+
+        var formData = new FormData($("#FormRA")[0]);
+
+        var gestionDemoras = DevolverArrayDemoras();
+
+        formData.append("id_gestionAnalisis", $("#id_gestionAnalisis").val());
+        formData.append("id_gestion", $("#id_gestion").val());
+        formData.append("fecha_analisis", $("#fecha_analisis").val());
+        formData.append("nombres_beneficiario", $("#nombres_beneficiario").val());
+        formData.append("tipo_beneficiario", $("#tipo_beneficiario").val());
+        formData.append("identificacion_beneficiario", $("#identificacion_beneficiario").val());
+        formData.append("fecha_inicio_servicio", $("#fecha_inicio_servicio").val());
+        formData.append("edad_momento_evento", $("#edad_momento_evento").val());
+        formData.append("tipo_evento", $("#tipo_evento").val());
+        formData.append("fecha_ocurrencia_evento", $("#fecha_ocurrencia_evento").val());
+        formData.append("fecha_fin_evento", $("#fecha_fin_evento").val());
+        formData.append("fuente_reporte", $("#fuente_reporte").val());
+        formData.append("nombre_reportante", $("#nombre_reportante").val());
+        formData.append("nombre_prestador_ocurre_evento", $("#nombre_prestador_ocurre_evento").val());
+        formData.append("nit_prestador", $("#nit_prestador").val());
+        formData.append("profesionales_entidadesresponsables_nivel1", $("#profesionales_entidadesresponsables_nivel1").val());
+        formData.append("diagnosticos", $("#diagnosticos").val());
+        formData.append("objetivo_auditoria", $("#objetivo_auditoria").val());
+        formData.append("descripcion_evento", $("#descripcion_evento").val());
+        formData.append("ambito_sucedio_evento", $("#ambito_sucedio_evento").val());
+        formData.append("analisis_critico_caso", $("#analisis_critico_caso").val());
+        formData.append("concepto_resolutividad_primer_nivel", $("#concepto_resolutividad_primer_nivel").val());
+        formData.append("aplicacion_guias_terapeuticas", $("#aplicacion_guias_terapeuticas").val());
+        formData.append("periodicidad_controles_medicos", $("#periodicidad_controles_medicos").val());
+        formData.append("aplicacion_pruebas_diagnosticos_monitoreo", $("#aplicacion_pruebas_diagnosticos_monitoreo").val());
+        formData.append("informacion_paciente_cuidadores_plan_terapeutico", $("#informacion_paciente_cuidadores_plan_terapeutico").val());
+        formData.append("descripcion_eventuales_Causasmuerte_relacionadas", $("#descripcion_eventuales_Causasmuerte_relacionadas").val());
+        formData.append("conclusiones_analisis_caso", $("#conclusiones_analisis_caso").val());
+        formData.append("concepto_auditoria_evento_prevenible", $("#concepto_auditoria_evento_prevenible").val());
+        formData.append("propuesta_acciones_mejora", $("#propuesta_acciones_mejora").val());
+        formData.append("gestionDemoras", gestionDemoras);
+
+        var anexos = $("#anexos").get(0).files;
+        formData.append("archivos", anexos[0]);
+
+        var firma_evaluador = $("#firma_evaluador").get(0).files;
+        formData.append("firma_evaluador", firma_evaluador[0]);
+
+        var firma_evaluado = $("#firma_evaluado").get(0).files;
+        formData.append("firma_evaluado", firma_evaluado[0]);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarRequiereAnalisis")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta == 1) {
+                    PDFResultado(data.insertaId);
+                    location.reload();
+                }
+            }
+        })
+    }
+
+    function GuardadoAutomatico() {
+     var formData = new FormData($("#FormRA")[0]);
+
+        var gestionDemoras = DevolverArrayDemoras();
+
+        formData.append("id_gestionAnalisis", $("#id_gestionAnalisis").val());
+        formData.append("id_gestion", $("#id_gestion").val());
+        formData.append("fecha_analisis", $("#fecha_analisis").val());
+        formData.append("nombres_beneficiario", $("#nombres_beneficiario").val());
+        formData.append("tipo_beneficiario", $("#tipo_beneficiario").val());
+        formData.append("identificacion_beneficiario", $("#identificacion_beneficiario").val());
+        formData.append("fecha_inicio_servicio", $("#fecha_inicio_servicio").val());
+        formData.append("edad_momento_evento", $("#edad_momento_evento").val());
+        formData.append("tipo_evento", $("#tipo_evento").val());
+        formData.append("fecha_ocurrencia_evento", $("#fecha_ocurrencia_evento").val());
+        formData.append("fecha_fin_evento", $("#fecha_fin_evento").val());
+        formData.append("fuente_reporte", $("#fuente_reporte").val());
+        formData.append("nombre_reportante", $("#nombre_reportante").val());
+        formData.append("nombre_prestador_ocurre_evento", $("#nombre_prestador_ocurre_evento").val());
+        formData.append("nit_prestador", $("#nit_prestador").val());
+        formData.append("profesionales_entidadesresponsables_nivel1", $("#profesionales_entidadesresponsables_nivel1").val());
+        formData.append("diagnosticos", $("#diagnosticos").val());
+        formData.append("objetivo_auditoria", $("#objetivo_auditoria").val());
+        formData.append("descripcion_evento", $("#descripcion_evento").val());
+        formData.append("ambito_sucedio_evento", $("#ambito_sucedio_evento").val());
+        formData.append("analisis_critico_caso", $("#analisis_critico_caso").val());
+        formData.append("concepto_resolutividad_primer_nivel", $("#concepto_resolutividad_primer_nivel").val());
+        formData.append("aplicacion_guias_terapeuticas", $("#aplicacion_guias_terapeuticas").val());
+        formData.append("periodicidad_controles_medicos", $("#periodicidad_controles_medicos").val());
+        formData.append("aplicacion_pruebas_diagnosticos_monitoreo", $("#aplicacion_pruebas_diagnosticos_monitoreo").val());
+        formData.append("informacion_paciente_cuidadores_plan_terapeutico", $("#informacion_paciente_cuidadores_plan_terapeutico").val());
+        formData.append("descripcion_eventuales_Causasmuerte_relacionadas", $("#descripcion_eventuales_Causasmuerte_relacionadas").val());
+        formData.append("conclusiones_analisis_caso", $("#conclusiones_analisis_caso").val());
+        formData.append("concepto_auditoria_evento_prevenible", $("#concepto_auditoria_evento_prevenible").val());
+        formData.append("propuesta_acciones_mejora", $("#propuesta_acciones_mejora").val());
+        formData.append("gestionDemoras", gestionDemoras);
+
+        var anexos = $("#anexos").get(0).files;
+        formData.append("archivos", anexos[0]);
+
+        var firma_evaluador = $("#firma_evaluador").get(0).files;
+        formData.append("firma_evaluador", firma_evaluador[0]);
+
+        var firma_evaluado = $("#firma_evaluado").get(0).files;
+        formData.append("firma_evaluado", firma_evaluado[0]);
+
+        LoadingShow();
+        $.ajax({
+            url: "@Url.Action("GuardarRequiereAnalisisAutomatico")",
+            type: "post",
+            data: formData,
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            traditional: true,
+
+            success: function (data) {
+                LoadingHide();
+                if (data.rta == 1) {
+                    $("#id_gestionAnalisis").val(data.insertaId);
+                }
+            }
+        })
+    }
+</script>
+
+<style>
+
+    #tablaRA {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tablaRA th {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px;
+            background: #556DA2;
+            border-top: 2px solid #aabcfe;
+            border-bottom: 1px solid #efefef;
+            color: #efefef;
+        }
+
+        #tablaRA td {
+            font-size: 11px;
+            padding: 8px;
+            background: #fff;
+            border-bottom: 2px solid #efefef;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tablaRA tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .panel-heading {
+        color: #333333;
+        background-color: #f5f5f5;
+        border-color: #dddddd;
+    }
+
+    .charCount {
+        font-size: 10px;
+    }
+
+    #alertModal .modal-content {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    #alertModal .modal-header {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    #alertModal .modal-footer {
+        justify-content: center;
+    }
+    /* Asegurar que el contenedor de la vista parcial interna tenga posición relativa */
+    .vista-parcial-interna {
+        position: relative; /* Define un contexto de posición para elementos absolutos */
+        overflow-y: auto; /* Mantiene el scroll si es necesario */
+    }
+
+    /* Fijar el botón dentro de la última vista parcial */
+    .btnParcial {
+        position: absolute; /* Se posiciona dentro del contenedor relativo */
+        bottom: 20px; /* Distancia desde la parte inferior del contenedor */
+        right: 20px; /* Distancia desde la parte derecha del contenedor */
+        z-index: 2000; /* Asegura que esté encima de otros elementos */
+        background-color: #80ab97;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+    }
+
+
+        .btnParcial:hover {
+            background-color: #6f9985;
+            transform: scale(1.05);
+        }
+
+
+    .floating-buttons {
+        position: absolute;
+        bottom: 100%; /* Inicialmente en la parte inferior */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Espaciado entre botones */
+        z-index: 1000;
+        transition: all 0.4s ease-in-out; /* Transición suave */
+    }
+
+        .floating-buttons a {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+</style>

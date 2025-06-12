@@ -1,0 +1,214 @@
+﻿
+@{
+    ViewBag.Title = "TABLERO SAP EN GLOSAS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="text-primary_asalud">DATOS</strong>
+        </div>
+        <div class="panel-body">
+            <table id="tablaDetalle" class="table table-striped table-bordered table-condensed datatable table-responsive" style="width:98%;">
+                <thead>
+                    <tr>
+                        <th>Id factura</th>
+                        <th>Cod CUPS</th>
+                        <th>Valor subsanación</th>
+                        <th>Valor subsanado</th>
+                        <th>Valor nota credito</th>
+                        <th>Nota credito</th>
+                        <th>Aplicación SAP</th>
+                        <th>Documento contable</th>
+                        <th>Fecha contable</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.conteo > 0)
+                    {
+                        foreach (ECOPETROL_COMMON.ENTIDADES.management_fis_tableroCargueContableSapResult item in ViewBag.listado)
+                        {
+                            <tr>
+                                <td>@item.id_af</td>
+                                <td>@item.codCups</td>
+                                <td>@item.valor_subsanacion</td>
+                                <td>@item.valor_subsanado</td>
+                                <td>@item.valor_nota_credito</td>
+                                <td>@item.nota_credito</td>
+                                <td>@item.aplicacion_sap</td>
+                                <td>@item.documento_contable_sap</td>
+                                <td>@item.fecha_contable</td>
+                                <td><a class="button_Asalud_Aceptar" onclick="EditarSAP(@item.id_glosa, @item.id_registro, @item.id_af);" title="Agregar documento contable">Agregar</a></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="width:100%; text-align:center">SIN DATOS</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="ModalContable">
+    <div class="modal-dialog modal-lg" style="width:40%">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('#tablaDetalle').DataTable({
+            "sSearch": "Buscar:",
+            "searching": true,
+            "iDisplayLength": 30,
+            "lengthChange": false,
+            "info": false,
+            responsive: true,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+        });
+    });
+
+    function EditarSAP(idGlosa, idRegistro, idAf) {
+
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("ModalDocumentosContables", "RadicacionElectonica")",
+            data: {
+                idGlosa: idGlosa,
+                idRegistro: idRegistro,
+                idAf: idAf
+            },
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                $("#ModalContable").modal("show");
+            }
+        });
+    }
+
+</script>
+
+
+<style>
+    #pnlcargararchivo {
+        margin-top: 5%;
+    }
+
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 500px;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    th {
+        font-weight: bold;
+        padding: 8px;
+        background: #636363;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #e8e8e8;
+    }
+
+    td {
+        padding: 8px;
+        background: #efefef;
+        border-bottom: 2px solid #fff;
+        color: #636363;
+        border-top: 1px solid transparent;
+    }
+
+    tr:hover td {
+        background: #bcbcbc;
+        color: #1c1c1c;
+    }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+    .text_titulos_asalud {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        color: #EEEDED;
+    }
+</style>

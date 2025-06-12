@@ -1,0 +1,342 @@
+﻿@using Kendo.Mvc.UI;
+
+@{
+    var conteo = ViewBag.conteo;
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ARCHIVOS EVALUACIÓN</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Nro. @ViewBag.idEvaluacion</label>
+                <input type="hidden" id="idEvaluacion" name="idEvaluacion" value="@ViewBag.idEvaluacion" />
+                <input type="hidden" id="conteo" name="conteo" value="@conteo" />
+            </h5>
+        </p>
+    </div>
+    <div class="panel-body">
+
+        <div id="divTabla">
+
+            <div class="table-responsive">
+                <table id="table3" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Item</th>
+                            <th class="text-center">Nombre </th>
+                            <th class="text-center">Criterio</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Ver</th>
+                            <th class="text-center">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytbl2">
+                        @if (conteo > 0)
+                        {
+                            var i = 0;
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_dispensacion_archivosRepositorioResult item in ViewBag.lista)
+                            {
+                                i++;
+                                <tr>
+                                    <td class="text-center">@i</td>
+
+                                    <td class="text-center">@item.descripcion</td>
+                                    <td class="text-center">@item.nombre_criterio</td>
+                                    <td class="text-center">@item.extension</td>
+
+                                    <td class="text-center">
+                                        <a href='javascript:DescargarArchivo(@item.id_img);'>@item.nombreArchivo</a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="button_Asalud_Rechazar" onclick="EliminarArchivo(@item.id_evaluacion, @item.id_img);">
+                                            Eliminar
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="12" style="text-align:center; font-size:15px;">
+                                    <label>No hay archivos para ésta evaluación.</label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <br />
+
+        @*@if (ViewBag.usuarioActual == ViewBag.creadorActa)
+            {
+                <div id="divFormulario">
+                    <form id="formulario">
+                        <div class="row">
+                            <div>
+                                <div class="col-md-6">
+                                    <input type="hidden" id="oculto" name="oculto" />
+                                    <label class="text-secondary_asalud">Subida archivo:</label>
+
+                                    <input type="file" name="file" id="file" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="text-center">
+                                <button class="button_Asalud_Guardar" id="btnguardar" type="button" onclick="ValidarFormulario()">CARGAR</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }*@
+    </div>
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+    });
+
+    $('.tableArchivos').DataTable({
+        "searching": true,
+        "iDisplayLength": 10,
+        "lengthChange": false,
+        "info": false,
+        "order": [[0, "desc"]],
+        responsive: true,
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar MENU registros",
+            info: "Mostrando registros del START al END de un total de TOTAL registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de MAX registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último",
+            },
+        }
+    });
+
+    function DescargarArchivo(idArchivo) {
+
+        var url = "@Url.Action("DescargarArchivo", "Verificacion")?idArchivo=" + idArchivo;
+        popupWindow = window.open(url, '', 'height=500,width=700,left=50,top=50,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+
+    function EliminarArchivo(id_evaluacion, id_archivo) {
+
+        if (confirm('Está a punto de eliminar un archivo ¿Desea continuar?')) {
+
+            var formData = new FormData($("form")[0]);
+            var fechaIniM = $("#fechaIniM").val();
+            var fechaFinM = $("#fechaFinM").val();
+            var regionalM = $("#regionalM").val();
+            var prestadorM = $("#prestadorM").val();
+            var nitPrestadorM = $("#nitPrestadorM").val();
+
+            var idEvaluacion = $("#idEvaluacion").val();
+
+            formData.append("idEvaluacion", id_evaluacion);
+            formData.append("idArchivo", id_archivo);
+            LoadingShow();
+            $.ajax({
+                url: "@Url.Action("EliminarArchivoEvaluacion", "Verificacion")",
+                type: "post",
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    alert(response.msg);
+                    LoadingHide()
+                    //verTablero2(1);
+                    MostrarArchivos(idEvaluacion);
+                }
+            })
+        }
+    }
+
+</script>
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #table3 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #table3 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #table3 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #table3 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    #tabla2 {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 10px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        #tabla2 th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+
+        #tabla2 td {
+            padding: 8px;
+            background: #efefef;
+            border-bottom: 2px solid #fff;
+            color: #636363;
+            border-top: 1px solid transparent;
+        }
+
+        #tabla2 tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+</style>
+

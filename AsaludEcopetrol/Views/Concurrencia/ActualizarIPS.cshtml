@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "ACTUALIZAR IPS";
+    Layout = "";
+}
+
+@*<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>*@
+<link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">MODULO DE ACTUALIZACION DE IPS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formactualizacion">
+            <div class="row">
+                <input type="hidden" id="ipsant" name="ipsant" />
+                <input type="hidden" id="idconcurrencia" name="idconcurrencia" />
+                <div class="col-sm-12 form-group">
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Ingresar numero de documento afiliado:</label>
+                        @*<input type="text" class="form-control solo-numero" id="numafi" name="numafi" maxlength="10" onchange="traerAfiliados($(this).val())"  required />*@
+                        <input type="text" class="form-control" id="numafi" name="numafi" maxlength="10" required />
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Nombre afiliado</label>
+                        <input type="text" class="form-control" id="nomafi" name="nomafi" readonly required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">Fecha ingreso</label>
+                        <input type="text" class="form-control" id="fechaingreso" name="fechaingreso" readonly required />
+                    </div>
+                    <div class="col-sm-4 form-group">
+                        <label class="text-secondary_asalud">IPS</label>
+                        <select class="form-control select2" id="ips" name="ips" required>
+                            <option value="">- Seleccionar -</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips item in ViewBag.ips)
+                            {
+                                <option value="@item.id_ref_ips">@item.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-12 text-center form-group">
+                        <button type="button" class="btn button_Asalud_Guardar" onclick="ActualizarIps()">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            width: '100%',
+            height: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9.]/g, '');
+        });
+
+        $("#numafi").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/Concurrencia/BuscarAfiliados",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        term: request.term,
+                    },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            min_length: 3,
+            delay: 300,
+            select: function (evento, ui) {
+                if (ui.item != null) {
+
+                    $("#idconcurrencia").val(ui.item.idconcurrencia);
+                    $("#nomafi").val(ui.item.nombre);
+                    $("#fechaingreso").val(ui.item.fecha_ingreso);
+                    $("#ipsant").val(ui.item.ips);
+                    $("#ips").val(ui.item.ips).trigger('change');
+                }
+            },
+
+        });
+
+    });
+
+    function ActualizarIps() {
+
+        var validator = $("#formactualizacion").validate();
+        if (validator.form())
+        {
+            if ($("#ipsant").val() == $("#ips").val())
+            {
+                alert("Aún esta seleccionada la IPS actual")
+            }
+            else
+            {
+                var confirmar = confirm("¿Esta seguro de actualizar esta IPS?");
+                if (confirmar == true)
+                {
+                    var idconcurrencia = $("#idconcurrencia").val();
+                    GuardarCambioIPS(idconcurrencia);
+                }
+            }
+        }
+    }
+
+    function GuardarCambioIPS(idconcurrencia)
+    {
+        var id_ips = $("#ips").val();
+        $.ajax({
+            url: "@Url.Action("GuardarModificacionIPS")",
+            type: "post",
+            dataType: "json",
+            data: {
+                idconcurrencia: idconcurrencia,
+                idips:id_ips
+            },
+            success: function (data)
+            {
+                if (data.rta == 0)
+                {
+                    alert("IPS Actualizada conrrectamente!");
+                    $("#numafi").val("");
+                    $("#nomafi").val("");
+                    $("#fechaingreso").val("");
+                    $("#ips").val("").trigger('change');
+
+                    //CerrarModal();
+                } else {
+                    alert(data.msj);
+                }
+            },
+            error: function (data)
+            {
+                alert(data);
+            }
+        })
+    }
+
+</script>
