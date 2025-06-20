@@ -63,16 +63,19 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <ul class="nav nav-pills" style="font-size: 12px">
                     <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Abiertos @ViewBag.conteoAbiertas</a></li>
                     <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">Cerrados @ViewBag.conteoCerrados</a></li>
                     <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Por notificar @ViewBag.conteoPorNotificar</a></li>
                     <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">Notificados @ViewBag.conteoNotificados</a></li>
                     <li id="li5"><a href="#tab4" class="collapse5" data-toggle="tab">Abierto con notificación @ViewBag.conteoAbiertosNotifi</a></li>
+                    <li id="li6"><a href="#tab5" class="collapse6" data-toggle="tab">Abierto notificado con incumplimiento @ViewBag.conteoAbiertosNotifiIncumpli</a></li>
                 </ul>
             </div>
-            <div class="col-md-4 text-right">
+            <br />
+
+            <div class="col-md-12 text-right">
                 <a class="btn button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
             </div>
         </div>
@@ -243,7 +246,7 @@
                                         <th>Fecha seguimiento</th>
                                         <th>Fecha estimada cierre</th>
                                         <th>Acciones de mejora</th>
-                                        
+
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -486,6 +489,7 @@
                                         <th>Fecha estimada cierre</th>
                                         <th>Acciones de mejora</th>
                                         <th></th>
+                                        <th></th>
 
                                     </tr>
                                 </thead>
@@ -518,6 +522,99 @@
                                                     <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
                                                 </td>
                                                 <td>
+
+                                                    @if (item.diferenciaNotificacion == 1)
+                                                    {
+                                                        <a class="button_Asalud_Aceptar" onclick="JustificarCambio(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#modalJustificacion">Incumplimiento</a>
+                                                    }
+
+                                                </td>
+                                                <td>
+                                                    @if (item.id_visitas_dispen != null)
+                                                    {
+                                                        <a class='button_Asalud_descargas' onclick="exportarExcelInd('@item.id_visitas_dispen')">EXCEL </a>
+                                                        <a class='button_Asalud_Guardar' onclick='pdfEvaluacion("@item.id_visitas_dispen");'>PDF</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab5">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tablaAbiNotiIncumpli table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Id evaluación dispensación</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+
+                                        <th>Observación incumplimiento</th>
+                                        <th>Fecha creación incumplimiento</th>
+                                        <th>Usuario creador incumplimiento</th>
+
+                                        <th>Acciones de mejora</th>
+                                        <th></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoAbiertosNotifiIncumpli > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_plan_mejora_tableroResult item in ViewBag.listAbiertosNotificadosIncumplimiento)
+                                        {
+                                            <tr>
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.id_visitas_dispen</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+                                                <td>@item.justificacion_cambio</td>
+                                                <td>@item.fecha_cambio</td>
+                                                <td>@item.nombreRealizaCambio</td>
+
+                                                <td class="text-center">
+                                                    <a class="button_Asalud_Aceptar" onclick="VerTareas(@item.id_plan_de_mejora)" data-toggle="modal" data-target="#myModalTareas">Ver</a>
+                                                </td>
+
+                                                <td>
                                                     @if (item.id_visitas_dispen != null)
                                                     {
                                                         <a class='button_Asalud_descargas' onclick="exportarExcelInd('@item.id_visitas_dispen')">EXCEL </a>
@@ -525,6 +622,7 @@
                                                         <a class='button_Asalud_Guardar' onclick='pdfEvaluacion("@item.id_visitas_dispen");'>PDF</a>
                                                     }
                                                 </td>
+
                                             </tr>
                                         }
                                     }
@@ -587,6 +685,20 @@
     </div>
 </div>
 
+
+<div class="modal fade" data-keyboard="false" id="modalJustificacion">
+    <div class="modal-dialog modal-lg" style="width:50%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="rsdJustificacion"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="~/Scripts/validate.js"></script>
 <script>
 
@@ -599,6 +711,7 @@
         MostrarTablaPorNoti();
         MostrarTablaNotifi();
         MostrarTablaAbiertNoti();
+        MostrarTablaAbiertNotiIncumpli();
 
         $('.select2').select2({
             width: '100%'
@@ -616,6 +729,46 @@
 
         $('.solo-numero').keyup(function () {
             this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+                var tab4 = $("#tab" + 4).hasClass("active");
+                var tab5 = $("#tab" + 5).hasClass("active");
+
+                if (tab0) {
+                    MostrarTablaAbiertos();
+                }
+
+                if (tab1) {
+                    MostrarTablaCerrados();
+                }
+
+                if (tab2) {
+                    MostrarTablaPorNoti();
+                }
+
+                if (tab3) {
+                    MostrarTablaNotifi();
+                }
+
+                if (tab4) {
+                    MostrarTablaAbiertNoti();
+                }
+
+                if (tab5) {
+                    MostrarTablaAbiertNotiIncumpli();
+                }
+
+            }, 100);
         });
     })
 
@@ -768,7 +921,6 @@
         }
     }
 
-
     function MostrarTablaAbiertNoti() {
         var conteo = "@ViewBag.conteoAbiertosNotifi";
         if (conteo > 0) {
@@ -804,6 +956,40 @@
         }
     }
 
+    function MostrarTablaAbiertNotiIncumpli() {
+        var conteo = "@ViewBag.conteoAbiertosNotifiIncumpli";
+        if (conteo > 0) {
+            $('.tablaAbiNotiIncumpli').DataTable().destroy();
+            $('.tablaAbiNotiIncumpli').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
 
     function VerTareas(idPlan) {
         var laURLDeLaVista = '@Url.Action("MostrarTareasPlanMejora")?idPlan=' + idPlan;
@@ -858,7 +1044,7 @@
     }
 
     function AmplicacionFecha(idPlan, fechaMaxima, maximoAmpliaciones, fechaInicial, fechaEstimada, fechaAmpliacion) {
-        debugger
+
         var laURLDeLaVista = '@Url.Action("MostrarAmpliacionPM")?idPlan=' + idPlan + "&fechaMaxima=" + fechaMaxima + "&maximoAmpliaciones=" + maximoAmpliaciones + "&fechaInicial=" + fechaInicial + "&fechaEstimada=" + fechaEstimada + "&fechaAmpliacion=" + fechaAmpliacion;
         $.ajax({
             cache: false,
@@ -992,6 +1178,20 @@
         }
     }
 
+    function JustificarCambio(idPlan) {
+        var laURLDeLaVista = '@Url.Action("JustificarCambioIncumplimiento")?idPlan=' + idPlan;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#rsdJustificacion').html('');
+                $('#rsdJustificacion').html(response);
+            }
+        });
+    }
 </script>
 
 

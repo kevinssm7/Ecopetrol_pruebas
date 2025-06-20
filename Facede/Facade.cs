@@ -1960,6 +1960,11 @@ namespace Facede
             return DACConsulta.DatosNotificacionCreacionPM_correos(idPrestador);
         }
 
+        public int ActualizarIncumplimientoPM(ecop_plan_de_mejora obj)
+        {
+            return DACActualiza.ActualizarIncumplimientoPM(obj);
+        }
+
         #endregion
 
         #region EVOLUCION

@@ -1127,6 +1127,27 @@ namespace DATA_ACCESS
             }
         }
 
+        public int ActualizarIncumplimientoPM(ecop_plan_de_mejora obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    ecop_plan_de_mejora obj2 = db.ecop_plan_de_mejora.FirstOrDefault(x => x.id_plan_de_mejora == obj.id_plan_de_mejora);
+                    obj2.justificacion_cambio = obj.justificacion_cambio; 
+                    obj2.fecha_cambio = obj.fecha_cambio; 
+                    obj2.usuario_cambio = obj.usuario_cambio;
+                    obj2.estado_plan = 5;
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }catch(Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
         #endregion
 
         #region FACTURAS

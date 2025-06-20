@@ -1,0 +1,85 @@
+﻿
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        <p class="title text-center">
+            <h4>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">JUSTIFICACIÓN INCUMPLIMIENTO</a>
+            </h4>
+            <h5>
+                <label class="text-secondary_asalud">Id. @ViewBag.idPlan</label>
+            </h5>
+        </p>
+    </div>
+
+    <form id="formIncumpli">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="hidden" id="idPlan" name="idPlan" value="@ViewBag.idPlan" />
+                    <textarea id="observacionIncumpli" name="observacionIncumpli" required maxlength="5000" cols="5" rows="3" class="form-control char-count"></textarea>
+                    <p class="charCount">Te quedan 5000 caracteres.</p>
+                </div>
+                <div class="col-md-12 text-center">
+                    <a class="button_Asalud_Guardar" onclick="ValidarJustifi();">GUARDAR</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.char-count').each(function () {
+            var maxLength = $(this).attr('maxlength'); // Obtiene el maxlength de cada textarea
+            var $counter = $(this).next('.charCount'); // Obtiene el elemento <p> siguiente para mostrar el conteo
+
+            // Inicializa el contador con el máximo de caracteres
+            $counter.text('Te quedan ' + maxLength + ' caracteres.');
+
+            // Actualiza el contador al escribir en el textarea
+            $(this).on('input', function () {
+                var textLength = $(this).val().length;
+                var charsRemaining = maxLength - textLength;
+                $counter.text('Te quedan ' + charsRemaining + ' caracteres.');
+            });
+        });
+    });
+
+    function ValidarJustifi() {
+        var validator = $("#formIncumpli").validate();
+        if (validator.form()) {
+            GuardarIncumpli();
+        }
+    }
+
+    function GuardarIncumpli() {
+
+        var formData = new FormData($("#formIncumpli")[0]);
+
+        formData.append("idPlan", $("#idPlan").val());
+        formData.append("observacionIncumpli", $("#observacionIncumpli").val());
+
+         $.ajax({
+            url: "@Url.Action("GuardarIncumplimiento", "PlanMejora")",
+            type: "post",
+            data: formData,
+
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+                if (response.rta == 1) {
+                    location.href = "@Url.Action("TableroControlPlanMejora", "PlanMejora")";
+                }
+            }
+        })
+    }
+</script>

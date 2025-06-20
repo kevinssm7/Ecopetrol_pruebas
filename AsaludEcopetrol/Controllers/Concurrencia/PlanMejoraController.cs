@@ -711,6 +711,7 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             List<management_plan_mejora_tableroResult> listPorNotificar = new List<management_plan_mejora_tableroResult>();
             List<management_plan_mejora_tableroResult> listNotificados = new List<management_plan_mejora_tableroResult>();
             List<management_plan_mejora_tableroResult> listAbiertosNotificados = new List<management_plan_mejora_tableroResult>();
+            List<management_plan_mejora_tableroResult> listAbiertosNotificadosIncumplimiento = new List<management_plan_mejora_tableroResult>();
 
             var conteo = 0;
             var rol = SesionVar.ROL;
@@ -728,6 +729,7 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
                 listPorNotificar = Lista.Where(x => x.estadoplan == "notificar al administrador del contrato").ToList();
                 listNotificados = Lista.Where(x => x.estadoplan == "Notificado al administrador del contrato").ToList();
                 listAbiertosNotificados = Lista.Where(x => x.estadoplan == "Abierto con notificación").ToList();
+                listAbiertosNotificadosIncumplimiento = Lista.Where(x => x.usuario_cambio != null).ToList();
 
                 Lista = Lista.OrderBy(x => x.fecha_respuesta).ToList();
                 conteo = Lista.Count();
@@ -745,12 +747,14 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             ViewBag.listPorNotificar = listPorNotificar;
             ViewBag.listNotificados = listNotificados;
             ViewBag.listAbiertosNotificados = listAbiertosNotificados;
+            ViewBag.listAbiertosNotificadosIncumplimiento = listAbiertosNotificadosIncumplimiento;
 
             ViewBag.conteoAbiertas = listAbiertos.Count();
             ViewBag.conteoCerrados = listCerrados.Count();
             ViewBag.conteoPorNotificar = listPorNotificar.Count();
             ViewBag.conteoNotificados = listNotificados.Count();
             ViewBag.conteoAbiertosNotifi = listAbiertosNotificados.Count();
+            ViewBag.conteoAbiertosNotifiIncumpli = listAbiertosNotificadosIncumplimiento.Count();
 
             ViewBag.estado = Model.estadoTarea();
 
@@ -2715,9 +2719,9 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
 
                 if (ConfigurationManager.AppSettings["BDActiva"].ToString() == "1")
                 {
-                    if(listaCorreos.Count() > 0)
+                    if (listaCorreos.Count() > 0)
                     {
-                        foreach(var item in listaCorreos)
+                        foreach (var item in listaCorreos)
                         {
                             string correo = !string.IsNullOrEmpty(item.correo_ins) ? item.correo_ins : item.correo;
                             if (!string.IsNullOrEmpty(correo))
@@ -2757,6 +2761,45 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             return str1;
         }
 
+        public PartialViewResult JustificarCambioIncumplimiento(int? idPlan)
+        {
+            ViewBag.idPlan = idPlan;
+            return PartialView();
+        }
+
+        public JsonResult GuardarIncumplimiento(int? idPlan, string observacionIncumpli)
+        {
+            var rta = 0;
+            var mensaje = "";
+            try
+            {
+                ecop_plan_de_mejora obj = new ecop_plan_de_mejora()
+                {
+                    id_plan_de_mejora = (int)idPlan,
+                    justificacion_cambio = observacionIncumpli,
+                    fecha_cambio = DateTime.Now,
+                    usuario_cambio = SesionVar.UserName
+                };
+
+                var actualizaPM = BusClass.ActualizarIncumplimientoPM(obj);
+                if (actualizaPM != 0)
+                {
+                    mensaje = "GESTIÓN INCUMPLIMIENTO INGRESADA CORRECTAMENTE";
+                    rta = 1;
+                }
+                else
+                {
+                    throw new Exception("ERROR AL INGRESAR INCUMPLIMIENTO");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { rta = rta, mensaje = mensaje });
+        }
         //kevin 200625
     }
 
