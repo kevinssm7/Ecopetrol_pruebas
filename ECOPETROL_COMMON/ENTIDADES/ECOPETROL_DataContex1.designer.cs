@@ -2229,7 +2229,7 @@ namespace ECOPETROL_COMMON.ENTIDADES
     #endregion
 		
 		public ECOPETROL_DataContexDataContext() : 
-				base(global::ECOPETROL_COMMON.Properties.Settings.Default.ecopetrol_pruebasConnectionString1, mappingSource)
+				base(global::ECOPETROL_COMMON.Properties.Settings.Default.ecopetrol_pruebasConnectionString, mappingSource)
 		{
 			OnCreated();
 		}
