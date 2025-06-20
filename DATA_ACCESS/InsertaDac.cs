@@ -7426,6 +7426,36 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+
+
+
+
+        public int InsertarLog_RastreoActualizacion(log_AltoCosto_actualizaciones obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.log_AltoCosto_actualizaciones.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_log;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+
+
+
+
+
+
+
+
         #endregion INVENTARIO ALTO COSTO
 
         #region CARGUE MASIVO CONTRATOS

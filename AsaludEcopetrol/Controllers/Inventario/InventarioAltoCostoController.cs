@@ -47,6 +47,9 @@ namespace AsaludEcopetrol.Controllers.Inventario
         Facade BusClass = new Facade();
         #endregion
 
+  
+
+
         public ActionResult CargueMasivoAltoCosto()
         {
             Models.InventarioAltoCosto.inventarioAltoCosto Model = new Models.InventarioAltoCosto.inventarioAltoCosto();
@@ -1395,35 +1398,23 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 {
                     tipoCargado = BusClass.listadoCargueGsdRastreo().Where(x => x.id_tipo == tipo).Select(x => x.descripcion).FirstOrDefault();
 
-                    nombreArchivo = file.FileName.ToUpper();
+                    nombreArchivo = Path.GetFileNameWithoutExtension(file.FileName).ToUpperInvariant().Normalize(NormalizationForm.FormD);
 
-                    if (tipo == 1)
+                    if (tipo == 1 && !nombreArchivo.Contains("CANCER"))
                     {
-                        if (!nombreArchivo.Contains("CANCER"))
-                        {
-                            throw new Exception("Asegurese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Cancer'");
-                        }
+                        throw new Exception("Asegúrese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Cancer'");
                     }
-                    else if (tipo == 2)
+                    else if (tipo == 2 && !nombreArchivo.Contains("HEMOFILIA"))
                     {
-                        if (!nombreArchivo.Contains("HEMOFILIA"))
-                        {
-                            throw new Exception("Asegurese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Hemofilia'");
-                        }
+                        throw new Exception("Asegúrese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Hemofilia'");
                     }
-                    else if (tipo == 3)
+                    else if (tipo == 3 && !nombreArchivo.Contains("ARTRITIS"))
                     {
-                        if (!nombreArchivo.Contains("ARTRITIS"))
-                        {
-                            throw new Exception("Asegurese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Artritis'");
-                        }
+                        throw new Exception("Asegúrese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Artritis'");
                     }
-                    else if (tipo == 4)
+                    else if (tipo == 4 && !nombreArchivo.Contains("VIH"))
                     {
-                        if (!nombreArchivo.Contains("VIH"))
-                        {
-                            throw new Exception("Asegurese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Vih'");
-                        }
+                        throw new Exception("Asegúrese de que el archivo es el correcto. Este archivo no tiene en su nombre 'Vih'");
                     }
 
                     ruta = DevolverRutaArchivo(file);
@@ -1514,10 +1505,9 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 ViewData["MensajeRta"] = "<div class='alert alert-danger' role='alert'>" + mensaje + "</div>";
             }
 
-            FileInfo fileDelete = new FileInfo(ruta);
-            if (fileDelete != null)
+            if (!string.IsNullOrEmpty(ruta) && System.IO.File.Exists(ruta))
             {
-                fileDelete.Delete();
+                System.IO.File.Delete(ruta);
             }
 
             return View();
@@ -1715,6 +1705,472 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
             return RedirectToAction("TableroListadoRastreo", "InventarioAltoCosto", new { rta = rta });
         }
+
+
+
+
+
+        public PartialViewResult _VerRastreos(int? idRegistro, int? tipo)
+        {
+            if (idRegistro == null || tipo == null)
+                return PartialView("Error");
+
+            var viewModel = new Models.InventarioAltoCosto.GestionAltoCostoViewModel
+            {
+                Tipo = tipo.Value
+            };
+
+            switch (tipo)
+            {
+                case 1:
+                    var cancer = new Models.InventarioAltoCosto.GestionCancer();
+                    cancer.ObtenerDatosCancer(1, idRegistro.Value);
+                    viewModel.Cancer = cancer;
+                    break;
+                case 2:
+                    var hemofilia = new Models.InventarioAltoCosto.GestionHemofilia();
+                    hemofilia.ObtenerDatosHemofilia(2, idRegistro.Value);
+                    viewModel.Hemofilia = hemofilia;
+                    break;
+                case 3:
+                    var artritis = new Models.InventarioAltoCosto.GestionArtritis();
+                    artritis.ObtenerDatosArtritis(3, idRegistro.Value);
+                    viewModel.Artritis = artritis;
+                    break;
+                case 4:
+                    var vih = new Models.InventarioAltoCosto.GestionVIH();
+                    vih.ObtenerDatosVIH(4, idRegistro.Value);
+                    viewModel.VIH = vih;
+                    break;
+            }
+
+            ViewBag.id = idRegistro;
+            ViewBag.tipo = tipo;
+            ViewBag.estado = BusClass.listadoEstadosCuentaAltoCosto();
+
+            return PartialView(viewModel);
+        }
+
+
+
+        public string ObtenerUnis(int idregional)
+        {
+            string result = "<option value=''>- Seleccionar -</option>";
+
+            List<Ref_odont_unis> Unis = BusClass.Odont_unisIdRegional(idregional);
+            foreach (var item in Unis)
+            {
+                result += "<option value='" + item.descripcion + "'>" + item.descripcion + "</option>";
+            }
+
+            return result;
+        }
+
+
+        public JsonResult BuscarCie10()
+        {
+            if (string.IsNullOrEmpty(Request.Params["term"]))
+                return null;
+            try
+            {
+                string term = Request.Params["term"];
+                if (term.Length > 0)
+                {
+                    term = term.ToUpper();
+
+                    List<Ref_cie10> tiga = new List<Ref_cie10>();
+                    tiga = BusClass.GetCie10Bycodigo(term);
+
+                    var lista = (from ti in tiga
+                                 select new
+                                 {
+                                     id = ti.id_cie10,
+                                     label = ti.id_cie10 + "-" + ti.des,
+                                     des = ti.des
+                                 }).Distinct().OrderBy(f => f.label).Take(15);
+                    return Json(lista, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(null, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        public PartialViewResult _EditarRastreos(int? idRegistro, int? tipo)
+        {
+            if (idRegistro == null || tipo == null)
+                return PartialView("Error");
+
+            var viewModel = new Models.InventarioAltoCosto.GestionAltoCostoViewModel
+            {
+                Tipo = tipo.Value
+            };
+
+            switch (tipo)
+            {
+                case 1:
+                    var cancer = new Models.InventarioAltoCosto.GestionCancer();
+                    cancer.ObtenerDatosCancer(1, idRegistro.Value);
+                    viewModel.Cancer = cancer;
+                    break;
+                case 2:
+                    var hemofilia = new Models.InventarioAltoCosto.GestionHemofilia();
+                    hemofilia.ObtenerDatosHemofilia(2, idRegistro.Value);
+                    viewModel.Hemofilia = hemofilia;
+                    break;
+                case 3:
+                    var artritis = new Models.InventarioAltoCosto.GestionArtritis();
+                    artritis.ObtenerDatosArtritis(3, idRegistro.Value);
+                    viewModel.Artritis = artritis;
+                    break;
+                case 4:
+                    var vih = new Models.InventarioAltoCosto.GestionVIH();
+                    vih.ObtenerDatosVIH(4, idRegistro.Value);
+                    viewModel.VIH = vih;
+                    break;
+            }
+
+            ViewBag.id = idRegistro;
+            ViewBag.tipo = tipo;
+            ViewBag.regional = BusClass.GetRefRegion();
+            ViewBag.unis = BusClass.Odont_unis();
+            ViewBag.agrupador = BusClass.GetAgrupador();
+
+            return PartialView(viewModel);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuardarGestionCancer(Models.InventarioAltoCosto.GestionCancer Cancer)
+        {
+            if (ModelState.IsValid)
+            {
+                var MsgRes = new MessageResponseOBJ();
+
+                cargue_cuentas_altoCosto_cancer antiguos = BusClass.ObtenerDatosCancer(1, Cancer.id_cancer).FirstOrDefault();
+
+
+                var entidad = new cargue_cuentas_altoCosto_cancer
+                {
+                    id_cancer = Cancer.id_cancer,
+                    documento = Cancer.documento,
+                    regional = Cancer.regional,
+                    unis = Cancer.unis,
+                    documento_paciente = Cancer.documento_paciente,
+                    diagnostico_cie10 = Cancer.diagnostico_cie10,
+                    descripcion_dx = Cancer.descripcion_dx,
+                    agrupador = Cancer.agrupador
+                };
+
+                var resultado = BusClass.Actualizar_rastreoCancer(entidad);
+
+
+                if (resultado == 1)
+                {
+
+                        log_AltoCosto_actualizaciones nuevo = new log_AltoCosto_actualizaciones();
+
+                        nuevo.id_registro = Cancer.id_cancer;
+                        nuevo.tipo = "Cáncer";
+                        nuevo.documento_anterior = antiguos.documento;
+                        nuevo.documento_nuevo = Cancer.documento;
+
+                        nuevo.regional_anterior = antiguos.regional;
+                        nuevo.regional_nuevo = Cancer.regional;
+
+                        nuevo.unis_anterior = antiguos.unis;
+                        nuevo.unis_nuevo = Cancer.unis;
+
+                        nuevo.documento_paciente_anterior = antiguos.documento_paciente;
+                        nuevo.documento_paciente_nuevo = Cancer.documento_paciente;
+
+                        nuevo.documento2_anterior = null;
+                        nuevo.documento2_nuevo = null;
+
+                        nuevo.diagnostico_cie10_anterior = antiguos.diagnostico_cie10;
+                        nuevo.diagnostico_cie10_nuevo = Cancer.diagnostico_cie10;
+
+                        nuevo.descripcion_dx_anterior = antiguos.descripcion_dx;
+                        nuevo.descripcion_dx_nuevo = Cancer.descripcion_dx;
+
+                        nuevo.agrupador_anterior = antiguos.agrupador;
+                        nuevo.agrupador_nuevo = Cancer.agrupador;
+
+
+                        nuevo.fecha_digita = DateTime.Now;
+                        nuevo.usuario_digita = SesionVar.UserName;
+
+                        var insertaLogNuevo = BusClass.InsertarLog_RastreoActualizacion(nuevo);
+                    
+
+
+                    TempData["MensajeExito"] = "Registro actualizado correctamente.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+                else
+                {
+                    TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+            }
+
+            TempData["MensajeError"] = "El modelo no es válido, revise los datos ingresados.";
+            return RedirectToAction("TableroListadoRastreo");
+        }
+
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuardarGestionHemofilia(Models.InventarioAltoCosto.GestionHemofilia Hemofilia)
+        {
+            if (ModelState.IsValid)
+            {
+                var MsgRes = new MessageResponseOBJ();
+
+                cargue_cuentas_altoCosto_hemofilia antiguos = BusClass.ObtenerDatosHemofilia(2, Hemofilia.id_hemofilia).FirstOrDefault();
+
+
+                var entidad = new cargue_cuentas_altoCosto_hemofilia
+                {
+                    id_hemofilia = Hemofilia.id_hemofilia,
+                    documento = Hemofilia.documento,
+                    regional = Hemofilia.regional,
+                    unis = Hemofilia.unis,
+                    identificacion_paciente = Hemofilia.identificacion_paciente,
+                    diagnostico_cie10 = Hemofilia.diagnostico_cie10,
+                    descripcion_dx = Hemofilia.descripcion_dx,
+                };
+
+                var resultado = BusClass.Actualizar_rastreoHemofilia(entidad);
+
+
+                if (resultado == 1)
+                {
+
+                    log_AltoCosto_actualizaciones nuevo = new log_AltoCosto_actualizaciones();
+
+                    nuevo.id_registro = Hemofilia.id_hemofilia;
+                    nuevo.tipo = "Hemofilia";
+
+                    nuevo.documento_anterior = antiguos.documento;
+                    nuevo.documento_nuevo = Hemofilia.documento;
+
+                    nuevo.regional_anterior = antiguos.regional;
+                    nuevo.regional_nuevo = Hemofilia.regional;
+
+                    nuevo.unis_anterior = antiguos.unis;
+                    nuevo.unis_nuevo = Hemofilia.unis;
+
+                    nuevo.documento_paciente_anterior = antiguos.identificacion_paciente;
+                    nuevo.documento_paciente_nuevo = Hemofilia.identificacion_paciente;
+
+                    nuevo.documento2_anterior = null;
+                    nuevo.documento2_nuevo = null;
+
+                    nuevo.diagnostico_cie10_anterior = antiguos.diagnostico_cie10;
+                    nuevo.diagnostico_cie10_nuevo = Hemofilia.diagnostico_cie10;
+
+                    nuevo.descripcion_dx_anterior = antiguos.descripcion_dx;
+                    nuevo.descripcion_dx_nuevo = Hemofilia.descripcion_dx;
+
+                    nuevo.agrupador_anterior = null;
+                    nuevo.agrupador_nuevo = null;
+
+
+                    nuevo.fecha_digita = DateTime.Now;
+                    nuevo.usuario_digita = SesionVar.UserName;
+
+                    var insertaLogNuevo = BusClass.InsertarLog_RastreoActualizacion(nuevo);
+
+
+
+                    TempData["MensajeExito"] = "Registro actualizado correctamente.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+                else
+                {
+                    TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+            }
+
+            TempData["MensajeError"] = "El modelo no es válido, revise los datos ingresados.";
+            return RedirectToAction("TableroListadoRastreo");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuardarGestionArtritis(Models.InventarioAltoCosto.GestionArtritis Artritis)
+        {
+            if (ModelState.IsValid)
+            {
+                var MsgRes = new MessageResponseOBJ();
+
+                cargue_cuentas_altoCosto_artritis antiguos = BusClass.ObtenerDatosArtritis(3, Artritis.id_artritis).FirstOrDefault();
+
+
+                var entidad = new cargue_cuentas_altoCosto_artritis
+                {
+                    id_artritis = Artritis.id_artritis,
+                    documento = Artritis.documento,
+                    documento_2 = Artritis.documento_2,
+                    coordinacion_ok = Artritis.coordinacion_ok,
+                    unis = Artritis.unis,
+                    documento_paciente = Artritis.documento_paciente,
+                    diagnostico_cie10 = Artritis.diagnostico_cie10,
+                    descripcion_dx = Artritis.descripcion_dx,
+                };
+
+                var resultado = BusClass.Actualizar_rastreoArtritis(entidad);
+
+
+                if (resultado == 1)
+                {
+
+                    log_AltoCosto_actualizaciones nuevo = new log_AltoCosto_actualizaciones();
+
+                    nuevo.id_registro = Artritis.id_artritis;
+                    nuevo.tipo = "Artritis";
+
+                    nuevo.documento_anterior = antiguos.documento;
+                    nuevo.documento_nuevo = Artritis.documento;
+
+                    nuevo.regional_anterior = antiguos.coordinacion_ok;
+                    nuevo.regional_nuevo = Artritis.coordinacion_ok;
+
+                    nuevo.unis_anterior = antiguos.unis;
+                    nuevo.unis_nuevo = Artritis.unis;
+
+                    nuevo.documento_paciente_anterior = antiguos.documento_paciente;
+                    nuevo.documento_paciente_nuevo = Artritis.documento_paciente;
+
+                    nuevo.documento2_anterior = antiguos.documento_2;
+                    nuevo.documento2_nuevo = Artritis.documento_2;
+
+                    nuevo.diagnostico_cie10_anterior = antiguos.diagnostico_cie10;
+                    nuevo.diagnostico_cie10_nuevo = Artritis.diagnostico_cie10;
+
+                    nuevo.descripcion_dx_anterior = antiguos.descripcion_dx;
+                    nuevo.descripcion_dx_nuevo = Artritis.descripcion_dx;
+
+                    nuevo.agrupador_anterior = null;
+                    nuevo.agrupador_nuevo = null;
+
+
+                    nuevo.fecha_digita = DateTime.Now;
+                    nuevo.usuario_digita = SesionVar.UserName;
+
+                    var insertaLogNuevo = BusClass.InsertarLog_RastreoActualizacion(nuevo);
+
+
+
+                    TempData["MensajeExito"] = "Registro actualizado correctamente.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+                else
+                {
+                    TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+            }
+
+            TempData["MensajeError"] = "El modelo no es válido, revise los datos ingresados.";
+            return RedirectToAction("TableroListadoRastreo");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuardarGestionVIH(Models.InventarioAltoCosto.GestionVIH VIH)
+        {
+            if (ModelState.IsValid)
+            {
+                var MsgRes = new MessageResponseOBJ();
+
+                cargue_cuentas_altoCosto_vih antiguos = BusClass.ObtenerDatosVIH(4, VIH.id_vih).FirstOrDefault();
+
+
+                var entidad = new cargue_cuentas_altoCosto_vih
+                {
+                    id_vih = VIH.id_vih,
+                    documento = VIH.documento,
+                    coordinacion = VIH.coordinacion,
+                    unis = VIH.unis,
+                    documento_paciente = VIH.documento_paciente,
+                    diagnostico_cie10 = VIH.diagnostico_cie10,
+                    descripcion_dx = VIH.descripcion_dx,
+                };
+
+                var resultado = BusClass.Actualizar_rastreoVIH(entidad);
+
+
+                if (resultado == 1)
+                {
+
+                    log_AltoCosto_actualizaciones nuevo = new log_AltoCosto_actualizaciones();
+
+                    nuevo.id_registro = VIH.id_vih;
+                    nuevo.tipo = "VIH";
+
+                    nuevo.documento_anterior = antiguos.documento;
+                    nuevo.documento_nuevo = VIH.documento;
+
+                    nuevo.regional_anterior = antiguos.coordinacion;
+                    nuevo.regional_nuevo = VIH.coordinacion;
+
+                    nuevo.unis_anterior = antiguos.unis;
+                    nuevo.unis_nuevo = VIH.unis;
+
+                    nuevo.documento_paciente_anterior = antiguos.documento_paciente;
+                    nuevo.documento_paciente_nuevo = VIH.documento_paciente;
+
+                    nuevo.documento2_anterior = null;
+                    nuevo.documento2_nuevo = null;
+
+                    nuevo.diagnostico_cie10_anterior = antiguos.diagnostico_cie10;
+                    nuevo.diagnostico_cie10_nuevo = VIH.diagnostico_cie10;
+
+                    nuevo.descripcion_dx_anterior = antiguos.descripcion_dx;
+                    nuevo.descripcion_dx_nuevo = VIH.descripcion_dx;
+
+                    nuevo.agrupador_anterior = null;
+                    nuevo.agrupador_nuevo = null;
+
+
+                    nuevo.fecha_digita = DateTime.Now;
+                    nuevo.usuario_digita = SesionVar.UserName;
+
+                    var insertaLogNuevo = BusClass.InsertarLog_RastreoActualizacion(nuevo);
+
+
+
+                    TempData["MensajeExito"] = "Registro actualizado correctamente.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+                else
+                {
+                    TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
+                    return RedirectToAction("TableroListadoRastreo");
+                }
+            }
+
+            TempData["MensajeError"] = "El modelo no es válido, revise los datos ingresados.";
+            return RedirectToAction("TableroListadoRastreo");
+        }
+
+
 
         public void DescargarReporteRastreo()
         {
@@ -2032,6 +2488,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
             ViewBag.listaArchivos = listaArchivos;
             ViewBag.conteoArchivos = conteoArchivos;
             ViewBag.rol = SesionVar.ROL;
+            ViewBag.idUsuario = SesionVar.IDUser;
             ViewBag.idRegistro = idRegistro;
             ViewBag.tipoCargue = tipoCargue;
             ViewBag.fechaCargue = fecha_cargue.ToString("MM/dd/yyyy");
@@ -2059,6 +2516,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
             ViewBag.listaArchivos = listaArchivos;
             ViewBag.conteoArchivos = conteoArchivos;
             ViewBag.rol = SesionVar.ROL;
+            ViewBag.idUsuario = SesionVar.IDUser;
             ViewBag.idRegistroG = idRegistro;
             ViewBag.tipoG = tipo;
 

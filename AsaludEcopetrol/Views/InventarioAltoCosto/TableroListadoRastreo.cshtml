@@ -6,8 +6,29 @@
 
 }
 
+
+
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
 <div class="container">
     <div class="panel panel-default">
+
+
+        @if (TempData["MensajeExito"] != null)
+        {
+            <div class="alert alert-success text-left">
+                @TempData["MensajeExito"]
+            </div>
+        }
+        En 
+        @if (TempData["MensajeError"] != null)
+        {
+            <div class="alert alert-danger text-left">
+                @TempData["MensajeError"]
+            </div>
+        }
+
+
         @if (!String.IsNullOrEmpty(mensajerespuesta))
         {
             if (mensajerespuesta.Contains("Error"))
@@ -108,9 +129,18 @@
                                                 <td class="text-center">@item.reportado_cac</td>
                                                 <td class="text-center">@item.descripcion_tipo</td>
                                                 <td class="text-center">
-                                                    <a class="btn-sm button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
-                                                        Gestionar
-                                                    </a>
+                                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 1%;">
+                                                        <a class="btn-xs button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
+                                                            Gestionar
+                                                        </a>
+                                                        <a class="btn-xs button_Asalud_Aceptar" onclick="llamarVistaVer(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestionVer">
+                                                            Ver
+                                                        </a>
+                                                        <a class="btn-xs button_Asalud_descargas" onclick="llamarVistaEditar(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestionEdit">
+                                                            Actualizar
+                                                        </a>
+                                                    </div>
+
                                                 </td>
                                             </tr>
                                         }
@@ -173,9 +203,18 @@
                                                 <td class="text-center">@item.reportado_cac</td>
                                                 <td class="text-center">@item.descripcion_tipo</td>
                                                 <td class="text-center">
-                                                    <a class="btn-sm button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
-                                                        Gestionar
-                                                    </a>
+                                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 1%;">
+                                                        <a class="btn-xs button_Asalud_Guardar" onclick="llamarVistaGestion(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestion">
+                                                            Gestionar
+                                                        </a>
+                                                        <a class="btn-xs button_Asalud_Aceptar" onclick="llamarVistaVer(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestionVer">
+                                                            Ver
+                                                        </a>
+                                                        <a class="btn-xs button_Asalud_descargas" onclick="llamarVistaEditar(@item.id_registro, @item.tipo);" data-toggle="modal" data-target="#myModalGestionEdit">
+                                                            Actualizar
+                                                        </a>
+                                                    </div>
+
                                                 </td>
                                             </tr>
                                         }
@@ -214,6 +253,42 @@
             </div>
             <div class="modal-body">
                 <div id="resultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalGestionVer">
+    <div class="modal-dialog modal-lg" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Ver Registro</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoVer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="myModalGestionEdit">
+    <div class="modal-dialog modal-lg" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="titlemodal">Actualizar registro</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultadoEdit"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-sm button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
@@ -343,6 +418,38 @@
             success: function (response) {
                 $('#resultado').html('');
                 $('#resultado').html(response);
+            }
+        });
+    }
+
+    function llamarVistaVer(idRegistro, tipo) {
+
+        var urlVista = '@Url.Action("_VerRastreos")?idRegistro=' + idRegistro + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: urlVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoVer').html('');
+                $('#resultadoVer').html(response);
+            }
+        });
+    }
+
+    function llamarVistaEditar(idRegistro, tipo) {
+
+        var urlVista = '@Url.Action("_EditarRastreos")?idRegistro=' + idRegistro + "&tipo=" + tipo;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: urlVista,
+            data: {},
+            success: function (response) {
+                $('#resultadoEdit').html('');
+                $('#resultadoEdit').html(response);
             }
         });
     }

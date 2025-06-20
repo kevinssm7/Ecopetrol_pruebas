@@ -17644,6 +17644,8 @@ namespace DATA_ACCESS
             return dato;
         }
 
+
+
         public List<alerta_epidemiologica_gestion_gestionAnalisis_demoras> TraerGestionAEIdDemoras(int? idGestion)
         {
             List<alerta_epidemiologica_gestion_gestionAnalisis_demoras> lista = new List<alerta_epidemiologica_gestion_gestionAnalisis_demoras>();
@@ -18067,6 +18069,144 @@ namespace DATA_ACCESS
             }
             return lista;
         }
+
+
+
+
+
+        public List<management_ValidacionPacienteAltoCostoResult> ValidacionPacienteAltoCostoResult(string documento, string cie10, string tipo)
+        {
+            List<management_ValidacionPacienteAltoCostoResult> lista = new List<management_ValidacionPacienteAltoCostoResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.management_ValidacionPacienteAltoCosto(documento, cie10, tipo).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return lista;
+
+        }
+
+        public List<cargue_cuentas_altoCosto_cancer> ObtenerDatosCancer(int tipo, int idRegistro)
+        {
+            if (tipo == 1)
+            {
+                List<cargue_cuentas_altoCosto_cancer> lista = new List<cargue_cuentas_altoCosto_cancer>();
+                try
+                {
+                    using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                    {
+                        lista = db.cargue_cuentas_altoCosto_cancer.Where(x => x.id_cancer == idRegistro).ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.Message;
+                }
+
+                return lista;
+
+            }
+
+            return new List<cargue_cuentas_altoCosto_cancer>();
+
+
+        }
+
+
+        public List<cargue_cuentas_altoCosto_hemofilia> ObtenerDatosHemofilia(int? tipo, int? idRegistro)
+        {
+            if (tipo == 2)
+            {
+                List<cargue_cuentas_altoCosto_hemofilia> lista = new List<cargue_cuentas_altoCosto_hemofilia>();
+                try
+                {
+                    using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                    {
+                        lista = db.cargue_cuentas_altoCosto_hemofilia
+                                 .Where(x => x.id_hemofilia == idRegistro)
+                                 .ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.Message;
+
+                }
+
+                return lista;
+            }
+
+
+            return new List<cargue_cuentas_altoCosto_hemofilia>();
+        }
+
+
+        public List<cargue_cuentas_altoCosto_artritis> ObtenerDatosArtritis(int? tipo, int? idRegistro)
+        {
+            if (tipo == 3)
+            {
+                List<cargue_cuentas_altoCosto_artritis> lista = new List<cargue_cuentas_altoCosto_artritis>();
+                try
+                {
+                    using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                    {
+                        lista = db.cargue_cuentas_altoCosto_artritis
+                                 .Where(x => x.id_artritis == idRegistro)
+                                 .ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.Message;
+                    
+                }
+
+                return lista;
+            }
+
+            
+            return new List<cargue_cuentas_altoCosto_artritis>();
+        }
+
+
+
+
+        public List<cargue_cuentas_altoCosto_vih> ObtenerDatosVIH(int tipo, int idRegistro)
+        {
+            if(tipo == 4)
+            {
+                List<cargue_cuentas_altoCosto_vih> lista = new List<cargue_cuentas_altoCosto_vih>();
+                try
+                {
+                    using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                    {
+                        lista = db.cargue_cuentas_altoCosto_vih.Where(x => x.id_vih == idRegistro).ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.Message;
+                }
+
+                return lista;
+            }
+            return new List<cargue_cuentas_altoCosto_vih>();
+        }
+
+
+
+
+
+
+
+
 
 
         #endregion

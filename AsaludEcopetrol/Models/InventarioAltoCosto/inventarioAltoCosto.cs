@@ -223,6 +223,14 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
         //Funciones
 
+
+        public class ErroresDuplicadosException : Exception
+        {
+            public ErroresDuplicadosException(string message) : base(message) { }
+        }
+
+
+
         public int estructuraExcelCargueInventarioAltoCosto(string rutaArchivo, inventario_altoCosto_carguebase dato, ref MessageResponseOBJ MsgRes)
         {
             List<inventario_altoCosto_detalle> Listado = new List<inventario_altoCosto_detalle>();
@@ -712,6 +720,8 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             obj2.usuario_cargue = SesionVar.UserName;
             obj2.fecha_Cargue = DateTime.Now;
 
+            List<string> erroresDuplicados = new List<string>();
+
             var textError = "";
             var resultado = 0;
             List<ref_cargue_cuentas_altoCosto> tipoCosto = new List<ref_cargue_cuentas_altoCosto>();
@@ -733,7 +743,7 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                     IntContadorFilas = IntContadorFilas + 1;
 
                     if (item["Tipo de documento de identificación del usuario"].ToString() != "")
-                    {   
+                    {
                         var texto = "";
                         var fecha = new DateTime();
 
@@ -1202,6 +1212,26 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             throw new Exception(textError);
                         }
 
+
+
+
+
+                        // Verificación duplicado
+                        var resultadoValidacion = BusClass.ValidacionPacienteAltoCostoResult(obj.documento_usuario, obj.codigo_cie10, obj.poblacion_cac);
+                        if (resultadoValidacion != null && resultadoValidacion.Any())
+                        {
+                            var primerDuplicado = resultadoValidacion.First();
+                            if (obj.poblacion_cac == "Cáncer")
+                            {
+                                erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro}, número de Documento: {obj.documento_usuario}, diagnóstico: {obj.codigo_cie10} y población tipo: {obj.poblacion_cac} -- FILA: {IntContadorFilas}.");
+                            }
+                            else
+                            {
+                                erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro}, número de Documento: {obj.documento_usuario} y población tipo: {obj.poblacion_cac} -- FILA: {IntContadorFilas}.");
+                            }
+                        }
+
+
                         OBJDetalle.Add(obj);
                         obj = new cargue_cuentas_altoCosto_confirmada();
                         IntContador = IntContador + 1;
@@ -1220,6 +1250,18 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                 {
                     throw new Exception("El archivo no puede cargarse vacío");
                 }
+
+
+                if (erroresDuplicados.Any())
+                {
+                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
+                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+
+                    BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+                    throw new ErroresDuplicadosException("ERROR CARGUE CANCER: " + todosErrores);
+                }
+
 
                 try
                 {
@@ -1241,6 +1283,14 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             catch (Exception ex)
             {
                 BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+
+                if (ex is ErroresDuplicadosException)
+                {
+                    MsgRes.DescriptionResponse = ex.Message;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.CodeError = ex.Message;
+                    return 0;
+                }
 
                 if (textError != "" && textError != null)
                 {
@@ -1264,6 +1314,8 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
         }
 
 
+
+
         public Int32 CargueMasivoCancer(int? tipo, DataTable dt2, string nombreArchivo, ref MessageResponseOBJ MsgRes)
         {
             Int32 id_cargue = 0;
@@ -1271,6 +1323,8 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             Int32 IntContadorFilas = 0;
             Int32 idContadorFinal = 0;
             int ciclos = 0;
+
+            List<string> erroresDuplicados = new List<string>();
 
             cargue_cuentas_altoCosto_cancer obj = new cargue_cuentas_altoCosto_cancer();
             cargue_cuentas_altoCosto obj2 = new cargue_cuentas_altoCosto();
@@ -1282,6 +1336,7 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             obj2.fecha_Cargue = DateTime.Now;
 
             var textError = "";
+            var textError1 = "";
             var resultado = 0;
 
             try
@@ -1683,6 +1738,54 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             throw new Exception(textError);
                         }
 
+
+                        columna = "FECHA DE CORTE";
+
+                        try
+                        {
+                            fecha = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            if (fecha != null)
+                            {
+                                obj.fecha_corte = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            }
+                            else
+                            {
+                                textError = columna + ",No puede ir vacio.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("No puede ir"))
+                            {
+                                textError = ex.Message;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto.";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+                        obj.fecha_digita = DateTime.Now;
+                        obj.usuario_digita = SesionVar.UserName;
+
+
+
+                        // Verificación duplicado
+                        var resultadoValidacion = BusClass.ValidacionPacienteAltoCostoResult(obj.documento_paciente, obj.diagnostico_cie10, "Cáncer");
+                        if (resultadoValidacion != null && resultadoValidacion.Any())
+
+                        {
+                            var primerDuplicado = resultadoValidacion.FirstOrDefault(); // o First() si estás seguro de que hay al menos uno
+                            erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro}, número de Documento: {obj.documento} y diagnóstico: {obj.diagnostico_cie10} -- FILA: {IntContadorFilas}.");
+                        }
+
+
+
                         OBJDetalle.Add(obj);
                         obj = new cargue_cuentas_altoCosto_cancer();
                         IntContador = IntContador + 1;
@@ -1692,8 +1795,12 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             resultado = BusClass.InsertarCuentasAltoCostoCancer(OBJDetalle, ref MsgRes);
                             IntContadorFilas = 0;
                             OBJDetalle = new List<cargue_cuentas_altoCosto_cancer>();
+
                             ciclos++;
                         }
+
+
+
                     }
                 }
 
@@ -1702,19 +1809,35 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                     throw new Exception("El archivo no puede cargarse vacío");
                 }
 
+
+                if (erroresDuplicados.Any())
+                {
+                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
+                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+
+                    BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+                    throw new ErroresDuplicadosException("ERROR CARGUE CANCER: " + todosErrores);
+                }
+
+
+
                 try
                 {
+
                     resultado = BusClass.InsertarCuentasAltoCostoCancer(OBJDetalle, ref MsgRes);
                 }
                 catch (Exception ex)
                 {
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
                     MsgRes.CodeError = ex.Message;
-                    MsgRes.DescriptionResponse = "Error  en el cargue masivo.";
+                    MsgRes.DescriptionResponse = "Error en el cargue masivo.";
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
 
                     var error = ex.Message;
                 }
+
+
 
                 return id_cargue;
             }
@@ -1722,13 +1845,23 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             {
                 BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
 
-                if (textError != "" && textError != null)
+
+                if (ex is ErroresDuplicadosException)
                 {
-                    MsgRes.DescriptionResponse = "Error en la fila: " + IntContador.ToString() + " columna: " + textError;
+                    MsgRes.DescriptionResponse = ex.Message;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.CodeError = ex.Message;
+                    return 0;
+                }
+
+
+                if (!string.IsNullOrEmpty(textError))
+                {
+                    MsgRes.DescriptionResponse = "Error en la fila: " + IntContador + " columna: " + textError;
                 }
                 else
                 {
-                    MsgRes.DescriptionResponse = "Error en la fila: " + IntContador.ToString() + " columna: " + columna;
+                    MsgRes.DescriptionResponse = "Error en la fila: " + IntContador + " columna: " + columna;
                 }
 
                 if (ex.Message.Contains("no pertenece a la tabla"))
@@ -1745,6 +1878,7 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                 MsgRes.CodeError = ex.Message;
                 return 0;
             }
+
         }
 
 
@@ -1763,6 +1897,9 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             obj2.tipo = tipo;
             obj2.usuario_cargue = SesionVar.UserName;
             obj2.fecha_Cargue = DateTime.Now;
+
+            List<string> erroresDuplicados = new List<string>();
+
 
             var textError = "";
             var resultado = 0;
@@ -2081,6 +2218,92 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             throw new Exception(textError);
                         }
 
+
+                        columna = "AÑO DE CARGUE";
+                        try
+                        {
+                            texto = Convert.ToString(item["AÑO DE CARGUE"]);
+                            if (texto.All(char.IsDigit) && !string.IsNullOrEmpty(texto))
+                            {
+                                if (texto.Length < 11)
+                                {
+                                    obj.año_cargue = Convert.ToInt32(item["AÑO DE CARGUE"]);
+                                }
+                                else
+                                {
+                                    textError = columna + ", solo puede contener 10 caracteres.";
+                                    throw new Exception(textError);
+                                }
+                            }
+                            else
+                            {
+                                textError = columna + ", solo se aceptan números.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("solo se aceptan números") || error.Contains("solo puede contener 10 caracteres."))
+                            {
+                                textError = error;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+
+
+                        columna = "FECHA DE CORTE";
+
+                        try
+                        {
+                            fecha = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            if (fecha != null)
+                            {
+                                obj.fecha_corte = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            }
+                            else
+                            {
+                                textError = columna + ",No puede ir vacio.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("No puede ir"))
+                            {
+                                textError = ex.Message;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto.";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+                        obj.fecha_digita = DateTime.Now;
+                        obj.usuario_digita = SesionVar.UserName;
+
+
+
+
+                        // Verificación duplicado
+                        var resultadoValidacion = BusClass.ValidacionPacienteAltoCostoResult(obj.documento, null, "Hemofilia");
+                        if (resultadoValidacion != null && resultadoValidacion.Any())
+                        {
+                            var primerDuplicado = resultadoValidacion.FirstOrDefault(); // o First() si estás seguro de que hay al menos uno
+                            erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro} y número de Documento: {obj.documento} -- FILA: {IntContadorFilas}.");
+                        }
+
+
+
                         OBJDetalle.Add(obj);
                         obj = new cargue_cuentas_altoCosto_hemofilia();
                         IntContador = IntContador + 1;
@@ -2100,6 +2323,19 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                     throw new Exception("El archivo no puede cargarse vacío");
                 }
 
+
+                if (erroresDuplicados.Any())
+                {
+                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
+                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+
+                    BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+                    throw new ErroresDuplicadosException("ERROR CARGUE HEMOFILIA: " + todosErrores);
+                }
+
+
+
                 try
                 {
                     resultado = BusClass.InsertarCuentasAltoCostoHemofilia(OBJDetalle, ref MsgRes);
@@ -2117,8 +2353,18 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                 return id_cargue;
             }
             catch (Exception ex)
+
             {
                 BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+
+                if (ex is ErroresDuplicadosException)
+                {
+                    MsgRes.DescriptionResponse = ex.Message;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.CodeError = ex.Message;
+                    return 0;
+                }
+
 
                 if (textError != "" && textError != null)
                 {
@@ -2160,6 +2406,8 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             obj2.tipo = tipo;
             obj2.usuario_cargue = SesionVar.UserName;
             obj2.fecha_Cargue = DateTime.Now;
+
+            List<string> erroresDuplicados = new List<string>();
 
             var textError = "";
             var resultado = 0;
@@ -2558,6 +2806,92 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             throw new Exception(textError);
                         }
 
+
+                        columna = "AÑO DE CARGUE";
+                        try
+                        {
+                            texto = Convert.ToString(item["AÑO DE CARGUE"]);
+                            if (texto.All(char.IsDigit) && !string.IsNullOrEmpty(texto))
+                            {
+                                if (texto.Length < 11)
+                                {
+                                    obj.año_cargue = Convert.ToInt32(item["AÑO DE CARGUE"]);
+                                }
+                                else
+                                {
+                                    textError = columna + ", solo puede contener 10 caracteres.";
+                                    throw new Exception(textError);
+                                }
+                            }
+                            else
+                            {
+                                textError = columna + ", solo se aceptan números.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("solo se aceptan números") || error.Contains("solo puede contener 10 caracteres."))
+                            {
+                                textError = error;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+
+
+                        columna = "FECHA DE CORTE";
+
+                        try
+                        {
+                            fecha = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            if (fecha != null)
+                            {
+                                obj.fecha_corte = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            }
+                            else
+                            {
+                                textError = columna + ",No puede ir vacio.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("No puede ir"))
+                            {
+                                textError = ex.Message;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto.";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+                        obj.fecha_digita = DateTime.Now;
+                        obj.usuario_digita = SesionVar.UserName;
+
+
+
+                        // Verificación duplicado
+                        var resultadoValidacion = BusClass.ValidacionPacienteAltoCostoResult(obj.documento, null, "Artritis");
+                        if (resultadoValidacion != null && resultadoValidacion.Any())
+                        {
+                            var primerDuplicado = resultadoValidacion.FirstOrDefault(); // o First() si estás seguro de que hay al menos uno
+                            erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro} y número de Documento: {obj.documento} -- FILA: {IntContadorFilas}.");
+                        }
+
+
+
+
                         OBJDetalle.Add(obj);
                         obj = new cargue_cuentas_altoCosto_artritis();
                         IntContador = IntContador + 1;
@@ -2576,6 +2910,19 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                 {
                     throw new Exception("El archivo no puede cargarse vacío");
                 }
+
+
+                if (erroresDuplicados.Any())
+                {
+                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
+                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+
+                    BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+                    throw new ErroresDuplicadosException("ERROR CARGUE ARTRITIS: " + todosErrores);
+                }
+
+
 
                 try
                 {
@@ -2596,6 +2943,16 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             catch (Exception ex)
             {
                 BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+
+                if (ex is ErroresDuplicadosException)
+                {
+                    MsgRes.DescriptionResponse = ex.Message;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.CodeError = ex.Message;
+                    return 0;
+                }
+
+
 
                 if (textError != "" && textError != null)
                 {
@@ -2637,6 +2994,8 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             obj2.tipo = tipo;
             obj2.usuario_cargue = SesionVar.UserName;
             obj2.fecha_Cargue = DateTime.Now;
+
+            List<string> erroresDuplicados = new List<string>();
 
             var textError = "";
             var resultado = 0;
@@ -2991,6 +3350,91 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                             throw new Exception(textError);
                         }
 
+
+                        columna = "AÑO DE CARGUE";
+                        try
+                        {
+                            texto = Convert.ToString(item["AÑO DE CARGUE"]);
+                            if (texto.All(char.IsDigit) && !string.IsNullOrEmpty(texto))
+                            {
+                                if (texto.Length < 11)
+                                {
+                                    obj.año_cargue = Convert.ToInt32(item["AÑO DE CARGUE"]);
+                                }
+                                else
+                                {
+                                    textError = columna + ", solo puede contener 10 caracteres.";
+                                    throw new Exception(textError);
+                                }
+                            }
+                            else
+                            {
+                                textError = columna + ", solo se aceptan números.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("solo se aceptan números") || error.Contains("solo puede contener 10 caracteres."))
+                            {
+                                textError = error;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+
+
+                        columna = "FECHA DE CORTE";
+
+                        try
+                        {
+                            fecha = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            if (fecha != null)
+                            {
+                                obj.fecha_corte = Convert.ToDateTime(item["FECHA DE CORTE"]);
+                            }
+                            else
+                            {
+                                textError = columna + ",No puede ir vacio.";
+                                throw new Exception(textError);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = ex.Message;
+                            if (error.Contains("No puede ir"))
+                            {
+                                textError = ex.Message;
+                            }
+                            else
+                            {
+                                textError = columna + ", formato incorrecto.";
+                            }
+
+                            throw new Exception(textError);
+                        }
+
+                        obj.fecha_digita = DateTime.Now;
+                        obj.usuario_digita = SesionVar.UserName;
+
+
+
+                        // Verificación duplicado
+                        var resultadoValidacion = BusClass.ValidacionPacienteAltoCostoResult(obj.documento, null, "VIH");
+                        if (resultadoValidacion != null && resultadoValidacion.Any())
+                        {
+                            var primerDuplicado = resultadoValidacion.FirstOrDefault(); // o First() si estás seguro de que hay al menos uno
+                            erroresDuplicados.Add($"Paciente duplicado con ID de registro: {primerDuplicado.id_registro} y número de Documento: {obj.documento} -- FILA: {IntContadorFilas}.");
+                        }
+
+
+
                         OBJDetalle.Add(obj);
                         obj = new cargue_cuentas_altoCosto_vih();
                         IntContador = IntContador + 1;
@@ -3009,6 +3453,18 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
                 {
                     throw new Exception("El archivo no puede cargarse vacío");
                 }
+
+
+                if (erroresDuplicados.Any())
+                {
+                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
+                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+
+                    BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+                    throw new ErroresDuplicadosException("ERROR CARGUE VIH: " + todosErrores);
+                }
+
 
                 try
                 {
@@ -3029,6 +3485,16 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
             catch (Exception ex)
             {
                 BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
+
+
+                if (ex is ErroresDuplicadosException)
+                {
+                    MsgRes.DescriptionResponse = ex.Message;
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.CodeError = ex.Message;
+                    return 0;
+                }
+
 
                 if (textError != "" && textError != null)
                 {
@@ -3057,4 +3523,491 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
         #endregion
     }
+
+
+    public class GestionCancer
+    {
+
+
+        #region PROPIEDADES
+
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+
+
+
+        public int id_cancer { get; set; }
+        public int id_cargue { get; set; }
+        public string rastreo_mes { get; set; }
+        public string año_rastreo { get; set; }
+        public string documento { get; set; }
+        public string regional { get; set; }
+        public string unis { get; set; }
+        public string tipo_documento { get; set; }
+        public string documento_paciente { get; set; }
+        public string primer_apellido { get; set; }
+        public string segundo_apellido { get; set; }
+        public string primer_nombre { get; set; }
+        public string segundo_nombre { get; set; }
+        public DateTime? fecha_nacimiento { get; set; }
+        public int? edad { get; set; }
+        public string sexo { get; set; }
+        public string diagnostico_cie10 { get; set; }
+        public string descripcion_dx { get; set; }
+        public string agrupador { get; set; }
+        public string deteccion_temprana { get; set; }
+        public string cuenta_altocosto { get; set; }
+        public string quimioterapia_radioterapia { get; set; }
+        public int? estado { get; set; }
+        public DateTime? fecha_corte { get; set; }
+        public DateTime? fecha_digita { get; set; }
+        public string usuario_digita { get; set; }
+
+        #endregion
+
+
+        public void ObtenerDatosCancer(int tipo, int idRegistro)
+        {
+
+            var datos = BusClass.ObtenerDatosCancer(tipo, idRegistro).FirstOrDefault();
+
+            try
+            {
+                if (datos != null)
+                {
+                    this.id_cancer = datos.id_cancer;
+                    this.rastreo_mes = datos.rastreo_mes;
+                    this.año_rastreo = datos.año_rastreo;
+                    this.documento = datos.documento;
+                    this.regional = datos.regional;
+                    this.unis = datos.unis;
+                    this.tipo_documento = datos.tipo_documento;
+                    this.documento_paciente = datos.documento_paciente;
+                    this.primer_apellido = datos.primer_apellido;
+                    this.segundo_apellido = datos.segundo_apellido;
+                    this.primer_nombre = datos.primer_nombre;
+                    this.segundo_nombre = datos.segundo_nombre;
+                    this.fecha_nacimiento = datos.fecha_nacimiento;
+                    this.edad = datos.edad;
+                    this.sexo = datos.sexo;
+                    this.diagnostico_cie10 = datos.diagnostico_cie10;
+                    this.descripcion_dx = datos.descripcion_dx;
+                    this.agrupador = datos.agrupador;
+                    this.deteccion_temprana = datos.deteccion_temprana;
+                    this.cuenta_altocosto = datos.cuenta_altocosto;
+                    this.quimioterapia_radioterapia = datos.quimioterapia_radioterapia;
+                    this.estado = datos.estado;
+                    this.fecha_corte = datos.fecha_corte;
+                    this.fecha_digita = datos.fecha_digita;
+                    this.usuario_digita = datos.usuario_digita;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al setear los datos");
+            }
+           
+
+
+
+        }
+
+    }
+
+
+    public class GestionHemofilia
+    {
+
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+        public int id_hemofilia { get; set; }
+        public int id_cargue { get; set; }
+        public string documento { get; set; }
+        public string mes { get; set; }
+        public string rastreos { get; set; }
+        public string reportado_cac { get; set; }
+        public string en_medicarte { get; set; }
+        public string observaciones { get; set; }
+        public string regional { get; set; }
+        public string unis { get; set; }
+        public string primer_nombre { get; set; }
+        public string segundo_nombre { get; set; }
+        public string primer_apellido { get; set; }
+        public string segundo_apellido { get; set; }
+        public string tipo_identificacion_paciente { get; set; }
+        public string identificacion_paciente { get; set; }
+        public DateTime? fecha_nacimiento { get; set; }
+        public string seco { get; set; }
+        public string diagnostico_cie10 { get; set; }
+        public string descripcion_dx { get; set; }
+        public int? estado { get; set; }
+        public DateTime? fecha_corte { get; set; }
+        public int? año_cargue { get; set; }
+        public DateTime? fecha_digita { get; set; }
+        public string usuario_digita { get; set; }
+
+
+        public void ObtenerDatosHemofilia(int tipo, int idRegistro)
+        {
+            
+
+            var datos = BusClass.ObtenerDatosHemofilia(tipo, idRegistro).FirstOrDefault();
+            try
+            {
+                if (datos != null)
+                {
+                    this.id_hemofilia = datos.id_hemofilia;
+                    this.documento = datos.documento;
+                    this.mes = datos.mes;
+                    this.año_cargue = datos.año_cargue;
+                    this.rastreos = datos.rastreos;
+                    this.reportado_cac = datos.reportado_cac;
+
+                    this.en_medicarte = datos.en_medicarte;
+                    this.observaciones = datos.observaciones;
+                    this.regional = datos.regional;
+                    this.unis = datos.unis;
+
+                    this.primer_nombre = datos.primer_nombre;
+                    this.segundo_nombre = datos.segundo_nombre;
+                    this.primer_apellido = datos.primer_apellido;
+                    this.segundo_apellido = datos.segundo_apellido;
+                    this.tipo_identificacion_paciente = datos.tipo_identificacion_paciente;
+
+                    this.identificacion_paciente = datos.identificacion_paciente;
+                    this.fecha_nacimiento = datos.fecha_nacimiento;
+                    this.seco = datos.seco;
+
+
+                    this.diagnostico_cie10 = datos.diagnostico_cie10;
+                    this.descripcion_dx = datos.descripcion_dx;
+                    this.estado = datos.estado;
+
+                    this.fecha_corte = datos.fecha_corte;
+                    this.año_cargue = datos.año_cargue;
+                    this.fecha_digita = datos.fecha_digita;
+
+                    this.usuario_digita = datos.usuario_digita;
+
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception("Error al setear los datos");
+            }
+            
+
+        }
+
+    }
+
+
+    public class GestionArtritis
+    {
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+
+        public int id_artritis { get; set; }
+        public int id_cargue { get; set; }
+        public string documento { get; set; }
+        public string mes_rastreo { get; set; }
+        public string en_rastreo { get; set; }
+        public string reportado_cac { get; set; }
+        public string en_medicarte { get; set; }
+        public string observaciones { get; set; }
+        public string documento_2 { get; set; }
+        public string coordinacion_ok { get; set; }
+        public string unis { get; set; }
+        public string tipo_documento { get; set; }
+        public string documento_paciente { get; set; }
+        public string sexo { get; set; }
+        public DateTime? fecha_nacimiento { get; set; }
+        public int? edad { get; set; }
+        public string primer_nombre { get; set; }
+        public string segundo_nombre { get; set; }
+        public string primer_apellido { get; set; }
+        public string segundo_apellido { get; set; }
+        public string diagnostico_cie10 { get; set; }
+        public string descripcion_dx { get; set; }
+        public int? estado { get; set; }
+        public DateTime? fecha_corte { get; set; }
+        public int? año_cargue { get; set; }
+        public DateTime? fecha_digita { get; set; }
+        public string usuario_digita { get; set; }
+
+
+        public void ObtenerDatosArtritis(int tipo, int idRegistro)
+        {
+            var datos = BusClass.ObtenerDatosArtritis(3, idRegistro).FirstOrDefault();
+
+            try{
+
+                if (datos != null)
+                {
+                    this.id_artritis = datos.id_artritis;
+                    this.documento = datos.documento;
+                    this.mes_rastreo = datos.mes_rastreo;
+                    this.en_rastreo = datos.en_rastreo;
+                    this.reportado_cac = datos.reportado_cac;
+                    this.en_medicarte = datos.en_medicarte;
+                    this.observaciones = datos.observaciones;
+                    this.documento_2 = datos.documento_2;
+                    this.coordinacion_ok = datos.coordinacion_ok;
+                    this.unis = datos.unis;
+                    this.tipo_documento = datos.tipo_documento;
+                    this.documento_paciente = datos.documento_paciente;
+                    this.sexo = datos.sexo;
+                    this.fecha_nacimiento = datos.fecha_nacimiento;
+                    this.edad = datos.edad;
+
+
+                    this.primer_nombre = datos.primer_nombre;
+                    this.segundo_nombre = datos.segundo_nombre;
+                    this.primer_apellido = datos.primer_apellido;
+                    this.segundo_apellido = datos.segundo_apellido;
+                    this.diagnostico_cie10 = datos.diagnostico_cie10;
+                    this.descripcion_dx = datos.descripcion_dx;
+
+                    this.estado = datos.estado;
+                    this.fecha_corte = datos.fecha_corte;
+                    this.año_cargue = datos.año_cargue;
+
+                    this.fecha_digita = datos.fecha_digita;
+                    this.usuario_digita = datos.usuario_digita;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al setear los datos");
+            }
+
+           
+            
+
+        }
+    }
+
+    public class GestionVIH
+    {
+
+
+        private Facede.Facade _BusClass;
+        public Facede.Facade BusClass
+        {
+            get
+            {
+                if (_BusClass != null)
+                {
+                    return _BusClass;
+                }
+                else
+                {
+                    return _BusClass = new Facede.Facade();
+                }
+
+            }
+            set { _BusClass = value; }
+        }
+
+        private SessionState _SesionVar;
+        public SessionState SesionVar
+        {
+            get
+            {
+                if (_SesionVar == null)
+                {
+                    _SesionVar = new SessionState();
+                }
+                return _SesionVar;
+            }
+            set { _SesionVar = value; }
+        }
+
+        MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+
+
+        public int id_vih { get; set; }
+        public int id_cargue { get; set; }
+        public string mes { get; set; }
+        public string documento { get; set; }
+        public string en_rastreo { get; set; }
+        public string reportado_cac { get; set; }
+        public string en_medicarte { get; set; }
+        public string observaciones { get; set; }
+        public string coordinacion { get; set; }
+        public string unis { get; set; }
+        public string tipo_documento { get; set; }
+        public string documento_paciente { get; set; }
+        public string primer_apellido { get; set; }
+        public string segundo_apellido { get; set; }
+        public string primer_nombre { get; set; }
+        public string segundo_nombre { get; set; }
+        public DateTime? fecha_nacimiento { get; set; }
+        public int? edad { get; set; }
+        public string genero { get; set; }
+        public string diagnostico_cie10 { get; set; }
+        public string descripcion_dx { get; set; }
+        public int? estado { get; set; }
+        public DateTime? fecha_corte { get; set; }
+        public int? año_cargue { get; set; }
+        public DateTime? fecha_digita { get; set; }
+        public string usuario_digita { get; set; }
+
+
+        public void ObtenerDatosVIH(int tipo, int idRegistro)
+        {
+           var datos =  BusClass.ObtenerDatosVIH(4, idRegistro).FirstOrDefault();
+            try
+            {
+                if (datos != null)
+                {
+                    this.id_vih = datos.id_vih;
+                    this.mes = datos.mes;
+                    this.documento = datos.documento;
+                    this.en_rastreo = datos.en_rastreo;
+                    this.reportado_cac = datos.reportado_cac;
+                    this.en_medicarte = datos.en_medicarte;
+                    this.observaciones = datos.observaciones;
+                    this.coordinacion = datos.coordinacion;
+                    this.unis = datos.unis;
+                    this.tipo_documento = datos.tipo_documento;
+                    this.documento_paciente = datos.documento_paciente;
+                    this.primer_apellido = datos.primer_apellido;
+                    this.segundo_apellido = datos.segundo_apellido;
+                    this.primer_nombre = datos.primer_nombre;
+                    this.segundo_nombre = datos.segundo_nombre;
+                    this.fecha_nacimiento = datos.fecha_nacimiento;
+                    this.edad = datos.edad;
+                    this.genero = datos.genero;
+                    this.diagnostico_cie10 = datos.diagnostico_cie10;
+                    this.descripcion_dx = datos.descripcion_dx;
+                    this.estado = datos.estado;
+                    this.fecha_corte = datos.fecha_corte;
+                    this.año_cargue = datos.año_cargue;
+                    this.fecha_digita = datos.fecha_digita;
+                    this.usuario_digita = datos.usuario_digita;
+
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception("Error al setear los datos");
+            }
+
+           
+        }
+
+
+
+
+    }
+
+
+    public class GestionAltoCostoViewModel
+    {
+        public GestionCancer Cancer { get; set; }
+        public GestionHemofilia Hemofilia { get; set; }
+        public GestionArtritis Artritis { get; set; }
+        public GestionVIH VIH { get; set; }
+
+        public int Tipo { get; set; }
+    }
+
+
+
 }

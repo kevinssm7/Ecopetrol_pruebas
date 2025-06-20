@@ -6410,5 +6410,133 @@ namespace DATA_ACCESS
 
 
         #endregion RECOMENDACIONES AUDITORIA
+
+        #region ALTO COSTO INVENTARIO 
+        public int Actualizar_rastreoCancer(cargue_cuentas_altoCosto_cancer model)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    cargue_cuentas_altoCosto_cancer cancer = db.cargue_cuentas_altoCosto_cancer.Where(x => x.id_cancer == model.id_cancer).FirstOrDefault();
+
+                    cancer.documento = model.documento;
+                    cancer.regional = model.regional;
+                    cancer.unis = model.unis;
+                    cancer.documento_paciente = model.documento_paciente;
+                    cancer.diagnostico_cie10 = model.diagnostico_cie10;
+                    cancer.descripcion_dx = model.descripcion_dx;
+                    cancer.agrupador = model.agrupador;
+
+
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+                return 0;
+            }
+        }
+
+
+
+
+        public int Actualizar_rastreoHemofilia(cargue_cuentas_altoCosto_hemofilia model)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    cargue_cuentas_altoCosto_hemofilia hemofilia = db.cargue_cuentas_altoCosto_hemofilia.Where(x => x.id_hemofilia == model.id_hemofilia).FirstOrDefault();
+
+                    hemofilia.documento = model.documento;
+                    hemofilia.regional = model.regional;
+                    hemofilia.unis = model.unis;
+                    hemofilia.identificacion_paciente = model.identificacion_paciente;
+                    hemofilia.diagnostico_cie10 = model.diagnostico_cie10;
+                    hemofilia.descripcion_dx = model.descripcion_dx;
+
+
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+                return 0;
+            }
+        }
+
+
+
+
+        public int Actualizar_rastreoArtritis(cargue_cuentas_altoCosto_artritis model)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    cargue_cuentas_altoCosto_artritis artritis = db.cargue_cuentas_altoCosto_artritis.Where(x => x.id_artritis == model.id_artritis).FirstOrDefault();
+
+                    artritis.documento = model.documento;
+                    artritis.documento_2 = model.documento_2;
+                    artritis.coordinacion_ok = model.coordinacion_ok;
+                    artritis.unis = model.unis;
+                    artritis.documento_paciente = model.documento_paciente;
+                    artritis.diagnostico_cie10 = model.diagnostico_cie10;
+                    artritis.descripcion_dx = model.descripcion_dx;
+
+
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+                return 0;
+            }
+        }
+
+
+
+
+
+
+
+        public int Actualizar_rastreoVIH(cargue_cuentas_altoCosto_vih model)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    cargue_cuentas_altoCosto_vih VIH = db.cargue_cuentas_altoCosto_vih.Where(x => x.id_vih == model.id_vih).FirstOrDefault();
+
+                    VIH.documento = model.documento;
+                    VIH.coordinacion = model.coordinacion;
+                    VIH.unis = model.unis;
+                    VIH.documento_paciente = model.documento_paciente;
+                    VIH.diagnostico_cie10 = model.diagnostico_cie10;
+                    VIH.descripcion_dx = model.descripcion_dx;
+
+
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+                return 0;
+            }
+        }
+
+
+
+
+        #endregion
     }
 }

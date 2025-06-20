@@ -3328,6 +3328,8 @@ namespace Facede
         {
             return DACConsulta.PqrsListaObservacionesAuditor(idPqrs);
         }
+
+
         public int CargueMasivoQuienLlamoPqrs(List<ecop_pqrs_a_quien_llamo> detalle, ref MessageResponseOBJ MsgRes)
         {
             return DACInserta.CargueMasivoQuienLlamoPqrs(detalle, ref MsgRes);
@@ -8684,6 +8686,124 @@ namespace Facede
         {
             return DACConsulta.DocumentosConArchivos(año, mes, regional, tipo, documento);
         }
+
+
+        public List<management_ValidacionPacienteAltoCostoResult> ValidacionPacienteAltoCostoResult (string documento, string cie10, string tipo)
+        {
+            return DACConsulta.ValidacionPacienteAltoCostoResult(documento, cie10, tipo);
+        }
+
+
+        public List<cargue_cuentas_altoCosto_cancer> ObtenerDatosCancer(int tipo, int idRegistro)
+        {
+            return DACConsulta.ObtenerDatosCancer( 1,  idRegistro);
+        }
+
+
+        public List<cargue_cuentas_altoCosto_hemofilia> ObtenerDatosHemofilia(int tipo, int idRegistro)
+        {
+            return DACConsulta.ObtenerDatosHemofilia( 2,  idRegistro);
+        }
+
+
+        public List<cargue_cuentas_altoCosto_artritis> ObtenerDatosArtritis(int tipo, int idRegistro)
+        {
+            return DACConsulta.ObtenerDatosArtritis( 3,  idRegistro);
+        }
+
+
+
+        public List<cargue_cuentas_altoCosto_vih> ObtenerDatosVIH(int tipo, int idRegistro)
+        {
+            return DACConsulta.ObtenerDatosVIH( 4,  idRegistro);
+        }
+
+
+        public List<ref_agrupador> GetAgrupador()
+        {
+            return DACComonClass.GetAgrupador();
+        }
+
+        public int Actualizar_rastreoCancer(cargue_cuentas_altoCosto_cancer model)
+        {
+            var entidad = new cargue_cuentas_altoCosto_cancer
+            {
+                id_cancer = model.id_cancer,
+                documento = model.documento,
+                regional = model.regional,
+                unis = model.unis,
+                documento_paciente = model.documento_paciente,
+                diagnostico_cie10 = model.diagnostico_cie10,
+                descripcion_dx = model.descripcion_dx,
+                agrupador = model.agrupador
+            };
+
+            return DACActualiza.Actualizar_rastreoCancer(entidad); 
+        }
+
+
+
+        public int Actualizar_rastreoHemofilia(cargue_cuentas_altoCosto_hemofilia model)
+        {
+            var entidad = new cargue_cuentas_altoCosto_hemofilia
+            {
+                id_hemofilia = model.id_hemofilia,
+                documento = model.documento,
+                regional = model.regional,
+                unis = model.unis,
+                identificacion_paciente = model.identificacion_paciente,
+                diagnostico_cie10 = model.diagnostico_cie10,
+                descripcion_dx = model.descripcion_dx,
+            };
+
+            return DACActualiza.Actualizar_rastreoHemofilia(entidad); 
+        }
+
+
+        public int Actualizar_rastreoArtritis(cargue_cuentas_altoCosto_artritis model)
+        {
+            var entidad = new cargue_cuentas_altoCosto_artritis
+            {
+                id_artritis = model.id_artritis,
+                documento = model.documento,
+                documento_2 = model.documento_2,
+                coordinacion_ok = model.coordinacion_ok,
+                unis = model.unis,
+                documento_paciente = model.documento_paciente,
+                diagnostico_cie10 = model.diagnostico_cie10,
+                descripcion_dx = model.descripcion_dx,
+            };
+
+            return DACActualiza.Actualizar_rastreoArtritis(entidad); 
+        }
+
+
+
+        public int Actualizar_rastreoVIH(cargue_cuentas_altoCosto_vih model)
+        {
+            var entidad = new cargue_cuentas_altoCosto_vih
+            {
+                id_vih = model.id_vih,
+                documento = model.documento,
+                coordinacion = model.coordinacion,
+                unis = model.unis,
+                documento_paciente = model.documento_paciente,
+                diagnostico_cie10 = model.diagnostico_cie10,
+                descripcion_dx = model.descripcion_dx,
+            };
+
+            return DACActualiza.Actualizar_rastreoVIH(entidad); 
+        }
+
+        
+
+
+
+        public int InsertarLog_RastreoActualizacion(log_AltoCosto_actualizaciones obj)
+        {
+            return DACInserta.InsertarLog_RastreoActualizacion(obj);
+        }
+
 
         #endregion
 

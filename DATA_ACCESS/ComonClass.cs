@@ -2147,6 +2147,27 @@ namespace DATA_ACCESS
             return lista;
         }
 
+
+        public List<ref_agrupador> GetAgrupador()
+        {
+            List<ref_agrupador> lstResult = new List<ref_agrupador>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lstResult = db.ref_agrupador.ToList();
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
+                }
+            }
+            catch (Exception ex)
+            {
+                MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                MsgRes.DescriptionResponse = ex.Message;
+            }
+            return lstResult;
+        }
+
+
         #region FFMM
 
         public List<Ref_ffmm_glosas> FFMM_glosas()

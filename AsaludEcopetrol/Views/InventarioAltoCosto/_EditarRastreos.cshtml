@@ -1,0 +1,974 @@
+﻿@model AsaludEcopetrol.Models.InventarioAltoCosto.GestionAltoCostoViewModel
+
+<div class="panel-body">
+
+    @if (Model.Tipo == 1 && Model.Cancer != null)
+    {
+    <form id="GuardarGestionCancer" action="GuardarGestionCancer" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+        <input type="hidden" id="id_cancer" name="Cancer.id_cancer" value="@ViewBag.id" />
+
+            <div id="tipoCancer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Mes Rastreo:</label>
+                        <input type="text" id="Cancer_rastreo_mes" name="Cancer.rastreo_mes" class="form-control" readonly value="@Model.Cancer.rastreo_mes" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Año rastreo:</label>
+                        <input type="text" id="Cancer_año_rastreo" name="Cancer.año_rastreo" class="form-control" readonly value="@Model.Cancer.año_rastreo" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">No. Documento:</label>
+                        <input type="text" id="Cancer_documento" name="Cancer.documento" class="form-control" value="@Model.Cancer.documento" required />
+                    </div>
+                    <div class="col-md-6">
+
+                        <label class="text-secondary_asalud">Regional:</label>
+
+                        <select id="Cancer_regional" name="Cancer.regional" class="form-control select2" onchange="CargarUnis(this)" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                var selected = item.nombre_regional == Model.Cancer.regional ? "selected" : "";
+                                <option value="@item.indice" data-id="@item.id_ref_regional" @selected>@item.nombre_regional</option>
+                            }
+                        </select>
+
+
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Unis</label>
+                        <select class="form-control select2" id="cbxunis" name="Cancer.unis" required>
+                            <option value="">- Seleccionar -</option>
+
+                            @{
+                                var listaUnis = ViewBag.unis as List<ECOPETROL_COMMON.ENTIDADES.Ref_odont_unis>;
+                                if (!string.IsNullOrEmpty(Model.Cancer.unis) && listaUnis != null)
+                                {
+                                    var unisSeleccionada = listaUnis.FirstOrDefault(u => u.descripcion == Model.Cancer.unis);
+                                    if (unisSeleccionada != null)
+                                    {
+                                        <text>
+                                            <option value="@unisSeleccionada.descripcion" selected>@unisSeleccionada.descripcion</option>
+                                        </text>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+
+
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Tipo de Documento:</label>
+                        <input type="text" id="Cancer_tipo_documento" name="Cancer.tipo_documento" class="form-control" readonly value="@Model.Cancer.tipo_documento" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Documento Paciente:</label>
+                        <input type="text" id="Cancer_documento_paciente" name="Cancer.documento_paciente" class="form-control" value="@Model.Cancer.documento_paciente" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Nombres:</label>
+                        <input type="text" id="Cancer_nombres" name="Cancer.nombres" class="form-control" readonly value="@Model.Cancer.primer_nombre @Model.Cancer.segundo_nombre" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Apellidos:</label>
+                        <input type="text" id="Cancer_apellidos" name="Cancer.apellidos" class="form-control" readonly value="@Model.Cancer.primer_apellido @Model.Cancer.segundo_apellido" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Fecha de Nacimiento:</label>
+                        <input type="text" id="fecha_nacimiento" name="Cancer.fecha_nacimiento" class="form-control" style="width:100%;" readonly value="@Model.Cancer.fecha_nacimiento" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Edad:</label>
+                        <input type="text" id="Cancer_edad" name="Cancer.edad" class="form-control" readonly value="@Model.Cancer.edad" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Sexo:</label>
+                        <input type="text" id="Cancer_sexo" name="Cancer.sexo" class="form-control" readonly value="@Model.Cancer.sexo" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Diagnóstico CIE10:</label>
+                        <input type="text" id="cie10" name="Cancer.diagnostico_cie10" class="form-control" value="@Model.Cancer.diagnostico_cie10" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Descripción CIE10:</label>
+                        <input type="text" id="descripcion_dx" name="Cancer.descripcion_dx" class="form-control" value="@Model.Cancer.descripcion_dx" required />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Agrupador:</label>
+                        <select id="Cancer_agrupador" name="Cancer.agrupador" class="form-control select3" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_agrupador item in ViewBag.agrupador)
+                            {
+                                var selected = item.descripcion_agrupador == Model.Cancer.agrupador ? "selected" : "";
+                                <option value="@item.descripcion_agrupador" @selected>@item.descripcion_agrupador</option>
+                            }
+
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Detección Temprana:</label>
+                        <input type="text" id="Cancer_deteccion_temprana" name="Cancer.deteccion_temprana" class="form-control" readonly value="@Model.Cancer.deteccion_temprana" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Cuenta Alto Costo:</label>
+                        <input type="text" id="Cancer_cuenta_altocosto" name="Cancer.cuenta_altocosto" class="form-control" readonly value="@Model.Cancer.cuenta_altocosto" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Quimioterapia/Radioterapia:</label>
+                        <input type="text" id="Cancer_quimioterapia_radioterapia" name="Cancer.quimioterapia_radioterapia" class="form-control" readonly value="@Model.Cancer.quimioterapia_radioterapia" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">Fecha de corte:</label>
+                        <input type="text" id="fecha_corte" name="Cancer.fecha_corte" class="form-control" style="width:100%;" readonly value="@Model.Cancer.fecha_corte" />
+                    </div>
+                </div>
+
+                <br />
+
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button onclick="ValidarFormulario()" class="btn button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+
+                <br />
+            </div>
+       
+    </form>
+
+}
+
+
+    else if (Model.Tipo == 2 && Model.Hemofilia != null)
+    {
+
+    <form id="GuardarGestionHemofilia" action="GuardarGestionHemofilia" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="id_registro" name="Hemofilia.id_hemofilia" value="@ViewBag.id" />
+        <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+
+            <div id="tipoHemofilia">
+                <div class="row">   
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_mes">Mes Rastreo:</label>
+                        <input type="text" id="Hemofilia_mes" name="Hemofilia.mes" class="form-control" readonly value="@Model.Hemofilia.mes" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_año_cargue">Año Rastreo:</label>
+                        <input type="text" id="Hemofilia_año_cargue" name="Hemofilia.año_cargue" class="form-control" readonly value="@Model.Hemofilia.año_cargue" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_documento">No. Documento:</label>
+                        <input type="text" id="Hemofilia_documento" name="Hemofilia.documento" class="form-control" maxlength="20" value="@Model.Hemofilia.documento" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_rastreos">En Rastreos:</label>
+                        <input type="text" id="Hemofilia_rastreos" name="Hemofilia.rastreos" class="form-control" readonly value="@Model.Hemofilia.rastreos" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_reportado_cac">Reportado en CAC:</label>
+                        <input type="text" id="Hemofilia_reportado_cac" name="Hemofilia.reportado_cac" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.reportado_cac" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_en_medicarte">En medicarte:</label>
+                        <input type="text" id="Hemofilia_en_medicarte" name="Hemofilia.en_medicarte" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.en_medicarte" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_observaciones">Observaciones:</label>
+                        <input type="text" id="Hemofilia_observaciones" name="Hemofilia.observaciones" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.observaciones" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_observaciones">Regional:</label>
+                        <select id="Hemofilia_regional" name="Hemofilia.regional" class="form-control select2" onchange="CargarUnis(this)" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                var selected = item.indice == Model.Hemofilia.regional ? "selected" : "";
+                                <option value="@item.indice" data-id="@item.id_ref_regional" @selected>@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Unis</label>
+                        <select class="form-control select2" id="cbxunis" name="Hemofilia.unis" required>
+                            <option value="">- Seleccionar -</option>
+
+                            @{
+                                var listaUnis = ViewBag.unis as List<ECOPETROL_COMMON.ENTIDADES.Ref_odont_unis>;
+                                if (!string.IsNullOrEmpty(Model.Hemofilia.unis) && listaUnis != null)
+                                {
+                                    var unisSeleccionada = listaUnis.FirstOrDefault(u => u.descripcion == Model.Hemofilia.unis);
+                                    if (unisSeleccionada != null)
+                                    {
+                                        <text>
+                                            <option value="@unisSeleccionada.id_ref_unis" selected>@unisSeleccionada.descripcion</option>
+                                        </text>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_nombres">Nombres:</label>
+                        <input type="text" id="Hemofilia_nombres" name="Hemofilia.nombres" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.primer_nombre @Model.Hemofilia.segundo_nombre" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_apellidos">Apellidos:</label>
+                        <input type="text" id="Hemofilia_apellidos" name="Hemofilia.apellidos" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.primer_apellido @Model.Hemofilia.segundo_apellido" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_tipo_identificacion_paciente">Tipo de Identificación:</label>
+                        <input type="text" id="Hemofilia_tipo_identificacion_paciente" name="Hemofilia.tipo_identificacion_paciente" class="form-control" maxlength="199" readonly value="@Model.Hemofilia.tipo_identificacion_paciente" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_identificacion_paciente">Identificación Paciente:</label>
+                        <input type="text" id="Hemofilia_identificacion_paciente" name="Hemofilia.identificacion_paciente" class="form-control" maxlength="20" value="@Model.Hemofilia.identificacion_paciente" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_fecha_nacimiento">Fecha de Nacimiento:</label>
+                        <input type="text" id="fecha_nacimiento" name="Hemofilia.fecha_nacimiento" class="form-control" readonly style="width:100%;" value="@Model.Hemofilia.fecha_nacimiento" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_sexo">Sexo:</label>
+                        <input type="text" id="Hemofilia_sexo" name="Hemofilia.sexo" class="form-control" readonly value="@Model.Hemofilia.seco" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_diagnostico_cie10">Diagnóstico CIE10:</label>
+                        <input type="text" id="cie10" name="Hemofilia.diagnostico_cie10" class="form-control" value="@Model.Hemofilia.diagnostico_cie10" required />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_descripcion_dx">Descripción CIE10:</label>
+                        <input type="text" id="descripcion_dx" name="Hemofilia.descripcion_dx" class="form-control" value="@Model.Hemofilia.descripcion_dx" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud" for="Hemofilia_fecha_corte">Fecha de corte:</label>
+                        <input type="text" id="fecha_corte" name="Hemofilia.fecha_corte" class="form-control" style="width:100%;" readonly value="@Model.Hemofilia.fecha_corte" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button onclick="ValidarFormulario2()" class="btn button_Asalud_Guardar">Guardar</button>
+                    </div>
+                </div>
+                <br />
+            </div>
+
+
+    </form>
+    }
+
+
+    else if (Model.Tipo == 3 && Model.Artritis != null)
+    {
+        <form id="GuardarGestionArtritis" action="GuardarGestionArtritis" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="id_registro" name="Artritis.id_artritis" value="@ViewBag.id" />
+            <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+
+                <div id="tipoArtritis">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_mes_rastreo">Mes Rastreo:</label>
+                            <input type="text" id="Artritis_mes_rastreo" name="Artritis.mes_rastreo" class="form-control" readonly value="@Model.Artritis.mes_rastreo" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_año_cargue">Año Rastreo:</label>
+                            <input type="text" id="Artritis_año_cargue" name="Artritis.año_cargue" class="form-control" readonly value="@Model.Artritis.año_cargue" />
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_documento">Documento:</label>
+                            <input type="text" id="Artritis_documento" name="Artritis.documento" class="form-control" value="@Model.Artritis.documento" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_en_rastreo">En Rastreo:</label>
+                            <input type="text" id="Artritis_en_rastreo" name="Artritis.en_rastreo" class="form-control" readonly value="@Model.Artritis.en_rastreo" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_reportado_cac">Reportado CAC:</label>
+                            <input type="text" id="Artritis_reportado_cac" name="Artritis.reportado_cac" class="form-control" readonly value="@Model.Artritis.reportado_cac" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_en_medicarte">En Medicarte:</label>
+                            <input type="text" id="Artritis_en_medicarte" name="Artritis.en_medicarte" class="form-control" readonly value="@Model.Artritis.en_medicarte" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_observaciones">Observaciones:</label>
+                            <input type="text" id="Artritis_observaciones" name="Artritis.observaciones" class="form-control" readonly value="@Model.Artritis.observaciones" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_documento_2">Documento 2:</label>
+                            <input type="text" id="Artritis_documento_2" name="Artritis.documento_2" class="form-control" value="@Model.Artritis.documento_2" required />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_coordinacion_ok">Regional:</label>
+                            <select id="Artritis_coordinacion_ok" name="Artritis.coordinacion_ok" class="form-control select2" onchange="CargarUnis(this)" required>
+                                <option value="">--Seleccione--</option>
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                {
+                                    var selected = item.indice == Model.Artritis.coordinacion_ok ? "selected" : "";
+                                    <option value="@item.indice" data-id="@item.id_ref_regional" @selected>@item.nombre_regional</option>
+
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_unis">Unis:</label>
+
+                            <select class="form-control select2" id="cbxunis" name="Artritis.unis" required>
+                                <option value="">- Seleccionar -</option>
+
+                                @{
+                                    var listaUnis = ViewBag.unis as List<ECOPETROL_COMMON.ENTIDADES.Ref_odont_unis>;
+                                    if (!string.IsNullOrEmpty(Model.Artritis.unis) && listaUnis != null)
+                                    {
+                                        var unisSeleccionada = listaUnis.FirstOrDefault(u => u.descripcion == Model.Artritis.unis);
+                                        if (unisSeleccionada != null)
+                                        {
+                                            <text>
+                                                <option value="@unisSeleccionada.id_ref_unis" selected>@unisSeleccionada.descripcion</option>
+                                            </text>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_tipo_documento">Tipo Documento:</label>
+                            <input type="text" id="Artritis_tipo_documento" name="Artritis.tipo_documento" class="form-control" readonly value="@Model.Artritis.tipo_documento" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_documento_paciente">Documento Paciente:</label>
+                            <input type="text" id="Artritis_documento_paciente" name="Artritis.documento_paciente" class="form-control" value="@Model.Artritis.documento_paciente" required />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_sexo">Sexo:</label>
+                            <input type="text" id="Artritis_sexo" name="Artritis.sexo" class="form-control" readonly value="@Model.Artritis.sexo" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_fecha_nacimiento">Fecha de Nacimiento:</label>
+                            <input type="text" id="fecha_nacimiento" name="Artritis.fecha_nacimiento" class="form-control" readonly style="width:100%;" value="@Model.Artritis.fecha_nacimiento" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_edad">Edad:</label>
+                            <input type="text" id="Artritis_edad" name="Artritis.edad" class="form-control" readonly value="@Model.Artritis.edad" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_nombres">Nombres:</label>
+                            <input type="text" id="Artritis_nombres" name="Artritis.nombres" class="form-control" readonly value="@Model.Artritis.primer_nombre @Model.Artritis.segundo_nombre" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_apellidos">Apellidos:</label>
+                            <input type="text" id="Artritis_apellidos" name="Artritis.apellidos" class="form-control" readonly value="@Model.Artritis.primer_apellido @Model.Artritis.segundo_apellido" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_diagnostico_cie10">Diagnóstico CIE10:</label>
+                            <input type="text" id="cie10" name="Artritis.diagnostico_cie10" class="form-control" value="@Model.Artritis.diagnostico_cie10" required />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis_descripcion_dx">Descripción DX:</label>
+                            <input type="text" id="descripcion_dx" name="Artritis.descripcion_dx" class="form-control" value="@Model.Artritis.descripcion_dx" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud" for="Artritis.fecha_corte">Fecha de Corte:</label>
+                            <input type="text" id="fecha_corte" name="Artritis.fecha_corte" class="form-control" readonly style="width:100%;" value="@Model.Artritis.fecha_corte" />
+                        </div>
+
+
+                    </div>
+
+                    <br />
+
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <button onclick="ValidarFormulario3()" class="btn button_Asalud_Guardar">Guardar</button>
+                        </div>
+                    </div>
+                    <br />
+
+                </div>
+
+        </form>
+    }
+
+
+    else if (Model.Tipo == 4 && Model.VIH != null)
+    {
+        <div id="tipoVIH">
+
+            <form id="GuardarGestionVIH" action="GuardarGestionVIH" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="id_registro" name="VIH.id_vih" value="@ViewBag.id" />
+                <input type="hidden" id="tipo" name="tipo" value="@ViewBag.tipo" />
+
+                <div class="panel panel-default">
+                    <div id="tipoVIH">
+                        <br />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_mes">Mes Cargue:</label>
+                                <input type="text" id="VIH_mes" name="VIH.mes" class="form-control" readonly value="@Model.VIH.mes" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_descripcion_dx">Año Cargue:</label>
+                                <input type="text" id="año_cargue" name="VIH.año_cargue" class="form-control" value="@Model.VIH.año_cargue" readonly />
+                            </div>
+
+
+                            
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_documento">Documento:</label>
+                                <input type="text" id="VIH_documento" name="VIH.documento" class="form-control" value="@Model.VIH.documento" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_en_rastreo">En Rastreo:</label>
+                                <input type="text" id="VIH_en_rastreo" name="VIH.en_rastreo" class="form-control" readonly value="@Model.VIH.en_rastreo" />
+                            </div>
+
+                           
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_reportado_cac">Reportado CAC:</label>
+                                <input type="text" id="VIH_reportado_cac" name="VIH.reportado_cac" class="form-control" readonly value="@Model.VIH.reportado_cac" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_en_medicarte">En Medicarte:</label>
+                                <input type="text" id="VIH_en_medicarte" name="VIH.en_medicarte" class="form-control" readonly value="@Model.VIH.en_medicarte" />
+                            </div>
+
+                            
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_observaciones">Observaciones:</label>
+                                <input type="text" id="VIH_observaciones" name="VIH.observaciones" class="form-control" readonly value="@Model.VIH.observaciones" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_coordinacion">Regional:</label>
+                                <select id="VIH_coordinacion" name="VIH.coordinacion" class="form-control select2" onchange="CargarUnis(this)" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                                    {
+                                        var selected = item.indice == Model.VIH.coordinacion ? "selected" : "";
+                                        <option value="@item.indice" data-id="@item.id_ref_regional" @selected>@item.nombre_regional</option>
+
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_unis">Unis:</label>
+                                <select class="form-control select2" id="cbxunis" name="VIH.unis" required>
+                                    <option value="">- Seleccionar -</option>
+
+                                    @{
+                                        var listaUnis = ViewBag.unis as List<ECOPETROL_COMMON.ENTIDADES.Ref_odont_unis>;
+                                        if (!string.IsNullOrEmpty(Model.VIH.unis) && listaUnis != null)
+                                        {
+                                            var unisSeleccionada = listaUnis.FirstOrDefault(u => u.descripcion == Model.VIH.unis);
+                                            if (unisSeleccionada != null)
+                                            {
+                                                <text>
+                                                    <option value="@unisSeleccionada.id_ref_unis" selected>@unisSeleccionada.descripcion</option>
+                                                </text>
+                                            }
+                                        }
+                                    }
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_tipo_documento">Tipo Documento:</label>
+                                <input type="text" id="VIH_tipo_documento" name="VIH.tipo_documento" class="form-control" readonly value="@Model.VIH.tipo_documento" />
+                            </div>
+
+                           
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_documento_paciente">Documento Paciente:</label>
+                                <input type="text" id="VIH_documento_paciente" name="VIH.documento_paciente" class="form-control" value="@Model.VIH.documento_paciente" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_apellidos">Apellidos:</label>
+                                <input type="text" id="VIH_apellidos" name="VIH.apellidos" class="form-control" readonly value="@Model.VIH.primer_apellido @Model.VIH.segundo_apellido" />
+                            </div>
+
+                            
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_nombres">Nombres:</label>
+                                <input type="text" id="VIH_nombres" name="VIH.nombres" class="form-control" readonly value="@Model.VIH.primer_nombre @Model.VIH.segundo_nombre" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_fecha_nacimiento">Fecha de Nacimiento:</label>
+                                <input type="text" id="fecha_nacimiento" name="VIH.fecha_nacimiento" class="form-control" style="width:100%;" readonly value="@Model.VIH.fecha_nacimiento" />
+                            </div>
+
+                           
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_edad">Edad:</label>
+                                <input type="text" id="VIH_edad" name="VIH.edad" class="form-control" readonly value="@Model.VIH.edad" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_genero">Género:</label>
+                                <input type="text" id="VIH_genero" name="VIH.genero" class="form-control" readonly value="@Model.VIH.genero" />
+                            </div>
+
+                           
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_diagnostico_cie10">Diagnóstico CIE10:</label>
+                                <input type="text" id="cie10" name="VIH.diagnostico_cie10" class="form-control" value="@Model.VIH.diagnostico_cie10" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_descripcion_dx">Descripción DX:</label>
+                                <input type="text" id="descripcion_dx" name="VIH.descripcion_dx" class="form-control" value="@Model.VIH.descripcion_dx" required />
+                            </div>
+
+                           
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="text-secondary_asalud" for="VIH_fecha_corte">Fecha Corte:</label>
+                                <input type="text" id="fecha_corte" name="VIH.fecha_corte" class="form-control" style="width:100%;" readonly value="@Model.VIH.fecha_corte" />
+                            </div>
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <button onclick="ValidarFormulario4()" class="btn button_Asalud_Guardar">Guardar</button>
+                            </div>
+                        </div>
+
+                        <br />
+                    </div>
+                </div>
+            </form>
+
+
+
+        </div>
+
+    }
+
+
+</div>
+
+
+
+<script>
+
+
+    function MostrarCie10() {
+
+        $("#cie10").autocomplete({
+            source: function (request, response) {
+
+                if (request.term.length > 0) {
+                    $.ajax({
+                        url: "/InventarioAltoCosto/BuscarCie10",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data.length > 0 && data != null) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id
+                                    };
+                                }));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            },
+            select: function (event, ui) {
+
+                var detalle = ui.item.label;
+                var descomposicion = detalle.split('-');
+                var descripcion = descomposicion[1];
+                $("#descripcion_dx").val(descripcion);
+            }
+        });
+
+
+        $("#descripcion_dx").autocomplete({
+            source: function (request, response) {
+                if (request.term.length > 0) {
+                    $.ajax({
+                        url: "/InventarioAltoCosto/BuscarCie10",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            if (data.length > 0 && data != null) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.des
+                                    };
+                                }));
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            },
+            select: function (event, ui) {
+
+
+
+                var detalle = ui.item.label;
+                var descomposicion = detalle.split('-');
+                var descripcion = descomposicion[0];
+                $("#cie10").val(descripcion);
+            }
+        });
+
+    }
+
+
+    $(document).ready(function () {
+
+
+        $("#fecha_nacimiento").kendoDatePicker();
+        $("#fecha_corte").kendoDatePicker();
+
+        $(".k-input").attr('readonly', true);
+
+
+
+        MostrarCie10();
+    });
+
+
+    function CargarUnis(selectElement) {
+        var selectedOption = selectElement.options[selectElement.selectedIndex];
+        var idRefRegional = selectedOption.getAttribute("data-id");
+
+        if (idRefRegional && idRefRegional !== "") {
+            $("#cbxunis").empty();
+
+            $.ajax({
+                url: "@Url.Action("ObtenerUnis")",
+                type: "POST",
+                data: { idregional: idRefRegional },
+                success: function (data) {
+                    $("#cbxunis").empty();
+                    $("#cbxunis").html(data);
+                    $("#cbxunis").val("").trigger("change");
+                },
+                error: function () {
+                    alert("Error al cargar las unidades.");
+                }
+            });
+        }
+    }
+
+
+
+    function ValidarFormulario() {
+        var validator = $("#GuardarGestionCancer").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#GuardarGestionCancer").submit();
+        }
+    }
+
+
+    function ValidarFormulario2() {
+        var validator = $("#GuardarGestionHemofilia").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#GuardarGestionHemofilia").submit();
+        }
+    }
+
+
+    function ValidarFormulario3() {
+        var validator = $("#GuardarGestionArtritis").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#GuardarGestionArtritis").submit();
+        }
+    }
+
+
+    function ValidarFormulario4() {
+        var validator = $("#GuardarGestionVIH").validate();
+        if (validator.form()) {
+            LoadingShow();
+            $("#GuardarGestionVIH").submit();
+        }
+    }
+
+
+
+</script>
+<style>
+
+    .charCount {
+        font-size: 10px;
+    }
+
+    .k-input[readonly] {
+        background-color: #eeeeee;
+   
+    }
+
+    .ui-autocomplete {
+        z-index: 9999 !important; /* Establece un z-index alto */
+        color: #556DA2;
+        background-color: #fff;
+        width: 50%;
+        border: 1px;
+        cursor: alias;
+    }
+
+
+</style>
