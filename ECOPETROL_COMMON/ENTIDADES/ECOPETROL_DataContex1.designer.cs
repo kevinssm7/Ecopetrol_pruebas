@@ -13945,7 +13945,7 @@ namespace ECOPETROL_COMMON.ENTIDADES
 			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), documento, cie10, tipo);
 			return ((ISingleResult<management_ValidacionPacienteAltoCostoResult>)(result.ReturnValue));
 		}
-	}
+	
 	
 		
 		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores")]
@@ -524462,4 +524462,4 @@ namespace ECOPETROL_COMMON.ENTIDADES
 		}
 	}
 }
-#pragma warning restore 1591
+
