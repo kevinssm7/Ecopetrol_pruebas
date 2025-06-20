@@ -1878,12 +1878,6 @@ namespace AsaludEcopetrol.Models.CuentasMedicas
             return BusClass.ListaFacturasIncompletas();
         }
 
-        /// <summary>
-        /// Autor: Alexis Quiñones Castillo
-        /// Fecha: 17-nov-2022
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="MsgRes"></param>
         public void InsertarLogBusquedaTableros(log_busquedas_tableros_facturas obj, ref MessageResponseOBJ MsgRes)
         {
             BusClass.InsertarLogBusquedaTableros(obj, ref MsgRes);

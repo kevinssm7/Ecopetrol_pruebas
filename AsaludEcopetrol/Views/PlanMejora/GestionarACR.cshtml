@@ -1,0 +1,544 @@
+﻿@model ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult
+
+<div class="modal-footer">
+    <a class="button_Asalud_Rechazar" onclick="CerrarModalHallazgosGestiones(@Model.IdPlan);">CERRAR</a>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h5>
+            <label class="text-primary_asalud">Plan de mejora: @Model.IdPlan</label>
+        </h5>
+        <h5>
+            <label class="text-primary_asalud">Id Hallazgo: @Model.idHallazgo</label>
+        </h5>
+        <h5>
+            <label class="text-primary_asalud">Fecha plan de mejora: @Model.fecha_creacion.Value.ToString("dd/MM/yyyy")</label>
+        </h5>
+        <h5>
+            <label class="text-primary_asalud">Categoría.  @Model.Nomcategoria</label>
+        </h5>
+        <h5>
+            <label class="text-primary_asalud">Foco de gestión:  @Model.Nomfoco</label>
+        </h5>
+    </div>
+</div>
+
+<form id="formValida">
+    @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 3)
+    {
+        <div class="panel panel-default">
+            <div class="panel-heading text-center">
+                <h4>
+                    <label class="text-secondary_asalud">Seleccione la metodología de análisis</label>
+                </h4>
+            </div>
+
+            <div class="panel-body">
+                <div class="row">
+                    @foreach (ECOPETROL_COMMON.ENTIDADES.ref_planesMejora_metodologias item in ViewBag.metodologias)
+                    {
+                        <div class="col-md-4 mb-3" style="height:100px;">
+                            <label style="width: 100%;">
+                                <input type="radio" id="idMetodologia_@item.id_metodologia" name="idMetodologia" value="@item.id_metodologia" required style="display: none;" />
+                                <div class="card p-3 h-100 card-opcion divFondo">
+                                    <h4 class="mb-2 text-primary_asalud h4Titulo">@item.Encabezado</h4>
+                                    <h5 class="mb-0 text-primary_asalud h5Subtitulo">@item.descripcion</h5>
+                                </div>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <br />
+    }
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="col-md-12 divAceptar">
+                @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 1)
+                {
+                    <a class="button_Asalud_Guardar" onclick="GuardarGestionAuditor();">Guardar</a>
+                }
+
+            </div>
+
+            <br />
+            <br />
+
+            <div id="divTabla" class="col-md-12" style="width:100%;">
+                <div class="table-responsive">
+
+                    <table id="TableGestiones" class="table table-bordered table-condensed" style="font-size:11px; width:100%;  margin:0px !important">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Ítem</th>
+                                <th class="text-center">Fecha de cargue</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center">Usuario creador</th>
+                                <th class="text-center">Gestión</th>
+                                <th class="text-center">Observación</th>
+                                <th class="text-center">Validación del Análisis</th>
+                                <th class="text-center">Usuario gestiona</th>
+                                <th class="text-center">Análisis de causa raíz</th>
+
+                                @*<th class="text-center">Eliminar</th>*@
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbodytbl2">
+                            @if (ViewBag.conteoGestiones > 0)
+                            {
+                                var i = 0;
+
+                                foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult item in ViewBag.gestiones)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td class="text-center">
+
+                                            @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 1)
+                                            {
+                                                if (item.aceptada == null)
+                                                {
+                                                    <input type="hidden" id="idGestion_@item.id_gestion" name="idGestion_@item.id_gestion" value="@item.id_gestion" />
+                                                    <input type="hidden" id="idHallazgo_@item.id_gestion" name="idHallazgo_@item.id_gestion" value="@item.id_plan_mejora_foco_intervencion" />
+                                                    <input type="hidden" id="tipogestion_@item.id_gestion" name="tipogestion_@item.id_gestion" value="@item.tipoDato" />
+                                                }
+                                            }
+
+                                            @item.id_gestion
+                                        </td>
+                                        <td class="text-center">@item.fecha_digita</td>
+                                        <td class="text-center">@item.tipo</td>
+                                        <td class="text-center">@item.nombre</td>
+                                        <td class="text-center">@item.usuario_digita</td>
+                                        @if (item.tipoDato == 1)
+                                        {
+                                            <td class="text-center">Prestador</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center">Auditor</td>
+                                        }
+
+                                        <td>
+                                            @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 1)
+                                            {
+                                                if (item.aceptada == null)
+                                                {
+                                                    <textarea type="text" id="observacion_@item.id_gestion" name="observacion_@item.id_gestion" class="form-control" required></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <label>@item.observacion_aceptada</label>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <label>@item.observacion_aceptada</label>
+                                            }
+
+                                        </td>
+
+                                        <td>
+                                            @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 1)
+                                            {
+                                                if (item.aceptada == null)
+                                                {
+                                                    <div class="radio-btn-group">
+                                                        <input type="radio" id="aprobar_@item.id_gestion" name="estado_@item.id_gestion" value="1" required />
+                                                        <label for="aprobar_@item.id_gestion" class="radio-btn-label radio-aprobar">Aprobar ACR</label>
+
+                                                        <input type="radio" id="rechazar_@item.id_gestion" name="estado_@item.id_gestion" value="0" required />
+                                                        <label for="rechazar_@item.id_gestion" class="radio-btn-label radio-rechazar">Rechazar ACR</label>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <label>@item.aceptada</label>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <label>@item.aceptada</label>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 1)
+                                            {
+                                                if (item.aceptada == null)
+                                                {
+
+                                                }
+                                                else
+                                                {
+                                                    <label>@item.nombreGestiona</label>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <label>@item.nombreGestiona</label>
+                                            }
+
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerACR(@item.id_gestion, @item.tipoDato)"><i class="glyphicon glyphicon-file"></i> VER</a>
+                                        </td>
+
+
+                                        @*<td class="text-center">
+                                                <a class="btn btn-sm button_Asalud_Rechazar" onclick="EliminarACR(@item.id_gestion, @item.id_plan_mejora_foco_intervencion, @item.id_plan_mejora)">ELIMINAR</a>
+                                            </td>*@
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="12" style="text-align:center; font-size:15px;">
+                                        <label>Sin archivos.</label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br />
+        </div>
+
+        @if (Model.estado_gestionPrestador == null || Model.estado_gestionPrestador == 3)
+        {
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="text-secondary_asalud">Adjuntar análisis</label>
+                        <input type="file" id="fileACR" name="fileACR" required />
+                    </div>
+                </div>
+                <br />
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a class="btn button_Asalud_Guardar" onclick="validarCargue();">GUARDAR</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</form>
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+
+
+    $(document).ready(function () {
+
+        MostrarTablaGestiones();
+
+        $("#fileACR").change(function () {
+
+            debugger
+            var data = document.getElementById('fileACR');
+            var nameext = data.files[0].name;
+            var extension = getFileExtension3(nameext);
+
+            var file = data.files[0];
+            var listaextensiones = ["PDF", "Pdf", "pdf"];
+            var valida = false;
+
+            jQuery.each(listaextensiones, function (i, val) {
+                if (extension == val) {
+                    valida = true;
+                }
+            });
+
+            if (valida == false) {
+                alert("La extension debe ser Pdf");
+                $("#fileACR").val("");
+            }
+        });
+
+    });
+
+
+    function MostrarTablaGestiones() {
+        var conteo = "@ViewBag.conteoGestiones";
+        if (conteo > 0) {
+
+            $('#TableGestiones').DataTable().destroy();
+            $('#TableGestiones').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function getFileExtension3(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    }
+
+    function validarCargue() {
+        var valida = $("#formValida").validate();
+        if (valida.form()) {
+            GuardarDatos();
+        }
+    }
+
+    function GuardarDatos() {
+        debugger;
+
+        const metodologia = document.querySelector('input[name="idMetodologia"]:checked');
+
+        if (!metodologia) {
+            alert("Seleccione la metodología");
+            return false;
+        }
+
+        const idMetodologia = metodologia.value;
+
+        const formData = new FormData($("#formValida")[0]);
+
+        formData.append("idPlan", "@ViewBag.idPlan");
+        formData.append("idHallazgo", "@ViewBag.idHallazgo");
+        formData.append("metodologia", idMetodologia);
+        formData.append("fileACR", $("input[type=file]")[0].files[0]);
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarGestionACR", "PlanMejora")",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                LoadingHide();
+                alert(response.mensaje);
+
+                if (response.rta == 1) {
+                    $("#myModalGestiones").modal("hide");
+                    $("#myModalTareas").modal("hide");
+                    VerTareas("@ViewBag.idPlan");
+
+                } else if (response.rta == 2) {
+                    location.reload();
+                }
+            },
+            error: function () {
+                LoadingHide();
+                alert("Error al guardar los datos.");
+            }
+        });
+    }
+
+    function VerACR(idGestion, tipoDato) {
+        var url = "@Url.Action("VerGestionHallazgo", "PlanMejora")?idGestion=" + idGestion + "&tipoDato=" + tipoDato;
+        popupWindow = window.open(url, '', 'height=150,width=500,left=50,top=550,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes')
+    }
+
+    function EliminarACR(idGestion, idHallazgo, idPlan) {
+        var opcion = confirm("¿Está seguro de eliminar esta gestión?.");
+        if (opcion == true) {
+            var laURLDeLaVista = '@Url.Action("EliminarGestionHallazgo")?idGestion=' + idGestion + "&idHallazgo=" + idHallazgo + "&idPlan=" + idPlan;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: laURLDeLaVista,
+                data: {},
+                success: function (response) {
+                    alert(response.mensaje);
+                    LoadingHide();
+                    if (response.rta == 1) {
+                        GestionarACR(idHallazgo, idPlan);
+                    }
+                    else if(response.rta == 2) {
+                        location.reload();
+                    }
+                }
+            });
+
+        } else {
+            location.reload();
+        }
+    }
+
+    function GuardarGestionAuditor() {
+
+        debugger
+
+        var valida = $("#formValida").validate();
+        if (valida.form()) {
+
+            const datos = [];
+            var idPlan = "@Model.IdPlan";
+
+            // Busca todos los inputs hidden que indican las gestiones
+            $("input[id^='idGestion_']").each(function () {
+                const idGestion = $(this).val();
+
+                var idHallazgo = $(`#idHallazgo_${idGestion}`).val();
+                var tipoDato = $(`#tipogestion_${idGestion}`).val();
+
+                // Obtiene el valor de la observación
+                const observacion = $(`#observacion_${idGestion}`).val();
+
+
+                if (observacion == "") {
+                    alert(`Completa las observaciones para la gestión ${idGestion}`);
+                    return false;
+                }
+
+                // Obtiene el estado seleccionado (radio button)
+                const estadoSeleccionado = $(`input[name='estado_${idGestion}']:checked`).val();
+
+                // Validación simple (puedes extenderla)
+                if (estadoSeleccionado === undefined) {
+                    alert(`Debe seleccionar una opción (Aprobar/Rechazar) para la gestión ${idGestion}`);
+                    return false;
+                }
+
+                datos.push({
+                    idGestion: idGestion,
+                    observacion: observacion,
+                    estado: estadoSeleccionado,
+                    tipoGestion: tipoDato,
+                    idHallazgo: idHallazgo
+                });
+            });
+
+            // Envío al backend
+            $.ajax({
+                url: '@Url.Action("GuardarGestionAuditor", "PlanMejora")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    idPlan: idPlan,
+                    gestiones: datos
+                }),
+                success: function (response) {
+                    alert(response.mensaje);
+                    if (response.rta == 1) {
+                        //location.reload();
+                        CerrarModalHallazgosGestiones(idPlan);
+                    }
+                },
+                error: function () {
+                    alert("Ocurrió un error al guardar los datos.");
+                }
+            });
+        }
+    }
+
+    function CerrarModalHallazgosGestiones(idPlan) {
+
+        $("#myModalGestiones").modal("hide");
+        VerHallazgos(idPlan);
+    }
+
+</script>
+
+<style>
+
+    input[type="radio"]:checked + .card-opcion {
+        background-color: #c5c5c7 !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .divFondo {
+        background-color: #E2E3E9;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        height: 85px;
+        border-radius: 5px;
+    }
+
+    .h4Titulo {
+        font-weight: bold;
+        color: #6F7283;
+        margin-left: 5%;
+        margin-right: 5%;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    .h5Subtitulo {
+        color: #9A9CA9;
+        margin-left: 5%;
+        margin-right: 5%;
+        margin-bottom: 5%;
+    }
+
+    .divAceptar {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .radio-btn-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+        .radio-btn-group input[type="radio"] {
+            display: none;
+        }
+
+    .radio-btn-label {
+        padding: 8px 16px;
+        font-weight: bold;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Colores por defecto */
+    .radio-aprobar {
+        background-color: #28a745; /* verde */
+    }
+
+    .radio-rechazar {
+        background-color: #dc3545; /* rojo */
+    }
+
+    /* Efecto seleccionado */
+    input[type="radio"]:checked + .radio-aprobar {
+        box-shadow: 0 0 0 3px #b3e6c3;
+    }
+
+    input[type="radio"]:checked + .radio-rechazar {
+        box-shadow: 0 0 0 3px #f5b3b3;
+    }
+</style>

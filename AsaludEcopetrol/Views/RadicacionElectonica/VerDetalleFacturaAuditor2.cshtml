@@ -1432,6 +1432,9 @@
         formData.append("pertinencia", $("#pertinencia").val());
 
         LoadingShow();
+
+        document.getElementById("ValidarIngresoFacturaTotal").style.display = "none"
+
         $.ajax({
             url: '@Url.Action("GuardarFacturaFis", "RadicacionElectonica")',
             data: formData,
@@ -1440,7 +1443,10 @@
             contentType: false,
 
             success: function (response) {
+                document.getElementById("ValidarIngresoFacturaTotal").style.display = "block"
+
                 var estado = response.estado;
+
 
                 if (response.rta != 0) {
 
@@ -1463,6 +1469,8 @@
             error: function (xhr, status, error) {
                 mostrarModal("danger", "Error", "Ocurrió un error en la solicitud.");
                 LoadingHide();
+                document.getElementById("ValidarIngresoFacturaTotal").style.display = "block"
+
             }
         });
     }

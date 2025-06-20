@@ -1070,7 +1070,6 @@ namespace DATA_ACCESS
             }
         }
 
-
         public int ActualizarEstadoPM(int? idPlan, int? estado)
         {
             try
@@ -1079,6 +1078,44 @@ namespace DATA_ACCESS
                 {
                     ecop_plan_de_mejora obj2 = db.ecop_plan_de_mejora.FirstOrDefault(x => x.id_plan_de_mejora == idPlan);
                     obj2.estado_plan = estado;
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public int ActualizarEstadoHallazgoPM(int? idHallazgo, int? estado)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    ecop_plan_mejora_foco_intervencion obj = db.ecop_plan_mejora_foco_intervencion.FirstOrDefault(x => x.id_plan_mejora_foco_intervencion == idHallazgo);
+                    obj.estado_gestionPrestador = estado;
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public int ActualizarEstadoGestionPrestadorPM(int? idPlan, int? estado)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    ecop_plan_de_mejora obj2 = db.ecop_plan_de_mejora.FirstOrDefault(x => x.id_plan_de_mejora == idPlan);
+                    obj2.estadoGestionPrestador = estado;
                     db.SubmitChanges();
                     return 1;
                 }

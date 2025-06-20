@@ -2103,9 +2103,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
     partial void Insertlog_visitas_eliminarActa_portafolio(log_visitas_eliminarActa_portafolio instance);
     partial void Updatelog_visitas_eliminarActa_portafolio(log_visitas_eliminarActa_portafolio instance);
     partial void Deletelog_visitas_eliminarActa_portafolio(log_visitas_eliminarActa_portafolio instance);
-    partial void Insertecop_plan_de_mejora(ecop_plan_de_mejora instance);
-    partial void Updateecop_plan_de_mejora(ecop_plan_de_mejora instance);
-    partial void Deleteecop_plan_de_mejora(ecop_plan_de_mejora instance);
     partial void Insertecop_plan_mejora_tareas(ecop_plan_mejora_tareas instance);
     partial void Updateecop_plan_mejora_tareas(ecop_plan_mejora_tareas instance);
     partial void Deleteecop_plan_mejora_tareas(ecop_plan_mejora_tareas instance);
@@ -2115,9 +2112,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
     partial void Insertecop_plan_de_mejora_notificarAdmin_archivos(ecop_plan_de_mejora_notificarAdmin_archivos instance);
     partial void Updateecop_plan_de_mejora_notificarAdmin_archivos(ecop_plan_de_mejora_notificarAdmin_archivos instance);
     partial void Deleteecop_plan_de_mejora_notificarAdmin_archivos(ecop_plan_de_mejora_notificarAdmin_archivos instance);
-    partial void Insertecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
-    partial void Updateecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
-    partial void Deleteecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
     partial void Insertecop_plan_mejora_obs_tareas(ecop_plan_mejora_obs_tareas instance);
     partial void Updateecop_plan_mejora_obs_tareas(ecop_plan_mejora_obs_tareas instance);
     partial void Deleteecop_plan_mejora_obs_tareas(ecop_plan_mejora_obs_tareas instance);
@@ -2214,10 +2208,28 @@ namespace ECOPETROL_COMMON.ENTIDADES
     partial void Insertlog_planes_mejora_notificaciones(log_planes_mejora_notificaciones instance);
     partial void Updatelog_planes_mejora_notificaciones(log_planes_mejora_notificaciones instance);
     partial void Deletelog_planes_mejora_notificaciones(log_planes_mejora_notificaciones instance);
+    partial void Insertref_planesMejora_metodologias(ref_planesMejora_metodologias instance);
+    partial void Updateref_planesMejora_metodologias(ref_planesMejora_metodologias instance);
+    partial void Deleteref_planesMejora_metodologias(ref_planesMejora_metodologias instance);
+    partial void Insertecop_plan_mejora_gestionPrestadorHallazgo(ecop_plan_mejora_gestionPrestadorHallazgo instance);
+    partial void Updateecop_plan_mejora_gestionPrestadorHallazgo(ecop_plan_mejora_gestionPrestadorHallazgo instance);
+    partial void Deleteecop_plan_mejora_gestionPrestadorHallazgo(ecop_plan_mejora_gestionPrestadorHallazgo instance);
+    partial void Insertlog_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar(log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar instance);
+    partial void Updatelog_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar(log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar instance);
+    partial void Deletelog_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar(log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar instance);
+    partial void Insertecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
+    partial void Updateecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
+    partial void Deleteecop_plan_mejora_foco_intervencion(ecop_plan_mejora_foco_intervencion instance);
+    partial void Insertecop_plan_de_mejora_hallazgos_gestionAuditor(ecop_plan_de_mejora_hallazgos_gestionAuditor instance);
+    partial void Updateecop_plan_de_mejora_hallazgos_gestionAuditor(ecop_plan_de_mejora_hallazgos_gestionAuditor instance);
+    partial void Deleteecop_plan_de_mejora_hallazgos_gestionAuditor(ecop_plan_de_mejora_hallazgos_gestionAuditor instance);
+    partial void Insertecop_plan_de_mejora(ecop_plan_de_mejora instance);
+    partial void Updateecop_plan_de_mejora(ecop_plan_de_mejora instance);
+    partial void Deleteecop_plan_de_mejora(ecop_plan_de_mejora instance);
     #endregion
 		
 		public ECOPETROL_DataContexDataContext() : 
-				base(global::ECOPETROL_COMMON.Properties.Settings.Default.ecopetrol_pruebasConnectionString, mappingSource)
+				base(global::ECOPETROL_COMMON.Properties.Settings.Default.ecopetrol_pruebasConnectionString1, mappingSource)
 		{
 			OnCreated();
 		}
@@ -9582,14 +9594,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 			}
 		}
 		
-		public System.Data.Linq.Table<ecop_plan_de_mejora> ecop_plan_de_mejora
-		{
-			get
-			{
-				return this.GetTable<ecop_plan_de_mejora>();
-			}
-		}
-		
 		public System.Data.Linq.Table<ecop_plan_mejora_tareas> ecop_plan_mejora_tareas
 		{
 			get
@@ -9611,14 +9615,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 			get
 			{
 				return this.GetTable<ecop_plan_de_mejora_notificarAdmin_archivos>();
-			}
-		}
-		
-		public System.Data.Linq.Table<ecop_plan_mejora_foco_intervencion> ecop_plan_mejora_foco_intervencion
-		{
-			get
-			{
-				return this.GetTable<ecop_plan_mejora_foco_intervencion>();
 			}
 		}
 		
@@ -9915,6 +9911,54 @@ namespace ECOPETROL_COMMON.ENTIDADES
 			get
 			{
 				return this.GetTable<log_planes_mejora_notificaciones>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ref_planesMejora_metodologias> ref_planesMejora_metodologias
+		{
+			get
+			{
+				return this.GetTable<ref_planesMejora_metodologias>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ecop_plan_mejora_gestionPrestadorHallazgo> ecop_plan_mejora_gestionPrestadorHallazgo
+		{
+			get
+			{
+				return this.GetTable<ecop_plan_mejora_gestionPrestadorHallazgo>();
+			}
+		}
+		
+		public System.Data.Linq.Table<log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar> log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar
+		{
+			get
+			{
+				return this.GetTable<log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ecop_plan_mejora_foco_intervencion> ecop_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this.GetTable<ecop_plan_mejora_foco_intervencion>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ecop_plan_de_mejora_hallazgos_gestionAuditor> ecop_plan_de_mejora_hallazgos_gestionAuditor
+		{
+			get
+			{
+				return this.GetTable<ecop_plan_de_mejora_hallazgos_gestionAuditor>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ecop_plan_de_mejora> ecop_plan_de_mejora
+		{
+			get
+			{
+				return this.GetTable<ecop_plan_de_mejora>();
 			}
 		}
 		
@@ -13871,6 +13915,56 @@ namespace ECOPETROL_COMMON.ENTIDADES
 		{
 			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idEvaluacion);
 			return ((ISingleResult<management_planMejoraDispensacion_evaluacionIdResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores")]
+		public ISingleResult<management_planMejora_tableroControlGestionPrestadoresResult> management_planMejora_tableroControlGestionPrestadores([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string usuario, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idEvaluacion, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="DateTime")] System.Nullable<System.DateTime> fechaIni, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="DateTime")] System.Nullable<System.DateTime> fechaFin, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(300)")] string nit)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), usuario, idEvaluacion, fechaIni, fechaFin, nit);
+			return ((ISingleResult<management_planMejora_tableroControlGestionPrestadoresResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores_hallazgos")]
+		public ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> management_planMejora_tableroControlGestionPrestadores_hallazgos([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> id_plan_de_mejora)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), id_plan_de_mejora);
+			return ((ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgosResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones")]
+		public ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idHallazgo)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idHallazgo);
+			return ((ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_id" +
+			"")]
+		public ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult> management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_id([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idGestion, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> tipo)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idGestion, tipo);
+			return ((ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgo")]
+		public ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult> management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgo([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idHallazgo)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idHallazgo);
+			return ((ISingleResult<management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planesMejora_envioNotificacionCreacionPM")]
+		public ISingleResult<management_planesMejora_envioNotificacionCreacionPMResult> management_planesMejora_envioNotificacionCreacionPM([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idPlan)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idPlan);
+			return ((ISingleResult<management_planesMejora_envioNotificacionCreacionPMResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_planesMejora_envioNotificacionCreacionPM_correos")]
+		public ISingleResult<management_planesMejora_envioNotificacionCreacionPM_correosResult> management_planesMejora_envioNotificacionCreacionPM_correos([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> idPrestador)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idPrestador);
+			return ((ISingleResult<management_planesMejora_envioNotificacionCreacionPM_correosResult>)(result.ReturnValue));
 		}
 	}
 	
@@ -309468,620 +309562,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_de_mejora")]
-	public partial class ecop_plan_de_mejora : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _id_plan_de_mejora;
-		
-		private System.Nullable<int> _id_visitas;
-		
-		private System.Nullable<int> _id_regional;
-		
-		private System.Nullable<int> _id_unis;
-		
-		private System.Nullable<int> _id_localidad;
-		
-		private System.Nullable<int> _id_prestador;
-		
-		private System.Nullable<int> _id_mes;
-		
-		private string _año;
-		
-		private System.Nullable<int> _id_proceso;
-		
-		private System.Nullable<int> _id_prioridad;
-		
-		private System.Nullable<int> _estado_plan;
-		
-		private System.Nullable<System.DateTime> _fecha_creacion;
-		
-		private System.Nullable<System.DateTime> _fecha_ampliacion;
-		
-		private string _observacion_ampliacion;
-		
-		private string _usuario_ampliacion;
-		
-		private System.Nullable<System.DateTime> _fecha_cierre;
-		
-		private System.Nullable<int> _medicion_riesgo;
-		
-		private System.Nullable<int> _costos_noCalidad;
-		
-		private System.Nullable<int> _cobertura;
-		
-		private System.Nullable<decimal> _PuntajeFinal;
-		
-		private System.Nullable<int> _tipo_prioridad;
-		
-		private System.Nullable<System.DateTime> _fecha_estimada_cierre;
-		
-		private string _usuario_ingreso;
-		
-		private System.Nullable<System.DateTime> _fecha_ingreso;
-		
-    #region Definiciones de métodos de extensibilidad
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void Onid_plan_de_mejoraChanging(int value);
-    partial void Onid_plan_de_mejoraChanged();
-    partial void Onid_visitasChanging(System.Nullable<int> value);
-    partial void Onid_visitasChanged();
-    partial void Onid_regionalChanging(System.Nullable<int> value);
-    partial void Onid_regionalChanged();
-    partial void Onid_unisChanging(System.Nullable<int> value);
-    partial void Onid_unisChanged();
-    partial void Onid_localidadChanging(System.Nullable<int> value);
-    partial void Onid_localidadChanged();
-    partial void Onid_prestadorChanging(System.Nullable<int> value);
-    partial void Onid_prestadorChanged();
-    partial void Onid_mesChanging(System.Nullable<int> value);
-    partial void Onid_mesChanged();
-    partial void OnañoChanging(string value);
-    partial void OnañoChanged();
-    partial void Onid_procesoChanging(System.Nullable<int> value);
-    partial void Onid_procesoChanged();
-    partial void Onid_prioridadChanging(System.Nullable<int> value);
-    partial void Onid_prioridadChanged();
-    partial void Onestado_planChanging(System.Nullable<int> value);
-    partial void Onestado_planChanged();
-    partial void Onfecha_creacionChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_creacionChanged();
-    partial void Onfecha_ampliacionChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_ampliacionChanged();
-    partial void Onobservacion_ampliacionChanging(string value);
-    partial void Onobservacion_ampliacionChanged();
-    partial void Onusuario_ampliacionChanging(string value);
-    partial void Onusuario_ampliacionChanged();
-    partial void Onfecha_cierreChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_cierreChanged();
-    partial void Onmedicion_riesgoChanging(System.Nullable<int> value);
-    partial void Onmedicion_riesgoChanged();
-    partial void Oncostos_noCalidadChanging(System.Nullable<int> value);
-    partial void Oncostos_noCalidadChanged();
-    partial void OncoberturaChanging(System.Nullable<int> value);
-    partial void OncoberturaChanged();
-    partial void OnPuntajeFinalChanging(System.Nullable<decimal> value);
-    partial void OnPuntajeFinalChanged();
-    partial void Ontipo_prioridadChanging(System.Nullable<int> value);
-    partial void Ontipo_prioridadChanged();
-    partial void Onfecha_estimada_cierreChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_estimada_cierreChanged();
-    partial void Onusuario_ingresoChanging(string value);
-    partial void Onusuario_ingresoChanged();
-    partial void Onfecha_ingresoChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_ingresoChanged();
-    #endregion
-		
-		public ecop_plan_de_mejora()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int id_plan_de_mejora
-		{
-			get
-			{
-				return this._id_plan_de_mejora;
-			}
-			set
-			{
-				if ((this._id_plan_de_mejora != value))
-				{
-					this.Onid_plan_de_mejoraChanging(value);
-					this.SendPropertyChanging();
-					this._id_plan_de_mejora = value;
-					this.SendPropertyChanged("id_plan_de_mejora");
-					this.Onid_plan_de_mejoraChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_visitas", DbType="Int")]
-		public System.Nullable<int> id_visitas
-		{
-			get
-			{
-				return this._id_visitas;
-			}
-			set
-			{
-				if ((this._id_visitas != value))
-				{
-					this.Onid_visitasChanging(value);
-					this.SendPropertyChanging();
-					this._id_visitas = value;
-					this.SendPropertyChanged("id_visitas");
-					this.Onid_visitasChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_regional", DbType="Int")]
-		public System.Nullable<int> id_regional
-		{
-			get
-			{
-				return this._id_regional;
-			}
-			set
-			{
-				if ((this._id_regional != value))
-				{
-					this.Onid_regionalChanging(value);
-					this.SendPropertyChanging();
-					this._id_regional = value;
-					this.SendPropertyChanged("id_regional");
-					this.Onid_regionalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_unis", DbType="Int")]
-		public System.Nullable<int> id_unis
-		{
-			get
-			{
-				return this._id_unis;
-			}
-			set
-			{
-				if ((this._id_unis != value))
-				{
-					this.Onid_unisChanging(value);
-					this.SendPropertyChanging();
-					this._id_unis = value;
-					this.SendPropertyChanged("id_unis");
-					this.Onid_unisChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_localidad", DbType="Int")]
-		public System.Nullable<int> id_localidad
-		{
-			get
-			{
-				return this._id_localidad;
-			}
-			set
-			{
-				if ((this._id_localidad != value))
-				{
-					this.Onid_localidadChanging(value);
-					this.SendPropertyChanging();
-					this._id_localidad = value;
-					this.SendPropertyChanged("id_localidad");
-					this.Onid_localidadChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prestador", DbType="Int")]
-		public System.Nullable<int> id_prestador
-		{
-			get
-			{
-				return this._id_prestador;
-			}
-			set
-			{
-				if ((this._id_prestador != value))
-				{
-					this.Onid_prestadorChanging(value);
-					this.SendPropertyChanging();
-					this._id_prestador = value;
-					this.SendPropertyChanged("id_prestador");
-					this.Onid_prestadorChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_mes", DbType="Int")]
-		public System.Nullable<int> id_mes
-		{
-			get
-			{
-				return this._id_mes;
-			}
-			set
-			{
-				if ((this._id_mes != value))
-				{
-					this.Onid_mesChanging(value);
-					this.SendPropertyChanging();
-					this._id_mes = value;
-					this.SendPropertyChanged("id_mes");
-					this.Onid_mesChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_año", DbType="VarChar(5)")]
-		public string año
-		{
-			get
-			{
-				return this._año;
-			}
-			set
-			{
-				if ((this._año != value))
-				{
-					this.OnañoChanging(value);
-					this.SendPropertyChanging();
-					this._año = value;
-					this.SendPropertyChanged("año");
-					this.OnañoChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_proceso", DbType="Int")]
-		public System.Nullable<int> id_proceso
-		{
-			get
-			{
-				return this._id_proceso;
-			}
-			set
-			{
-				if ((this._id_proceso != value))
-				{
-					this.Onid_procesoChanging(value);
-					this.SendPropertyChanging();
-					this._id_proceso = value;
-					this.SendPropertyChanged("id_proceso");
-					this.Onid_procesoChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prioridad", DbType="Int")]
-		public System.Nullable<int> id_prioridad
-		{
-			get
-			{
-				return this._id_prioridad;
-			}
-			set
-			{
-				if ((this._id_prioridad != value))
-				{
-					this.Onid_prioridadChanging(value);
-					this.SendPropertyChanging();
-					this._id_prioridad = value;
-					this.SendPropertyChanged("id_prioridad");
-					this.Onid_prioridadChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_plan", DbType="Int")]
-		public System.Nullable<int> estado_plan
-		{
-			get
-			{
-				return this._estado_plan;
-			}
-			set
-			{
-				if ((this._estado_plan != value))
-				{
-					this.Onestado_planChanging(value);
-					this.SendPropertyChanging();
-					this._estado_plan = value;
-					this.SendPropertyChanged("estado_plan");
-					this.Onestado_planChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_creacion", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_creacion
-		{
-			get
-			{
-				return this._fecha_creacion;
-			}
-			set
-			{
-				if ((this._fecha_creacion != value))
-				{
-					this.Onfecha_creacionChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_creacion = value;
-					this.SendPropertyChanged("fecha_creacion");
-					this.Onfecha_creacionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ampliacion", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_ampliacion
-		{
-			get
-			{
-				return this._fecha_ampliacion;
-			}
-			set
-			{
-				if ((this._fecha_ampliacion != value))
-				{
-					this.Onfecha_ampliacionChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_ampliacion = value;
-					this.SendPropertyChanged("fecha_ampliacion");
-					this.Onfecha_ampliacionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_observacion_ampliacion", DbType="VarChar(500)")]
-		public string observacion_ampliacion
-		{
-			get
-			{
-				return this._observacion_ampliacion;
-			}
-			set
-			{
-				if ((this._observacion_ampliacion != value))
-				{
-					this.Onobservacion_ampliacionChanging(value);
-					this.SendPropertyChanging();
-					this._observacion_ampliacion = value;
-					this.SendPropertyChanged("observacion_ampliacion");
-					this.Onobservacion_ampliacionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_ampliacion", DbType="VarChar(50)")]
-		public string usuario_ampliacion
-		{
-			get
-			{
-				return this._usuario_ampliacion;
-			}
-			set
-			{
-				if ((this._usuario_ampliacion != value))
-				{
-					this.Onusuario_ampliacionChanging(value);
-					this.SendPropertyChanging();
-					this._usuario_ampliacion = value;
-					this.SendPropertyChanged("usuario_ampliacion");
-					this.Onusuario_ampliacionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_cierre", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_cierre
-		{
-			get
-			{
-				return this._fecha_cierre;
-			}
-			set
-			{
-				if ((this._fecha_cierre != value))
-				{
-					this.Onfecha_cierreChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_cierre = value;
-					this.SendPropertyChanged("fecha_cierre");
-					this.Onfecha_cierreChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_medicion_riesgo", DbType="Int")]
-		public System.Nullable<int> medicion_riesgo
-		{
-			get
-			{
-				return this._medicion_riesgo;
-			}
-			set
-			{
-				if ((this._medicion_riesgo != value))
-				{
-					this.Onmedicion_riesgoChanging(value);
-					this.SendPropertyChanging();
-					this._medicion_riesgo = value;
-					this.SendPropertyChanged("medicion_riesgo");
-					this.Onmedicion_riesgoChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_costos_noCalidad", DbType="Int")]
-		public System.Nullable<int> costos_noCalidad
-		{
-			get
-			{
-				return this._costos_noCalidad;
-			}
-			set
-			{
-				if ((this._costos_noCalidad != value))
-				{
-					this.Oncostos_noCalidadChanging(value);
-					this.SendPropertyChanging();
-					this._costos_noCalidad = value;
-					this.SendPropertyChanged("costos_noCalidad");
-					this.Oncostos_noCalidadChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_cobertura", DbType="Int")]
-		public System.Nullable<int> cobertura
-		{
-			get
-			{
-				return this._cobertura;
-			}
-			set
-			{
-				if ((this._cobertura != value))
-				{
-					this.OncoberturaChanging(value);
-					this.SendPropertyChanging();
-					this._cobertura = value;
-					this.SendPropertyChanged("cobertura");
-					this.OncoberturaChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_PuntajeFinal", DbType="Decimal(18,2)")]
-		public System.Nullable<decimal> PuntajeFinal
-		{
-			get
-			{
-				return this._PuntajeFinal;
-			}
-			set
-			{
-				if ((this._PuntajeFinal != value))
-				{
-					this.OnPuntajeFinalChanging(value);
-					this.SendPropertyChanging();
-					this._PuntajeFinal = value;
-					this.SendPropertyChanged("PuntajeFinal");
-					this.OnPuntajeFinalChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_prioridad", DbType="Int")]
-		public System.Nullable<int> tipo_prioridad
-		{
-			get
-			{
-				return this._tipo_prioridad;
-			}
-			set
-			{
-				if ((this._tipo_prioridad != value))
-				{
-					this.Ontipo_prioridadChanging(value);
-					this.SendPropertyChanging();
-					this._tipo_prioridad = value;
-					this.SendPropertyChanged("tipo_prioridad");
-					this.Ontipo_prioridadChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_estimada_cierre", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_estimada_cierre
-		{
-			get
-			{
-				return this._fecha_estimada_cierre;
-			}
-			set
-			{
-				if ((this._fecha_estimada_cierre != value))
-				{
-					this.Onfecha_estimada_cierreChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_estimada_cierre = value;
-					this.SendPropertyChanged("fecha_estimada_cierre");
-					this.Onfecha_estimada_cierreChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_ingreso", DbType="VarChar(50)")]
-		public string usuario_ingreso
-		{
-			get
-			{
-				return this._usuario_ingreso;
-			}
-			set
-			{
-				if ((this._usuario_ingreso != value))
-				{
-					this.Onusuario_ingresoChanging(value);
-					this.SendPropertyChanging();
-					this._usuario_ingreso = value;
-					this.SendPropertyChanged("usuario_ingreso");
-					this.Onusuario_ingresoChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ingreso", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_ingreso
-		{
-			get
-			{
-				return this._fecha_ingreso;
-			}
-			set
-			{
-				if ((this._fecha_ingreso != value))
-				{
-					this.Onfecha_ingresoChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_ingreso = value;
-					this.SendPropertyChanged("fecha_ingreso");
-					this.Onfecha_ingresoChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_mejora_tareas")]
 	public partial class ecop_plan_mejora_tareas : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -310731,356 +310211,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 					this._extension = value;
 					this.SendPropertyChanged("extension");
 					this.OnextensionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
-		public System.Nullable<System.DateTime> fecha_digita
-		{
-			get
-			{
-				return this._fecha_digita;
-			}
-			set
-			{
-				if ((this._fecha_digita != value))
-				{
-					this.Onfecha_digitaChanging(value);
-					this.SendPropertyChanging();
-					this._fecha_digita = value;
-					this.SendPropertyChanged("fecha_digita");
-					this.Onfecha_digitaChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(50)")]
-		public string usuario_digita
-		{
-			get
-			{
-				return this._usuario_digita;
-			}
-			set
-			{
-				if ((this._usuario_digita != value))
-				{
-					this.Onusuario_digitaChanging(value);
-					this.SendPropertyChanging();
-					this._usuario_digita = value;
-					this.SendPropertyChanged("usuario_digita");
-					this.Onusuario_digitaChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_mejora_foco_intervencion")]
-	public partial class ecop_plan_mejora_foco_intervencion : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _id_plan_mejora_foco_intervencion;
-		
-		private System.Nullable<int> _id_plan_de_mejora;
-		
-		private System.Nullable<int> _id_categoria;
-		
-		private System.Nullable<int> _id_foco_gestion;
-		
-		private string _hallazgo;
-		
-		private string _porque_1;
-		
-		private string _porque_2;
-		
-		private string _porque_3;
-		
-		private string _porque_4;
-		
-		private string _porque_5;
-		
-		private string _descripcion_problema;
-		
-		private System.Nullable<System.DateTime> _fecha_digita;
-		
-		private string _usuario_digita;
-		
-    #region Definiciones de métodos de extensibilidad
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void Onid_plan_mejora_foco_intervencionChanging(int value);
-    partial void Onid_plan_mejora_foco_intervencionChanged();
-    partial void Onid_plan_de_mejoraChanging(System.Nullable<int> value);
-    partial void Onid_plan_de_mejoraChanged();
-    partial void Onid_categoriaChanging(System.Nullable<int> value);
-    partial void Onid_categoriaChanged();
-    partial void Onid_foco_gestionChanging(System.Nullable<int> value);
-    partial void Onid_foco_gestionChanged();
-    partial void OnhallazgoChanging(string value);
-    partial void OnhallazgoChanged();
-    partial void Onporque_1Changing(string value);
-    partial void Onporque_1Changed();
-    partial void Onporque_2Changing(string value);
-    partial void Onporque_2Changed();
-    partial void Onporque_3Changing(string value);
-    partial void Onporque_3Changed();
-    partial void Onporque_4Changing(string value);
-    partial void Onporque_4Changed();
-    partial void Onporque_5Changing(string value);
-    partial void Onporque_5Changed();
-    partial void Ondescripcion_problemaChanging(string value);
-    partial void Ondescripcion_problemaChanged();
-    partial void Onfecha_digitaChanging(System.Nullable<System.DateTime> value);
-    partial void Onfecha_digitaChanged();
-    partial void Onusuario_digitaChanging(string value);
-    partial void Onusuario_digitaChanged();
-    #endregion
-		
-		public ecop_plan_mejora_foco_intervencion()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int id_plan_mejora_foco_intervencion
-		{
-			get
-			{
-				return this._id_plan_mejora_foco_intervencion;
-			}
-			set
-			{
-				if ((this._id_plan_mejora_foco_intervencion != value))
-				{
-					this.Onid_plan_mejora_foco_intervencionChanging(value);
-					this.SendPropertyChanging();
-					this._id_plan_mejora_foco_intervencion = value;
-					this.SendPropertyChanged("id_plan_mejora_foco_intervencion");
-					this.Onid_plan_mejora_foco_intervencionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", DbType="Int")]
-		public System.Nullable<int> id_plan_de_mejora
-		{
-			get
-			{
-				return this._id_plan_de_mejora;
-			}
-			set
-			{
-				if ((this._id_plan_de_mejora != value))
-				{
-					this.Onid_plan_de_mejoraChanging(value);
-					this.SendPropertyChanging();
-					this._id_plan_de_mejora = value;
-					this.SendPropertyChanged("id_plan_de_mejora");
-					this.Onid_plan_de_mejoraChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_categoria", DbType="Int")]
-		public System.Nullable<int> id_categoria
-		{
-			get
-			{
-				return this._id_categoria;
-			}
-			set
-			{
-				if ((this._id_categoria != value))
-				{
-					this.Onid_categoriaChanging(value);
-					this.SendPropertyChanging();
-					this._id_categoria = value;
-					this.SendPropertyChanged("id_categoria");
-					this.Onid_categoriaChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_foco_gestion", DbType="Int")]
-		public System.Nullable<int> id_foco_gestion
-		{
-			get
-			{
-				return this._id_foco_gestion;
-			}
-			set
-			{
-				if ((this._id_foco_gestion != value))
-				{
-					this.Onid_foco_gestionChanging(value);
-					this.SendPropertyChanging();
-					this._id_foco_gestion = value;
-					this.SendPropertyChanged("id_foco_gestion");
-					this.Onid_foco_gestionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_hallazgo", DbType="VarChar(5000)")]
-		public string hallazgo
-		{
-			get
-			{
-				return this._hallazgo;
-			}
-			set
-			{
-				if ((this._hallazgo != value))
-				{
-					this.OnhallazgoChanging(value);
-					this.SendPropertyChanging();
-					this._hallazgo = value;
-					this.SendPropertyChanged("hallazgo");
-					this.OnhallazgoChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_1", DbType="VarChar(5000)")]
-		public string porque_1
-		{
-			get
-			{
-				return this._porque_1;
-			}
-			set
-			{
-				if ((this._porque_1 != value))
-				{
-					this.Onporque_1Changing(value);
-					this.SendPropertyChanging();
-					this._porque_1 = value;
-					this.SendPropertyChanged("porque_1");
-					this.Onporque_1Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_2", DbType="VarChar(5000)")]
-		public string porque_2
-		{
-			get
-			{
-				return this._porque_2;
-			}
-			set
-			{
-				if ((this._porque_2 != value))
-				{
-					this.Onporque_2Changing(value);
-					this.SendPropertyChanging();
-					this._porque_2 = value;
-					this.SendPropertyChanged("porque_2");
-					this.Onporque_2Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_3", DbType="VarChar(5000)")]
-		public string porque_3
-		{
-			get
-			{
-				return this._porque_3;
-			}
-			set
-			{
-				if ((this._porque_3 != value))
-				{
-					this.Onporque_3Changing(value);
-					this.SendPropertyChanging();
-					this._porque_3 = value;
-					this.SendPropertyChanged("porque_3");
-					this.Onporque_3Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_4", DbType="VarChar(5000)")]
-		public string porque_4
-		{
-			get
-			{
-				return this._porque_4;
-			}
-			set
-			{
-				if ((this._porque_4 != value))
-				{
-					this.Onporque_4Changing(value);
-					this.SendPropertyChanging();
-					this._porque_4 = value;
-					this.SendPropertyChanged("porque_4");
-					this.Onporque_4Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_5", DbType="VarChar(5000)")]
-		public string porque_5
-		{
-			get
-			{
-				return this._porque_5;
-			}
-			set
-			{
-				if ((this._porque_5 != value))
-				{
-					this.Onporque_5Changing(value);
-					this.SendPropertyChanging();
-					this._porque_5 = value;
-					this.SendPropertyChanged("porque_5");
-					this.Onporque_5Changed();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion_problema", DbType="VarChar(5000)")]
-		public string descripcion_problema
-		{
-			get
-			{
-				return this._descripcion_problema;
-			}
-			set
-			{
-				if ((this._descripcion_problema != value))
-				{
-					this.Ondescripcion_problemaChanging(value);
-					this.SendPropertyChanging();
-					this._descripcion_problema = value;
-					this.SendPropertyChanged("descripcion_problema");
-					this.Ondescripcion_problemaChanged();
 				}
 			}
 		}
@@ -329848,6 +328978,2178 @@ namespace ECOPETROL_COMMON.ENTIDADES
 					this._id_tarea = value;
 					this.SendPropertyChanged("id_tarea");
 					this.Onid_tareaChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ref_planesMejora_metodologias")]
+	public partial class ref_planesMejora_metodologias : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_metodologia;
+		
+		private string _Encabezado;
+		
+		private string _descripcion;
+		
+		private System.Nullable<int> _estado;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_metodologiaChanging(int value);
+    partial void Onid_metodologiaChanged();
+    partial void OnEncabezadoChanging(string value);
+    partial void OnEncabezadoChanged();
+    partial void OndescripcionChanging(string value);
+    partial void OndescripcionChanged();
+    partial void OnestadoChanging(System.Nullable<int> value);
+    partial void OnestadoChanged();
+    #endregion
+		
+		public ref_planesMejora_metodologias()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_metodologia", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_metodologia
+		{
+			get
+			{
+				return this._id_metodologia;
+			}
+			set
+			{
+				if ((this._id_metodologia != value))
+				{
+					this.Onid_metodologiaChanging(value);
+					this.SendPropertyChanging();
+					this._id_metodologia = value;
+					this.SendPropertyChanged("id_metodologia");
+					this.Onid_metodologiaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Encabezado", DbType="VarChar(100)")]
+		public string Encabezado
+		{
+			get
+			{
+				return this._Encabezado;
+			}
+			set
+			{
+				if ((this._Encabezado != value))
+				{
+					this.OnEncabezadoChanging(value);
+					this.SendPropertyChanging();
+					this._Encabezado = value;
+					this.SendPropertyChanged("Encabezado");
+					this.OnEncabezadoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion", DbType="VarChar(500)")]
+		public string descripcion
+		{
+			get
+			{
+				return this._descripcion;
+			}
+			set
+			{
+				if ((this._descripcion != value))
+				{
+					this.OndescripcionChanging(value);
+					this.SendPropertyChanging();
+					this._descripcion = value;
+					this.SendPropertyChanged("descripcion");
+					this.OndescripcionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado", DbType="Int")]
+		public System.Nullable<int> estado
+		{
+			get
+			{
+				return this._estado;
+			}
+			set
+			{
+				if ((this._estado != value))
+				{
+					this.OnestadoChanging(value);
+					this.SendPropertyChanging();
+					this._estado = value;
+					this.SendPropertyChanged("estado");
+					this.OnestadoChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_mejora_gestionPrestadorHallazgo")]
+	public partial class ecop_plan_mejora_gestionPrestadorHallazgo : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_gestion;
+		
+		private System.Nullable<int> _id_plan_mejora;
+		
+		private System.Nullable<int> _id_plan_mejora_foco_intervencion;
+		
+		private System.Nullable<int> _id_metodologia;
+		
+		private string _ruta;
+		
+		private string _nombre;
+		
+		private string _extension;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private string _usuario_digita;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_gestionChanging(int value);
+    partial void Onid_gestionChanged();
+    partial void Onid_plan_mejoraChanging(System.Nullable<int> value);
+    partial void Onid_plan_mejoraChanged();
+    partial void Onid_plan_mejora_foco_intervencionChanging(System.Nullable<int> value);
+    partial void Onid_plan_mejora_foco_intervencionChanged();
+    partial void Onid_metodologiaChanging(System.Nullable<int> value);
+    partial void Onid_metodologiaChanged();
+    partial void OnrutaChanging(string value);
+    partial void OnrutaChanged();
+    partial void OnnombreChanging(string value);
+    partial void OnnombreChanged();
+    partial void OnextensionChanging(string value);
+    partial void OnextensionChanged();
+    partial void Onfecha_digitaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_digitaChanged();
+    partial void Onusuario_digitaChanging(string value);
+    partial void Onusuario_digitaChanged();
+    #endregion
+		
+		public ecop_plan_mejora_gestionPrestadorHallazgo()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_gestion", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_gestion
+		{
+			get
+			{
+				return this._id_gestion;
+			}
+			set
+			{
+				if ((this._id_gestion != value))
+				{
+					this.Onid_gestionChanging(value);
+					this.SendPropertyChanging();
+					this._id_gestion = value;
+					this.SendPropertyChanged("id_gestion");
+					this.Onid_gestionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora
+		{
+			get
+			{
+				return this._id_plan_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_mejora != value))
+				{
+					this.Onid_plan_mejoraChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_mejora = value;
+					this.SendPropertyChanged("id_plan_mejora");
+					this.Onid_plan_mejoraChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this._id_plan_mejora_foco_intervencion;
+			}
+			set
+			{
+				if ((this._id_plan_mejora_foco_intervencion != value))
+				{
+					this.Onid_plan_mejora_foco_intervencionChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_mejora_foco_intervencion = value;
+					this.SendPropertyChanged("id_plan_mejora_foco_intervencion");
+					this.Onid_plan_mejora_foco_intervencionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_metodologia", DbType="Int")]
+		public System.Nullable<int> id_metodologia
+		{
+			get
+			{
+				return this._id_metodologia;
+			}
+			set
+			{
+				if ((this._id_metodologia != value))
+				{
+					this.Onid_metodologiaChanging(value);
+					this.SendPropertyChanging();
+					this._id_metodologia = value;
+					this.SendPropertyChanged("id_metodologia");
+					this.Onid_metodologiaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ruta", DbType="VarChar(500)")]
+		public string ruta
+		{
+			get
+			{
+				return this._ruta;
+			}
+			set
+			{
+				if ((this._ruta != value))
+				{
+					this.OnrutaChanging(value);
+					this.SendPropertyChanging();
+					this._ruta = value;
+					this.SendPropertyChanged("ruta");
+					this.OnrutaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(500)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this.OnnombreChanging(value);
+					this.SendPropertyChanging();
+					this._nombre = value;
+					this.SendPropertyChanged("nombre");
+					this.OnnombreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_extension", DbType="VarChar(500)")]
+		public string extension
+		{
+			get
+			{
+				return this._extension;
+			}
+			set
+			{
+				if ((this._extension != value))
+				{
+					this.OnextensionChanging(value);
+					this.SendPropertyChanging();
+					this._extension = value;
+					this.SendPropertyChanged("extension");
+					this.OnextensionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this.Onfecha_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_digita = value;
+					this.SendPropertyChanged("fecha_digita");
+					this.Onfecha_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(50)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this.Onusuario_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_digita = value;
+					this.SendPropertyChanged("usuario_digita");
+					this.Onusuario_digitaChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar")]
+	public partial class log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_log;
+		
+		private int _id_gestion;
+		
+		private System.Nullable<int> _id_plan_mejora;
+		
+		private System.Nullable<int> _id_plan_mejora_foco_intervencion;
+		
+		private System.Nullable<int> _id_metodologia;
+		
+		private string _ruta;
+		
+		private string _nombre;
+		
+		private string _extension;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private string _usuario_digita;
+		
+		private System.Nullable<System.DateTime> _fecha_elimina;
+		
+		private string _usuario_elimina;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_logChanging(int value);
+    partial void Onid_logChanged();
+    partial void Onid_gestionChanging(int value);
+    partial void Onid_gestionChanged();
+    partial void Onid_plan_mejoraChanging(System.Nullable<int> value);
+    partial void Onid_plan_mejoraChanged();
+    partial void Onid_plan_mejora_foco_intervencionChanging(System.Nullable<int> value);
+    partial void Onid_plan_mejora_foco_intervencionChanged();
+    partial void Onid_metodologiaChanging(System.Nullable<int> value);
+    partial void Onid_metodologiaChanged();
+    partial void OnrutaChanging(string value);
+    partial void OnrutaChanged();
+    partial void OnnombreChanging(string value);
+    partial void OnnombreChanged();
+    partial void OnextensionChanging(string value);
+    partial void OnextensionChanged();
+    partial void Onfecha_digitaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_digitaChanged();
+    partial void Onusuario_digitaChanging(string value);
+    partial void Onusuario_digitaChanged();
+    partial void Onfecha_eliminaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_eliminaChanged();
+    partial void Onusuario_eliminaChanging(string value);
+    partial void Onusuario_eliminaChanged();
+    #endregion
+		
+		public log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_log", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_log
+		{
+			get
+			{
+				return this._id_log;
+			}
+			set
+			{
+				if ((this._id_log != value))
+				{
+					this.Onid_logChanging(value);
+					this.SendPropertyChanging();
+					this._id_log = value;
+					this.SendPropertyChanged("id_log");
+					this.Onid_logChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_gestion", DbType="Int NOT NULL")]
+		public int id_gestion
+		{
+			get
+			{
+				return this._id_gestion;
+			}
+			set
+			{
+				if ((this._id_gestion != value))
+				{
+					this.Onid_gestionChanging(value);
+					this.SendPropertyChanging();
+					this._id_gestion = value;
+					this.SendPropertyChanged("id_gestion");
+					this.Onid_gestionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora
+		{
+			get
+			{
+				return this._id_plan_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_mejora != value))
+				{
+					this.Onid_plan_mejoraChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_mejora = value;
+					this.SendPropertyChanged("id_plan_mejora");
+					this.Onid_plan_mejoraChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this._id_plan_mejora_foco_intervencion;
+			}
+			set
+			{
+				if ((this._id_plan_mejora_foco_intervencion != value))
+				{
+					this.Onid_plan_mejora_foco_intervencionChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_mejora_foco_intervencion = value;
+					this.SendPropertyChanged("id_plan_mejora_foco_intervencion");
+					this.Onid_plan_mejora_foco_intervencionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_metodologia", DbType="Int")]
+		public System.Nullable<int> id_metodologia
+		{
+			get
+			{
+				return this._id_metodologia;
+			}
+			set
+			{
+				if ((this._id_metodologia != value))
+				{
+					this.Onid_metodologiaChanging(value);
+					this.SendPropertyChanging();
+					this._id_metodologia = value;
+					this.SendPropertyChanged("id_metodologia");
+					this.Onid_metodologiaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ruta", DbType="VarChar(500)")]
+		public string ruta
+		{
+			get
+			{
+				return this._ruta;
+			}
+			set
+			{
+				if ((this._ruta != value))
+				{
+					this.OnrutaChanging(value);
+					this.SendPropertyChanging();
+					this._ruta = value;
+					this.SendPropertyChanged("ruta");
+					this.OnrutaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(500)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this.OnnombreChanging(value);
+					this.SendPropertyChanging();
+					this._nombre = value;
+					this.SendPropertyChanged("nombre");
+					this.OnnombreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_extension", DbType="VarChar(500)")]
+		public string extension
+		{
+			get
+			{
+				return this._extension;
+			}
+			set
+			{
+				if ((this._extension != value))
+				{
+					this.OnextensionChanging(value);
+					this.SendPropertyChanging();
+					this._extension = value;
+					this.SendPropertyChanged("extension");
+					this.OnextensionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this.Onfecha_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_digita = value;
+					this.SendPropertyChanged("fecha_digita");
+					this.Onfecha_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(50)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this.Onusuario_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_digita = value;
+					this.SendPropertyChanged("usuario_digita");
+					this.Onusuario_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_elimina", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_elimina
+		{
+			get
+			{
+				return this._fecha_elimina;
+			}
+			set
+			{
+				if ((this._fecha_elimina != value))
+				{
+					this.Onfecha_eliminaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_elimina = value;
+					this.SendPropertyChanged("fecha_elimina");
+					this.Onfecha_eliminaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_elimina", DbType="VarChar(50)")]
+		public string usuario_elimina
+		{
+			get
+			{
+				return this._usuario_elimina;
+			}
+			set
+			{
+				if ((this._usuario_elimina != value))
+				{
+					this.Onusuario_eliminaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_elimina = value;
+					this.SendPropertyChanged("usuario_elimina");
+					this.Onusuario_eliminaChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_mejora_foco_intervencion")]
+	public partial class ecop_plan_mejora_foco_intervencion : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_plan_mejora_foco_intervencion;
+		
+		private System.Nullable<int> _id_plan_de_mejora;
+		
+		private System.Nullable<int> _id_categoria;
+		
+		private System.Nullable<int> _id_foco_gestion;
+		
+		private string _hallazgo;
+		
+		private string _porque_1;
+		
+		private string _porque_2;
+		
+		private string _porque_3;
+		
+		private string _porque_4;
+		
+		private string _porque_5;
+		
+		private string _descripcion_problema;
+		
+		private System.Nullable<int> _estado_gestionPrestador;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private string _usuario_digita;
+		
+		private string _aceptada;
+		
+		private string _observacion_aceptada;
+		
+		private string _usuario_digita_aceptada;
+		
+		private System.Nullable<System.DateTime> _fecha_digita_aceptada;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_plan_mejora_foco_intervencionChanging(int value);
+    partial void Onid_plan_mejora_foco_intervencionChanged();
+    partial void Onid_plan_de_mejoraChanging(System.Nullable<int> value);
+    partial void Onid_plan_de_mejoraChanged();
+    partial void Onid_categoriaChanging(System.Nullable<int> value);
+    partial void Onid_categoriaChanged();
+    partial void Onid_foco_gestionChanging(System.Nullable<int> value);
+    partial void Onid_foco_gestionChanged();
+    partial void OnhallazgoChanging(string value);
+    partial void OnhallazgoChanged();
+    partial void Onporque_1Changing(string value);
+    partial void Onporque_1Changed();
+    partial void Onporque_2Changing(string value);
+    partial void Onporque_2Changed();
+    partial void Onporque_3Changing(string value);
+    partial void Onporque_3Changed();
+    partial void Onporque_4Changing(string value);
+    partial void Onporque_4Changed();
+    partial void Onporque_5Changing(string value);
+    partial void Onporque_5Changed();
+    partial void Ondescripcion_problemaChanging(string value);
+    partial void Ondescripcion_problemaChanged();
+    partial void Onestado_gestionPrestadorChanging(System.Nullable<int> value);
+    partial void Onestado_gestionPrestadorChanged();
+    partial void Onfecha_digitaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_digitaChanged();
+    partial void Onusuario_digitaChanging(string value);
+    partial void Onusuario_digitaChanged();
+    partial void OnaceptadaChanging(string value);
+    partial void OnaceptadaChanged();
+    partial void Onobservacion_aceptadaChanging(string value);
+    partial void Onobservacion_aceptadaChanged();
+    partial void Onusuario_digita_aceptadaChanging(string value);
+    partial void Onusuario_digita_aceptadaChanged();
+    partial void Onfecha_digita_aceptadaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_digita_aceptadaChanged();
+    #endregion
+		
+		public ecop_plan_mejora_foco_intervencion()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this._id_plan_mejora_foco_intervencion;
+			}
+			set
+			{
+				if ((this._id_plan_mejora_foco_intervencion != value))
+				{
+					this.Onid_plan_mejora_foco_intervencionChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_mejora_foco_intervencion = value;
+					this.SendPropertyChanged("id_plan_mejora_foco_intervencion");
+					this.Onid_plan_mejora_foco_intervencionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", DbType="Int")]
+		public System.Nullable<int> id_plan_de_mejora
+		{
+			get
+			{
+				return this._id_plan_de_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_de_mejora != value))
+				{
+					this.Onid_plan_de_mejoraChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_de_mejora = value;
+					this.SendPropertyChanged("id_plan_de_mejora");
+					this.Onid_plan_de_mejoraChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_categoria", DbType="Int")]
+		public System.Nullable<int> id_categoria
+		{
+			get
+			{
+				return this._id_categoria;
+			}
+			set
+			{
+				if ((this._id_categoria != value))
+				{
+					this.Onid_categoriaChanging(value);
+					this.SendPropertyChanging();
+					this._id_categoria = value;
+					this.SendPropertyChanged("id_categoria");
+					this.Onid_categoriaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_foco_gestion", DbType="Int")]
+		public System.Nullable<int> id_foco_gestion
+		{
+			get
+			{
+				return this._id_foco_gestion;
+			}
+			set
+			{
+				if ((this._id_foco_gestion != value))
+				{
+					this.Onid_foco_gestionChanging(value);
+					this.SendPropertyChanging();
+					this._id_foco_gestion = value;
+					this.SendPropertyChanged("id_foco_gestion");
+					this.Onid_foco_gestionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_hallazgo", DbType="VarChar(5000)")]
+		public string hallazgo
+		{
+			get
+			{
+				return this._hallazgo;
+			}
+			set
+			{
+				if ((this._hallazgo != value))
+				{
+					this.OnhallazgoChanging(value);
+					this.SendPropertyChanging();
+					this._hallazgo = value;
+					this.SendPropertyChanged("hallazgo");
+					this.OnhallazgoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_1", DbType="VarChar(5000)")]
+		public string porque_1
+		{
+			get
+			{
+				return this._porque_1;
+			}
+			set
+			{
+				if ((this._porque_1 != value))
+				{
+					this.Onporque_1Changing(value);
+					this.SendPropertyChanging();
+					this._porque_1 = value;
+					this.SendPropertyChanged("porque_1");
+					this.Onporque_1Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_2", DbType="VarChar(5000)")]
+		public string porque_2
+		{
+			get
+			{
+				return this._porque_2;
+			}
+			set
+			{
+				if ((this._porque_2 != value))
+				{
+					this.Onporque_2Changing(value);
+					this.SendPropertyChanging();
+					this._porque_2 = value;
+					this.SendPropertyChanged("porque_2");
+					this.Onporque_2Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_3", DbType="VarChar(5000)")]
+		public string porque_3
+		{
+			get
+			{
+				return this._porque_3;
+			}
+			set
+			{
+				if ((this._porque_3 != value))
+				{
+					this.Onporque_3Changing(value);
+					this.SendPropertyChanging();
+					this._porque_3 = value;
+					this.SendPropertyChanged("porque_3");
+					this.Onporque_3Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_4", DbType="VarChar(5000)")]
+		public string porque_4
+		{
+			get
+			{
+				return this._porque_4;
+			}
+			set
+			{
+				if ((this._porque_4 != value))
+				{
+					this.Onporque_4Changing(value);
+					this.SendPropertyChanging();
+					this._porque_4 = value;
+					this.SendPropertyChanged("porque_4");
+					this.Onporque_4Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_porque_5", DbType="VarChar(5000)")]
+		public string porque_5
+		{
+			get
+			{
+				return this._porque_5;
+			}
+			set
+			{
+				if ((this._porque_5 != value))
+				{
+					this.Onporque_5Changing(value);
+					this.SendPropertyChanging();
+					this._porque_5 = value;
+					this.SendPropertyChanged("porque_5");
+					this.Onporque_5Changed();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion_problema", DbType="VarChar(5000)")]
+		public string descripcion_problema
+		{
+			get
+			{
+				return this._descripcion_problema;
+			}
+			set
+			{
+				if ((this._descripcion_problema != value))
+				{
+					this.Ondescripcion_problemaChanging(value);
+					this.SendPropertyChanging();
+					this._descripcion_problema = value;
+					this.SendPropertyChanged("descripcion_problema");
+					this.Ondescripcion_problemaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_gestionPrestador", DbType="Int")]
+		public System.Nullable<int> estado_gestionPrestador
+		{
+			get
+			{
+				return this._estado_gestionPrestador;
+			}
+			set
+			{
+				if ((this._estado_gestionPrestador != value))
+				{
+					this.Onestado_gestionPrestadorChanging(value);
+					this.SendPropertyChanging();
+					this._estado_gestionPrestador = value;
+					this.SendPropertyChanged("estado_gestionPrestador");
+					this.Onestado_gestionPrestadorChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this.Onfecha_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_digita = value;
+					this.SendPropertyChanged("fecha_digita");
+					this.Onfecha_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(50)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this.Onusuario_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_digita = value;
+					this.SendPropertyChanged("usuario_digita");
+					this.Onusuario_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_aceptada", DbType="VarChar(50)")]
+		public string aceptada
+		{
+			get
+			{
+				return this._aceptada;
+			}
+			set
+			{
+				if ((this._aceptada != value))
+				{
+					this.OnaceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._aceptada = value;
+					this.SendPropertyChanged("aceptada");
+					this.OnaceptadaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_observacion_aceptada", DbType="VarChar(5000)")]
+		public string observacion_aceptada
+		{
+			get
+			{
+				return this._observacion_aceptada;
+			}
+			set
+			{
+				if ((this._observacion_aceptada != value))
+				{
+					this.Onobservacion_aceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._observacion_aceptada = value;
+					this.SendPropertyChanged("observacion_aceptada");
+					this.Onobservacion_aceptadaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita_aceptada", DbType="VarChar(50)")]
+		public string usuario_digita_aceptada
+		{
+			get
+			{
+				return this._usuario_digita_aceptada;
+			}
+			set
+			{
+				if ((this._usuario_digita_aceptada != value))
+				{
+					this.Onusuario_digita_aceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_digita_aceptada = value;
+					this.SendPropertyChanged("usuario_digita_aceptada");
+					this.Onusuario_digita_aceptadaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita_aceptada", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita_aceptada
+		{
+			get
+			{
+				return this._fecha_digita_aceptada;
+			}
+			set
+			{
+				if ((this._fecha_digita_aceptada != value))
+				{
+					this.Onfecha_digita_aceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_digita_aceptada = value;
+					this.SendPropertyChanged("fecha_digita_aceptada");
+					this.Onfecha_digita_aceptadaChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_de_mejora_hallazgos_gestionAuditor")]
+	public partial class ecop_plan_de_mejora_hallazgos_gestionAuditor : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_log;
+		
+		private System.Nullable<int> _id_plan;
+		
+		private System.Nullable<int> _id_hallazgo;
+		
+		private System.Nullable<int> _id_gestion;
+		
+		private System.Nullable<int> _tipoGestion;
+		
+		private string _aceptada;
+		
+		private string _observacion_aceptada;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private string _usuario_digita;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_logChanging(int value);
+    partial void Onid_logChanged();
+    partial void Onid_planChanging(System.Nullable<int> value);
+    partial void Onid_planChanged();
+    partial void Onid_hallazgoChanging(System.Nullable<int> value);
+    partial void Onid_hallazgoChanged();
+    partial void Onid_gestionChanging(System.Nullable<int> value);
+    partial void Onid_gestionChanged();
+    partial void OntipoGestionChanging(System.Nullable<int> value);
+    partial void OntipoGestionChanged();
+    partial void OnaceptadaChanging(string value);
+    partial void OnaceptadaChanged();
+    partial void Onobservacion_aceptadaChanging(string value);
+    partial void Onobservacion_aceptadaChanged();
+    partial void Onfecha_digitaChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_digitaChanged();
+    partial void Onusuario_digitaChanging(string value);
+    partial void Onusuario_digitaChanged();
+    #endregion
+		
+		public ecop_plan_de_mejora_hallazgos_gestionAuditor()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_log", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_log
+		{
+			get
+			{
+				return this._id_log;
+			}
+			set
+			{
+				if ((this._id_log != value))
+				{
+					this.Onid_logChanging(value);
+					this.SendPropertyChanging();
+					this._id_log = value;
+					this.SendPropertyChanged("id_log");
+					this.Onid_logChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan", DbType="Int")]
+		public System.Nullable<int> id_plan
+		{
+			get
+			{
+				return this._id_plan;
+			}
+			set
+			{
+				if ((this._id_plan != value))
+				{
+					this.Onid_planChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan = value;
+					this.SendPropertyChanged("id_plan");
+					this.Onid_planChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_hallazgo", DbType="Int")]
+		public System.Nullable<int> id_hallazgo
+		{
+			get
+			{
+				return this._id_hallazgo;
+			}
+			set
+			{
+				if ((this._id_hallazgo != value))
+				{
+					this.Onid_hallazgoChanging(value);
+					this.SendPropertyChanging();
+					this._id_hallazgo = value;
+					this.SendPropertyChanged("id_hallazgo");
+					this.Onid_hallazgoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_gestion", DbType="Int")]
+		public System.Nullable<int> id_gestion
+		{
+			get
+			{
+				return this._id_gestion;
+			}
+			set
+			{
+				if ((this._id_gestion != value))
+				{
+					this.Onid_gestionChanging(value);
+					this.SendPropertyChanging();
+					this._id_gestion = value;
+					this.SendPropertyChanged("id_gestion");
+					this.Onid_gestionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipoGestion", DbType="Int")]
+		public System.Nullable<int> tipoGestion
+		{
+			get
+			{
+				return this._tipoGestion;
+			}
+			set
+			{
+				if ((this._tipoGestion != value))
+				{
+					this.OntipoGestionChanging(value);
+					this.SendPropertyChanging();
+					this._tipoGestion = value;
+					this.SendPropertyChanged("tipoGestion");
+					this.OntipoGestionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_aceptada", DbType="VarChar(50)")]
+		public string aceptada
+		{
+			get
+			{
+				return this._aceptada;
+			}
+			set
+			{
+				if ((this._aceptada != value))
+				{
+					this.OnaceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._aceptada = value;
+					this.SendPropertyChanged("aceptada");
+					this.OnaceptadaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_observacion_aceptada", DbType="VarChar(5000)")]
+		public string observacion_aceptada
+		{
+			get
+			{
+				return this._observacion_aceptada;
+			}
+			set
+			{
+				if ((this._observacion_aceptada != value))
+				{
+					this.Onobservacion_aceptadaChanging(value);
+					this.SendPropertyChanging();
+					this._observacion_aceptada = value;
+					this.SendPropertyChanged("observacion_aceptada");
+					this.Onobservacion_aceptadaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this.Onfecha_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_digita = value;
+					this.SendPropertyChanged("fecha_digita");
+					this.Onfecha_digitaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(50)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this.Onusuario_digitaChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_digita = value;
+					this.SendPropertyChanged("usuario_digita");
+					this.Onusuario_digitaChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ecop_plan_de_mejora")]
+	public partial class ecop_plan_de_mejora : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _id_plan_de_mejora;
+		
+		private System.Nullable<int> _id_visitas;
+		
+		private System.Nullable<int> _id_visitas_dispen;
+		
+		private System.Nullable<int> _id_regional;
+		
+		private System.Nullable<int> _id_unis;
+		
+		private System.Nullable<int> _id_localidad;
+		
+		private System.Nullable<int> _id_prestador;
+		
+		private System.Nullable<int> _id_mes;
+		
+		private string _año;
+		
+		private System.Nullable<int> _id_proceso;
+		
+		private System.Nullable<int> _id_prioridad;
+		
+		private System.Nullable<int> _estado_plan;
+		
+		private System.Nullable<System.DateTime> _fecha_creacion;
+		
+		private System.Nullable<System.DateTime> _fecha_ampliacion;
+		
+		private string _observacion_ampliacion;
+		
+		private string _usuario_ampliacion;
+		
+		private System.Nullable<System.DateTime> _fecha_cierre;
+		
+		private System.Nullable<int> _medicion_riesgo;
+		
+		private System.Nullable<int> _costos_noCalidad;
+		
+		private System.Nullable<int> _cobertura;
+		
+		private System.Nullable<decimal> _PuntajeFinal;
+		
+		private System.Nullable<int> _tipo_prioridad;
+		
+		private System.Nullable<System.DateTime> _fecha_estimada_cierre;
+		
+		private System.Nullable<int> _estadoGestionPrestador;
+		
+		private string _justificacion_cambio;
+		
+		private string _usuario_cambio;
+		
+		private System.Nullable<System.DateTime> _fecha_cambio;
+		
+		private string _usuario_ingreso;
+		
+		private System.Nullable<System.DateTime> _fecha_ingreso;
+		
+    #region Definiciones de métodos de extensibilidad
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void Onid_plan_de_mejoraChanging(int value);
+    partial void Onid_plan_de_mejoraChanged();
+    partial void Onid_visitasChanging(System.Nullable<int> value);
+    partial void Onid_visitasChanged();
+    partial void Onid_visitas_dispenChanging(System.Nullable<int> value);
+    partial void Onid_visitas_dispenChanged();
+    partial void Onid_regionalChanging(System.Nullable<int> value);
+    partial void Onid_regionalChanged();
+    partial void Onid_unisChanging(System.Nullable<int> value);
+    partial void Onid_unisChanged();
+    partial void Onid_localidadChanging(System.Nullable<int> value);
+    partial void Onid_localidadChanged();
+    partial void Onid_prestadorChanging(System.Nullable<int> value);
+    partial void Onid_prestadorChanged();
+    partial void Onid_mesChanging(System.Nullable<int> value);
+    partial void Onid_mesChanged();
+    partial void OnañoChanging(string value);
+    partial void OnañoChanged();
+    partial void Onid_procesoChanging(System.Nullable<int> value);
+    partial void Onid_procesoChanged();
+    partial void Onid_prioridadChanging(System.Nullable<int> value);
+    partial void Onid_prioridadChanged();
+    partial void Onestado_planChanging(System.Nullable<int> value);
+    partial void Onestado_planChanged();
+    partial void Onfecha_creacionChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_creacionChanged();
+    partial void Onfecha_ampliacionChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_ampliacionChanged();
+    partial void Onobservacion_ampliacionChanging(string value);
+    partial void Onobservacion_ampliacionChanged();
+    partial void Onusuario_ampliacionChanging(string value);
+    partial void Onusuario_ampliacionChanged();
+    partial void Onfecha_cierreChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_cierreChanged();
+    partial void Onmedicion_riesgoChanging(System.Nullable<int> value);
+    partial void Onmedicion_riesgoChanged();
+    partial void Oncostos_noCalidadChanging(System.Nullable<int> value);
+    partial void Oncostos_noCalidadChanged();
+    partial void OncoberturaChanging(System.Nullable<int> value);
+    partial void OncoberturaChanged();
+    partial void OnPuntajeFinalChanging(System.Nullable<decimal> value);
+    partial void OnPuntajeFinalChanged();
+    partial void Ontipo_prioridadChanging(System.Nullable<int> value);
+    partial void Ontipo_prioridadChanged();
+    partial void Onfecha_estimada_cierreChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_estimada_cierreChanged();
+    partial void OnestadoGestionPrestadorChanging(System.Nullable<int> value);
+    partial void OnestadoGestionPrestadorChanged();
+    partial void Onjustificacion_cambioChanging(string value);
+    partial void Onjustificacion_cambioChanged();
+    partial void Onusuario_cambioChanging(string value);
+    partial void Onusuario_cambioChanged();
+    partial void Onfecha_cambioChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_cambioChanged();
+    partial void Onusuario_ingresoChanging(string value);
+    partial void Onusuario_ingresoChanged();
+    partial void Onfecha_ingresoChanging(System.Nullable<System.DateTime> value);
+    partial void Onfecha_ingresoChanged();
+    #endregion
+		
+		public ecop_plan_de_mejora()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int id_plan_de_mejora
+		{
+			get
+			{
+				return this._id_plan_de_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_de_mejora != value))
+				{
+					this.Onid_plan_de_mejoraChanging(value);
+					this.SendPropertyChanging();
+					this._id_plan_de_mejora = value;
+					this.SendPropertyChanged("id_plan_de_mejora");
+					this.Onid_plan_de_mejoraChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_visitas", DbType="Int")]
+		public System.Nullable<int> id_visitas
+		{
+			get
+			{
+				return this._id_visitas;
+			}
+			set
+			{
+				if ((this._id_visitas != value))
+				{
+					this.Onid_visitasChanging(value);
+					this.SendPropertyChanging();
+					this._id_visitas = value;
+					this.SendPropertyChanged("id_visitas");
+					this.Onid_visitasChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_visitas_dispen", DbType="Int")]
+		public System.Nullable<int> id_visitas_dispen
+		{
+			get
+			{
+				return this._id_visitas_dispen;
+			}
+			set
+			{
+				if ((this._id_visitas_dispen != value))
+				{
+					this.Onid_visitas_dispenChanging(value);
+					this.SendPropertyChanging();
+					this._id_visitas_dispen = value;
+					this.SendPropertyChanged("id_visitas_dispen");
+					this.Onid_visitas_dispenChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_regional", DbType="Int")]
+		public System.Nullable<int> id_regional
+		{
+			get
+			{
+				return this._id_regional;
+			}
+			set
+			{
+				if ((this._id_regional != value))
+				{
+					this.Onid_regionalChanging(value);
+					this.SendPropertyChanging();
+					this._id_regional = value;
+					this.SendPropertyChanged("id_regional");
+					this.Onid_regionalChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_unis", DbType="Int")]
+		public System.Nullable<int> id_unis
+		{
+			get
+			{
+				return this._id_unis;
+			}
+			set
+			{
+				if ((this._id_unis != value))
+				{
+					this.Onid_unisChanging(value);
+					this.SendPropertyChanging();
+					this._id_unis = value;
+					this.SendPropertyChanged("id_unis");
+					this.Onid_unisChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_localidad", DbType="Int")]
+		public System.Nullable<int> id_localidad
+		{
+			get
+			{
+				return this._id_localidad;
+			}
+			set
+			{
+				if ((this._id_localidad != value))
+				{
+					this.Onid_localidadChanging(value);
+					this.SendPropertyChanging();
+					this._id_localidad = value;
+					this.SendPropertyChanged("id_localidad");
+					this.Onid_localidadChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prestador", DbType="Int")]
+		public System.Nullable<int> id_prestador
+		{
+			get
+			{
+				return this._id_prestador;
+			}
+			set
+			{
+				if ((this._id_prestador != value))
+				{
+					this.Onid_prestadorChanging(value);
+					this.SendPropertyChanging();
+					this._id_prestador = value;
+					this.SendPropertyChanged("id_prestador");
+					this.Onid_prestadorChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_mes", DbType="Int")]
+		public System.Nullable<int> id_mes
+		{
+			get
+			{
+				return this._id_mes;
+			}
+			set
+			{
+				if ((this._id_mes != value))
+				{
+					this.Onid_mesChanging(value);
+					this.SendPropertyChanging();
+					this._id_mes = value;
+					this.SendPropertyChanged("id_mes");
+					this.Onid_mesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_año", DbType="VarChar(5)")]
+		public string año
+		{
+			get
+			{
+				return this._año;
+			}
+			set
+			{
+				if ((this._año != value))
+				{
+					this.OnañoChanging(value);
+					this.SendPropertyChanging();
+					this._año = value;
+					this.SendPropertyChanged("año");
+					this.OnañoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_proceso", DbType="Int")]
+		public System.Nullable<int> id_proceso
+		{
+			get
+			{
+				return this._id_proceso;
+			}
+			set
+			{
+				if ((this._id_proceso != value))
+				{
+					this.Onid_procesoChanging(value);
+					this.SendPropertyChanging();
+					this._id_proceso = value;
+					this.SendPropertyChanged("id_proceso");
+					this.Onid_procesoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prioridad", DbType="Int")]
+		public System.Nullable<int> id_prioridad
+		{
+			get
+			{
+				return this._id_prioridad;
+			}
+			set
+			{
+				if ((this._id_prioridad != value))
+				{
+					this.Onid_prioridadChanging(value);
+					this.SendPropertyChanging();
+					this._id_prioridad = value;
+					this.SendPropertyChanged("id_prioridad");
+					this.Onid_prioridadChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_plan", DbType="Int")]
+		public System.Nullable<int> estado_plan
+		{
+			get
+			{
+				return this._estado_plan;
+			}
+			set
+			{
+				if ((this._estado_plan != value))
+				{
+					this.Onestado_planChanging(value);
+					this.SendPropertyChanging();
+					this._estado_plan = value;
+					this.SendPropertyChanged("estado_plan");
+					this.Onestado_planChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_creacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_creacion
+		{
+			get
+			{
+				return this._fecha_creacion;
+			}
+			set
+			{
+				if ((this._fecha_creacion != value))
+				{
+					this.Onfecha_creacionChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_creacion = value;
+					this.SendPropertyChanged("fecha_creacion");
+					this.Onfecha_creacionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ampliacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_ampliacion
+		{
+			get
+			{
+				return this._fecha_ampliacion;
+			}
+			set
+			{
+				if ((this._fecha_ampliacion != value))
+				{
+					this.Onfecha_ampliacionChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_ampliacion = value;
+					this.SendPropertyChanged("fecha_ampliacion");
+					this.Onfecha_ampliacionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_observacion_ampliacion", DbType="VarChar(500)")]
+		public string observacion_ampliacion
+		{
+			get
+			{
+				return this._observacion_ampliacion;
+			}
+			set
+			{
+				if ((this._observacion_ampliacion != value))
+				{
+					this.Onobservacion_ampliacionChanging(value);
+					this.SendPropertyChanging();
+					this._observacion_ampliacion = value;
+					this.SendPropertyChanged("observacion_ampliacion");
+					this.Onobservacion_ampliacionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_ampliacion", DbType="VarChar(50)")]
+		public string usuario_ampliacion
+		{
+			get
+			{
+				return this._usuario_ampliacion;
+			}
+			set
+			{
+				if ((this._usuario_ampliacion != value))
+				{
+					this.Onusuario_ampliacionChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_ampliacion = value;
+					this.SendPropertyChanged("usuario_ampliacion");
+					this.Onusuario_ampliacionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_cierre", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_cierre
+		{
+			get
+			{
+				return this._fecha_cierre;
+			}
+			set
+			{
+				if ((this._fecha_cierre != value))
+				{
+					this.Onfecha_cierreChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_cierre = value;
+					this.SendPropertyChanged("fecha_cierre");
+					this.Onfecha_cierreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_medicion_riesgo", DbType="Int")]
+		public System.Nullable<int> medicion_riesgo
+		{
+			get
+			{
+				return this._medicion_riesgo;
+			}
+			set
+			{
+				if ((this._medicion_riesgo != value))
+				{
+					this.Onmedicion_riesgoChanging(value);
+					this.SendPropertyChanging();
+					this._medicion_riesgo = value;
+					this.SendPropertyChanged("medicion_riesgo");
+					this.Onmedicion_riesgoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_costos_noCalidad", DbType="Int")]
+		public System.Nullable<int> costos_noCalidad
+		{
+			get
+			{
+				return this._costos_noCalidad;
+			}
+			set
+			{
+				if ((this._costos_noCalidad != value))
+				{
+					this.Oncostos_noCalidadChanging(value);
+					this.SendPropertyChanging();
+					this._costos_noCalidad = value;
+					this.SendPropertyChanged("costos_noCalidad");
+					this.Oncostos_noCalidadChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_cobertura", DbType="Int")]
+		public System.Nullable<int> cobertura
+		{
+			get
+			{
+				return this._cobertura;
+			}
+			set
+			{
+				if ((this._cobertura != value))
+				{
+					this.OncoberturaChanging(value);
+					this.SendPropertyChanging();
+					this._cobertura = value;
+					this.SendPropertyChanged("cobertura");
+					this.OncoberturaChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_PuntajeFinal", DbType="Decimal(18,2)")]
+		public System.Nullable<decimal> PuntajeFinal
+		{
+			get
+			{
+				return this._PuntajeFinal;
+			}
+			set
+			{
+				if ((this._PuntajeFinal != value))
+				{
+					this.OnPuntajeFinalChanging(value);
+					this.SendPropertyChanging();
+					this._PuntajeFinal = value;
+					this.SendPropertyChanged("PuntajeFinal");
+					this.OnPuntajeFinalChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_prioridad", DbType="Int")]
+		public System.Nullable<int> tipo_prioridad
+		{
+			get
+			{
+				return this._tipo_prioridad;
+			}
+			set
+			{
+				if ((this._tipo_prioridad != value))
+				{
+					this.Ontipo_prioridadChanging(value);
+					this.SendPropertyChanging();
+					this._tipo_prioridad = value;
+					this.SendPropertyChanged("tipo_prioridad");
+					this.Ontipo_prioridadChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_estimada_cierre", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_estimada_cierre
+		{
+			get
+			{
+				return this._fecha_estimada_cierre;
+			}
+			set
+			{
+				if ((this._fecha_estimada_cierre != value))
+				{
+					this.Onfecha_estimada_cierreChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_estimada_cierre = value;
+					this.SendPropertyChanged("fecha_estimada_cierre");
+					this.Onfecha_estimada_cierreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estadoGestionPrestador", DbType="Int")]
+		public System.Nullable<int> estadoGestionPrestador
+		{
+			get
+			{
+				return this._estadoGestionPrestador;
+			}
+			set
+			{
+				if ((this._estadoGestionPrestador != value))
+				{
+					this.OnestadoGestionPrestadorChanging(value);
+					this.SendPropertyChanging();
+					this._estadoGestionPrestador = value;
+					this.SendPropertyChanged("estadoGestionPrestador");
+					this.OnestadoGestionPrestadorChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_justificacion_cambio", DbType="VarChar(5000)")]
+		public string justificacion_cambio
+		{
+			get
+			{
+				return this._justificacion_cambio;
+			}
+			set
+			{
+				if ((this._justificacion_cambio != value))
+				{
+					this.Onjustificacion_cambioChanging(value);
+					this.SendPropertyChanging();
+					this._justificacion_cambio = value;
+					this.SendPropertyChanged("justificacion_cambio");
+					this.Onjustificacion_cambioChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_cambio", DbType="VarChar(50)")]
+		public string usuario_cambio
+		{
+			get
+			{
+				return this._usuario_cambio;
+			}
+			set
+			{
+				if ((this._usuario_cambio != value))
+				{
+					this.Onusuario_cambioChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_cambio = value;
+					this.SendPropertyChanged("usuario_cambio");
+					this.Onusuario_cambioChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_cambio", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_cambio
+		{
+			get
+			{
+				return this._fecha_cambio;
+			}
+			set
+			{
+				if ((this._fecha_cambio != value))
+				{
+					this.Onfecha_cambioChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_cambio = value;
+					this.SendPropertyChanged("fecha_cambio");
+					this.Onfecha_cambioChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_ingreso", DbType="VarChar(50)")]
+		public string usuario_ingreso
+		{
+			get
+			{
+				return this._usuario_ingreso;
+			}
+			set
+			{
+				if ((this._usuario_ingreso != value))
+				{
+					this.Onusuario_ingresoChanging(value);
+					this.SendPropertyChanging();
+					this._usuario_ingreso = value;
+					this.SendPropertyChanged("usuario_ingreso");
+					this.Onusuario_ingresoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ingreso", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_ingreso
+		{
+			get
+			{
+				return this._fecha_ingreso;
+			}
+			set
+			{
+				if ((this._fecha_ingreso != value))
+				{
+					this.Onfecha_ingresoChanging(value);
+					this.SendPropertyChanging();
+					this._fecha_ingreso = value;
+					this.SendPropertyChanged("fecha_ingreso");
+					this.Onfecha_ingresoChanged();
 				}
 			}
 		}
@@ -520698,6 +522000,1682 @@ namespace ECOPETROL_COMMON.ENTIDADES
 				if ((this._nombrePrestador != value))
 				{
 					this._nombrePrestador = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planMejora_tableroControlGestionPrestadoresResult
+	{
+		
+		private int _id_plan_de_mejora;
+		
+		private System.Nullable<int> _conteomeses;
+		
+		private System.Nullable<System.DateTime> _fecha_ampliacion;
+		
+		private System.Nullable<System.DateTime> _fecha_estimada_cierre;
+		
+		private System.Nullable<int> _id_visitas;
+		
+		private System.Nullable<int> _id_regional;
+		
+		private string _nombre_regional;
+		
+		private System.Nullable<int> _id_unis;
+		
+		private string _nom_unis;
+		
+		private System.Nullable<int> _id_prestador;
+		
+		private string _nom_prestador;
+		
+		private System.Nullable<int> _id_mes;
+		
+		private string _nom_mes;
+		
+		private string _año;
+		
+		private System.Nullable<int> _id_proceso;
+		
+		private string _nom_proceso;
+		
+		private System.Nullable<int> _estado_plan;
+		
+		private string _usuario_ingreso;
+		
+		private System.Nullable<int> _id_usuario;
+		
+		private string _nombre;
+		
+		private System.Nullable<System.DateTime> _fecha_ingreso;
+		
+		private System.Nullable<System.DateTime> _fecha_respuesta;
+		
+		private System.Nullable<System.DateTime> _fecha_creacion;
+		
+		private System.Nullable<int> _id_localidad;
+		
+		private string _nombrelocalidad;
+		
+		private System.Nullable<System.DateTime> _fechamaximaplazo;
+		
+		private System.Nullable<System.DateTime> _fechaminimaplazo;
+		
+		private string _estadoplan;
+		
+		private System.Nullable<int> _prioridad;
+		
+		private System.Nullable<decimal> _puntajeFinal;
+		
+		private System.Nullable<int> _tipo_prioridad;
+		
+		private System.Nullable<int> _id_visitas_dispen;
+		
+		private System.Nullable<int> _estadoGestionPrestador;
+		
+		public management_planMejora_tableroControlGestionPrestadoresResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", DbType="Int NOT NULL")]
+		public int id_plan_de_mejora
+		{
+			get
+			{
+				return this._id_plan_de_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_de_mejora != value))
+				{
+					this._id_plan_de_mejora = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_conteomeses", DbType="Int")]
+		public System.Nullable<int> conteomeses
+		{
+			get
+			{
+				return this._conteomeses;
+			}
+			set
+			{
+				if ((this._conteomeses != value))
+				{
+					this._conteomeses = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ampliacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_ampliacion
+		{
+			get
+			{
+				return this._fecha_ampliacion;
+			}
+			set
+			{
+				if ((this._fecha_ampliacion != value))
+				{
+					this._fecha_ampliacion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_estimada_cierre", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_estimada_cierre
+		{
+			get
+			{
+				return this._fecha_estimada_cierre;
+			}
+			set
+			{
+				if ((this._fecha_estimada_cierre != value))
+				{
+					this._fecha_estimada_cierre = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_visitas", DbType="Int")]
+		public System.Nullable<int> id_visitas
+		{
+			get
+			{
+				return this._id_visitas;
+			}
+			set
+			{
+				if ((this._id_visitas != value))
+				{
+					this._id_visitas = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_regional", DbType="Int")]
+		public System.Nullable<int> id_regional
+		{
+			get
+			{
+				return this._id_regional;
+			}
+			set
+			{
+				if ((this._id_regional != value))
+				{
+					this._id_regional = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre_regional", DbType="VarChar(100)")]
+		public string nombre_regional
+		{
+			get
+			{
+				return this._nombre_regional;
+			}
+			set
+			{
+				if ((this._nombre_regional != value))
+				{
+					this._nombre_regional = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_unis", DbType="Int")]
+		public System.Nullable<int> id_unis
+		{
+			get
+			{
+				return this._id_unis;
+			}
+			set
+			{
+				if ((this._id_unis != value))
+				{
+					this._id_unis = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nom_unis", DbType="VarChar(50)")]
+		public string nom_unis
+		{
+			get
+			{
+				return this._nom_unis;
+			}
+			set
+			{
+				if ((this._nom_unis != value))
+				{
+					this._nom_unis = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prestador", DbType="Int")]
+		public System.Nullable<int> id_prestador
+		{
+			get
+			{
+				return this._id_prestador;
+			}
+			set
+			{
+				if ((this._id_prestador != value))
+				{
+					this._id_prestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nom_prestador", DbType="VarChar(200)")]
+		public string nom_prestador
+		{
+			get
+			{
+				return this._nom_prestador;
+			}
+			set
+			{
+				if ((this._nom_prestador != value))
+				{
+					this._nom_prestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_mes", DbType="Int")]
+		public System.Nullable<int> id_mes
+		{
+			get
+			{
+				return this._id_mes;
+			}
+			set
+			{
+				if ((this._id_mes != value))
+				{
+					this._id_mes = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nom_mes", DbType="VarChar(20)")]
+		public string nom_mes
+		{
+			get
+			{
+				return this._nom_mes;
+			}
+			set
+			{
+				if ((this._nom_mes != value))
+				{
+					this._nom_mes = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_año", DbType="VarChar(5)")]
+		public string año
+		{
+			get
+			{
+				return this._año;
+			}
+			set
+			{
+				if ((this._año != value))
+				{
+					this._año = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_proceso", DbType="Int")]
+		public System.Nullable<int> id_proceso
+		{
+			get
+			{
+				return this._id_proceso;
+			}
+			set
+			{
+				if ((this._id_proceso != value))
+				{
+					this._id_proceso = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nom_proceso", DbType="VarChar(300)")]
+		public string nom_proceso
+		{
+			get
+			{
+				return this._nom_proceso;
+			}
+			set
+			{
+				if ((this._nom_proceso != value))
+				{
+					this._nom_proceso = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_plan", DbType="Int")]
+		public System.Nullable<int> estado_plan
+		{
+			get
+			{
+				return this._estado_plan;
+			}
+			set
+			{
+				if ((this._estado_plan != value))
+				{
+					this._estado_plan = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_ingreso", DbType="VarChar(50)")]
+		public string usuario_ingreso
+		{
+			get
+			{
+				return this._usuario_ingreso;
+			}
+			set
+			{
+				if ((this._usuario_ingreso != value))
+				{
+					this._usuario_ingreso = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_usuario", DbType="Int")]
+		public System.Nullable<int> id_usuario
+		{
+			get
+			{
+				return this._id_usuario;
+			}
+			set
+			{
+				if ((this._id_usuario != value))
+				{
+					this._id_usuario = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(100)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this._nombre = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_ingreso", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_ingreso
+		{
+			get
+			{
+				return this._fecha_ingreso;
+			}
+			set
+			{
+				if ((this._fecha_ingreso != value))
+				{
+					this._fecha_ingreso = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_respuesta", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_respuesta
+		{
+			get
+			{
+				return this._fecha_respuesta;
+			}
+			set
+			{
+				if ((this._fecha_respuesta != value))
+				{
+					this._fecha_respuesta = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_creacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_creacion
+		{
+			get
+			{
+				return this._fecha_creacion;
+			}
+			set
+			{
+				if ((this._fecha_creacion != value))
+				{
+					this._fecha_creacion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_localidad", DbType="Int")]
+		public System.Nullable<int> id_localidad
+		{
+			get
+			{
+				return this._id_localidad;
+			}
+			set
+			{
+				if ((this._id_localidad != value))
+				{
+					this._id_localidad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombrelocalidad", DbType="VarChar(50)")]
+		public string nombrelocalidad
+		{
+			get
+			{
+				return this._nombrelocalidad;
+			}
+			set
+			{
+				if ((this._nombrelocalidad != value))
+				{
+					this._nombrelocalidad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fechamaximaplazo", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fechamaximaplazo
+		{
+			get
+			{
+				return this._fechamaximaplazo;
+			}
+			set
+			{
+				if ((this._fechamaximaplazo != value))
+				{
+					this._fechamaximaplazo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fechaminimaplazo", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fechaminimaplazo
+		{
+			get
+			{
+				return this._fechaminimaplazo;
+			}
+			set
+			{
+				if ((this._fechaminimaplazo != value))
+				{
+					this._fechaminimaplazo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estadoplan", DbType="VarChar(50)")]
+		public string estadoplan
+		{
+			get
+			{
+				return this._estadoplan;
+			}
+			set
+			{
+				if ((this._estadoplan != value))
+				{
+					this._estadoplan = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_prioridad", DbType="Int")]
+		public System.Nullable<int> prioridad
+		{
+			get
+			{
+				return this._prioridad;
+			}
+			set
+			{
+				if ((this._prioridad != value))
+				{
+					this._prioridad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_puntajeFinal", DbType="Decimal(18,2)")]
+		public System.Nullable<decimal> puntajeFinal
+		{
+			get
+			{
+				return this._puntajeFinal;
+			}
+			set
+			{
+				if ((this._puntajeFinal != value))
+				{
+					this._puntajeFinal = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_prioridad", DbType="Int")]
+		public System.Nullable<int> tipo_prioridad
+		{
+			get
+			{
+				return this._tipo_prioridad;
+			}
+			set
+			{
+				if ((this._tipo_prioridad != value))
+				{
+					this._tipo_prioridad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_visitas_dispen", DbType="Int")]
+		public System.Nullable<int> id_visitas_dispen
+		{
+			get
+			{
+				return this._id_visitas_dispen;
+			}
+			set
+			{
+				if ((this._id_visitas_dispen != value))
+				{
+					this._id_visitas_dispen = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estadoGestionPrestador", DbType="Int")]
+		public System.Nullable<int> estadoGestionPrestador
+		{
+			get
+			{
+				return this._estadoGestionPrestador;
+			}
+			set
+			{
+				if ((this._estadoGestionPrestador != value))
+				{
+					this._estadoGestionPrestador = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planMejora_tableroControlGestionPrestadores_hallazgosResult
+	{
+		
+		private int _idHallazgo;
+		
+		private System.Nullable<int> _IdPlan;
+		
+		private string _Nomcategoria;
+		
+		private string _Nomfoco;
+		
+		private string _hallazgo;
+		
+		private System.Nullable<int> _estado_gestionPrestador;
+		
+		private string _descripcion_estado_gestionPrestador;
+		
+		public management_planMejora_tableroControlGestionPrestadores_hallazgosResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_idHallazgo", DbType="Int NOT NULL")]
+		public int idHallazgo
+		{
+			get
+			{
+				return this._idHallazgo;
+			}
+			set
+			{
+				if ((this._idHallazgo != value))
+				{
+					this._idHallazgo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IdPlan", DbType="Int")]
+		public System.Nullable<int> IdPlan
+		{
+			get
+			{
+				return this._IdPlan;
+			}
+			set
+			{
+				if ((this._IdPlan != value))
+				{
+					this._IdPlan = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Nomcategoria", DbType="VarChar(100)")]
+		public string Nomcategoria
+		{
+			get
+			{
+				return this._Nomcategoria;
+			}
+			set
+			{
+				if ((this._Nomcategoria != value))
+				{
+					this._Nomcategoria = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Nomfoco", DbType="VarChar(200)")]
+		public string Nomfoco
+		{
+			get
+			{
+				return this._Nomfoco;
+			}
+			set
+			{
+				if ((this._Nomfoco != value))
+				{
+					this._Nomfoco = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_hallazgo", DbType="VarChar(5000)")]
+		public string hallazgo
+		{
+			get
+			{
+				return this._hallazgo;
+			}
+			set
+			{
+				if ((this._hallazgo != value))
+				{
+					this._hallazgo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_gestionPrestador", DbType="Int")]
+		public System.Nullable<int> estado_gestionPrestador
+		{
+			get
+			{
+				return this._estado_gestionPrestador;
+			}
+			set
+			{
+				if ((this._estado_gestionPrestador != value))
+				{
+					this._estado_gestionPrestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion_estado_gestionPrestador", DbType="VarChar(11)")]
+		public string descripcion_estado_gestionPrestador
+		{
+			get
+			{
+				return this._descripcion_estado_gestionPrestador;
+			}
+			set
+			{
+				if ((this._descripcion_estado_gestionPrestador != value))
+				{
+					this._descripcion_estado_gestionPrestador = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult
+	{
+		
+		private int _id_gestion;
+		
+		private System.Nullable<int> _id_plan_mejora;
+		
+		private System.Nullable<int> _id_plan_mejora_foco_intervencion;
+		
+		private System.Nullable<int> _id_metodologia;
+		
+		private string _ruta;
+		
+		private string _nombre;
+		
+		private string _extension;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private int _tipoDato;
+		
+		private string _usuario_digita;
+		
+		private string _encabezado;
+		
+		private string _descripcion;
+		
+		private string _tipo;
+		
+		private string _aceptada;
+		
+		private string _observacion_aceptada;
+		
+		private string _nombreGestiona;
+		
+		public management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_gestion", DbType="Int NOT NULL")]
+		public int id_gestion
+		{
+			get
+			{
+				return this._id_gestion;
+			}
+			set
+			{
+				if ((this._id_gestion != value))
+				{
+					this._id_gestion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora
+		{
+			get
+			{
+				return this._id_plan_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_mejora != value))
+				{
+					this._id_plan_mejora = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this._id_plan_mejora_foco_intervencion;
+			}
+			set
+			{
+				if ((this._id_plan_mejora_foco_intervencion != value))
+				{
+					this._id_plan_mejora_foco_intervencion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_metodologia", DbType="Int")]
+		public System.Nullable<int> id_metodologia
+		{
+			get
+			{
+				return this._id_metodologia;
+			}
+			set
+			{
+				if ((this._id_metodologia != value))
+				{
+					this._id_metodologia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ruta", DbType="VarChar(500)")]
+		public string ruta
+		{
+			get
+			{
+				return this._ruta;
+			}
+			set
+			{
+				if ((this._ruta != value))
+				{
+					this._ruta = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(500)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this._nombre = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_extension", DbType="VarChar(500)")]
+		public string extension
+		{
+			get
+			{
+				return this._extension;
+			}
+			set
+			{
+				if ((this._extension != value))
+				{
+					this._extension = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this._fecha_digita = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipoDato", DbType="Int NOT NULL")]
+		public int tipoDato
+		{
+			get
+			{
+				return this._tipoDato;
+			}
+			set
+			{
+				if ((this._tipoDato != value))
+				{
+					this._tipoDato = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(100)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this._usuario_digita = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_encabezado", DbType="VarChar(100)")]
+		public string encabezado
+		{
+			get
+			{
+				return this._encabezado;
+			}
+			set
+			{
+				if ((this._encabezado != value))
+				{
+					this._encabezado = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion", DbType="VarChar(500)")]
+		public string descripcion
+		{
+			get
+			{
+				return this._descripcion;
+			}
+			set
+			{
+				if ((this._descripcion != value))
+				{
+					this._descripcion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo", DbType="VarChar(603)")]
+		public string tipo
+		{
+			get
+			{
+				return this._tipo;
+			}
+			set
+			{
+				if ((this._tipo != value))
+				{
+					this._tipo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_aceptada", DbType="VarChar(50)")]
+		public string aceptada
+		{
+			get
+			{
+				return this._aceptada;
+			}
+			set
+			{
+				if ((this._aceptada != value))
+				{
+					this._aceptada = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_observacion_aceptada", DbType="VarChar(5000)")]
+		public string observacion_aceptada
+		{
+			get
+			{
+				return this._observacion_aceptada;
+			}
+			set
+			{
+				if ((this._observacion_aceptada != value))
+				{
+					this._observacion_aceptada = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombreGestiona", DbType="VarChar(100)")]
+		public string nombreGestiona
+		{
+			get
+			{
+				return this._nombreGestiona;
+			}
+			set
+			{
+				if ((this._nombreGestiona != value))
+				{
+					this._nombreGestiona = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult
+	{
+		
+		private int _id_gestion;
+		
+		private System.Nullable<int> _id_plan_mejora;
+		
+		private System.Nullable<int> _id_plan_mejora_foco_intervencion;
+		
+		private System.Nullable<int> _id_metodologia;
+		
+		private string _ruta;
+		
+		private string _nombre;
+		
+		private string _extension;
+		
+		private System.Nullable<System.DateTime> _fecha_digita;
+		
+		private int _tipoDato;
+		
+		private string _usuario_digita;
+		
+		private string _encabezado;
+		
+		private string _descripcion;
+		
+		private string _tipo;
+		
+		private string _aceptada;
+		
+		private string _nombreGestiona;
+		
+		public management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_gestion", DbType="Int NOT NULL")]
+		public int id_gestion
+		{
+			get
+			{
+				return this._id_gestion;
+			}
+			set
+			{
+				if ((this._id_gestion != value))
+				{
+					this._id_gestion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora
+		{
+			get
+			{
+				return this._id_plan_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_mejora != value))
+				{
+					this._id_plan_mejora = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_mejora_foco_intervencion", DbType="Int")]
+		public System.Nullable<int> id_plan_mejora_foco_intervencion
+		{
+			get
+			{
+				return this._id_plan_mejora_foco_intervencion;
+			}
+			set
+			{
+				if ((this._id_plan_mejora_foco_intervencion != value))
+				{
+					this._id_plan_mejora_foco_intervencion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_metodologia", DbType="Int")]
+		public System.Nullable<int> id_metodologia
+		{
+			get
+			{
+				return this._id_metodologia;
+			}
+			set
+			{
+				if ((this._id_metodologia != value))
+				{
+					this._id_metodologia = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ruta", DbType="VarChar(500)")]
+		public string ruta
+		{
+			get
+			{
+				return this._ruta;
+			}
+			set
+			{
+				if ((this._ruta != value))
+				{
+					this._ruta = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(500)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this._nombre = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_extension", DbType="VarChar(500)")]
+		public string extension
+		{
+			get
+			{
+				return this._extension;
+			}
+			set
+			{
+				if ((this._extension != value))
+				{
+					this._extension = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_digita", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_digita
+		{
+			get
+			{
+				return this._fecha_digita;
+			}
+			set
+			{
+				if ((this._fecha_digita != value))
+				{
+					this._fecha_digita = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipoDato", DbType="Int NOT NULL")]
+		public int tipoDato
+		{
+			get
+			{
+				return this._tipoDato;
+			}
+			set
+			{
+				if ((this._tipoDato != value))
+				{
+					this._tipoDato = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_usuario_digita", DbType="VarChar(100)")]
+		public string usuario_digita
+		{
+			get
+			{
+				return this._usuario_digita;
+			}
+			set
+			{
+				if ((this._usuario_digita != value))
+				{
+					this._usuario_digita = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_encabezado", DbType="VarChar(100)")]
+		public string encabezado
+		{
+			get
+			{
+				return this._encabezado;
+			}
+			set
+			{
+				if ((this._encabezado != value))
+				{
+					this._encabezado = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion", DbType="VarChar(500)")]
+		public string descripcion
+		{
+			get
+			{
+				return this._descripcion;
+			}
+			set
+			{
+				if ((this._descripcion != value))
+				{
+					this._descripcion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo", DbType="VarChar(603)")]
+		public string tipo
+		{
+			get
+			{
+				return this._tipo;
+			}
+			set
+			{
+				if ((this._tipo != value))
+				{
+					this._tipo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_aceptada", DbType="VarChar(50)")]
+		public string aceptada
+		{
+			get
+			{
+				return this._aceptada;
+			}
+			set
+			{
+				if ((this._aceptada != value))
+				{
+					this._aceptada = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombreGestiona", DbType="VarChar(100)")]
+		public string nombreGestiona
+		{
+			get
+			{
+				return this._nombreGestiona;
+			}
+			set
+			{
+				if ((this._nombreGestiona != value))
+				{
+					this._nombreGestiona = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult
+	{
+		
+		private int _idHallazgo;
+		
+		private System.Nullable<int> _IdPlan;
+		
+		private string _Nomcategoria;
+		
+		private string _Nomfoco;
+		
+		private string _hallazgo;
+		
+		private System.Nullable<int> _estado_gestionPrestador;
+		
+		private string _descripcion_estado_gestionPrestador;
+		
+		private System.Nullable<System.DateTime> _fecha_creacion;
+		
+		public management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_idHallazgo", DbType="Int NOT NULL")]
+		public int idHallazgo
+		{
+			get
+			{
+				return this._idHallazgo;
+			}
+			set
+			{
+				if ((this._idHallazgo != value))
+				{
+					this._idHallazgo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IdPlan", DbType="Int")]
+		public System.Nullable<int> IdPlan
+		{
+			get
+			{
+				return this._IdPlan;
+			}
+			set
+			{
+				if ((this._IdPlan != value))
+				{
+					this._IdPlan = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Nomcategoria", DbType="VarChar(100)")]
+		public string Nomcategoria
+		{
+			get
+			{
+				return this._Nomcategoria;
+			}
+			set
+			{
+				if ((this._Nomcategoria != value))
+				{
+					this._Nomcategoria = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Nomfoco", DbType="VarChar(200)")]
+		public string Nomfoco
+		{
+			get
+			{
+				return this._Nomfoco;
+			}
+			set
+			{
+				if ((this._Nomfoco != value))
+				{
+					this._Nomfoco = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_hallazgo", DbType="VarChar(5000)")]
+		public string hallazgo
+		{
+			get
+			{
+				return this._hallazgo;
+			}
+			set
+			{
+				if ((this._hallazgo != value))
+				{
+					this._hallazgo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_estado_gestionPrestador", DbType="Int")]
+		public System.Nullable<int> estado_gestionPrestador
+		{
+			get
+			{
+				return this._estado_gestionPrestador;
+			}
+			set
+			{
+				if ((this._estado_gestionPrestador != value))
+				{
+					this._estado_gestionPrestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcion_estado_gestionPrestador", DbType="VarChar(11)")]
+		public string descripcion_estado_gestionPrestador
+		{
+			get
+			{
+				return this._descripcion_estado_gestionPrestador;
+			}
+			set
+			{
+				if ((this._descripcion_estado_gestionPrestador != value))
+				{
+					this._descripcion_estado_gestionPrestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_creacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_creacion
+		{
+			get
+			{
+				return this._fecha_creacion;
+			}
+			set
+			{
+				if ((this._fecha_creacion != value))
+				{
+					this._fecha_creacion = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planesMejora_envioNotificacionCreacionPMResult
+	{
+		
+		private int _id_plan_de_mejora;
+		
+		private System.Nullable<System.DateTime> _fecha_creacion;
+		
+		private System.Nullable<int> _tipo_prioridad;
+		
+		private string _descripcionPrioridad;
+		
+		private string _nombrePrestador;
+		
+		private int _idPrestador;
+		
+		private System.Nullable<int> _nroHallazgos;
+		
+		public management_planesMejora_envioNotificacionCreacionPMResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_plan_de_mejora", DbType="Int NOT NULL")]
+		public int id_plan_de_mejora
+		{
+			get
+			{
+				return this._id_plan_de_mejora;
+			}
+			set
+			{
+				if ((this._id_plan_de_mejora != value))
+				{
+					this._id_plan_de_mejora = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_fecha_creacion", DbType="DateTime")]
+		public System.Nullable<System.DateTime> fecha_creacion
+		{
+			get
+			{
+				return this._fecha_creacion;
+			}
+			set
+			{
+				if ((this._fecha_creacion != value))
+				{
+					this._fecha_creacion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_prioridad", DbType="Int")]
+		public System.Nullable<int> tipo_prioridad
+		{
+			get
+			{
+				return this._tipo_prioridad;
+			}
+			set
+			{
+				if ((this._tipo_prioridad != value))
+				{
+					this._tipo_prioridad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_descripcionPrioridad", DbType="VarChar(15)")]
+		public string descripcionPrioridad
+		{
+			get
+			{
+				return this._descripcionPrioridad;
+			}
+			set
+			{
+				if ((this._descripcionPrioridad != value))
+				{
+					this._descripcionPrioridad = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombrePrestador", DbType="VarChar(200)")]
+		public string nombrePrestador
+		{
+			get
+			{
+				return this._nombrePrestador;
+			}
+			set
+			{
+				if ((this._nombrePrestador != value))
+				{
+					this._nombrePrestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_idPrestador", DbType="Int NOT NULL")]
+		public int idPrestador
+		{
+			get
+			{
+				return this._idPrestador;
+			}
+			set
+			{
+				if ((this._idPrestador != value))
+				{
+					this._idPrestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nroHallazgos", DbType="Int")]
+		public System.Nullable<int> nroHallazgos
+		{
+			get
+			{
+				return this._nroHallazgos;
+			}
+			set
+			{
+				if ((this._nroHallazgos != value))
+				{
+					this._nroHallazgos = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_planesMejora_envioNotificacionCreacionPM_correosResult
+	{
+		
+		private System.Nullable<int> _id_prestador;
+		
+		private string _nombre;
+		
+		private string _correo;
+		
+		private string _correo_ins;
+		
+		public management_planesMejora_envioNotificacionCreacionPM_correosResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_prestador", DbType="Int")]
+		public System.Nullable<int> id_prestador
+		{
+			get
+			{
+				return this._id_prestador;
+			}
+			set
+			{
+				if ((this._id_prestador != value))
+				{
+					this._id_prestador = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_nombre", DbType="VarChar(100)")]
+		public string nombre
+		{
+			get
+			{
+				return this._nombre;
+			}
+			set
+			{
+				if ((this._nombre != value))
+				{
+					this._nombre = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_correo", DbType="VarChar(50)")]
+		public string correo
+		{
+			get
+			{
+				return this._correo;
+			}
+			set
+			{
+				if ((this._correo != value))
+				{
+					this._correo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_correo_ins", DbType="VarChar(100)")]
+		public string correo_ins
+		{
+			get
+			{
+				return this._correo_ins;
+			}
+			set
+			{
+				if ((this._correo_ins != value))
+				{
+					this._correo_ins = value;
 				}
 			}
 		}

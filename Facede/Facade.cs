@@ -1879,6 +1879,86 @@ namespace Facede
             return DACInserta.InsertarLogEliminarPlanMejora(obj);
         }
 
+        public List<management_planMejora_tableroControlGestionPrestadoresResult> ListadoPlanesGestionPrestador(string usuario, int? idEva, DateTime? fechaIni, DateTime? fechaFin, string nit)
+        {
+            return DACConsulta.ListadoPlanesGestionPrestador(usuario, idEva, fechaIni, fechaFin, nit);
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> ListadoPlanesHallazgosGestionPrestador(int? idPlan)
+        {
+            return DACConsulta.ListadoPlanesHallazgosGestionPrestador(idPlan);
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> ListadoGestionesDeHallazgoGestionPrestador(int? idHallazgo)
+        {
+            return DACConsulta.ListadoGestionesDeHallazgoGestionPrestador(idHallazgo);
+        }
+
+        public management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult HallazgoPlanMejoraIdHallazgo(int? idHallazgo)
+        {
+            return DACConsulta.HallazgoPlanMejoraIdHallazgo(idHallazgo);
+        }
+
+        public List<ref_planesMejora_metodologias> RefTiposMetodologia()
+        {
+            return DACConsulta.RefTiposMetodologia();
+        }
+
+        public int GuardarGestionPrestadorPM(ecop_plan_mejora_gestionPrestadorHallazgo obj)
+        {
+            return DACInserta.GuardarGestionPrestadorPM(obj);
+        }
+
+        public ecop_plan_mejora_gestionPrestadorHallazgo GestionHallazgoIdGestion(int? idGestion)
+        {
+            return DACConsulta.GestionHallazgoIdGestion(idGestion);
+        }
+
+        public int EliminarGestionHallazgo(int? idGestion)
+        {
+            return DACElimina.EliminarGestionHallazgo(idGestion);
+        }
+
+        public int InsertarLogEliminarGestionHallazgo(log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar obj)
+        {
+            return DACInserta.InsertarLogEliminarGestionHallazgo(obj);
+        }
+
+        public management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult GestionHallazgoIdGestionTipo(int? idGestion, int? tipo)
+        {
+            return DACConsulta.GestionHallazgoIdGestionTipo(idGestion, tipo);
+        }
+
+        public int ActualizarEstadoHallazgoPM(int? idHallazgo, int? estado)
+        {
+            return DACActualiza.ActualizarEstadoHallazgoPM(idHallazgo, estado);
+        }
+
+        public int ActualizarEstadoGestionPrestadorPM(int? idPlan, int? estado)
+        {
+            return DACActualiza.ActualizarEstadoGestionPrestadorPM(idPlan, estado);
+        }
+
+        public int InsertarListadoGestionAuditorPM(List<ecop_plan_de_mejora_hallazgos_gestionAuditor> listado)
+        {
+            return DACInserta.InsertarListadoGestionAuditorPM(listado);
+        }
+
+        //Listado hallazgos para actualizar estado plan mejora concorde a gestión auditor pm
+        public List<ecop_plan_mejora_foco_intervencion> ListadoHallazgosPM(int? idPlan)
+        {
+            return DACConsulta.ListadoHallazgosPM(idPlan);
+        }
+
+        public management_planesMejora_envioNotificacionCreacionPMResult DatosNotificacionCreacionPM(int? idPlan)
+        {
+            return DACConsulta.DatosNotificacionCreacionPM(idPlan);
+        }
+
+        public List<management_planesMejora_envioNotificacionCreacionPM_correosResult> DatosNotificacionCreacionPM_correos(int? idPrestador)
+        {
+            return DACConsulta.DatosNotificacionCreacionPM_correos(idPrestador);
+        }
 
         #endregion
 

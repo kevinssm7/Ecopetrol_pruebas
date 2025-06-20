@@ -2200,8 +2200,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
         public List<management_planMejora_reporte_detalleCierreResult> DatosPMReporteDetalleCierre(int? idPlan)
         {
             List<management_planMejora_reporte_detalleCierreResult> lstResult = new List<management_planMejora_reporte_detalleCierreResult>();
@@ -2312,7 +2310,6 @@ namespace DATA_ACCESS
 
         }
 
-
         public List<ref_planMejora_prioridad> listaPrioridadPM()
         {
             List<ref_planMejora_prioridad> lista = new List<ref_planMejora_prioridad>();
@@ -2392,7 +2389,6 @@ namespace DATA_ACCESS
                 return lstResult;
             }
         }
-
 
         public ecop_plan_de_mejora_documental PlanMejoraGestionDocumentalId(int? idPlan, int? tipo)
         {
@@ -2592,7 +2588,6 @@ namespace DATA_ACCESS
             }
         }
 
-
         public List<management_planesMejora_alertaVencimientoResult> ListadoAlertasVencimiento()
         {
             List<management_planesMejora_alertaVencimientoResult> lista = new List<management_planesMejora_alertaVencimientoResult>();
@@ -2609,7 +2604,6 @@ namespace DATA_ACCESS
             }
             return lista;
         }
-
 
         public management_planMejora_correosNotificacionIdPlanResult DatosNotificacionCorreos(int? idPlan)
         {
@@ -2662,6 +2656,179 @@ namespace DATA_ACCESS
             return dato;
         }
 
+        public List<management_planMejora_tableroControlGestionPrestadoresResult> ListadoPlanesGestionPrestador(string usuario, int? idEva, DateTime? fechaIni, DateTime? fechaFin, string nit)
+        {
+            List<management_planMejora_tableroControlGestionPrestadoresResult> lista = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.management_planMejora_tableroControlGestionPrestadores(usuario, idEva, fechaIni, fechaFin, nit).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
+
+
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> ListadoPlanesHallazgosGestionPrestador(int? idPlan)
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> lista = new List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.management_planMejora_tableroControlGestionPrestadores_hallazgos(idPlan).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> ListadoGestionesDeHallazgoGestionPrestador(int? idHallazgo)
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> listado = new List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones(idHallazgo).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return listado;
+        }
+
+        public management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult HallazgoPlanMejoraIdHallazgo(int? idHallazgo)
+        {
+            management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult dato = new management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgo(idHallazgo).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
+
+        public List<ref_planesMejora_metodologias> RefTiposMetodologia()
+        {
+
+            List<ref_planesMejora_metodologias> listado = new List<ref_planesMejora_metodologias>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.ref_planesMejora_metodologias.Where(x => x.estado == 1).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return listado;
+        }
+
+        public ecop_plan_mejora_gestionPrestadorHallazgo GestionHallazgoIdGestion(int? idGestion)
+        {
+            ecop_plan_mejora_gestionPrestadorHallazgo dato = new ecop_plan_mejora_gestionPrestadorHallazgo();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.ecop_plan_mejora_gestionPrestadorHallazgo.FirstOrDefault(x => x.id_gestion == idGestion);
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
+
+        public management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult GestionHallazgoIdGestionTipo(int? idGestion, int? tipo)
+        {
+            management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult dato = new management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_id(idGestion, tipo).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
+
+        //Listado hallazgos para actualizar estado plan mejora concorde a gestión auditor pm
+        public List<ecop_plan_mejora_foco_intervencion> ListadoHallazgosPM(int? idPlan)
+        {
+            List<ecop_plan_mejora_foco_intervencion> listado = new List<ecop_plan_mejora_foco_intervencion>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.ecop_plan_mejora_foco_intervencion.Where(x => x.id_plan_de_mejora == idPlan).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return listado;
+        }
+
+        public management_planesMejora_envioNotificacionCreacionPMResult DatosNotificacionCreacionPM(int? idPlan)
+        {
+            management_planesMejora_envioNotificacionCreacionPMResult dato = new management_planesMejora_envioNotificacionCreacionPMResult();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_planesMejora_envioNotificacionCreacionPM(idPlan).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
+
+
+        public List<management_planesMejora_envioNotificacionCreacionPM_correosResult> DatosNotificacionCreacionPM_correos(int? idPrestador)
+        {
+          List<  management_planesMejora_envioNotificacionCreacionPM_correosResult> dato = new List<management_planesMejora_envioNotificacionCreacionPM_correosResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_planesMejora_envioNotificacionCreacionPM_correos(idPrestador).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
 
         #endregion
 

@@ -26,6 +26,7 @@ using System.Net.Security;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 
@@ -248,7 +249,7 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
                         i += 1;
                         result += "<tr>";
                         result += "<td>";
-                       
+
                         result += $"<input type='hidden' id='idFoco_{item.id_plan_mejora_foco_intervencion}' name='idFoco_{item.id_plan_mejora_foco_intervencion}' value='{item.id_plan_mejora_foco_intervencion}'/>";
                         result += $"<input type='hidden' id='idcategoria_{item.id_plan_mejora_foco_intervencion}' name='idcategoria_{item.id_plan_mejora_foco_intervencion}' value='{item.id_categoria}'/>";
                         result += $"<input type='hidden' id='desCategoria_{item.id_plan_mejora_foco_intervencion}' name='desCategoria_{item.id_plan_mejora_foco_intervencion}' value='{item.categoria}'/>";
@@ -305,7 +306,7 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
                         i += 1;
                         result += "<tr>";
                         result += "<td>";
-                      
+
                         result += $"<input type='hidden' id='idFoco_{item.id_plan_mejora_foco_intervencion}' name='idFoco_{item.id_plan_mejora_foco_intervencion}' value='{item.id_plan_mejora_foco_intervencion}'/>";
                         result += $"<input type='hidden' id='idcategoria_{item.id_plan_mejora_foco_intervencion}' name='idcategoria_{item.id_plan_mejora_foco_intervencion}' value='{item.id_categoria}'/>";
                         result += $"<input type='hidden' id='desCategoria_{item.id_plan_mejora_foco_intervencion}' name='desCategoria_{item.id_plan_mejora_foco_intervencion}' value='{item.categoria}'/>";
@@ -573,6 +574,15 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
 
                             if (MsgRes.ResponseType == BussinesEnums.EnumTipoRespuesta.Correcto)
                             {
+                                try
+                                {
+                                    EnviarCorreoCreacionPlanMejora(Model.id_plan_de_mejora);
+                                }
+                                catch (Exception ex)
+                                {
+                                    var error = ex.Message;
+                                }
+
                                 mensaje = "SE INGRESÓ CORRECTAMENTE.";
                                 return Json(new { success = true, message = mensaje, id = Model.id_plan_de_mejora }, JsonRequestBehavior.AllowGet);
                             }
@@ -2235,6 +2245,519 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             }
         }
 
+        public ActionResult TableroControlHallazgos(int? idEva, DateTime? fechaIni, DateTime? fechaFin, string nit)
+        {
+            List<management_planMejora_tableroControlGestionPrestadoresResult> listado = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+            List<management_planMejora_tableroControlGestionPrestadoresResult> listadoSinGestion = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+            List<management_planMejora_tableroControlGestionPrestadoresResult> listadoAprobados = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+            List<management_planMejora_tableroControlGestionPrestadoresResult> listadoPendientes = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+            List<management_planMejora_tableroControlGestionPrestadoresResult> listadoNegados = new List<management_planMejora_tableroControlGestionPrestadoresResult>();
+
+            string usuario = SesionVar.UserName;
+
+            try
+            {
+                listado = BusClass.ListadoPlanesGestionPrestador(usuario, idEva, fechaIni, fechaFin, nit);
+
+                listadoSinGestion = listado.Where(x => x.estadoGestionPrestador == null).ToList();
+                listadoPendientes = listado.Where(x => x.estadoGestionPrestador == 1).ToList();
+                listadoAprobados = listado.Where(x => x.estadoGestionPrestador == 2).ToList();
+                listadoNegados = listado.Where(x => x.estadoGestionPrestador == 3).ToList();
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            ViewBag.listadoSinGestion = listadoSinGestion;
+            ViewBag.listadoPendientes = listadoPendientes;
+            ViewBag.listadoAprobados = listadoAprobados;
+            ViewBag.listadoNegados = listadoNegados;
+
+            ViewBag.conteoSin = listadoSinGestion.Count();
+            ViewBag.conteoPendiente = listadoPendientes.Count();
+            ViewBag.conteoAprobado = listadoAprobados.Count();
+            ViewBag.conteoNegado = listadoNegados.Count();
+
+            ViewBag.rol = SesionVar.ROL;
+            ViewBag.usuario = usuario;
+
+            Session["ListadoTableroPM"] = listado;
+
+            return View();
+        }
+
+        public PartialViewResult MostrarTareasPlanMejoraGestionPrestador(int? idPlan)
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> Lista = new List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult>();
+            var conteo = 0;
+
+            try
+            {
+                Lista = BusClass.ListadoPlanesHallazgosGestionPrestador(idPlan);
+                conteo = Lista.Count();
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            ViewBag.idPlan = idPlan;
+            ViewBag.listadoTareas = Lista;
+            ViewBag.conteoTareas = conteo;
+            return PartialView();
+        }
+
+        public PartialViewResult GestionarACR(int? idHallazgo, int? idPlan)
+        {
+            management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult dato = new management_planMejora_tableroControlGestionPrestadores_hallazgos_idHallazgoResult();
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> listadoGestiones = new List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult>();
+            try
+            {
+                listadoGestiones = BusClass.ListadoGestionesDeHallazgoGestionPrestador(idHallazgo);
+                dato = BusClass.HallazgoPlanMejoraIdHallazgo(idHallazgo);
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            ViewBag.idHallazgo = idHallazgo;
+            ViewBag.idPlan = idPlan;
+            ViewBag.metodologias = BusClass.RefTiposMetodologia();
+            ViewBag.gestiones = listadoGestiones;
+            ViewBag.conteoGestiones = listadoGestiones.Count();
+
+            return PartialView(dato);
+        }
+
+        public JsonResult GuardarGestionACR(int? idPlan, int? idHallazgo, int? metodologia, HttpPostedFileBase fileACR)
+        {
+            int rta = 0;
+            string mensaje = "";
+            try
+            {
+
+                string strRetorno = string.Empty;
+                StringBuilder sbRutaDefinitiva;
+                string strRutaDefinitiva = string.Empty;
+                strRutaDefinitiva = ConfigurationManager.AppSettings["rutaDocumentosPM"];
+                sbRutaDefinitiva = new StringBuilder(strRutaDefinitiva);
+                string nombreSintilde = Regex.Replace(fileACR.FileName.Normalize(NormalizationForm.FormD), @"[^a-zA-z0-9 ]+", "");
+                string dirpath = Path.Combine(Request.PhysicalApplicationPath, strRutaDefinitiva);
+                string ruta = Path.Combine(Request.PhysicalApplicationPath, sbRutaDefinitiva + "\\" + nombreSintilde);
+
+                MessageResponseOBJ MsgRes = new MessageResponseOBJ();
+                string strError = string.Empty;
+
+                DateTime fecha = DateTime.Now;
+                string archivo = string.Empty;
+
+                String carpeta = "";
+
+                if (ConfigurationManager.AppSettings["BDActiva"].ToString() == "1")
+                {
+                    carpeta = "PlanMejora";
+                }
+                else if (ConfigurationManager.AppSettings["BDActiva"].ToString() == "2")
+                {
+                    carpeta = "PlanMejoraPruebas";
+                }
+
+                ruta = Path.Combine(Request.PhysicalApplicationPath, strRutaDefinitiva + "\\" + carpeta + "\\IdPlan_" + idPlan + "\\idHallazgo_" + idHallazgo);
+
+                var nombre = Path.GetFileNameWithoutExtension(fileACR.FileName.Replace(".pdf", ""));
+
+                archivo = String.Format("{0}\\{1:yyyyMMdd_hhmmssfff}_{2}{3}", ruta,
+                fecha, nombre, Path.GetExtension(fileACR.FileName));
+
+                if (!Directory.Exists(ruta))
+                    Directory.CreateDirectory(ruta);
+
+                string fileExt1 = System.IO.Path.GetExtension(fileACR.FileName);
+                string nombreActual1 = fileACR.FileName;
+                string nombreCarpeta = nombreActual1.Remove(nombreActual1.Length - fileExt1.Length);
+
+                fileACR.SaveAs(archivo);
+
+                ecop_plan_mejora_gestionPrestadorHallazgo obj = new ecop_plan_mejora_gestionPrestadorHallazgo();
+                obj.id_plan_mejora = idPlan;
+                obj.id_plan_mejora_foco_intervencion = idHallazgo;
+                obj.id_metodologia = metodologia;
+                obj.ruta = Convert.ToString(archivo);
+                obj.nombre = fileACR.FileName;
+                obj.extension = fileACR.ContentType;
+                obj.fecha_digita = DateTime.Now;
+                obj.usuario_digita = SesionVar.UserName;
+
+                var inserta = BusClass.GuardarGestionPrestadorPM(obj);
+                if (inserta != 0)
+                {
+                    var actualiza = BusClass.ActualizarEstadoHallazgoPM(idHallazgo, 1);
+                    if (actualiza != 0)
+                    {
+                        var actualizaPm = BusClass.ActualizarEstadoGestionPrestadorPM(idPlan, 1);
+
+                        mensaje = "DATOS ACTUALIZADOS CORRECTAMENTE";
+                        rta = 1;
+                    }
+                    else
+                    {
+                        mensaje = "ERROR AL ACTUALZIAR DATOS";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+        }
+
+        public JsonResult EliminarGestionHallazgo(int? idGestion, int? idHallazgo, int? idPlan)
+        {
+            var rta = 0;
+            var mensaje = "";
+
+            try
+            {
+                ecop_plan_mejora_gestionPrestadorHallazgo dato = BusClass.GestionHallazgoIdGestion(idGestion);
+                log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar log = new log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar();
+                if (dato != null)
+                {
+                    log.id_gestion = dato.id_gestion;
+                    log.id_plan_mejora = dato.id_plan_mejora;
+                    log.id_plan_mejora_foco_intervencion = dato.id_plan_mejora_foco_intervencion;
+                    log.id_metodologia = dato.id_metodologia;
+                    log.ruta = dato.ruta;
+                    log.nombre = dato.nombre;
+                    log.extension = dato.extension;
+                    log.fecha_digita = dato.fecha_digita;
+                    log.usuario_digita = dato.usuario_digita;
+                    log.fecha_elimina = DateTime.Now;
+                    log.usuario_elimina = dato.usuario_digita;
+                }
+
+                var gestion = BusClass.EliminarGestionHallazgo(idGestion);
+                if (gestion != 0)
+                {
+                    var actualizaHallazgo = BusClass.ActualizarEstadoHallazgoPM(idHallazgo, 1);
+
+                    var insertaLog = BusClass.InsertarLogEliminarGestionHallazgo(log);
+
+                    List<management_planMejora_tableroControlGestionPrestadores_hallazgos_gestionesResult> listadoGestiones = BusClass.ListadoGestionesDeHallazgoGestionPrestador(idHallazgo);
+                    if (listadoGestiones.Count() == 0)
+                    {
+                        var actualizaPlan = BusClass.ActualizarEstadoGestionPrestadorPM(idPlan, null);
+
+                        mensaje = "SIN GESTIONES POR VISUALIZAR";
+                        rta = 2;
+                    }
+                    else
+                    {
+                        mensaje = "GESTIÓN ELIMINADA CORRECTAMENTE";
+                        rta = 1;
+                    }
+                }
+                else
+                {
+                    throw new Exception("NO SE ELIMINA.");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR EN LA ELIMINACIÓN: {error}";
+            }
+
+            return Json(new { rta = rta, mensaje = mensaje });
+        }
+
+        public ActionResult VerGestionHallazgo(int? idGestion, int? tipoDato)
+        {
+            try
+            {
+                management_planMejora_tableroControlGestionPrestadores_hallazgos_gestiones_idResult dato = BusClass.GestionHallazgoIdGestionTipo(idGestion, tipoDato);
+
+                if (dato == null)
+                {
+                    return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Ha ocurrido un error al momento de visualizar el archivo: " });
+                }
+                else
+                {
+                    var obj = dato;
+                    string dirpath = Path.Combine(Request.PhysicalApplicationPath, obj.ruta);
+                    string filename = obj.ruta;
+                    string extensionTipo = obj.extension;
+                    var nombre = dato.nombre;
+
+                    return File(dirpath, extensionTipo, nombre);
+                }
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Ha ocurrido un error al momento de visualizar el archivo: " + ex.Message });
+            }
+        }
+
+        public class GestionAuditorDTO
+        {
+            public int idGestion { get; set; }
+            public string observacion { get; set; }
+            public int estado { get; set; }
+            public int tipoGestion { get; set; }
+            public int idHallazgo { get; set; }
+        }
+
+        public JsonResult GuardarGestionAuditor(List<GestionAuditorDTO> gestiones, int? idPlan)
+        {
+            var rta = 0;
+            var mensaje = "";
+
+            List<ecop_plan_de_mejora_hallazgos_gestionAuditor> listaGestion = new List<ecop_plan_de_mejora_hallazgos_gestionAuditor>();
+
+            try
+            {
+                if (gestiones != null)
+                {
+                    if (gestiones.Count() > 0)
+                    {
+                        foreach (var item in gestiones)
+                        {
+                            ecop_plan_de_mejora_hallazgos_gestionAuditor gestion = new ecop_plan_de_mejora_hallazgos_gestionAuditor()
+                            {
+                                id_plan = idPlan,
+                                id_hallazgo = item.idHallazgo,
+                                id_gestion = item.idGestion,
+                                tipoGestion = item.tipoGestion,
+                                aceptada = item.estado == 1 ? "SI" : "NO",
+                                observacion_aceptada = item.observacion,
+                                fecha_digita = DateTime.Now,
+                                usuario_digita = SesionVar.UserName,
+                            };
+
+                            listaGestion.Add(gestion);
+                        }
+
+                        if (listaGestion.Count() > 0)
+                        {
+                            var InsertarListadoGestion = BusClass.InsertarListadoGestionAuditorPM(listaGestion);
+                            if (InsertarListadoGestion != 0)
+                            {
+                                foreach (var item in gestiones)
+                                {
+                                    var estadoHallazgo = item.estado == 1 ? 2 : 3;
+                                    var actualizaHallazgo = BusClass.ActualizarEstadoHallazgoPM(item.idHallazgo, estadoHallazgo);
+                                }
+
+                                List<ecop_plan_mejora_foco_intervencion> listadoGestiones = BusClass.ListadoHallazgosPM(idPlan);
+                                List<ecop_plan_mejora_foco_intervencion> listadoGestionesAprobadas = listadoGestiones.Where(x => x.estado_gestionPrestador == 2).ToList();
+                                List<ecop_plan_mejora_foco_intervencion> listadoGestionesNegadas = listadoGestiones.Where(x => x.estado_gestionPrestador == 3).ToList();
+                                List<ecop_plan_mejora_foco_intervencion> listadoGestionesPendiente = listadoGestiones.Where(x => x.estado_gestionPrestador == null || x.estado_gestionPrestador == 1).ToList();
+
+                                int? estadoPM = 0;
+                                rta = 1;
+
+                                if (listadoGestionesPendiente.Count() > 0)
+                                {
+                                    estadoPM = 1;
+                                    mensaje = "GESTIÓN REALIZADA CORRECTAMENTE";
+                                }
+                                else
+                                {
+                                    if (listadoGestionesNegadas.Count() > 0 && listadoGestionesAprobadas.Count() == 0)
+                                    {
+                                        estadoPM = 3;
+                                        mensaje = "PLAN MEJORA ENVIADO A NEGADOS";
+                                    }
+                                    else if (listadoGestionesNegadas.Count() == 0 && listadoGestionesAprobadas.Count() > 0)
+                                    {
+                                        estadoPM = 2;
+                                        mensaje = "PLAN MEJORA ENVIADO A APROBADOS";
+                                    }
+                                    else
+                                    {
+                                        estadoPM = 1;
+                                        mensaje = "GESTIÓN REALIZADA CORRECTAMENTE";
+                                    }
+                                }
+
+                                var actualizaPm = BusClass.ActualizarEstadoGestionPrestadorPM(idPlan, estadoPM);
+                                if (actualizaPm == 0)
+                                {
+                                    mensaje = "ERROR AL ACTUALIZAR EL PLAN DE MEJORA";
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception("ERROR AL INGRESAR LAS GESTIONES");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("SIN DATOS POR GESTIONAR");
+                    }
+                }
+                else
+                {
+                    throw new Exception("SIN DATOS POR GESTIONAR");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { rta = rta, mensaje = mensaje });
+        }
+
+        public string EnviarCorreoCreacionPlanMejora(int? idPlan)
+        {
+            string str1 = "";
+            var smtpSection = (SmtpSection)ConfigurationManager.GetSection("system.net/mailSettings/smtp");
+            management_planesMejora_envioNotificacionCreacionPMResult datos = new management_planesMejora_envioNotificacionCreacionPMResult();
+
+            List<management_planesMejora_envioNotificacionCreacionPM_correosResult> listaCorreos = new List<management_planesMejora_envioNotificacionCreacionPM_correosResult>();
+            StringBuilder sb = new StringBuilder();
+
+            string textBody = sb.ToString();
+            string filename = "";
+
+            int? idPrestador = 0;
+
+            try
+            {
+                datos = BusClass.DatosNotificacionCreacionPM(idPlan);
+
+                idPrestador = datos != null ? datos.idPrestador : 0;
+
+                listaCorreos = BusClass.DatosNotificacionCreacionPM_correos(idPrestador);
+
+                textBody += $"Estimado(a) {datos.nombrePrestador} ";
+                textBody += "<br />";
+                textBody += "<br />";
+                textBody += $"Por medio del presente, le informamos que se ha generado un nuevo Plan de Mejora con la identificación {datos.id_plan_de_mejora} – Prioridad: {datos.descripcionPrioridad}, con fecha del plan de mejora: {datos.fecha_creacion}. ";
+
+                textBody += "<br />";
+                textBody += "<br />";
+                textBody += $"En este plan se han identificado un total de {datos.nroHallazgos} hallazgos, para los cuales se requiere realizar el análisis de causa raíz individual por cada uno.";
+                textBody += "<br />";
+                textBody += $"El plazo máximo para gestionar estos análisis está definido según la prioridad del plan asignada:";
+
+                textBody += "<br />";
+                textBody += "<br />";
+                textBody += $"o	Prioridad Alta: 1 mes.";
+                textBody += "<br />";
+                textBody += $"o	Prioridad Media: 3 meses.";
+                textBody += "<br />";
+                textBody += $"o	Prioridad Baja: 6 meses.";
+                textBody += "<br />";
+                textBody += "<br />";
+                textBody += "Solicitamos amablemente revisar el plan de mejora y tomar las acciones pertinentes.";
+
+
+                string mailBody = "";
+                string mailCSS = "";
+                mailCSS = "<style>";
+                mailCSS += @"body { margin: 0; padding: 0; }";
+                mailCSS += @".PageContainer{ background-repeat: no-repeat; width: 600px; height: 900px; }";
+                mailCSS += @"#ContentContainer { clear: both; width: 600px; height: 187px; }";
+                mailCSS += @"#LeftPane { width: 260px; padding-top: 150px; float: left; padding-left: 40px; color='#F1C40F';}";
+                mailCSS += @"#RightPane { width: 230px; float: right; padding-top: 150px; text-align: center; padding-right: 30px; }";
+                mailCSS += @"#RightPane2 {width: 260px; float: right; padding-top: 150px; text-align: center; }";
+                mailCSS += @".tableClass { border: dashed 1px #000000; padding: 5px 5px 5px 5px; }";
+                mailCSS += @"#FooterContainer { clear: both; width: 590px; padding-top: 515px; height: 80px; font-size: 0.6em; padding-left: 10px; font-weight: bold; }";
+                mailCSS += @".a { color: #063971; }";
+
+                mailCSS += "</style>";
+                mailBody = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">";
+                mailBody += "<div class='PageContainer' style=' font-family: Century Gothic, Century Gothic, sans-serif; '>";
+                mailBody += "<div id='ContentContainer' style=' color: #063971;'>";
+
+                mailBody += "<div id='LeftPane' style='font-size: 14.5px;'>";
+                mailBody += "<br />";
+                mailBody += textBody;
+                mailBody += "<br />";
+                mailBody += "<br />";
+
+                mailBody += "<div id='RightPane2' align='center'  style='font-size: 10.5px;'>";
+                mailBody += "“Este es un mensaje generado automáticamente por el sistema de gestión de Planes de mejora. Por favor, no responda a este correo.";
+                mailBody += "<br />";
+                mailBody += "<br />";
+                mailBody += "Cordialmente,";
+                mailBody += "</div>";
+
+                mailBody += "</div>";
+                mailBody += "</div>";
+
+                System.Net.Mail.SmtpClient objMail = new System.Net.Mail.SmtpClient();
+                objMail.Host = smtpSection.Network.Host;
+                objMail.Port = smtpSection.Network.Port;
+                objMail.Credentials = new System.Net.NetworkCredential(smtpSection.Network.UserName, smtpSection.Network.Password);
+                ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
+                objMail.EnableSsl = true;
+
+                MailMessage mailMessage = new MailMessage();
+                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(mailBody.ToString(), new System.Net.Mime.ContentType("text/html"));
+                LinkedResource resource = new LinkedResource(System.AppDomain.CurrentDomain.BaseDirectory + "/Resources/SelloFirma.png");
+                resource.ContentId = "dealer_logo";
+                htmlView.LinkedResources.Add(resource);
+
+                mailMessage.AlternateViews.Add(htmlView);
+
+                mailMessage.From = new MailAddress("admin@asaludltda.com");
+
+                if (ConfigurationManager.AppSettings["BDActiva"].ToString() == "1")
+                {
+                    if(listaCorreos.Count() > 0)
+                    {
+                        foreach(var item in listaCorreos)
+                        {
+                            string correo = !string.IsNullOrEmpty(item.correo_ins) ? item.correo_ins : item.correo;
+                            if (!string.IsNullOrEmpty(correo))
+                            {
+                                mailMessage.To.Add(correo.Replace(" ", ""));
+                            }
+                        }
+                    }
+
+                }
+                else
+                {
+                    foreach (var item in listaCorreos)
+                    {
+                        string correo = !string.IsNullOrEmpty(item.correo_ins) ? item.correo_ins : item.correo;
+                        if (!string.IsNullOrEmpty(correo))
+                        {
+                            mailMessage.To.Add(correo.Replace(" ", ""));
+                        }
+                    }
+
+                    mailMessage.To.Add("desarrollo.soporte@asalud.co");
+                }
+                mailMessage.Subject = $"[Mensaje Automático] Creación de Plan de Mejora (ID: {datos.id_plan_de_mejora} – Prioridad:{datos.descripcionPrioridad})";
+
+                mailMessage.IsBodyHtml = true;
+                mailMessage.Body = "<HTML><head><META http-equiv=Content-Type content=\"text/html; \"> " + mailCSS + "</head><body> " + textBody + "<br>" + mailBody + "</body></HTML>";
+                mailMessage.IsBodyHtml = true;
+                objMail.Send(mailMessage);
+
+            }
+            catch (Exception ex)
+            {
+                str1 = "ERROR: " + ex.Message;
+            }
+
+            return str1;
+        }
+
+        //kevin 200625
     }
 
 }

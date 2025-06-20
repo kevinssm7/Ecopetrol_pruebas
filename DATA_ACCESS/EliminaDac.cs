@@ -609,6 +609,24 @@ namespace DATA_ACCESS
             }
         }
 
+        public int EliminarGestionHallazgo(int? idGestion)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    ecop_plan_mejora_gestionPrestadorHallazgo obj = db.ecop_plan_mejora_gestionPrestadorHallazgo.FirstOrDefault(x => x.id_gestion == idGestion);
+                    db.ecop_plan_mejora_gestionPrestadorHallazgo.DeleteOnSubmit(obj);
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
         #endregion
 
         #region INSUMOS

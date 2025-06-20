@@ -1,0 +1,856 @@
+﻿@{
+    ViewBag.Title = "TABLERO CONTROL HALLAZGOS";
+    Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">FILTROS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formEnvioDatos" method="post" action="TableroPlanesMejora">
+
+            <div class="row">
+                @*<div class="col-md-2">
+                    <label class="text-secondary_asalud">Id visita dispensación</label>
+                    <input type="text" class="form-control solo-numero" id="idEva" name="idEva" maxlength="10" />
+                </div>*@
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha inicial dispensación</label>
+                    <input type="text" class="form-control" id="fechaIni" name="fechaIni" style="width:100%;" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Fecha final dispensación</label>
+                    <input type="text" class="form-control" id="fechaFin" name="fechaFin" style="width:100%;" />
+                </div>
+                <div class="col-md-3">
+                    <label class="text-secondary_asalud">Nit dispensación</label>
+                    <input type="text" class="form-control solo-numero" id="nit" name="nit" maxlength="15" />
+                </div>
+                <br />
+
+                <div class="col-md-1 text-left">
+                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="BuscarDatos();"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</a>
+                </div>
+            </div>
+            <br />
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">ESTADOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-8">
+                <ul class="nav nav-pills" style="font-size: 12px">
+                    <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Sin gestión @ViewBag.conteoSin</a></li>
+                    <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">Pendientes @ViewBag.conteoPendiente</a></li>
+                    <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Aprobados @ViewBag.conteoAprobado</a></li>
+                    <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">Negados @ViewBag.conteoNegado</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 text-right">
+                <a class="btn button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary-Asalud">DATOS</strong>
+    </div>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab0">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tableroSin table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Id dispensación</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoSin > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadoresResult item in ViewBag.listadoSinGestion)
+                                        {
+                                            var estilo = "";
+                                            var fechaMinimaPlazo = new DateTime();
+                                            var fechaMaximaPlazo = new DateTime();
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            {
+                                                if (item.conteomeses > 0)
+                                                {
+                                                    estilo = "TrAzul";
+                                                }
+                                                else
+                                                {
+                                                    estilo = "TrNaranja";
+
+                                                }
+                                            }
+
+                                            <tr class="@estilo">
+
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.id_visitas_dispen</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Gestionar hallazgo</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab1">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tableroPendientes table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Id dispensación</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoPendiente > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadoresResult item in ViewBag.listadoPendientes)
+                                        {
+                                            var estilo = "";
+                                            var fechaMinimaPlazo = new DateTime();
+                                            var fechaMaximaPlazo = new DateTime();
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            {
+                                                if (item.conteomeses > 0)
+                                                {
+                                                    estilo = "TrAzul";
+                                                }
+                                                else
+                                                {
+                                                    estilo = "TrNaranja";
+
+                                                }
+                                            }
+
+                                            <tr class="@estilo">
+
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.id_visitas_dispen</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Gestionar hallazgo</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab2">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tableroAprobados table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Id dispensación</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoAprobado > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadoresResult item in ViewBag.listadoAprobados)
+                                        {
+                                            var estilo = "";
+                                            var fechaMinimaPlazo = new DateTime();
+                                            var fechaMaximaPlazo = new DateTime();
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            {
+                                                if (item.conteomeses > 0)
+                                                {
+                                                    estilo = "TrAzul";
+                                                }
+                                                else
+                                                {
+                                                    estilo = "TrNaranja";
+
+                                                }
+                                            }
+
+                                            <tr class="@estilo">
+
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.id_visitas_dispen</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Gestionar hallazgo</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab3">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="tableroNegados table table-bordered table-condensed" style="font-size:10px; width:98%;">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Id visitas</th>
+                                        <th>Id dispensación</th>
+                                        <th>Estado</th>
+                                        <th>Regional</th>
+                                        <th>Unis</th>
+                                        <th>Localidad</th>
+                                        <th>Prestador</th>
+                                        <th>Fecha creación</th>
+                                        <th>Proceso</th>
+                                        <th>Auditor</th>
+                                        <th>Fecha seguimiento</th>
+                                        <th>Fecha estimada cierre</th>
+                                        <th>Acciones de mejora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.conteoNegado > 0)
+                                    {
+                                        foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadoresResult item in ViewBag.listadoNegados)
+                                        {
+                                            var estilo = "";
+                                            var fechaMinimaPlazo = new DateTime();
+                                            var fechaMaximaPlazo = new DateTime();
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMinimaPlazo = Convert.ToDateTime(item.fechaminimaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMinimaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            if (item.fechaminimaplazo != null)
+                                            {
+                                                fechaMaximaPlazo = Convert.ToDateTime(item.fechamaximaplazo.Value.ToString("yyyy/MM/dd"));
+                                            }
+                                            else
+                                            {
+                                                fechaMaximaPlazo = new DateTime(2000, 01, 01);
+                                            }
+
+                                            {
+                                                if (item.conteomeses > 0)
+                                                {
+                                                    estilo = "TrAzul";
+                                                }
+                                                else
+                                                {
+                                                    estilo = "TrNaranja";
+
+                                                }
+                                            }
+
+                                            <tr class="@estilo">
+
+                                                <td>@item.id_plan_de_mejora</td>
+                                                <td>@item.id_visitas</td>
+                                                <td>@item.id_visitas_dispen</td>
+                                                <td>@item.estadoplan</td>
+                                                <td>@item.nombre_regional</td>
+                                                <td>@item.nom_unis</td>
+                                                <td>@item.nombrelocalidad</td>
+                                                <td>@item.nom_prestador</td>
+                                                <td>@item.fecha_creacion.Value.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.nom_proceso</td>
+                                                <td>@item.nombre</td>
+
+                                                <td>
+                                                    @(item.fechaminimaplazo != null ? item.fechaminimaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td>
+                                                    @(item.fechamaximaplazo != null ? item.fechamaximaplazo.Value.ToString("dd/MM/yyyy") : "")
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Gestionar hallazgo</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="14" style="width:100%; text-align:center">SIN DATOS</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModalTareas">
+    <div class="modal-dialog modal-lg" style="width:90%; height:100%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="modal-footer">
+                    <a class="button_Asalud_Rechazar" onclick="CerrarModalHallazgos();">CERRAR</a>
+                </div>
+
+                <div id="resultado"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/validate.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        MostrarTablaSinGestion();
+        MostrarTablaPendientes();
+        MostrarTablaAprobados();
+        MostrarTablaNegados();
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $("#fechaIni").kendoDatePicker();
+        $("#fechaFin").kendoDatePicker();
+
+        $("#fechaIni").prop('readonly', true);
+        $("#fechaFin").prop('readonly', true);
+
+        $('.select2').select2({
+            width: '100%'
+        });
+
+        $('.solo-numero').keyup(function () {
+            this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+    })
+
+    function MostrarTablaSinGestion() {
+        var conteo = "@ViewBag.conteoSin";
+        if (conteo > 0) {
+
+            $('.tableroSin').DataTable().destroy();
+            $('.tableroSin').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaPendientes() {
+        var conteo = "@ViewBag.conteoPendiente";
+        if (conteo > 0) {
+            $('.tableroPendientes').DataTable().destroy();
+            $('.tablaCerrtableroPendientesados').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaAprobados() {
+        var conteo = "@ViewBag.conteoAprobado";
+        if (conteo > 0) {
+            $('.tableroAprobados').DataTable().destroy();
+            $('.tableroAprobados').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaNegados() {
+        var conteo = "@ViewBag.conteoNegado";
+        if (conteo > 0) {
+            $('.tableroNegados').DataTable().destroy();
+            $('.tableroNegados').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function MostrarTablaAbiertNoti() {
+        var conteo = "@ViewBag.conteoAbiertosNotifi";
+        if (conteo > 0) {
+            $('.tablaAbiNoti').DataTable().destroy();
+            $('.tablaAbiNoti').DataTable({
+                "sSearch": "Buscar:",
+                "searching": true,
+                "iDisplayLength": 20,
+                "lengthChange": false,
+                "info": false,
+                responsive: true,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
+        }
+    }
+
+    function VerHallazgos(idPlan) {
+        var laURLDeLaVista = '@Url.Action("MostrarTareasPlanMejoraGestionPrestador")?idPlan=' + idPlan;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: laURLDeLaVista,
+            data: {},
+            success: function (response) {
+                $('#resultado').html('');
+                $('#resultado').html(response);
+                $("#myModalTareas").modal("show");
+            }
+        });
+    }
+
+    function VerDatosExcel() {
+        var URL2 = "@Url.Action("DescargarReportePM", "PlanesMejora")";
+        window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
+    }
+
+    function CargarSoporteAdmin(idPlan) {
+
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "GET",
+            url: "@Url.Action("ModalCargueSoportesAdmin", "PlanMejora")",
+            data: {
+                idPlan: idPlan
+            },
+            success: function (response) {
+                $('#rslAdmin').html('');
+                $('#rslAdmin').html(response);
+                $("#ModalCargueAdmin").modal("show");
+            }
+        })
+    }
+
+    function BuscarDatos() {
+        $("#formEnvioDatos").submit();
+    }
+
+    function exportarExcelInd(id) {
+        location.href = "@Url.Action("ExcelExportarIndividual", "Verificacion")?id=" + id;
+    }
+
+
+    function CerrarModalHallazgos() {
+        location.reload();
+    }
+
+</script>
+
+
+<style>
+    label.error {
+        background-color: indianred;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        float: left;
+        width: 100%;
+        text-align: justify;
+        font-weight: bold;
+    }
+
+    .Error {
+        color: #800000;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .Tamaño {
+        height: 200px;
+    }
+
+    .TamañoImag {
+        height: 200px;
+        position: center;
+    }
+
+    .TamañoDiv {
+        position: page;
+        /*width:1100px;*/
+    }
+
+    .btn-glyphicon {
+        padding: 8px;
+        background: #ffffff;
+        margin-right: 4px;
+    }
+
+    .icon-btn {
+        padding: 1px 15px 3px 2px;
+        border-radius: 50px;
+    }
+
+    .table {
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+        font-size: 12px;
+        margin: 5px;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+        .table th {
+            font-weight: bold;
+            padding: 8px;
+            background: #636363;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #e8e8e8;
+        }
+     
+        .table tr:hover td {
+            background: #bcbcbc;
+            color: #1c1c1c;
+        }
+
+    .floatBlock {
+        margin: 0 1.81em 0 0;
+    }
+
+
+    .TrAzul {
+        background: #bbd0da;
+        color: black;
+    }
+
+    .TrNaranja {
+        background-color: #daccbb;
+        color: black;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #fff;
+        background-color: #556da2;
+        font-family: "Century Gothic", "Century Gothic", Sans-Serif;
+    }
+
+    .nav {
+        padding-left: 10px;
+    }
+</style>
+
+
+

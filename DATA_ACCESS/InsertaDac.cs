@@ -1061,6 +1061,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+        
         public Int32 InsertarArchivoPQRRespuestaProyectada(GestionDocumentalPQRS2 OBJ, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -1080,6 +1081,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+        
         public Int32 PqrInsertarArchivoRepositorioCierre(GestionDocumentalPQRS2 OBJ, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -1099,6 +1101,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+        
         public int InsertarArchivoReaperturaPQR(GestionDocumentalPQRS2 OBJ)
         {
             try
@@ -1116,9 +1119,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
-
 
         public Int32 InsertarPQRSEnrevision(ecop_PQRS_enrevision OBJ, ref MessageResponseOBJ MsgRes)
         {
@@ -1139,8 +1139,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
 
         public Int32 InsertarPQRSEliminar(Log_eliminacion_pqrs OBJ, ref MessageResponseOBJ MsgRes)
         {
@@ -1285,8 +1283,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
+        
         public int CargueMasivoQuienLlamoPqrs(List<ecop_pqrs_a_quien_llamo> detalle, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -1365,8 +1362,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
         #endregion
 
         #region CUENTAS MEDICAS
@@ -1394,8 +1389,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
 
         public Int32 InsertarRips(RIPS Objrips, ref MessageResponseOBJ MsgRes)
         {
@@ -5849,6 +5842,58 @@ namespace DATA_ACCESS
             }
         }
 
+        public int GuardarGestionPrestadorPM(ecop_plan_mejora_gestionPrestadorHallazgo obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.ecop_plan_mejora_gestionPrestadorHallazgo.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_gestion;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public int InsertarLogEliminarGestionHallazgo(log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.log_ecop_plan_mejora_gestionPrestadorHallazgo_eliminar.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_log;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+        
+        public int InsertarListadoGestionAuditorPM(List<ecop_plan_de_mejora_hallazgos_gestionAuditor> listado)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    DaccInsetfull.BulkInsertEntities(listado);
+                    return 1;
+                }
+            } catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+
+        }
         #endregion
 
         #region CONTACT CENTER
