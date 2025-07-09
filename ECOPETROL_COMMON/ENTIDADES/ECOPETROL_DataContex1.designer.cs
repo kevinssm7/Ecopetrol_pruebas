@@ -13184,13 +13184,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 			return ((ISingleResult<managment_prestadores_facturasResult>)(result.ReturnValue));
 		}
 		
-		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_cuentasAltoCosto_documentosArchivos")]
-		public ISingleResult<management_cuentasAltoCosto_documentosArchivosResult> management_cuentasAltoCosto_documentosArchivos([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> año, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string mes, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string regional, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> tipo, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(150)")] string documento)
-		{
-			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), año, mes, regional, tipo, documento);
-			return ((ISingleResult<management_cuentasAltoCosto_documentosArchivosResult>)(result.ReturnValue));
-		}
-		
 		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_cuentasAltoCosto_consolidadoArchivos")]
 		public ISingleResult<management_cuentasAltoCosto_consolidadoArchivosResult> management_cuentasAltoCosto_consolidadoArchivos([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string documento, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> tipo)
 		{
@@ -14058,6 +14051,13 @@ namespace ECOPETROL_COMMON.ENTIDADES
 		{
 			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), idFactura);
 			return ((ISingleResult<management_fis_facturasCuv_conBeneficiariosResult>)(result.ReturnValue));
+		}
+		
+		[global::System.Data.Linq.Mapping.FunctionAttribute(Name="dbo.management_cuentasAltoCosto_documentosArchivos")]
+		public ISingleResult<management_cuentasAltoCosto_documentosArchivosResult> management_cuentasAltoCosto_documentosArchivos([global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> año, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string mes, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(100)")] string regional, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="Int")] System.Nullable<int> tipo, [global::System.Data.Linq.Mapping.ParameterAttribute(DbType="VarChar(150)")] string documento)
+		{
+			IExecuteResult result = this.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), año, mes, regional, tipo, documento);
+			return ((ISingleResult<management_cuentasAltoCosto_documentosArchivosResult>)(result.ReturnValue));
 		}
 	}
 	
@@ -485520,86 +485520,6 @@ namespace ECOPETROL_COMMON.ENTIDADES
 		}
 	}
 	
-	public partial class management_cuentasAltoCosto_documentosArchivosResult
-	{
-		
-		private string _documento;
-		
-		private int _id_poblacion;
-		
-		private int _tipo;
-		
-		private string _tipo_documento;
-		
-		public management_cuentasAltoCosto_documentosArchivosResult()
-		{
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_documento", DbType="VarChar(100)")]
-		public string documento
-		{
-			get
-			{
-				return this._documento;
-			}
-			set
-			{
-				if ((this._documento != value))
-				{
-					this._documento = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_poblacion", DbType="Int NOT NULL")]
-		public int id_poblacion
-		{
-			get
-			{
-				return this._id_poblacion;
-			}
-			set
-			{
-				if ((this._id_poblacion != value))
-				{
-					this._id_poblacion = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo", DbType="Int NOT NULL")]
-		public int tipo
-		{
-			get
-			{
-				return this._tipo;
-			}
-			set
-			{
-				if ((this._tipo != value))
-				{
-					this._tipo = value;
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_documento", DbType="VarChar(100)")]
-		public string tipo_documento
-		{
-			get
-			{
-				return this._tipo_documento;
-			}
-			set
-			{
-				if ((this._tipo_documento != value))
-				{
-					this._tipo_documento = value;
-				}
-			}
-		}
-	}
-	
 	public partial class management_cuentasAltoCosto_consolidadoArchivosResult
 	{
 		
@@ -526827,6 +526747,104 @@ namespace ECOPETROL_COMMON.ENTIDADES
 				if ((this._cups_negociado != value))
 				{
 					this._cups_negociado = value;
+				}
+			}
+		}
+	}
+	
+	public partial class management_cuentasAltoCosto_documentosArchivosResult
+	{
+		
+		private string _documento;
+		
+		private int _id_poblacion;
+		
+		private int _tipo;
+		
+		private string _tipo_documento;
+		
+		private string _cie10;
+		
+		public management_cuentasAltoCosto_documentosArchivosResult()
+		{
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_documento", DbType="VarChar(100)")]
+		public string documento
+		{
+			get
+			{
+				return this._documento;
+			}
+			set
+			{
+				if ((this._documento != value))
+				{
+					this._documento = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id_poblacion", DbType="Int NOT NULL")]
+		public int id_poblacion
+		{
+			get
+			{
+				return this._id_poblacion;
+			}
+			set
+			{
+				if ((this._id_poblacion != value))
+				{
+					this._id_poblacion = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo", DbType="Int NOT NULL")]
+		public int tipo
+		{
+			get
+			{
+				return this._tipo;
+			}
+			set
+			{
+				if ((this._tipo != value))
+				{
+					this._tipo = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_tipo_documento", DbType="VarChar(100)")]
+		public string tipo_documento
+		{
+			get
+			{
+				return this._tipo_documento;
+			}
+			set
+			{
+				if ((this._tipo_documento != value))
+				{
+					this._tipo_documento = value;
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_cie10", DbType="VarChar(100)")]
+		public string cie10
+		{
+			get
+			{
+				return this._cie10;
+			}
+			set
+			{
+				if ((this._cie10 != value))
+				{
+					this._cie10 = value;
 				}
 			}
 		}

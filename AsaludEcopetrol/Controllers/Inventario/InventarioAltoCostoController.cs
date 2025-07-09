@@ -3294,13 +3294,15 @@ namespace AsaludEcopetrol.Controllers.Inventario
         //    }
         //}
 
-        public ActionResult DescargarArchivosConsolidado(int? año, string mes, string regional, int? tipo, string documento)
+         public ActionResult DescargarArchivosConsolidado(int? año, string mes, string regional, int? tipo, string documento)
         {
             try
             {
                 // Obtener el listado de tipos
                 var listadoTipos = BusClass.listadoCargueGsdRastreo();
                 var tipoFinal = listadoTipos.FirstOrDefault(x => x.id_tipo == tipo)?.descripcion;
+
+                var rutaCarpeta = "";
 
                 if (tipoFinal == null)
                 {
@@ -3320,40 +3322,66 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 Response.ContentType = "application/zip";
                 Response.AddHeader("content-disposition", $"attachment; filename=ConsolidadoArchivos_tipo_{tipoFinal}.zip");
 
+
                 using (var zip = new Ionic.Zip.ZipFile())
                 {
-                    foreach (var item in lista)
+                    var listaAgrupada = lista
+                        .GroupBy(x => x.id_poblacion)
+                        .ToList();
+
+                    foreach (var grupo in listaAgrupada)
                     {
-                        // Obtener archivos asociados al documento
-                        var archivos = BusClass.ListaArchivosPorDocumentoCAC(item.documento, tipo);
+                        int idPoblacion = grupo.Key;
 
-                        if (archivos.Count > 0)
+                        foreach (var item in grupo)
                         {
-                            var rutaCarpeta = item.tipo_documento + " " + item.documento;
+                            // Obtener archivos sin filtrar
+                            var archivos = BusClass.ListaArchivosPorDocumentoCAC(item.documento, tipo);
 
-                            foreach (var archivo in archivos)
+                            // Filtrar por la población actual
+                            var archivosFiltrados = archivos
+                                .Where(a => a.id_poblacion == idPoblacion)
+                                .ToList();
+
+                            if (archivosFiltrados.Count > 0)
                             {
-                                string dirPath = archivo.ruta;
+                                
 
-                                // Verificar si el archivo existe antes de agregarlo
-                                if (System.IO.File.Exists(dirPath))
+                                if (item.tipo != 1)
                                 {
-                                    try
+                                     rutaCarpeta = item.tipo_documento + item.documento;
+                                } 
+
+
+                                else
+                                {
+                                    rutaCarpeta = item.tipo_documento + item.documento + "_" + item.cie10;
+
+                                }
+
+                                foreach (var archivo in archivosFiltrados)
+                                {
+                                    string dirPath = archivo.ruta;
+
+                                    if (System.IO.File.Exists(dirPath))
                                     {
-                                        var direccionCompleta = $"{rutaCarpeta}/{archivo.tipo_documento_usuario}{archivo.documento_usuario}_{archivo.descripcionTipoSoporte}_{archivo.fecha_prestacion_soporte:yyyyMMdd}_{archivo.id_archivo}.pdf";
-                                        zip.AddFile(dirPath).FileName = direccionCompleta;
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Loguear el error del archivo
-                                        Console.WriteLine($"Error al agregar archivo: {ex.Message}");
+                                        try
+                                        {
+                                            var nombreArchivo = $"{archivo.tipo_documento_usuario}{archivo.documento_usuario}_{archivo.descripcionTipoSoporte}_{archivo.fecha_prestacion_soporte:yyyyMMdd}_{archivo.id_archivo}.pdf";
+                                            var direccionCompleta = $"{rutaCarpeta}/{nombreArchivo}";
+
+                                            zip.AddFile(dirPath).FileName = direccionCompleta;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($"Error al agregar archivo: {ex.Message}");
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    // Guardar el ZIP directamente en la respuesta HTTP
                     zip.Save(Response.OutputStream);
                 }
 
