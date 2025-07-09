@@ -64,32 +64,34 @@
 
     function ValidarDatos() {
 
-        var formData = new FormData($("#formCie10")[0]);
-        formData.append("seleccionados","@ViewBag.seleccionados");
-        formData.append("id_factura", "@ViewBag.idFactura");
-        formData.append("cod_cups_homologado", $("#cups_homologado").val());
-        formData.append("descripcion_cuvs_homologado", $("#descripcion_cuvs_homologado").val());
+        var validar = $("#formCie10").validate();
+        if (validar.form()) {
+            var formData = new FormData($("#formCie10")[0]);
+            formData.append("seleccionados", "@ViewBag.seleccionados");
+            formData.append("id_factura", "@ViewBag.idFactura");
+            formData.append("cod_cups_homologado", $("#cups_homologado").val());
+            formData.append("descripcion_cuvs_homologado", $("#descripcion_cuvs_homologado").val());
 
-        LoadingShow();
+            LoadingShow();
 
-        $.ajax({
-            url: "@Url.Action("GuardarAjustarCupsHomologadoMasivo")",
-            data: formData,
-            type: "post",
-            processData: false,
-            contentType: false,
+            $.ajax({
+                url: "@Url.Action("GuardarAjustarCupsHomologadoMasivo")",
+                data: formData,
+                type: "post",
+                processData: false,
+                contentType: false,
 
-            success: function (data) {
+                success: function (data) {
 
-                alert(data.mensaje);
-                LoadingHide();
+                    alert(data.mensaje);
+                    LoadingHide();
 
-                if (data.rta == 1) {
-                    $("#ModalCupsHomoloMasivo").modal("hide");
-                    desenglosasIdsGestionMasivos("@ViewBag.seleccionados");
+                    if (data.rta == 1) {
+                        $("#ModalCupsHomoloMasivo").modal("hide");
+                        desenglosasIdsGestionMasivos("@ViewBag.seleccionados");
+                    }
                 }
-            }
-        });
+            });
+        }
     }
-
 </script>

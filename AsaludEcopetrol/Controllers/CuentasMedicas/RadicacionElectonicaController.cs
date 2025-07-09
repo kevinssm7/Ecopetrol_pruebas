@@ -17629,7 +17629,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             var rta = 0;
             var mensaje = "";
 
-            fis_rips_cups dato = new fis_rips_cups();
 
             try
             {
@@ -17641,6 +17640,8 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 string[] seleccion = seleccionados.Split('|');
                 foreach (var item in seleccion)
                 {
+                    fis_rips_cups dato = new fis_rips_cups();
+
                     var datos = item.Split('-');
 
                     int? id_registro = Convert.ToInt32(datos[1]);
@@ -17653,8 +17654,8 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         {
                             id_registro = (int)id_registro,
                             id_factura = id_factura,
-                            cod_cups_homologado = cod_cups_homologado,
-                            descripcion_cuvs_homologado = descripcion_cuvs_homologado,
+                            cod_cups_homologado = dato.codigo_cups,
+                            descripcion_cuvs_homologado = dato.descripcion,
                         };
 
                         var actualizaCups = BusClass.ActualizarRipsFacturas_cupsHomologado(obj);
@@ -17709,8 +17710,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
         }
 
     }
-
-
 }
 
 
