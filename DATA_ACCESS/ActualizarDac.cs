@@ -6533,7 +6533,7 @@ namespace DATA_ACCESS
                 return 0;
             }
 
-
+        }
 
 
         public int Actualizar_rastreoArtritis(cargue_cuentas_altoCosto_artritis model)
@@ -6572,48 +6572,46 @@ namespace DATA_ACCESS
             catch (Exception ex)
             {
                 var mensaje = ex.Message;
+                return 0;
             }
         }
 
 
 
-
-
-
-
         public int Actualizar_rastreoVIH(cargue_cuentas_altoCosto_vih model)
         {
-            try
-            {
-                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                try
                 {
-                    cargue_cuentas_altoCosto_vih VIH = db.cargue_cuentas_altoCosto_vih.Where(x => x.id_vih == model.id_vih).FirstOrDefault();
-
-                    var validarDuplicado = db.cargue_cuentas_altoCosto_vih.Where(x => x.documento_paciente == model.documento_paciente && x.id_vih != model.id_vih).FirstOrDefault();
-
-
-                    if (validarDuplicado != null)
+                    using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                     {
-                        return 2;
+                        cargue_cuentas_altoCosto_vih VIH = db.cargue_cuentas_altoCosto_vih.Where(x => x.id_vih == model.id_vih).FirstOrDefault();
+
+                        var validarDuplicado = db.cargue_cuentas_altoCosto_vih.Where(x => x.documento_paciente == model.documento_paciente && x.id_vih != model.id_vih).FirstOrDefault();
+
+
+                        if (validarDuplicado != null)
+                        {
+                            return 2;
+                        }
+
+
+                        VIH.documento = model.documento;
+                        VIH.coordinacion = model.coordinacion;
+                        VIH.unis = model.unis;
+                        VIH.documento_paciente = model.documento_paciente;
+                        VIH.diagnostico_cie10 = model.diagnostico_cie10;
+                        VIH.descripcion_dx = model.descripcion_dx;
+
+
+                        db.SubmitChanges();
+                        return 1;
                     }
-
-
-                    VIH.documento = model.documento;
-                    VIH.coordinacion = model.coordinacion;
-                    VIH.unis = model.unis;
-                    VIH.documento_paciente = model.documento_paciente;
-                    VIH.diagnostico_cie10 = model.diagnostico_cie10;
-                    VIH.descripcion_dx = model.descripcion_dx;
-
-
-                    db.SubmitChanges();
-                    return 1;
-            }
-            catch (Exception ex)
-            {
-                var mensaje = ex.Message;
-                return 0;
-            }
+                }
+                catch (Exception ex)
+                {
+                    var mensaje = ex.Message;
+                    return 0;
+                }
         }
 
 
