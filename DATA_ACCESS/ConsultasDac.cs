@@ -2815,7 +2815,7 @@ namespace DATA_ACCESS
 
         public List<management_planesMejora_envioNotificacionCreacionPM_correosResult> DatosNotificacionCreacionPM_correos(int? idPrestador)
         {
-          List<  management_planesMejora_envioNotificacionCreacionPM_correosResult> dato = new List<management_planesMejora_envioNotificacionCreacionPM_correosResult>();
+            List<management_planesMejora_envioNotificacionCreacionPM_correosResult> dato = new List<management_planesMejora_envioNotificacionCreacionPM_correosResult>();
             try
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
@@ -2828,6 +2828,59 @@ namespace DATA_ACCESS
                 var error = ex.Message;
             }
             return dato;
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> ListadoPlanesHallazgosTareasGestionPrestador(int? idPlan)
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> lista = new List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.management_planMejora_tableroControlGestionPrestadores_hallazgos_tareas(idPlan).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
+
+        public management_planesMejora_alertasResult ConteoAlertasHallazgos(string usuario)
+        {
+            management_planesMejora_alertasResult dato = new management_planesMejora_alertasResult();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_planesMejora_alertas(usuario).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return dato;
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult> ListadoHallazgosPM(string usuario)
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult> listado = new List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+
+                    listado = db.management_planMejora_tableroControlGestionPrestadores_reporteHallazgos(usuario).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var erro = ex.Message;
+            }
+            return listado;
         }
 
         #endregion
@@ -16112,6 +16165,59 @@ namespace DATA_ACCESS
 
             return lista;
         }
+
+        public List<management_medicamentos_listadoComprimidosResult> ListadoMedicamentosComprimidos(int? año, int? mes, int? regional, int? prestador)
+        {
+            List<management_medicamentos_listadoComprimidosResult> listado = new List<management_medicamentos_listadoComprimidosResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.management_medicamentos_listadoComprimidos(año, mes, regional, prestador).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return listado;
+        }
+
+        public List<management_traerPrestadores_usuarioResult> GetPrestadoresUsuarios(string usuario)
+        {
+            List<management_traerPrestadores_usuarioResult> lista = new List<management_traerPrestadores_usuarioResult>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.management_traerPrestadores_usuario(usuario).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
+
+        public management_medicamentos_dispen_archivosResult DocumentoDispenId(int? idArchivo)
+        {
+            management_medicamentos_dispen_archivosResult dato = new management_medicamentos_dispen_archivosResult();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.management_medicamentos_dispen_archivos(idArchivo).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
+        }
+
         #endregion
 
         #region ANALISTAS
@@ -18165,13 +18271,13 @@ namespace DATA_ACCESS
                 catch (Exception ex)
                 {
                     var error = ex.Message;
-                    
+
                 }
 
                 return lista;
             }
 
-            
+
             return new List<cargue_cuentas_altoCosto_artritis>();
         }
 
@@ -18180,7 +18286,7 @@ namespace DATA_ACCESS
 
         public List<cargue_cuentas_altoCosto_vih> ObtenerDatosVIH(int tipo, int idRegistro)
         {
-            if(tipo == 4)
+            if (tipo == 4)
             {
                 List<cargue_cuentas_altoCosto_vih> lista = new List<cargue_cuentas_altoCosto_vih>();
                 try
@@ -21856,6 +21962,24 @@ namespace DATA_ACCESS
                 var error = ex.Message;
             }
             return listado;
+        }
+
+        public List< vw_auditores_totales> GetAuditorRegional(int? idRegional)
+        {
+            List<vw_auditores_totales> dato = new List<vw_auditores_totales>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.vw_auditores_totales.Where(x => x.id_regional == idRegional).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return dato;
         }
 
 

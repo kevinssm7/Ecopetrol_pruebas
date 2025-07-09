@@ -183,6 +183,10 @@
         <div class="panel-body">
 
             <div class="col-md-2">
+                <a class="btn btn-sm button_Asalud_Guardar botonCupsHomoMasivo" onclick="HomologarCupsMasivo();">Homologar CUPS</a>
+            </div>
+
+            <div class="col-md-2">
                 <a class="btn btn-sm button_Asalud_Aceptar botonEDitarIvaMasivo" onclick="EditarIvaMasivo();">Editar IVA</a>
             </div>
 
@@ -234,6 +238,8 @@
                                 <th>Usuario</th>
                                 <th>Código CUPS-CUMS</th>
                                 <th>Descripción CUPS-CUMS</th>
+                                <th>Código CUPS-CUMS homologado</th>
+                                <th>Descripción CUPS-CUMS homologado</th>
                                 <th>Fecha prestación</th>
                                 <th>CIE10</th>
                                 <th>CIE10 relacionado</th>
@@ -285,6 +291,7 @@
                                         <input type="hidden" id="descripcioncie10_@item.id_registro" name="descripcioncie10_@item.id_registro" value="@item.descripcion_cie10" />
                                         <input type="hidden" id="cie10relacionado_@item.id_registro" name="cie10relacionado_@item.id_registro" value="@item.cie10_relacionado" />
                                         <input type="hidden" id="descripcioncie10relacionado_@item.id_registro" name="descripcioncie10relacionado_@item.id_registro" value="@item.descripcion_cie10_relacionado" />
+
                                     </td>
                                     <td>
                                         @if (item.existeBeneficiario == 0)
@@ -303,9 +310,9 @@
 
                                         @if (!string.IsNullOrEmpty(item.alertaValorNegociacion))
                                         {
-                                            if (item.alertaValorNegociacion.Contains("COINCIDE"))
+                                            if (item.alertaValorNegociacion.Contains("TARIFA NO COINCIDE"))
                                             {
-                                                <i class="alerta_valorCupsNegociacion glyphicon glyphicon-usd" title="@item.alertaValorNegociacion"></i>
+                                                <i class="alerta_valorCupsNegociacion glyphicon glyphicon-usd" title="@item.alertaValorNegociacion" onclick="MostrarModalJustificacion(@item.id_registro, @item.id_factura, '@item.cups_negociado', '@item.alertaValorNegociacion')"></i>
                                             }
                                             else
                                             {
@@ -315,7 +322,7 @@
 
                                         @if (string.IsNullOrEmpty(item.cups_negociado))
                                         {
-                                            <i class="alerta_existenciaCups glyphicon glyphicon-bookmark" title="No existe el cups @item.cod_cups en negocicación"></i>
+                                            <i class="alerta_existenciaCups glyphicon glyphicon-bookmark" title="No existe el cups @item.cod_cups en negociación"></i>
                                         }
 
                                     </td>
@@ -323,14 +330,19 @@
                                     <td @codGlosa>@item.documentoUsuario</td>
                                     <td @codGlosa>@item.nombreUsuario</td>
                                     <td @codGlosa>
+
                                         @item.cod_cups
+
                                         @if (!string.IsNullOrEmpty(item.RecomendacionCUPS))
                                         {
-                                            <i class="alerta_recomendacion glyphicon glyphicon-volume-up" title="@item.RecomendacionCUPS"></i>
+                                            <i class="alerta_recomendacion glyphicon glyphicon-volume-up" onclick="AceptarRecoCUPS(@item.id_registro, @item.id_factura, '@item.cod_cups', @item.idRecomedacionCUPS)" title="@item.RecomendacionCUPS"></i>
                                         }
+
                                     </td>
 
                                     <td @codGlosa>@item.descripcion_cuvs</td>
+                                    <td @codGlosa>@item.cod_cups_homologado</td>
+                                    <td @codGlosa>@item.descripcion_cuvs_homologado</td>
                                     <td @codGlosa>@item.fecha_prestacion</td>
 
                                     <td @codGlosa>
@@ -636,6 +648,48 @@
     </div>
 </div>
 
+
+
+<div class="modal fade" data-keyboard="false" id="ModalJustificacionTarfa">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultTarifa"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalCupsHomolo">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultCupsHo"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-keyboard="false" id="ModalCupsHomoloMasivo">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultCupsHoMasivo"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
 <link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
 <script src="~/Scripts/validate.js"></script>
@@ -894,16 +948,24 @@
 
                     $("#modalGlosa").modal("hide");
 
-                    if ($('#tablaDetalle tbody #tr_' + idRegistro).length) {
+                    // Elimina completamente el registro anterior si existe
+                    var trExistente = $('#tablaDetalle tbody #tr_' + idRegistro);
+                    if (trExistente.length) {
                         $("#tablaDetalle").DataTable().destroy();
-                        $('#tablaDetalle tbody #tr_' + idRegistro).remove();
+                        trExistente.remove();
                     }
 
-                    if (data != "") {
-                        $('#tablaDetalle tbody').append(data);
-                    }
+                    // Asegúrate de que la tabla se destruya antes de modificarla
+                    var tabla = $("#tablaDetalle").DataTable();
+                    tabla.destroy();
+
+                    // Reemplaza completamente el contenido del tbody si solo vas a mostrar ese detalle
+                    // Si solo debes agregar uno nuevo, usa .append() pero evita duplicar
+                    $('#tablaDetalle tbody').append(data);
 
                     CalcularTotalFactura();
+
+                    // Vuelve a activar paginador después de agregar el nuevo contenido
                     paginadorCompletoCups();
                 }
             }
@@ -1433,7 +1495,7 @@
 
         LoadingShow();
 
-        document.getElementById("ValidarIngresoFacturaTotal").style.display = "none"
+        //document.getElementById("ValidarIngresoFacturaTotal").style.display = "none"
 
         $.ajax({
             url: '@Url.Action("GuardarFacturaFis", "RadicacionElectonica")',
@@ -1443,7 +1505,8 @@
             contentType: false,
 
             success: function (response) {
-                document.getElementById("ValidarIngresoFacturaTotal").style.display = "block"
+
+                //document.getElementById("ValidarIngresoFacturaTotal").style.display = "block"
 
                 var estado = response.estado;
 
@@ -1776,6 +1839,97 @@
         })
     }
 
+    function MostrarModalJustificacion(id_registro, id_factura, cups_negociado, alerta_negociacion) {
+
+        var formData = new FormData($("#formTotalidadFacturas")[0]);
+
+        formData.append("id_registro", id_registro);
+        formData.append("id_factura", id_factura);
+        formData.append("cups_negociado", cups_negociado);
+        formData.append("alerta_negociacion", alerta_negociacion);
+
+        $.ajax({
+            url: "@Url.Action("AgregarJustificacionnTarifas")",
+            method: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                $("#ModalJustificacionTarfa").modal("show");
+                $("#resultTarifa").empty();
+                $("#resultTarifa").html(data);
+            }
+        })
+    }
+
+    function MostrarModalCupsHomologado(id_factura, id_registro, cups) {
+
+        var formData = new FormData($("#formTotalidadFacturas")[0]);
+
+        formData.append("id_registro", id_registro);
+        formData.append("id_factura", id_factura);
+         formData.append("cups", cups);
+
+        $.ajax({
+            url: "@Url.Action("AjustarCupsHomologado")",
+            method: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                $("#ModalCupsHomolo").modal("show");
+                $("#resultCupsHo").empty();
+                $("#resultCupsHo").html(data);
+            }
+        })
+    }
+
+    function HomologarCupsMasivo() {
+        var seleccionados = "";
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idRegistro = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+
+                var codCups = $("#codCups_" + idRegistro + "-" +idUsuario).val();
+
+                if (seleccionados == "") {
+                    seleccionados = codCups + "-" + idRegistro + "-" + idFactura;
+                } else {
+                    seleccionados += "|" + codCups + "-" + idRegistro + "-" + idFactura;
+                }
+            }
+        });
+
+        if (seleccionados == "") {
+            alert("Seleccione registros para homologar CUPS");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("AjustarCupsHomologadoMasivo")",
+            cache: false,
+            async: true,
+            type: "POST",
+            data: {
+                seleccionados: seleccionados,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            success: function (data) {
+                $('#resultCupsHoMasivo').html('');
+                $('#resultCupsHoMasivo').html(data);
+                $("#ModalCupsHomoloMasivo").modal("show");
+            }
+        })
+    }
+
 </script>
 
 
@@ -1896,7 +2050,6 @@
         cursor: pointer;
     }
 
-
     .positivo {
         background-color: #91ffb9;
     }
@@ -1979,4 +2132,20 @@
             background: #c0d3fc;
             color: #1c1c1c;
         }
+
+
+    .botonCupsHomoMasivo {
+        position: fixed; /* Hace que el botón esté en una posición fija */
+        bottom: 230px; /* Distancia desde la parte inferior de la ventana */
+        right: 20px; /* Distancia desde la parte derecha de la ventana */
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        background-color: #80ab97; /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 4px 8px; /* Espaciado interno */
+        border-radius: 3px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
+        text-align: center;
+        cursor: pointer;
+    }
+
 </style>

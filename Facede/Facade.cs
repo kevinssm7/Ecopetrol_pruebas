@@ -1965,6 +1965,21 @@ namespace Facede
             return DACActualiza.ActualizarIncumplimientoPM(obj);
         }
 
+        public List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> ListadoPlanesHallazgosTareasGestionPrestador(int? idPlan)
+        {
+            return DACConsulta.ListadoPlanesHallazgosTareasGestionPrestador(idPlan);
+        }
+
+        public management_planesMejora_alertasResult ConteoAlertasHallazgos(string usuario)
+        {
+            return DACConsulta.ConteoAlertasHallazgos(usuario);
+        }
+
+        public List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult> ListadoHallazgosPM(string usuario)
+        {
+            return DACConsulta.ListadoHallazgosPM(usuario);
+        }
+
         #endregion
 
         #region EVOLUCION
@@ -6803,6 +6818,20 @@ namespace Facede
             DACInserta.InsertarLogBusquedaTableros(obj, ref MsgRes);
         }
 
+        public List<management_medicamentos_listadoComprimidosResult> ListadoMedicamentosComprimidos(int? año, int? mes, int? regional, int? prestador)
+        {
+            return DACConsulta.ListadoMedicamentosComprimidos(año, mes, regional, prestador);
+        }
+
+        public List<management_traerPrestadores_usuarioResult> GetPrestadoresUsuarios(string usuario)
+        {
+            return DACConsulta.GetPrestadoresUsuarios(usuario);
+        }
+
+        public management_medicamentos_dispen_archivosResult DocumentoDispenId(int? idArchivo)
+        {
+            return DACConsulta.DocumentoDispenId(idArchivo);
+        }
 
         #endregion
 
@@ -10685,9 +10714,27 @@ namespace Facede
             return DACConsulta.ListadoBeneficiariisInexistentesIdFactura(idFactura);
         }
 
+        public int GuardarJustificacionAlertaNegociacionfactura(fis_rips_factura_justificacionAlertaNegociacion obj)
+        {
+            return DACInserta.GuardarJustificacionAlertaNegociacionfactura(obj);
+        }
+
+        public List<vw_auditores_totales> GetAuditorRegional(int? idRegional)
+        {
+            return DACConsulta.GetAuditorRegional(idRegional);
+        }
+
+        public int ActualizarRipsFacturas_cupsHomologado(fis_rips_cargue_registrosCompletos obj)
+        {
+            return DACActualiza.ActualizarRipsFacturas_cupsHomologado(obj);
+        }
+
+        public int InsertarLogCupsHomologado(log_fis_rips_facturas_cupsHomologado obj)
+        {
+            return DACInserta.InsertarLogCupsHomologado(obj);
+        }
+
         #endregion FIS PRESTADORES
-
-
 
         #region CHATBOT
 

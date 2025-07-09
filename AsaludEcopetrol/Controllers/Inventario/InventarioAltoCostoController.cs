@@ -47,7 +47,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
         Facade BusClass = new Facade();
         #endregion
 
-  
+
 
 
         public ActionResult CargueMasivoAltoCosto()
@@ -1364,11 +1364,12 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 ViewData["MensajeRta"] = "<div class='alert alert-danger' role='alert'>" + mensaje + "</div>";
             }
 
-            FileInfo fileDelete = new FileInfo(ruta);
-            if (fileDelete != null)
+
+            if (!string.IsNullOrEmpty(ruta) && System.IO.File.Exists(ruta))
             {
-                fileDelete.Delete();
+                System.IO.File.Delete(ruta);
             }
+
 
             return View();
         }
@@ -1838,7 +1839,11 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
             ViewBag.id = idRegistro;
             ViewBag.tipo = tipo;
-            ViewBag.regional = BusClass.GetRefRegion();
+            var todasLasRegiones = BusClass.GetRefRegion();
+            var regionales = todasLasRegiones.Where(r => r.id_ref_regional != 7).ToList();
+
+            ViewBag.regional = regionales;
+
             ViewBag.unis = BusClass.Odont_unis();
             ViewBag.agrupador = BusClass.GetAgrupador();
 
@@ -1851,37 +1856,41 @@ namespace AsaludEcopetrol.Controllers.Inventario
         [ValidateAntiForgeryToken]
         public ActionResult GuardarGestionCancer(Models.InventarioAltoCosto.GestionCancer Cancer)
         {
-            if (ModelState.IsValid)
+
+            try
             {
-                var MsgRes = new MessageResponseOBJ();
-
-                cargue_cuentas_altoCosto_cancer antiguos = BusClass.ObtenerDatosCancer(1, Cancer.id_cancer).FirstOrDefault();
-
-
-                var entidad = new cargue_cuentas_altoCosto_cancer
+                if (ModelState.IsValid)
                 {
-                    id_cancer = Cancer.id_cancer,
-                    documento = Cancer.documento,
-                    regional = Cancer.regional,
-                    unis = Cancer.unis,
-                    documento_paciente = Cancer.documento_paciente,
-                    diagnostico_cie10 = Cancer.diagnostico_cie10,
-                    descripcion_dx = Cancer.descripcion_dx,
-                    agrupador = Cancer.agrupador
-                };
-
-                var resultado = BusClass.Actualizar_rastreoCancer(entidad);
+                    var MsgRes = new MessageResponseOBJ();
 
 
-                if (resultado == 1)
-                {
+                    cargue_cuentas_altoCosto_cancer antiguos = BusClass.ObtenerDatosCancer(1, Cancer.id_cancer).FirstOrDefault();
+
+
+
+                    var entidad = new cargue_cuentas_altoCosto_cancer
+                    {
+                        id_cancer = Cancer.id_cancer,
+                        documento = Cancer.documento_paciente,
+                        regional = Cancer.regional,
+                        unis = Cancer.unis,
+                        documento_paciente = Cancer.documento_paciente,
+                        diagnostico_cie10 = Cancer.diagnostico_cie10,
+                        descripcion_dx = Cancer.descripcion_dx,
+                        agrupador = Cancer.agrupador
+                    };
+
+                    var resultado = BusClass.Actualizar_rastreoCancer(entidad);
+
+                    if (resultado == 1)
+                    {
 
                         log_AltoCosto_actualizaciones nuevo = new log_AltoCosto_actualizaciones();
 
                         nuevo.id_registro = Cancer.id_cancer;
                         nuevo.tipo = "Cáncer";
-                        nuevo.documento_anterior = antiguos.documento;
-                        nuevo.documento_nuevo = Cancer.documento;
+                        nuevo.documento_anterior = antiguos.documento_paciente;
+                        nuevo.documento_nuevo = Cancer.documento_paciente;
 
                         nuevo.regional_anterior = antiguos.regional;
                         nuevo.regional_nuevo = Cancer.regional;
@@ -1909,25 +1918,36 @@ namespace AsaludEcopetrol.Controllers.Inventario
                         nuevo.usuario_digita = SesionVar.UserName;
 
                         var insertaLogNuevo = BusClass.InsertarLog_RastreoActualizacion(nuevo);
-                    
 
 
-                    TempData["MensajeExito"] = "Registro actualizado correctamente.";
-                    return RedirectToAction("TableroListadoRastreo");
+
+                        TempData["MensajeExito"] = "Registro actualizado correctamente.";
+                        return RedirectToAction("TableroListadoRastreo");
+                    }
+
+                    else if (resultado == 2)
+                    {
+
+                        TempData["MensajeError"] = "ERROR: Ya existe el paciente con documento: " + entidad.documento_paciente + " con el diagnóstico: " + entidad.diagnostico_cie10 + ".";
+                        return RedirectToAction("TableroListadoRastreo");
+
+                    }
+                    else
+                    {
+                        TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
+                        return RedirectToAction("TableroListadoRastreo");
+                    }
                 }
-                else
-                {
-                    TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
-                    return RedirectToAction("TableroListadoRastreo");
-                }
+            }
+            catch (Exception x)
+            {
+                TempData["MensajeError"] = "Error: " + x;
+                return RedirectToAction("TableroListadoRastreo");
             }
 
             TempData["MensajeError"] = "El modelo no es válido, revise los datos ingresados.";
             return RedirectToAction("TableroListadoRastreo");
         }
-
-
-
 
 
         [HttpPost]
@@ -1944,7 +1964,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 var entidad = new cargue_cuentas_altoCosto_hemofilia
                 {
                     id_hemofilia = Hemofilia.id_hemofilia,
-                    documento = Hemofilia.documento,
+                    documento = Hemofilia.identificacion_paciente,
                     regional = Hemofilia.regional,
                     unis = Hemofilia.unis,
                     identificacion_paciente = Hemofilia.identificacion_paciente,
@@ -1963,8 +1983,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
                     nuevo.id_registro = Hemofilia.id_hemofilia;
                     nuevo.tipo = "Hemofilia";
 
-                    nuevo.documento_anterior = antiguos.documento;
-                    nuevo.documento_nuevo = Hemofilia.documento;
+                    nuevo.documento_anterior = antiguos.identificacion_paciente;
+                    nuevo.documento_nuevo = Hemofilia.identificacion_paciente;
 
                     nuevo.regional_anterior = antiguos.regional;
                     nuevo.regional_nuevo = Hemofilia.regional;
@@ -1998,6 +2018,14 @@ namespace AsaludEcopetrol.Controllers.Inventario
                     TempData["MensajeExito"] = "Registro actualizado correctamente.";
                     return RedirectToAction("TableroListadoRastreo");
                 }
+
+                else if (resultado == 2)
+                {
+
+                    TempData["MensajeError"] = "ERROR: Ya existe el paciente con documento: " + entidad.identificacion_paciente + ".";
+                    return RedirectToAction("TableroListadoRastreo");
+
+                }
                 else
                 {
                     TempData["MensajeError"] = "Ocurrió un error al actualizar el registro.";
@@ -2024,8 +2052,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 var entidad = new cargue_cuentas_altoCosto_artritis
                 {
                     id_artritis = Artritis.id_artritis,
-                    documento = Artritis.documento,
-                    documento_2 = Artritis.documento_2,
+                    documento = Artritis.documento_paciente,
+                    documento_2 = Artritis.documento_paciente,
                     coordinacion_ok = Artritis.coordinacion_ok,
                     unis = Artritis.unis,
                     documento_paciente = Artritis.documento_paciente,
@@ -2044,8 +2072,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
                     nuevo.id_registro = Artritis.id_artritis;
                     nuevo.tipo = "Artritis";
 
-                    nuevo.documento_anterior = antiguos.documento;
-                    nuevo.documento_nuevo = Artritis.documento;
+                    nuevo.documento_anterior = antiguos.documento_paciente;
+                    nuevo.documento_nuevo = Artritis.documento_paciente;
 
                     nuevo.regional_anterior = antiguos.coordinacion_ok;
                     nuevo.regional_nuevo = Artritis.coordinacion_ok;
@@ -2056,8 +2084,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
                     nuevo.documento_paciente_anterior = antiguos.documento_paciente;
                     nuevo.documento_paciente_nuevo = Artritis.documento_paciente;
 
-                    nuevo.documento2_anterior = antiguos.documento_2;
-                    nuevo.documento2_nuevo = Artritis.documento_2;
+                    nuevo.documento2_anterior = antiguos.documento_paciente;
+                    nuevo.documento2_nuevo = Artritis.documento_paciente;
 
                     nuevo.diagnostico_cie10_anterior = antiguos.diagnostico_cie10;
                     nuevo.diagnostico_cie10_nuevo = Artritis.diagnostico_cie10;
@@ -2078,6 +2106,13 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
                     TempData["MensajeExito"] = "Registro actualizado correctamente.";
                     return RedirectToAction("TableroListadoRastreo");
+                }
+                else if (resultado == 2)
+                {
+
+                    TempData["MensajeError"] = "ERROR: Ya existe el paciente con documento: " + entidad.documento_paciente + ".";
+                    return RedirectToAction("TableroListadoRastreo");
+
                 }
                 else
                 {
@@ -2105,7 +2140,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
                 var entidad = new cargue_cuentas_altoCosto_vih
                 {
                     id_vih = VIH.id_vih,
-                    documento = VIH.documento,
+                    documento = VIH.documento_paciente,
                     coordinacion = VIH.coordinacion,
                     unis = VIH.unis,
                     documento_paciente = VIH.documento_paciente,
@@ -2115,7 +2150,6 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
                 var resultado = BusClass.Actualizar_rastreoVIH(entidad);
 
-
                 if (resultado == 1)
                 {
 
@@ -2124,8 +2158,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
                     nuevo.id_registro = VIH.id_vih;
                     nuevo.tipo = "VIH";
 
-                    nuevo.documento_anterior = antiguos.documento;
-                    nuevo.documento_nuevo = VIH.documento;
+                    nuevo.documento_anterior = antiguos.documento_paciente;
+                    nuevo.documento_nuevo = VIH.documento_paciente;
 
                     nuevo.regional_anterior = antiguos.coordinacion;
                     nuevo.regional_nuevo = VIH.coordinacion;
@@ -2158,6 +2192,13 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
                     TempData["MensajeExito"] = "Registro actualizado correctamente.";
                     return RedirectToAction("TableroListadoRastreo");
+                }
+                else if (resultado == 2)
+                {
+
+                    TempData["MensajeError"] = "ERROR: Ya existe el paciente con documento: " + entidad.documento_paciente + ".";
+                    return RedirectToAction("TableroListadoRastreo");
+
                 }
                 else
                 {

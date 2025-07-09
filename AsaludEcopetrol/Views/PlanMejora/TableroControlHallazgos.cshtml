@@ -3,42 +3,6 @@
     Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
 }
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <strong class="text-primary-Asalud">FILTROS</strong>
-    </div>
-    <div class="panel-body">
-        <form id="formEnvioDatos" method="post" action="TableroPlanesMejora">
-
-            <div class="row">
-                @*<div class="col-md-2">
-                    <label class="text-secondary_asalud">Id visita dispensación</label>
-                    <input type="text" class="form-control solo-numero" id="idEva" name="idEva" maxlength="10" />
-                </div>*@
-
-                <div class="col-md-3">
-                    <label class="text-secondary_asalud">Fecha inicial dispensación</label>
-                    <input type="text" class="form-control" id="fechaIni" name="fechaIni" style="width:100%;" />
-                </div>
-
-                <div class="col-md-3">
-                    <label class="text-secondary_asalud">Fecha final dispensación</label>
-                    <input type="text" class="form-control" id="fechaFin" name="fechaFin" style="width:100%;" />
-                </div>
-                <div class="col-md-3">
-                    <label class="text-secondary_asalud">Nit dispensación</label>
-                    <input type="text" class="form-control solo-numero" id="nit" name="nit" maxlength="15" />
-                </div>
-                <br />
-
-                <div class="col-md-1 text-left">
-                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="BuscarDatos();"><i class="glyphicon glyphicon-search"></i>&nbsp; Buscar</a>
-                </div>
-            </div>
-            <br />
-        </form>
-    </div>
-</div>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -50,13 +14,15 @@
                 <ul class="nav nav-pills" style="font-size: 12px">
                     <li class="active" id="li1"><a class="collapse1" href="#tab0" data-toggle="tab">Sin gestión @ViewBag.conteoSin</a></li>
                     <li id="li2"><a href="#tab1" class="collapse2" data-toggle="tab">Pendientes @ViewBag.conteoPendiente</a></li>
-                    <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Aprobados @ViewBag.conteoAprobado</a></li>
                     <li id="li4"><a href="#tab3" class="collapse4" data-toggle="tab">Negados @ViewBag.conteoNegado</a></li>
+                    <li id="li3"><a href="#tab2" class="collapse3" data-toggle="tab">Aprobados @ViewBag.conteoAprobado</a></li>
                 </ul>
             </div>
+
             <div class="col-md-4 text-right">
-                <a class="btn button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
-            </div>
+                    <a class="btn button_Asalud_descargas" onclick="VerDatosExcel();"><i class="glyphicon glyphicon-download"></i>&nbsp; Exportar</a>
+                </div>
+
         </div>
     </div>
 </div>
@@ -86,7 +52,7 @@
                                         <th>Auditor</th>
                                         <th>Fecha seguimiento</th>
                                         <th>Fecha estimada cierre</th>
-                                        <th>Acciones de mejora</th>
+                                        <th>Gestión de Hallazgos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -189,7 +155,7 @@
                                         <th>Auditor</th>
                                         <th>Fecha seguimiento</th>
                                         <th>Fecha estimada cierre</th>
-                                        <th>Acciones de mejora</th>
+                                        <th>Gestión de Hallazgos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -292,7 +258,7 @@
                                         <th>Auditor</th>
                                         <th>Fecha seguimiento</th>
                                         <th>Fecha estimada cierre</th>
-                                        <th>Acciones de mejora</th>
+                                        <th>Gestión de Hallazgos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -357,7 +323,7 @@
                                                 </td>
 
                                                 <td class="text-center">
-                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Gestionar hallazgo</a>
+                                                    <a class="btn btn-sm button_Asalud_Aceptar" onclick="VerHallazgos(@item.id_plan_de_mejora)">Ver hallazgo</a>
                                                 </td>
                                             </tr>
                                         }
@@ -395,7 +361,7 @@
                                         <th>Auditor</th>
                                         <th>Fecha seguimiento</th>
                                         <th>Fecha estimada cierre</th>
-                                        <th>Acciones de mejora</th>
+                                        <th>Gestión de Hallazgos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -526,6 +492,35 @@
 
         $('.solo-numero').keyup(function () {
             this.value = (this.value + '').replace(/[^0-9]/g, '');
+        });
+
+        $("ul.nav.nav-pills li a").on('shown.bs.tab', function (e) {
+
+            setTimeout(function () {
+
+                var tab0 = $("#tab" + 0).hasClass("active");
+                var tab1 = $("#tab" + 1).hasClass("active");
+                var tab2 = $("#tab" + 2).hasClass("active");
+                var tab3 = $("#tab" + 3).hasClass("active");
+
+                if (tab0) {
+                    MostrarTablaSinGestion();
+                }
+
+                if (tab1) {
+                    MostrarTablaPendientes();
+                }
+
+                if (tab2) {
+                    MostrarTablaAprobados();
+                }
+
+                if (tab3) {
+                    MostrarTablaNegados();
+                }
+
+
+            }, 100);
         });
     })
 
@@ -670,41 +665,6 @@
         }
     }
 
-    function MostrarTablaAbiertNoti() {
-        var conteo = "@ViewBag.conteoAbiertosNotifi";
-        if (conteo > 0) {
-            $('.tablaAbiNoti').DataTable().destroy();
-            $('.tablaAbiNoti').DataTable({
-                "sSearch": "Buscar:",
-                "searching": true,
-                "iDisplayLength": 20,
-                "lengthChange": false,
-                "info": false,
-                responsive: true,
-                language: {
-                    "decimal": "",
-                    "emptyTable": "No hay información",
-                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                    "infoPostFix": "",
-                    "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ Entradas",
-                    "loadingRecords": "Cargando...",
-                    "processing": "Procesando...",
-                    "search": "Buscar:",
-                    "zeroRecords": "Sin resultados encontrados",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Ultimo",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
-                },
-            });
-        }
-    }
-
     function VerHallazgos(idPlan) {
         var laURLDeLaVista = '@Url.Action("MostrarTareasPlanMejoraGestionPrestador")?idPlan=' + idPlan;
         $.ajax({
@@ -722,7 +682,7 @@
     }
 
     function VerDatosExcel() {
-        var URL2 = "@Url.Action("DescargarReportePM", "PlanesMejora")";
+        var URL2 = "@Url.Action("DescargarReportePMHallazgos", "PlanMejora")";
         window.open(URL2, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
     }
 
@@ -751,7 +711,6 @@
     function exportarExcelInd(id) {
         location.href = "@Url.Action("ExcelExportarIndividual", "Verificacion")?id=" + id;
     }
-
 
     function CerrarModalHallazgos() {
         location.reload();
@@ -820,7 +779,7 @@
             border-bottom: 1px solid #fff;
             color: #e8e8e8;
         }
-     
+
         .table tr:hover td {
             background: #bcbcbc;
             color: #1c1c1c;

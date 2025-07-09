@@ -1254,13 +1254,16 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
                 if (erroresDuplicados.Any())
                 {
-                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
-                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    var todosErrores = string.Join("<br/>", erroresDuplicados);
+                    MsgRes.DescriptionResponse = "ERROR CARGUE:<br/>" + todosErrores;
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
 
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
-                    throw new ErroresDuplicadosException("ERROR CARGUE CANCER: " + todosErrores);
+                    throw new ErroresDuplicadosException("ERROR CARGUE:<br/>" + todosErrores);
                 }
+
+
+
 
 
                 try
@@ -1812,14 +1815,13 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
                 if (erroresDuplicados.Any())
                 {
-                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
-                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    var todosErrores = string.Join("<br/>", erroresDuplicados);
+                    MsgRes.DescriptionResponse = "ERROR CARGUE CÁNCER:<br/>" + todosErrores;
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
 
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
-                    throw new ErroresDuplicadosException("ERROR CARGUE CANCER: " + todosErrores);
+                    throw new ErroresDuplicadosException("ERROR CARGUE CÁNCER:<br/>" + todosErrores);
                 }
-
 
 
                 try
@@ -2326,12 +2328,12 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
                 if (erroresDuplicados.Any())
                 {
-                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
-                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    var todosErrores = string.Join("<br/>", erroresDuplicados);
+                    MsgRes.DescriptionResponse = "ERROR CARGUE HEMOFILIA:<br/>" + todosErrores;
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
 
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
-                    throw new ErroresDuplicadosException("ERROR CARGUE HEMOFILIA: " + todosErrores);
+                    throw new ErroresDuplicadosException("ERROR CARGUE HEMOFILIA:<br/>" + todosErrores);
                 }
 
 
@@ -2914,12 +2916,12 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
                 if (erroresDuplicados.Any())
                 {
-                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
-                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    var todosErrores = string.Join("<br/>", erroresDuplicados);
+                    MsgRes.DescriptionResponse = "ERROR CARGUE ARTRITIS:<br/>" + todosErrores;
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
 
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
-                    throw new ErroresDuplicadosException("ERROR CARGUE ARTRITIS: " + todosErrores);
+                    throw new ErroresDuplicadosException("ERROR CARGUE ARTRITIS:<br/>" + todosErrores);
                 }
 
 
@@ -3457,13 +3459,14 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
                 if (erroresDuplicados.Any())
                 {
-                    var todosErrores = string.Join(Environment.NewLine, erroresDuplicados);
-                    MsgRes.DescriptionResponse = Environment.NewLine + todosErrores;
+                    var todosErrores = string.Join("<br/>", erroresDuplicados);
+                    MsgRes.DescriptionResponse = "ERROR CARGUE VIH:<br/>" + todosErrores;
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
 
                     BusClass.eliminarDatosCuentasAltoCosto(id_cargue, tipo);
-                    throw new ErroresDuplicadosException("ERROR CARGUE VIH: " + todosErrores);
+                    throw new ErroresDuplicadosException("ERROR CARGUE VIH:<br/>" + todosErrores);
                 }
+
 
 
                 try
@@ -3527,7 +3530,6 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
 
     public class GestionCancer
     {
-
 
         #region PROPIEDADES
 
@@ -3595,7 +3597,6 @@ namespace AsaludEcopetrol.Models.InventarioAltoCosto
         public string usuario_digita { get; set; }
 
         #endregion
-
 
         public void ObtenerDatosCancer(int tipo, int idRegistro)
         {

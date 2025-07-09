@@ -2905,6 +2905,7 @@ namespace AsaludEcopetrol.Controllers.Medicamentos
 
             return RedirectToAction("TableroControlAlertasMedicamentos", "MedicamentosCalidad", new { rta = rta, msg = mensaje });
         }
+
         public List<alertas_dispensacion_detalle_entramite> ArmadoTramite(string ArrayTipoTramite, int? idDetalle)
         {
             List<alertas_dispensacion_detalle_entramite> listado = new List<alertas_dispensacion_detalle_entramite>();
@@ -3480,6 +3481,90 @@ namespace AsaludEcopetrol.Controllers.Medicamentos
                 Response.Write(rta);
             }
         }
+
+        public ActionResult TableroComprimidosMedDispen(int? año, int? mes, int? regional, int? prestador)
+        {
+            List<management_medicamentos_listadoComprimidosResult> lista = new List<management_medicamentos_listadoComprimidosResult>();
+
+            try
+            {
+                //if ((regional != null && regional != 0) || (prestador != null && prestador != 0) || (año != null && año != 0) || (mes != null && mes != 0))
+                //{
+                lista = BusClass.ListadoMedicamentosComprimidos(año, mes, regional, prestador);
+                //}
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            ViewBag.lstPrestador = BusClass.GetPrestadoresUsuarios(SesionVar.UserName);
+            ViewBag.regionales = BusClass.GetRefRegion();
+            ViewBag.meses = BusClass.meses();
+            ViewBag.conteo = lista.Count();
+            ViewBag.listaMed = lista;
+
+            return View();
+        }
+
+        public void VerSoporteMedicamentos(int? archivo)
+        {
+            var ruta = "";
+            var extension = "";
+
+            try
+            {
+                management_medicamentos_dispen_archivosResult obj = BusClass.DocumentoDispenId(archivo);
+
+                ruta = obj.ruta;
+
+                if (!string.IsNullOrEmpty(ruta))
+                {
+                    byte[] bytes;
+                    using (FileStream file = new FileStream(ruta, FileMode.Open, FileAccess.Read))
+                    {
+                        bytes = new byte[file.Length];
+                        file.Read(bytes, 0, (int)file.Length);
+                    }
+                    byte[] array = bytes.ToArray();
+
+                    if (array != null)
+                    {
+                        Response.ClearContent();
+                        Response.ClearHeaders();
+                        Response.Clear();
+
+                        if (ruta.Contains(".rar"))
+                        {
+                            extension = "application/x-rar-compressed";
+                            Response.AppendHeader("content-disposition", "attachment; filename=" + $"{obj.nombre_Archivo}.rar");
+                        }
+                        else if (ruta.Contains(".zip"))
+                        {
+                            extension = "application/zip";
+                            Response.AppendHeader("content-disposition", "attachment; filename=" + $"{obj.nombre_Archivo}.Zip");
+                        }
+
+                        Response.ContentType = extension;
+                        Response.BinaryWrite(array);
+
+                        Response.Flush();
+                    }
+                }
+                else
+                {
+                    Response.Write("<script language=javascript>alert('No contiene documento');</script>");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                Response.Write("<script language=javascript>alert('Error');</script>");
+
+            }
+        }
+
     }
 }
 

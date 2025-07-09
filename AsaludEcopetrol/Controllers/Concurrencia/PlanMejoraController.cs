@@ -976,10 +976,10 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             ViewBag.Listestado = Model.estadoTarea().Where(x => x.id_ref_plan_mejora_estado_tarea >= 2).ToList();
             ViewBag.id_tarea = idTarea;
             ViewBag.id_plan_de_mejora = idPlan;
-            ViewBag.estado_act = estadoAct;
+            ViewBag.estado_act = estadoAct;                                                                                                                                   
             ViewBag.listaGestiones = list;
             ViewBag.conteoGestiones = conteoGestiones;
-            ViewBag.fechaCreacion = ecopPlanDeMejora.fecha_creacion;
+            ViewBag.fechaCreacion = ecopPlanDeMejora.fecha_creacion != null ? ecopPlanDeMejora.fecha_creacion.Value.ToString("MM/dd/yyyy") : null;
 
             return PartialView(Model);
         }
@@ -1909,6 +1909,13 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
 
                 mailBody += "<br />";
                 mailBody += "<div id='RightPane2' align='center'  style='font-size: 10.5px;'>";
+                mailBody += "<br />";
+                mailBody += "<img src='cid:dealer_logo' />";
+                mailBody += "<br />";
+                mailBody += "<STRONG>Asalud SAS </STRONG>";
+                mailBody += "<br />";
+                mailBody += "<a href='http://www.asalud.co' target='_blank'>Website. www.asalud.co</a>";
+
                 mailBody += "“El contenido de este mensaje electrónico, su texto o elementos adjuntos, son de uso confidencial y privado entre el remitente y su (s) destinatario (s). Cualquier uso o distribución indebida o sin autorización escrita por parte del remitente, se encuentran estrictamente prohibidas y acarrean sanciones penales. Por tanto, en caso de recibir este mensaje por error, por favor notificarlo y devolverlo de inmediato al remitente del mismo, sin guardar copia alguna...";
                 mailBody += "<br />";
                 mailBody += "<br />";
@@ -2294,12 +2301,13 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
         public PartialViewResult MostrarTareasPlanMejoraGestionPrestador(int? idPlan)
         {
             List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult> Lista = new List<management_planMejora_tableroControlGestionPrestadores_hallazgosResult>();
-            var conteo = 0;
+            List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> ListaTareas = new List<management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult>();
 
             try
             {
                 Lista = BusClass.ListadoPlanesHallazgosGestionPrestador(idPlan);
-                conteo = Lista.Count();
+                ListaTareas = BusClass.ListadoPlanesHallazgosTareasGestionPrestador(idPlan);
+
             }
             catch (Exception ex)
             {
@@ -2307,8 +2315,11 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             }
 
             ViewBag.idPlan = idPlan;
-            ViewBag.listadoTareas = Lista;
-            ViewBag.conteoTareas = conteo;
+            ViewBag.listadohallazgos = Lista;
+            ViewBag.conteoHallazgos = Lista.Count();
+            ViewBag.listadotareas = ListaTareas;
+
+
             return PartialView();
         }
 
@@ -2691,6 +2702,14 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
                 mailBody += "<br />";
 
                 mailBody += "<div id='RightPane2' align='center'  style='font-size: 10.5px;'>";
+
+                mailBody += "<br />";
+                mailBody += "<img src='cid:dealer_logo' />";
+                mailBody += "<br />";
+                mailBody += "<STRONG>Asalud SAS </STRONG>";
+                mailBody += "<br />";
+                mailBody += "<a href='http://www.asalud.co' target='_blank'>Website. www.asalud.co</a>";
+
                 mailBody += "“Este es un mensaje generado automáticamente por el sistema de gestión de Planes de mejora. Por favor, no responda a este correo.";
                 mailBody += "<br />";
                 mailBody += "<br />";
@@ -2800,6 +2819,124 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
 
             return Json(new { rta = rta, mensaje = mensaje });
         }
+
+        public int TraerConteoHallazgosPendientes2()
+        {
+            var usuario = SesionVar.UserName;
+            try
+            {
+                management_planesMejora_alertasResult dato = BusClass.ConteoAlertasHallazgos(usuario);
+                var conteo = dato != null ? dato.conteo : 0;
+                return (int)conteo;
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public void DescargarReportePMHallazgos()
+        {
+            List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult> lista = new List<management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult>();
+
+            try
+            {
+                lista = BusClass.ListadoHallazgosPM(SesionVar.UserName);
+
+                if (lista != null)
+                {
+                    ExcelPackage Ep = new ExcelPackage();
+                    ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("HallazgosPM");
+
+                    Color colFromHex = Color.FromArgb(99, 99, 99);
+                    //Sheet.Cells["A1:N1"].Style.WrapText = true;
+                    Sheet.Cells["A1:Q1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    Sheet.Cells["A1:Q1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
+                    Sheet.Cells["A1:Q1"].Style.Font.Color.SetColor(Color.White);
+                    Sheet.Cells["A1:Q1"].Style.Font.Size = 10;
+                    Sheet.Cells["A1:Q1"].Style.Font.Bold = true;
+                    Sheet.Cells["A1:Q1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    Sheet.Cells["A1:Q1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                    Sheet.Cells["A1"].Value = "Id hallazgo";
+                    Sheet.Cells["B1"].Value = "Id plan mejora";
+                    Sheet.Cells["C1"].Value = "Categoría";
+                    Sheet.Cells["D1"].Value = "Foco intervención";
+                    Sheet.Cells["E1"].Value = "Hallazgo";
+                    Sheet.Cells["F1"].Value = "Estado hallazgo";
+                    Sheet.Cells["G1"].Value = "Fecha digita";
+                    Sheet.Cells["H1"].Value = "Id gestión metodología";
+                    Sheet.Cells["I1"].Value = "Nombre archivo metodología";
+                    Sheet.Cells["J1"].Value = "Metodología usada";
+                    Sheet.Cells["K1"].Value = "Origen gestión metodología";
+                    Sheet.Cells["L1"].Value = "Fecha digita gestión metodología";
+                    Sheet.Cells["M1"].Value = "Usuario digita gestión metodología";
+                    Sheet.Cells["N1"].Value = "Aceptada";
+                    Sheet.Cells["O1"].Value = "Observación aceptada";
+                    Sheet.Cells["P1"].Value = "Fecha digita aceptada";
+                    Sheet.Cells["Q1"].Value = "Usuario digita aceptada";
+
+                    int row = 2;
+
+                    foreach (management_planMejora_tableroControlGestionPrestadores_reporteHallazgosResult item in lista)
+                    {
+                        Sheet.Cells["A" + row + ":q" + row].Style.Font.Size = 10;
+
+                        Sheet.Cells[string.Format("A{0}", row)].Value = item.id_plan_mejora_foco_intervencion;
+                        Sheet.Cells[string.Format("B{0}", row)].Value = item.id_plan_de_mejora;
+                        Sheet.Cells[string.Format("C{0}", row)].Value = item.descripcionCategoria;
+                        Sheet.Cells[string.Format("D{0}", row)].Value = item.descripcionFoco;
+                        Sheet.Cells[string.Format("E{0}", row)].Value = item.hallazgo;
+                        Sheet.Cells[string.Format("F{0}", row)].Value = item.DescripcionEstadoPrestador;
+                        Sheet.Cells[string.Format("G{0}", row)].Value = item.fecha_digita.Value.ToString("dd/MM/yyyy");
+                        Sheet.Cells[string.Format("H{0}", row)].Value = item.id_gestion;
+                        Sheet.Cells[string.Format("I{0}", row)].Value = item.nombreArchivo;
+                        Sheet.Cells[string.Format("J{0}", row)].Value = item.descripcionMetodologia;
+                        Sheet.Cells[string.Format("K{0}", row)].Value = item.origenCarga;
+                        Sheet.Cells[string.Format("L{0}", row)].Value = item.fechaDigitaGestión;
+                        Sheet.Cells[string.Format("M{0}", row)].Value = item.NombreCargaMeto;
+                        Sheet.Cells[string.Format("N{0}", row)].Value = item.aceptada;
+                        Sheet.Cells[string.Format("O{0}", row)].Value = item.observacion_aceptada;
+                        Sheet.Cells[string.Format("P{0}", row)].Value = item.fechaDigitaGestionAuditor;
+                        Sheet.Cells[string.Format("Q{0}", row)].Value = item.nombreGestionAuditor;
+
+                        Sheet.Cells[string.Format("G{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("L{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("P{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+
+                        row++;
+                    }
+
+                    string namefile = "ReporteHallazgosPM";
+                    Sheet.Cells["A:Q"].AutoFitColumns();
+                    Response.Clear();
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AppendHeader("Content-Disposition", "attachment; filename=" + namefile + "_" + DateTime.Now + ".xlsx");
+                    Response.BinaryWrite(Ep.GetAsByteArray());
+                    Response.End();
+                }
+                else
+                {
+                    string rta = "<script LANGUAGE='JavaScript'>" +
+                       "window.alert('NO HAY DATOS POR MOSTRAR');" +
+                       "</script> ";
+                    Response.Write(rta);
+                    Response.End();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                string rta = "<script LANGUAGE='JavaScript'>" +
+                       "window.alert('ERROR EN LA DESCARGA');" +
+                       "</script> ";
+                Response.Write(rta);
+                Response.End();
+            }
+        }
+
         //kevin 200625
     }
 

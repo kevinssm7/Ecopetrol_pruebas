@@ -249,7 +249,6 @@ namespace AsaludEcopetrol.Controllers.Adherencia
         }
 
 
-
         /// <summary>
         /// Metodo para validar el puntaje total del criterio de una cohorte
         /// </summary>

@@ -6650,6 +6650,7 @@ namespace AsaludEcopetrol.Models.FIS
 
         public string descripcionTiga { get; set; }
 
+
         //Insertar factura fis
         public int idCargue { get; set; }
         public int idDetalle { get; set; }
@@ -6703,7 +6704,7 @@ namespace AsaludEcopetrol.Models.FIS
 
         public int pertinencia { get; set; }
 
-
+        public int idAuditor { get; set; }
         public string ExcelMasivoDetalles(DataTable dt2, fis_rips_sinJson_lote lote, ref MessageResponseOBJ MsgRes)
         {
             List<fis_rips_sinJson_detalle> Listado = new List<fis_rips_sinJson_detalle>();
@@ -7641,7 +7642,6 @@ namespace AsaludEcopetrol.Models.FIS
             return mensajeIngresoFacturasDetalle;
         }
 
-
         public string ExcelMasivoCIE10(DataTable dt2, ref_cie10_fis_lote lote, ref MessageResponseOBJ MsgRes)
         {
             List<ref_cie10_fis> Listado = new List<ref_cie10_fis>();
@@ -7801,7 +7801,6 @@ namespace AsaludEcopetrol.Models.FIS
 
             return mensajeIngresoFacturasDetalle;
         }
-
 
         public string ExcelMasivoContratos(DataTable dt2, fis_rips_prestadores_contratos_lote lote, ref MessageResponseOBJ MsgRes)
         {

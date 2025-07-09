@@ -1134,14 +1134,15 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     ecop_plan_de_mejora obj2 = db.ecop_plan_de_mejora.FirstOrDefault(x => x.id_plan_de_mejora == obj.id_plan_de_mejora);
-                    obj2.justificacion_cambio = obj.justificacion_cambio; 
-                    obj2.fecha_cambio = obj.fecha_cambio; 
+                    obj2.justificacion_cambio = obj.justificacion_cambio;
+                    obj2.fecha_cambio = obj.fecha_cambio;
                     obj2.usuario_cambio = obj.usuario_cambio;
                     obj2.estado_plan = 5;
                     db.SubmitChanges();
                     return 1;
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 var error = ex.Message;
                 return 0;
@@ -6280,6 +6281,27 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+
+        public int ActualizarRipsFacturas_cupsHomologado(fis_rips_cargue_registrosCompletos obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    fis_rips_cargue_registrosCompletos obj2 = db.fis_rips_cargue_registrosCompletos.FirstOrDefault(x => x.id_registro == obj.id_registro);
+                    obj2.cod_cups_homologado = obj.cod_cups_homologado;
+                    obj2.descripcion_cuvs_homologado = obj.descripcion_cuvs_homologado;
+                    db.SubmitChanges();
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
         #endregion FIS PRESTADORES
 
         #region ALERTAS EPIDEMIOLOGICAS
@@ -6429,10 +6451,10 @@ namespace DATA_ACCESS
             }
         }
 
-
         #endregion RECOMENDACIONES AUDITORIA
 
         #region ALTO COSTO INVENTARIO 
+
         public int Actualizar_rastreoCancer(cargue_cuentas_altoCosto_cancer model)
         {
             try
@@ -6440,6 +6462,14 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     cargue_cuentas_altoCosto_cancer cancer = db.cargue_cuentas_altoCosto_cancer.Where(x => x.id_cancer == model.id_cancer).FirstOrDefault();
+
+                    var validarDuplicado = db.cargue_cuentas_altoCosto_cancer.Where(x => x.documento_paciente == model.documento_paciente && x.diagnostico_cie10 == model.diagnostico_cie10 && x.id_cancer != model.id_cancer).FirstOrDefault();
+
+
+                    if (validarDuplicado != null)
+                    {
+                        return 2;
+                    }
 
                     cancer.documento = model.documento;
                     cancer.regional = model.regional;
@@ -6449,9 +6479,10 @@ namespace DATA_ACCESS
                     cancer.descripcion_dx = model.descripcion_dx;
                     cancer.agrupador = model.agrupador;
 
-
                     db.SubmitChanges();
+
                     return 1;
+
                 }
             }
             catch (Exception ex)
@@ -6461,9 +6492,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
-
         public int Actualizar_rastreoHemofilia(cargue_cuentas_altoCosto_hemofilia model)
         {
             try
@@ -6471,6 +6499,17 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     cargue_cuentas_altoCosto_hemofilia hemofilia = db.cargue_cuentas_altoCosto_hemofilia.Where(x => x.id_hemofilia == model.id_hemofilia).FirstOrDefault();
+
+
+
+                    var validarDuplicado = db.cargue_cuentas_altoCosto_hemofilia.Where(x => x.identificacion_paciente == model.identificacion_paciente && x.id_hemofilia != model.id_hemofilia).FirstOrDefault();
+
+
+                    if (validarDuplicado != null)
+                    {
+                        return 2;
+                    }
+
 
                     hemofilia.documento = model.documento;
                     hemofilia.regional = model.regional;
@@ -6491,9 +6530,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
-
         public int Actualizar_rastreoArtritis(cargue_cuentas_altoCosto_artritis model)
         {
             try
@@ -6501,6 +6537,18 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     cargue_cuentas_altoCosto_artritis artritis = db.cargue_cuentas_altoCosto_artritis.Where(x => x.id_artritis == model.id_artritis).FirstOrDefault();
+
+
+
+                    var validarDuplicado = db.cargue_cuentas_altoCosto_artritis.Where(x => x.documento_paciente == model.documento_paciente && x.id_artritis != model.id_artritis).FirstOrDefault();
+
+
+                    if (validarDuplicado != null)
+                    {
+                        return 2;
+                    }
+
+
 
                     artritis.documento = model.documento;
                     artritis.documento_2 = model.documento_2;
@@ -6522,12 +6570,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
-
-
-
-
         public int Actualizar_rastreoVIH(cargue_cuentas_altoCosto_vih model)
         {
             try
@@ -6535,6 +6577,15 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     cargue_cuentas_altoCosto_vih VIH = db.cargue_cuentas_altoCosto_vih.Where(x => x.id_vih == model.id_vih).FirstOrDefault();
+
+                    var validarDuplicado = db.cargue_cuentas_altoCosto_vih.Where(x => x.documento_paciente == model.documento_paciente && x.id_vih != model.id_vih).FirstOrDefault();
+
+
+                    if (validarDuplicado != null)
+                    {
+                        return 2;
+                    }
+
 
                     VIH.documento = model.documento;
                     VIH.coordinacion = model.coordinacion;
@@ -6554,9 +6605,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
-
 
         #endregion
     }

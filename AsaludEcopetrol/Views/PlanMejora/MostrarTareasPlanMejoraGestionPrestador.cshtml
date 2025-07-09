@@ -1,13 +1,15 @@
-﻿
+﻿@{
+    List<ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> listadoTareas = ViewBag.listadoTareas;
+}
 
 <div class="panel panel-default">
     <div class="panel-heading">
         <p class="title text-center">
             <h4>
-                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">ACCIONES DE MEJORA</a>
+                <a class="text-primary_asalud" data-toggle="collapse" data-parent="#accordion">GESTIÓN DE HALLAZGOS</a>
             </h4>
             <h5>
-                <label class="text-secondary_asalud">Id. @ViewBag.idPlan</label>
+                <label class="text-secondary_asalud">Id Plan. @ViewBag.idPlan</label>
             </h5>
         </p>
     </div>
@@ -24,14 +26,15 @@
                             <th class="text-center">Hallazgo</th>
                             <th class="text-center">Estado</th>
                             <th class="text-center">Gestionar</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbodytbl2">
-                        @if (ViewBag.conteoTareas > 0)
+                        @if (ViewBag.conteoHallazgos > 0)
                         {
                             var i = 0;
 
-                            foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgosResult item in ViewBag.listadoTareas)
+                            foreach (ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgosResult item in ViewBag.listadohallazgos)
                             {
                                 i++;
                                 <tr>
@@ -42,8 +45,36 @@
                                     <td class="text-center">@item.hallazgo</td>
                                     <td class="text-center">@item.descripcion_estado_gestionPrestador</td>
                                     <td class="text-center">
-                                        <a class="btn btn-sm button_Asalud_Aceptar" onclick="GestionarACR(@item.idHallazgo, @item.IdPlan)">Gestionar ACR</a>
+
+                                        @if (item.estado_gestionPrestador != 2)
+                                        {
+                                            <a class="btn btn-sm button_Asalud_Aceptar" onclick="GestionarACR(@item.idHallazgo, @item.IdPlan)">Gestionar ACR</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-sm button_Asalud_Aceptar" onclick="GestionarACR(@item.idHallazgo, @item.IdPlan)">Ver ACR</a>
+                                        }
+
                                     </td>
+
+                                    <td>
+                                        @{
+                                            List<ECOPETROL_COMMON.ENTIDADES.management_planMejora_tableroControlGestionPrestadores_hallazgos_tareasResult> listadoId =
+                                                listadoTareas.Where(x => x.id_plan_mejora_foco_intervencion == item.idHallazgo).ToList();
+                                        }
+
+                                        <select class="form-control select2 acciones">
+                                            <option class="optionSele">Acciones</option>
+                                            @foreach (var item2 in listadoId)
+                                            {
+                                                var texto = item2.fecha_plazo.Value.ToString("dd/MM/yyyy") + " - " + item2.responsable + " - " + item2.tarea;
+                                                var textoCorto = texto.Length > 50 ? texto.Substring(0, 50) + "..." : texto;
+                                                <option class="optionSele" value="@texto">@textoCorto</option>
+                                            }
+
+                                        </select>
+                                    </td>
+
                                 </tr>
                             }
                         }
@@ -73,14 +104,56 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTareasDetalle" tabindex="-1" role="dialog" aria-labelledby="modalLabelTareas" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 10px;">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabelTareas">Detalles de Tareas</h5>
+            </div>
+            <div class="modal-body">
+                <ul id="modalListaTareas" class="list-group list-group-flush"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
 
     $(document).ready(function () {
+
         MostrarTablaTareas();
+
+        $('.acciones').on('change', function () {
+            const select = this;
+            setTimeout(function () {
+                MostrarAccionesModal(select);
+            }, 0);
+        });
+
     });
 
+    function MostrarAccionesModal(accion) {
+
+        const $select = $(accion); 
+        const textoSeleccionado = $select.find('option:selected').val().trim();
+
+        const $lista = $('#modalListaTareas');
+        $lista.empty();
+
+        if (textoSeleccionado != "" && textoSeleccionado != "Acciones") {
+            if (textoSeleccionado !== "") {
+                $lista.append(`<li class="list-group-item">${textoSeleccionado}</li>`);
+            } else {
+                $lista.append(`<li class="list-group-item text-muted">Sin selección.</li>`);
+            }
+            $('#modalTareasDetalle').modal('show');
+
+        }
+    }
+
     function MostrarTablaTareas() {
-        var conteo = "@ViewBag.conteoTareas";
+        var conteo = "@ViewBag.conteoHallazgos";
         if (conteo > 0) {
 
             $('#tableTareas').DataTable().destroy();
@@ -132,8 +205,6 @@
         });
     }
 
-
-
 </script>
 
 <style>
@@ -143,4 +214,25 @@
         margin-bottom: -600px;
         margin-top: -120px;
     }
+
+    #modalListaTareas li {
+        font-size: 15px;
+        padding: 12px 15px;
+        background-color: #f1f8ff;
+        border-left: 5px solid #17a2b8;
+        border-radius: 4px;
+        margin-bottom: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .acciones {
+        width: 75% !important;
+    }
+
+        .acciones .optionSele {
+            left: 15%;
+        }
+  
 </style>
+
+

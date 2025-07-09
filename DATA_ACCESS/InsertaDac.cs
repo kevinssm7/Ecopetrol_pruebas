@@ -1061,7 +1061,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-        
+
         public Int32 InsertarArchivoPQRRespuestaProyectada(GestionDocumentalPQRS2 OBJ, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -1081,7 +1081,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-        
+
         public Int32 PqrInsertarArchivoRepositorioCierre(GestionDocumentalPQRS2 OBJ, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -1101,7 +1101,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-        
+
         public int InsertarArchivoReaperturaPQR(GestionDocumentalPQRS2 OBJ)
         {
             try
@@ -1283,7 +1283,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-        
+
         public int CargueMasivoQuienLlamoPqrs(List<ecop_pqrs_a_quien_llamo> detalle, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -5877,7 +5877,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-        
+
         public int InsertarListadoGestionAuditorPM(List<ecop_plan_de_mejora_hallazgos_gestionAuditor> listado)
         {
             try
@@ -5887,7 +5887,8 @@ namespace DATA_ACCESS
                     DaccInsetfull.BulkInsertEntities(listado);
                     return 1;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 var error = ex.Message;
                 return 0;
@@ -7427,9 +7428,6 @@ namespace DATA_ACCESS
             }
         }
 
-
-
-
         public int InsertarLog_RastreoActualizacion(log_AltoCosto_actualizaciones obj)
         {
             try
@@ -7447,14 +7445,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
-
-
-
-
-
-
-
 
         #endregion INVENTARIO ALTO COSTO
 
@@ -7527,7 +7517,6 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
 
         #endregion
 
@@ -7751,6 +7740,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+
 
         #endregion
 
@@ -9005,6 +8995,41 @@ namespace DATA_ACCESS
             }
         }
 
+        public int GuardarJustificacionAlertaNegociacionfactura(fis_rips_factura_justificacionAlertaNegociacion obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.fis_rips_factura_justificacionAlertaNegociacion.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_justificacion;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public int InsertarLogCupsHomologado(log_fis_rips_facturas_cupsHomologado obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.log_fis_rips_facturas_cupsHomologado.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_log;
+                }
+            }catch(Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
         #endregion FIS PRESTADORES
 
         #region CHATBOT
@@ -9099,10 +9124,7 @@ namespace DATA_ACCESS
             }
         }
 
-
-
         #endregion CHATBOT
-
 
         #region INSERCION JSONS FACTURAS FIS
 
@@ -9738,13 +9760,14 @@ namespace DATA_ACCESS
         {
             try
             {
-                using(ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     db.creacion_recomendaciones_auditoria.InsertOnSubmit(obj);
                     db.SubmitChanges();
                     return obj.id_recomendacion;
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 var error = ex.Message;
                 return 0;

@@ -1,0 +1,63 @@
+﻿
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">JUSTIFICACIÓN TARIFA CUPS @ViewBag.cups_negociado</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formTarifa">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observación justificación</label>
+                    <textarea id="observacion_justificacion" name="observacion_justificacion" class="form-control" maxlength="4999" cols="4" rows="4" required></textarea>
+                </div>
+            </div>
+            <br />
+
+            <br />
+            <div class="row text-center">
+                <a class="btn button_Asalud_Guardar" onclick="ValidarDatos();">GUARDAR</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    function ValidarDatos() {
+
+        var valida = $("#formTarifa").validate();
+
+        if (valida.form()) {
+
+            var formData = new FormData($("#formTarifa")[0]);
+            formData.append("id_registro", "@ViewBag.id_registro");
+            formData.append("id_factura", "@ViewBag.id_factura");
+            formData.append("cups_negociado", "@ViewBag.cups_negociado");
+            formData.append("alerta_negociacion", "@ViewBag.alerta_negociacion");
+            formData.append("observacion_justificacion", $("#observacion_justificacion").val());
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("GuardarJustificacionTarifas")",
+                data: formData,
+                type: "post",
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+
+                    alert(data.mensaje);
+                    LoadingHide();
+                    $("#ModalJustificacionTarfa").modal("hide");
+
+                    if (data.rta == 1) {
+                        PintarCupsIndividual("@ViewBag.id_factura", "@ViewBag.id_registro");
+                    }
+                }
+            });
+        }
+    }
+
+</script>

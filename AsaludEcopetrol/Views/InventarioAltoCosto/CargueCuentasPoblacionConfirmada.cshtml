@@ -12,13 +12,30 @@
         <div class="panel-body">
             @if (!String.IsNullOrEmpty(mensajerespuesta))
             {
-                if (mensajerespuesta.Contains("Error"))
+                if (mensajerespuesta.Contains("ERROR CARGUE"))
                 {
-                    <label class="danger"> @Html.Raw(mensajerespuesta)</label>
+
+                    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+                        <div class="modal-dialog" style="max-width: 90vw; width: auto;">
+                            <div class="modal-content bg-danger negativo text-white" >
+                                <div class="modal-header bg-danger negativo text-white">
+                                    <h5 class="modal-title" id="modalLabel">ERROR CARGUE ARCHIVO</h5>
+
+                                </div>
+                                <div class="modal-body text-left" style="max-height: 400px; /* white-space: pre-wrap; */ overflow-y: auto; word-wrap: break-word; ">
+                                    @Html.Raw(mensajerespuesta)
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
                 else
                 {
-                    @Html.Raw(mensajerespuesta);
+
+                    @Html.Raw(mensajerespuesta)
                 }
             }
 
@@ -76,6 +93,14 @@
     function getFileExtension(filename) {
         return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
     }
+
+
+     // Mostrar el modal si existe el div con id 'responseModal'
+        if ($('#responseModal').length > 0) {
+            $('#responseModal').modal('show');
+        }
+
+
 </script>
 
 
@@ -136,6 +161,12 @@
     .icon-btn {
         padding: 1px 15px 3px 2px;
         border-radius: 50px;
+    }
+
+    .modal-body {
+        padding-bottom: 0px;
+        padding-top;
+        0px;
     }
 </style>
 

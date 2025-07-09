@@ -1405,7 +1405,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             }
         }
 
-
         public ActionResult VerArchivoDocumentoDigital(int tipo, int idCargueBase, int idCargueDtll)
         {
             managment_prestadores_facturas_GDResult obj = new managment_prestadores_facturas_GDResult();
@@ -1443,7 +1442,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Ha ocurrido un error al momento de visualizar el archivo: " + ex.Message });
             }
         }
-
 
         public PartialViewResult DocumentoDigital(int tipo, int idcarguebase, int idcarguedtll)
         {
@@ -11024,7 +11022,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
             managemenet_prestadores_traerDatosFacturas_idDetalleResult datos = new managemenet_prestadores_traerDatosFacturas_idDetalleResult();
             List<management_fis_traerDatosContrato_nitResult> listaContratos = new List<management_fis_traerDatosContrato_nitResult>();
-            List<management_fis_cargueRips_usuariosResult> usuarios = new List<management_fis_cargueRips_usuariosResult>();
+            //List<management_fis_cargueRips_usuariosResult> usuarios = new List<management_fis_cargueRips_usuariosResult>();
 
             var cuv = "";
             //var cedulaUsuario = "";
@@ -11101,10 +11099,10 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
             ViewBag.departamentos = BusClass.TraerDepartamentosFisTodos();
 
-            //ViewBag.listadoUsuarios = listadoUsuarios;
-
             ViewBag.listadoCups = listadoCups;
             ViewBag.listadoGlosas = listadoGlosas;
+
+            ViewBag.auditores = BusClass.GetAuditorRegional(c);
 
             return View(datos);
         }
@@ -11143,6 +11141,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     resultado.AppendLine($"<input type=\"hidden\" id=\"descripcioncie10_{registro.id_registro}\" value=\"{registro.descripcion_cie10}\" /> </td>");
                     resultado.AppendLine($"<input type=\"hidden\" id=\"cie10relacionado_{registro.id_registro}\" value=\"{registro.cie10_relacionado}\" /> </td>");
                     resultado.AppendLine($"<input type=\"hidden\" id=\"descripcioncie10relacionado_{registro.id_registro}\" value=\"{registro.descripcion_cie10_relacionado}\" /> </td>");
+                    resultado.AppendLine($"<input type=\"hidden\" id=\"cups_negociado_{registro.id_registro}\" value=\"{registro.cups_negociado}\" /> </td>");
 
                     resultado.AppendLine($" <td {codGlosa}>");
 
@@ -11153,7 +11152,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
                     if (registro.alertaCups == 0)
                     {
-                        resultado.AppendLine("<i class=\"alerta_cups glyphicon glyphicon-warning-sign\" title=\"CUPS inexistente - Validar el código contra el listado oficial de CUPS vigente y el autorizado por ECP y SAMI-FIS\"></i>");
+                        resultado.AppendLine($"<i class=\"alerta_cups glyphicon glyphicon-warning-sign\" onclick=\"MostrarModalCupsHomologado({registro.id_factura}, {registro.id_registro}, '{registro.cod_cups}')\" title=\"CUPS inexistente - Validar el código contra el listado oficial de CUPS vigente y el autorizado por ECP y SAMI-FIS\"></i>");
                     }
 
                     if (!string.IsNullOrEmpty(registro.facturaReconocid))
@@ -11167,7 +11166,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         {
                             if (registro.alertaValorNegociacion.Contains("COINCIDE"))
                             {
-                                resultado.AppendLine($"<i class=\"alerta_valorCupsNegociacion glyphicon glyphicon-usd\" title=\"{registro.alertaValorNegociacion}\"></i>");
+                                resultado.AppendLine($"<i class=\"alerta_valorCupsNegociacion glyphicon glyphicon-usd\" title=\"{registro.alertaValorNegociacion}\" onclick=$''MostrarModalJustificacion({registro.id_registro}, {registro.id_factura}, '{registro.cups_negociado}', '{registro.alertaValorNegociacion}')'></i>");
                             }
                             else
                             {
@@ -11196,6 +11195,8 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     resultado.AppendLine("</td>");
 
                     resultado.AppendLine($" <td {codGlosa}>{registro.descripcion_cuvs}</td>");
+                    resultado.AppendLine($" <td {codGlosa}>{registro.cod_cups_homologado}</td>");
+                    resultado.AppendLine($" <td {codGlosa}>{registro.descripcion_cuvs_homologado}</td>");
                     resultado.AppendLine($" <td {codGlosa}>{registro.fecha_prestacion}</td>");
 
                     resultado.AppendLine($"<td {codGlosa}>");
@@ -12116,7 +12117,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 factura.valor_total_factura = modelo.valor_factura;
                 factura.valor_total_factura_conGlosa = modelo.totalfactura;
 
-
                 List<management_fis_validacionExistenCupsResult> cupsInexistentes = BusClass.ListadoCupsInexistentesIdFactura(modelo.idDetalle);
                 string mensajeCups = "";
                 string contenidoMensajeCups = "";
@@ -12341,6 +12341,11 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 if (inserta != 0)
                 {
                     Models.CuentasMedicas.RadicacionElectronica Models = new RadicacionElectronica();
+
+                    if (modelo.tipoIngreso == 1)
+                    {
+                        var insertarAuditor = AsignarAuditorFacturaNuevo(factura.id_cargue, factura.id_factura, modelo.idAuditor);
+                    }
 
                     log_fis_rips_facturas log = new log_fis_rips_facturas();
 
@@ -14852,11 +14857,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     foreach (management_fis_reporteHesResult item in listado)
                     {
                         Sheet.Cells["A" + row + ":FA" + row].Style.Font.Size = 10;
-
-                        if (item.ID_FACTURA == 44616)
-                        {
-                            var rpeba = "";
-                        }
 
                         //Sheet.Cells[string.Format("A{0}", row)].Value = item.Id_listado == 1 ? Convert.ToString("X") : string.Empty;
                         Sheet.Cells[string.Format("A{0}", row)].Value = item.Id_listado == 1 ? "X" : null;
@@ -17425,7 +17425,292 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
         }
 
+        public PartialViewResult AgregarJustificacionnTarifas(int? id_registro, int? id_factura, string cups_negociado, string alerta_negociacion)
+        {
+            ViewBag.id_registro = id_registro;
+            ViewBag.id_factura = id_factura;
+            ViewBag.cups_negociado = cups_negociado;
+            ViewBag.alerta_negociacion = alerta_negociacion;
+            return PartialView();
+        }
+
+        public JsonResult GuardarJustificacionTarifas(int? id_registro, int? id_factura, string cups_negociado, string alerta_negociacion, string observacion_justificacion)
+        {
+            var rta = 0;
+            var mensaje = "";
+            try
+            {
+                fis_rips_factura_justificacionAlertaNegociacion obj = new fis_rips_factura_justificacionAlertaNegociacion()
+                {
+                    id_factura = id_factura,
+                    id_registro = id_registro,
+                    cups_negociado = cups_negociado,
+                    alerta_negociacion = alerta_negociacion,
+                    observacion_justificacion = observacion_justificacion,
+                    usuario_justifica = SesionVar.UserName,
+                    fecha_justifica = DateTime.Now
+                };
+
+                var inserta = BusClass.GuardarJustificacionAlertaNegociacionfactura(obj);
+                if (inserta != 0)
+                {
+                    mensaje = "JUSTIFICACIÓN INGRESADA CORRECTAMENTE";
+                    rta = 1;
+                }
+                else
+                {
+                    throw new Exception("ERROR EN EL INGRESO DE LA JUSTIFICACIÓN");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+        }
+
+        public string AsignarAuditorFacturaNuevo(int? idcargue, int? idfactura, int? idAuditor)
+        {
+
+            String mensaje = "";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    DateTime fecha = Convert.ToDateTime(DateTime.Now);
+                    command.CommandText = "UPDATE rips_af_cargue_dtll SET id_auditor_asignado =@idAuditor, fecha_asignacion_auditor =@fecha Where id_af = @idfact";
+
+                    command.Parameters.AddWithValue("@idfact", idfactura);
+                    command.Parameters.AddWithValue("@idAuditor", idAuditor);
+                    command.Parameters.AddWithValue("@fecha", fecha);
+                    connection.Open();
+                    command.CommandTimeout = 120;
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
+
+
+                mensaje = "SE INGRESO CORRECTAMENTE....";
+            }
+            catch (Exception ex)
+            {
+                mensaje = "ERROR EL INGRESO DEL DETALLE.";
+            }
+
+            return mensaje;
+        }
+
+        public PartialViewResult AjustarCupsHomologado(int? id_factura, int? id_registro, string cups)
+        {
+            ViewBag.id_factura = id_factura;
+            ViewBag.id_registro = id_registro;
+            ViewBag.cups = cups;
+
+            return PartialView();
+        }
+
+        public JsonResult BuscarCupsFis()
+        {
+            if (string.IsNullOrEmpty(Request.Params["term"]))
+                return null;
+            try
+            {
+                string term = Request.Params["term"];
+                if (term.Length >= 1)
+                {
+                    term = term.ToUpper();
+
+                    List<fis_rips_cups> cie = new List<fis_rips_cups>();
+                    cie = BusClass.TraerListadoCupsCodigo(term);
+
+                    var lista = (from ci in cie
+                                 select new
+                                 {
+                                     id = ci.codigo_cups,
+                                     label = ci.codigo_cups + "|" + ci.descripcion,
+                                 }).Distinct().OrderBy(f => f.label).Take(15);
+                    return Json(lista, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(null, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e)
+            {
+                var error = e.Message;
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GuardarAjustarCupsHomologado(int? id_factura, int? id_registro, string cups, string cod_cups_homologado, string descripcion_cuvs_homologado)
+        {
+            var rta = 0;
+            var mensaje = "";
+
+            fis_rips_cups dato = new fis_rips_cups();
+
+            try
+            {
+                dato = BusClass.TraerCupsCodigo(cod_cups_homologado);
+                if (dato != null)
+                {
+                    fis_rips_cargue_registrosCompletos obj = new fis_rips_cargue_registrosCompletos()
+                    {
+                        id_registro = (int)id_registro,
+                        id_factura = id_factura,
+                        cod_cups_homologado = cod_cups_homologado,
+                        descripcion_cuvs_homologado = descripcion_cuvs_homologado,
+                    };
+
+                    var actualizaCups = BusClass.ActualizarRipsFacturas_cupsHomologado(obj);
+
+                    if (actualizaCups != 0)
+                    {
+                        mensaje = "GESTIÓN RELIZADA CORRECTAMENTE";
+
+                        rta = 1;
+
+                        log_fis_rips_facturas_cupsHomologado log = new log_fis_rips_facturas_cupsHomologado()
+                        {
+                            id_factura = id_factura,
+                            id_registro = id_registro,
+                            cups = cups,
+                            cups_homologado = cod_cups_homologado,
+                            fecha_digita = DateTime.Now,
+                            usuario_digita = SesionVar.UserName,
+                        };
+
+                        var insertaLog = BusClass.InsertarLogCupsHomologado(log);
+                        if (insertaLog != 0)
+                        {
+                            mensaje = "GESTIÓN RELIZADA CORRECTAMENTE";
+                        }
+                        else
+                        {
+                            throw new Exception($"ERROR AL INSERTAR LOG CUPS HOMOLOGADO {cod_cups_homologado}");
+
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"ERROR AL INSERTAR LOG CUPS HOMOLOGADO {cod_cups_homologado}");
+
+                    }
+                }
+                else
+                {
+                    throw new Exception($"NO EXISTE EL CUPS {cod_cups_homologado}");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+        }
+
+        public PartialViewResult AjustarCupsHomologadoMasivo(string seleccionados, int? idFactura)
+        {
+            ViewBag.seleccionados = seleccionados;
+            ViewBag.idFactura = idFactura;
+
+            return PartialView();
+        }
+
+        public JsonResult GuardarAjustarCupsHomologadoMasivo(int? id_factura, string seleccionados, string cod_cups_homologado, string descripcion_cuvs_homologado)
+        {
+            var rta = 0;
+            var mensaje = "";
+
+            fis_rips_cups dato = new fis_rips_cups();
+
+            try
+            {
+                if (string.IsNullOrEmpty(seleccionados))
+                {
+                    throw new Exception("Seleccione ítem para agregar cups homologados");
+                }
+
+                string[] seleccion = seleccionados.Split('|');
+                foreach (var item in seleccion)
+                {
+                    var datos = item.Split('-');
+
+                    int? id_registro = Convert.ToInt32(datos[1]);
+                    string cups = datos[0];
+
+                    dato = BusClass.TraerCupsCodigo(cod_cups_homologado);
+                    if (dato != null)
+                    {
+                        fis_rips_cargue_registrosCompletos obj = new fis_rips_cargue_registrosCompletos()
+                        {
+                            id_registro = (int)id_registro,
+                            id_factura = id_factura,
+                            cod_cups_homologado = cod_cups_homologado,
+                            descripcion_cuvs_homologado = descripcion_cuvs_homologado,
+                        };
+
+                        var actualizaCups = BusClass.ActualizarRipsFacturas_cupsHomologado(obj);
+
+                        if (actualizaCups != 0)
+                        {
+                            mensaje = "GESTIÓN RELIZADA CORRECTAMENTE";
+
+                            rta = 1;
+
+                            log_fis_rips_facturas_cupsHomologado log = new log_fis_rips_facturas_cupsHomologado()
+                            {
+                                id_factura = id_factura,
+                                id_registro = id_registro,
+                                cups = cups,
+                                cups_homologado = cod_cups_homologado,
+                                fecha_digita = DateTime.Now,
+                                usuario_digita = SesionVar.UserName,
+                            };
+
+                            var insertaLog = BusClass.InsertarLogCupsHomologado(log);
+                            if (insertaLog != 0)
+                            {
+                                mensaje = "GESTIÓN RELIZADA CORRECTAMENTE";
+                            }
+                            else
+                            {
+                                throw new Exception($"ERROR AL INSERTAR LOG CUPS HOMOLOGADO {cod_cups_homologado}");
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception($"ERROR AL INSERTAR LOG CUPS HOMOLOGADO {cod_cups_homologado}");
+
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"NO EXISTE EL CUPS {cod_cups_homologado}");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+        }
+
     }
+
+
 }
 
 

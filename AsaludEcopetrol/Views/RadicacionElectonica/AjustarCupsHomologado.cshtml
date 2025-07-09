@@ -1,0 +1,98 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">HOMOLOGAR CUPS</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formCie10">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">CUPS</label>
+                    <input type="text" class="form-control" id="cups_homologado" name="cups_homologado" maxlength="100" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Descripción CUPS</label>
+                    <input type="text" class="form-control" id="descripcion_cuvs_homologado" name="descripcion_cuvs_homologado"  maxlength="100" required readonly/>
+                </div>
+            </div>
+            <br />
+            
+            <div class="row text-center">
+                <a class="btn button_Asalud_Guardar" onclick="ValidarDatos();">GUARDAR</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+
+    $("#cups_homologado").autocomplete({
+        source: function (request, response) {
+            if (request.term.length > 1) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarCupsFis",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            response(
+                                data.map(function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id,
+                                    };
+                                })
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    },
+                });
+            }
+        },
+        select: function (event, ui) {
+            let nomCamp = $(this).attr("id");
+            var idUs = nomCamp.split("_")[1];
+            $("#cups_homologado" + idUs).val(ui.item.value);
+            var des = ui.item.label.split("|")[1];
+            $("#descripcion_cuvs_homologado").val(des);
+        },
+    });
+
+    function ValidarDatos() {
+
+        var formData = new FormData($("#formCie10")[0]);
+        formData.append("id_registro","@ViewBag.id_registro");
+        formData.append("id_factura", "@ViewBag.id_factura");
+        formData.append("cups", "@ViewBag.cups");
+        formData.append("cod_cups_homologado", $("#cups_homologado").val());
+        formData.append("descripcion_cuvs_homologado", $("#descripcion_cuvs_homologado").val());
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("GuardarAjustarCupsHomologado")",
+            data: formData,
+            type: "post",
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+
+                alert(data.mensaje);
+                LoadingHide();
+
+                if (data.rta == 1) {
+                    $("#ModalCupsHomolo").modal("hide");
+                    PintarCupsIndividual("@ViewBag.id_factura", "@ViewBag.id_registro");
+                }
+            }
+
+        });
+
+    }
+
+</script>
