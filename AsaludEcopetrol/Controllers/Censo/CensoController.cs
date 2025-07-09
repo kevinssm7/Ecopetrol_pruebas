@@ -1321,6 +1321,9 @@ namespace AsaludEcopetrol.Controllers.Censo
             //List<management_censo_aseguramientoTableroControl_detallesResult> listadoDatos = BusClass.DatosCensoAseguramiento_detalleId(det);
 
             management_censo_aseguramientoTableroControl_idResult dato = BusClass.TraerRegistroAH(det);
+
+            
+
             List<management_censo_aseguramientoTableroControl_idResult> listado = new List<management_censo_aseguramientoTableroControl_idResult>();
             listado.Add(dato);
 
@@ -1333,6 +1336,9 @@ namespace AsaludEcopetrol.Controllers.Censo
             ViewBag.listado = listado;
 
             ViewBag.tipo = tipo;
+
+            ViewBag.numero_documento = dato.numero_documento;
+
 
             return PartialView(detalle);
         }
@@ -1375,12 +1381,25 @@ namespace AsaludEcopetrol.Controllers.Censo
         {
             var mensaje = "";
             var rta = 0;
+            var validacion = 0;
             try
             {
 
                 var estadoRegistro = 0;
 
                 cargue_censo_ah_registros_detalle det = new cargue_censo_ah_registros_detalle();
+
+
+                if (Modelo.id_concurrencia.HasValue)
+                {
+                    validacion = BusClass.ValidacionConcurrenciaAH(Modelo.id_concurrencia, Modelo.documento);
+                }
+                else
+                {
+                    validacion = 2; // 2 = sin validación
+                }
+
+
 
                 det.id_registro = (int)Modelo.idDetalle;
                 det.hospitalizacion = Modelo.hospitalizacion;
@@ -1395,6 +1414,8 @@ namespace AsaludEcopetrol.Controllers.Censo
                     det.descripcion_cie10 = Modelo.cie10Des;
                     det.caso_inferior_72horas = Modelo.caso_inferior_72horas;
                     det.nota_auditoria = Modelo.notas;
+                    det.tiene_concurrencia = Modelo.tiene_concurrencia;
+                    det.id_concurrencia = Modelo.id_concurrencia;
                     estadoRegistro = 2;
                 }
                 else
@@ -1420,6 +1441,8 @@ namespace AsaludEcopetrol.Controllers.Censo
                             det.descripcion_cie10 = Modelo.cie10Des;
                             det.caso_inferior_72horas = Modelo.caso_inferior_72horas;
                             det.nota_auditoria = Modelo.notas;
+                            det.tiene_concurrencia = Modelo.tiene_concurrencia;
+                            det.id_concurrencia = Modelo.id_concurrencia;
                             estadoRegistro = 2;
                         }
                     }
@@ -1430,28 +1453,39 @@ namespace AsaludEcopetrol.Controllers.Censo
 
                 var gestionDato = 0;
 
-                if (Modelo.id_det != null && Modelo.id_det != 0)
+
+                if (validacion > 0 || validacion == 2)
                 {
-                    det.id_detalle = (int)Modelo.id_det;
-                    estadoRegistro = 2;
-                    gestionDato = BusClass.ActualizarDetalleAHGestion(det);
-                }
-                else
-                {
-                    gestionDato = BusClass.InsertarDetalleRegistroAH(det, ref MsgRes);
+                    if (Modelo.id_det != null && Modelo.id_det != 0)
+                    {
+                        det.id_detalle = (int)Modelo.id_det;
+                        estadoRegistro = 2;
+                        gestionDato = BusClass.ActualizarDetalleAHGestion(det);
+                    }
+                    else
+                    {
+
+                        gestionDato = BusClass.InsertarDetalleRegistroAH(det, ref MsgRes);
+                    }
+
+                    if (gestionDato != 0)
+                    {
+                        var actualiza = BusClass.ActualizarEstadoRegistroAH(det.id_registro, estadoRegistro);
+
+                        mensaje = "REGISTRO INGRESADO CORRECTAMENTE";
+                        rta = 1;
+                    }
+                    else
+                    {
+                        mensaje = "ERROR AL INGRESAR EL REGISTRO";
+                    }
                 }
 
-                if (gestionDato != 0)
-                {
-                    var actualiza = BusClass.ActualizarEstadoRegistroAH(det.id_registro, estadoRegistro);
-
-                    mensaje = "REGISTRO INGRESADO CORRECTAMENTE";
-                    rta = 1;
-                }
                 else
                 {
-                    mensaje = "ERROR AL INGRESAR EL REGISTRO";
+                    mensaje = "ERROR AL INGRESAR CONCURRENCIA: EL DOCUMENTO DEL PACIENTE Y EL ID_CONCURRENCIA NO COINCIDEN CON LOS DATOS DEL REGISTRO";
                 }
+              
 
 
             }

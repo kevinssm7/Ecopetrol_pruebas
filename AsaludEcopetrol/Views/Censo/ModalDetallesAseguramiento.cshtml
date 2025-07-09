@@ -7,6 +7,7 @@
                 <input type="hidden" value="@ViewBag.idLote" name="idLote" id="idLote" />
                 <input type="hidden" value="@ViewBag.idDetalle" name="idDetalle" id="idDetalle" />
                 <input type="hidden" value="@Model.id_detalle" name="idDet" id="idDet" />
+                <input type="hidden" value="@ViewBag.numero_documento" name="documento" id="documento" />
 
                 <a class="text-primary_asalud">Ingreso de datos hospitalización: @ViewBag.nombre</a>
             </h4>
@@ -67,7 +68,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <label class="text-secondary_asalud">¿Es hospitalización?</label>
-                    <select id="hospitalizacion" name="hospitalizacion" class="form-control select2" onchange="ValidacionHospi(this.value, 1)" required>
+                    <select id="hospitalizacion" name="hospitalizacion" class="form-control" onchange="ValidacionHospi(this.value, 1)" required>
                         <option value="">-Seleccione-</option>
                         <option value="1">SI</option>
                         <option value="0">NO</option>
@@ -76,10 +77,12 @@
             </div>
             <br />
 
+
+
             <div class="row" id="divHabitacion" style="display:none">
                 <div class="col-md-6">
                     <label class="text-secondary_asalud">¿Corte facturación?</label>
-                    <select id="corte_facturacion" name="corte_facturacion" class="form-control select2" onchange="validacionHabi(this.value)" required>
+                    <select id="corte_facturacion" name="corte_facturacion" class="form-control" onchange="validacionHabi(this.value)" required>
                         <option value="">-Seleccione-</option>
                         <option value="1">SI</option>
                         <option value="0">NO</option>
@@ -101,7 +104,7 @@
                     <div class="col-md-6">
 
                         <label class="text-secondary_asalud">Tipo de habitación</label>
-                        <select id="tipoHabitacion" name="tipoHabitacion" class="form-control select2" required>
+                        <select id="tipoHabitacion" name="tipoHabitacion" class="form-control" required>
                             <option value="">-Seleccione-</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_habitacion item in ViewBag.tipoHabitacion)
                             {
@@ -152,10 +155,34 @@
                         <label class="text-secondary_asalud">Notas de auditoría</label>
                         <textarea id="notas" name="notas" rows="5" cols="5" class="form-control" maxlength="500" required></textarea>
                     </div>
+
                 </div>
+                <br />
+
+
+                <div class="row" id="divConcurrencia" style="display:none">
+                    <div class="col-md-6">
+                        <label class="text-secondary_asalud">¿Está registrado en SAMI concurrencia?</label>
+                        <select id="Concurrencia" name="Concurrencia" class="form-control" onchange="validacionConcu(this.value)" required>
+                            <option value="">-Seleccione-</option>
+                            <option value="1">SI</option>
+                            <option value="0">NO</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="divIdConcurrencia" style="display:none">
+                        <label class="text-secondary_asalud">ID de concurrencia</label>
+                        <input class="form-control solo-numeros" type="text" id="IdConcurrencia" name="IdConcurrencia" maxlength="10" required />
+                    </div>
+
+                </div>
+                <br />
+
+
             </div>
 
-            <br />
+            <br/>
+
             <div class="row text-center" id="divGuardar">
                 <a class="button_Asalud_Guardar" onclick="validarForm();">Guardar</a>
             </div>
@@ -191,27 +218,35 @@
             ValidacionHospi("@Model.hospitalizacion", 1);
         }
 
+
+
         else if (tipo == 2) {
             $("#hospitalizacion").val("@Model.hospitalizacion").trigger("change").prop("disabled", true);
             $("#corte_facturacion").val("@Model.corte_facturacion").trigger("change").prop("disabled", true);
             $("#caso_inferior_72horas").val("@Model.caso_inferior_72horas").trigger("change").prop("disabled", true);
+            $("#Concurrencia").val("@Model.tiene_concurrencia").trigger("change").prop("disabled", true);
 
             $("#tipoHabitacion").val('@Model.tipo_habitacion').trigger("change");
             $("#lineaPago").val('@Model.linea_pago').trigger("change");
             $("#cie10").val('@Model.cie10').trigger("change");
             $("#cie10Des").val('@Model.descripcion_cie10').trigger("change");
             $("#notas").val('@Model.nota_auditoria').trigger("change");
+            $("#IdConcurrencia").val('@Model.id_concurrencia').trigger("change");
 
             $("#tipoHabitacion").prop("disabled", true);
             $("#lineaPago").prop("disabled", true);
             $("#cie10").prop("disabled", true);
             $("#cie10Des").prop("disabled", true);
             $("#notas").prop("disabled", true);
+            $("#IdConcurrencia").prop("disabled", true);
+
             document.getElementById("divGuardar").style.display = "none";
 
             ValidacionHospi("@Model.hospitalizacion", 2);
 
         }
+
+
 
         else {
 
@@ -220,6 +255,8 @@
             $("#caso_inferior_72horas").val(0).trigger("change").prop("disabled", true);
 
             ValidacionHospi("@Model.hospitalizacion", 3);
+
+
         }
     }
 
@@ -297,6 +334,8 @@
 
     }
 
+
+
     function MostrarNotas(valor) {
 
         $("#notas").val("");
@@ -309,6 +348,7 @@
             document.getElementById("divNotas").style.display = "none";
         }
     }
+
 
     function validarForm() {
         var validar = $("#formDet").validate();
@@ -325,6 +365,8 @@
 
         formData.append("idDetalle", $("#idDetalle").val());
 
+        formData.append("documento", $("#documento").val());
+
         formData.append("id_det", $("#idDet").val());
         formData.append("hospitalizacion", $("#hospitalizacion").val());
         formData.append("corte_facturacion", $("#corte_facturacion").val());
@@ -334,6 +376,8 @@
         formData.append("cie10Des", $("#cie10Des").val());
         formData.append("caso_inferior_72horas", $("#caso_inferior_72horas").val());
         formData.append("notas", $("#notas").val());
+        formData.append("tiene_concurrencia", $("#Concurrencia").val());
+        formData.append("id_concurrencia", $("#IdConcurrencia").val());
 
         LoadingShow();
 
@@ -399,6 +443,7 @@
             }
         }
 
+
         else if (tipo == 2) {
             if (valor == 1) {
                 document.getElementById("divHabitacion").style.display = "block";
@@ -408,6 +453,7 @@
             } else {
                 document.getElementById("divHabitacion").style.display = "none";
                 document.getElementById("divCamposCompletos").style.display = "none";
+
                 document.getElementById("divCampoObsNoHospi").style.display = "block";
 
                 if (@Model.id_detalle != null && @Model.id_detalle != 0) {
@@ -418,7 +464,20 @@
         else {
             document.getElementById("divHabitacion").style.display = "block";
             document.getElementById("divCamposCompletos").style.display = "block";
+            document.getElementById("divConcurrencia").style.display = "block";
             document.getElementById("divCampoObsNoHospi").style.display = "none";
+            MostrarCie10();
+        }
+    }
+
+    function validacionConcu(valor) {
+        document.getElementById("divIdConcurrencia").style.display = "none";
+
+        if (valor == 1) {
+            document.getElementById("divIdConcurrencia").style.display = "block";
+            
+        } else {
+            document.getElementById("divIdConcurrencia").style.display = "none";
         }
     }
 
@@ -428,8 +487,10 @@
         if (valor == 0) {
             document.getElementById("divCamposCompletos").style.display = "block";
             MostrarCie10();
+            document.getElementById("divConcurrencia").style.display = "block";
         } else {
             document.getElementById("divCamposCompletos").style.display = "none";
+            document.getElementById("divConcurrencia").style.display = "none";
         }
     }
 
@@ -481,4 +542,10 @@
     .modal {
         z-index: 1050; /* Ajusta el z-index de la modal si es necesario */
     }
+
+
+    .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+        color: #555555;
+    }
+
 </style>

@@ -813,6 +813,8 @@ namespace AsaludEcopetrol.Models.Censo
 
         public int? idLote { get; set; }
         public int? idDetalle { get; set; }
+
+        
         public int? id_det { get; set; }
         public int? hospitalizacion { get; set; }
         public string hospitalizacion_no_observacion { get; set; }
@@ -823,7 +825,9 @@ namespace AsaludEcopetrol.Models.Censo
         public string cie10Des { get; set; }
         public int? caso_inferior_72horas { get; set; }
         public string notas { get; set; }
-
+        public int? tiene_concurrencia { get; set; }
+        public int? id_concurrencia { get; set; }
+        public string documento { get; set; }
 
         #endregion
 

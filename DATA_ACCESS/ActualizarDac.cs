@@ -1059,6 +1059,8 @@ namespace DATA_ACCESS
                     obj.descripcion_cie10 = det.descripcion_cie10;
                     obj.caso_inferior_72horas = det.caso_inferior_72horas;
                     obj.nota_auditoria = det.nota_auditoria;
+                    obj.tiene_concurrencia = det.tiene_concurrencia;
+                    obj.id_concurrencia = det.id_concurrencia;
                     db.SubmitChanges();
                     return 1;
                 }
@@ -6492,6 +6494,8 @@ namespace DATA_ACCESS
             }
         }
 
+
+
         public int Actualizar_rastreoHemofilia(cargue_cuentas_altoCosto_hemofilia model)
         {
             try
@@ -6528,7 +6532,9 @@ namespace DATA_ACCESS
                 var mensaje = ex.Message;
                 return 0;
             }
-        }
+
+
+
 
         public int Actualizar_rastreoArtritis(cargue_cuentas_altoCosto_artritis model)
         {
@@ -6566,9 +6572,14 @@ namespace DATA_ACCESS
             catch (Exception ex)
             {
                 var mensaje = ex.Message;
-                return 0;
             }
         }
+
+
+
+
+
+
 
         public int Actualizar_rastreoVIH(cargue_cuentas_altoCosto_vih model)
         {
@@ -6597,7 +6608,6 @@ namespace DATA_ACCESS
 
                     db.SubmitChanges();
                     return 1;
-                }
             }
             catch (Exception ex)
             {
@@ -6605,6 +6615,9 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+
+
+
 
         #endregion
     }

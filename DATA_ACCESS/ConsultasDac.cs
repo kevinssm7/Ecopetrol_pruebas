@@ -1157,6 +1157,33 @@ namespace DATA_ACCESS
         }
 
 
+
+        public int ValidacionConcurrenciaAH(int? idConcurrencia, string documento)
+        {
+            DateTime fechaInicial = new DateTime(2023, 12, 1);
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    var lista = db.ecop_concurrencia
+                                  .Where(x => x.id_concurrencia == idConcurrencia &&
+                                              x.id_afi == documento &&
+                                              x.fecha_ingreso > fechaInicial)
+                                  .ToList();
+
+                    return lista.Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log del error (puedes usar un logger si tienes uno)
+                Console.WriteLine("Error en ValidacionConcurrenciaAH: " + ex.Message);
+                return 0;
+            }
+        }
+
+
         #endregion
 
         #region CONCURRENCIA
@@ -2882,6 +2909,8 @@ namespace DATA_ACCESS
             }
             return listado;
         }
+
+
 
         #endregion
 

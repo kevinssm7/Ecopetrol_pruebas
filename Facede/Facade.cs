@@ -1372,6 +1372,13 @@ namespace Facede
             return DACActualiza.ActualizarDetalleAHGestion(det);
         }
 
+        public int ValidacionConcurrenciaAH(int? idConcurrencia, string documento)
+        {
+            return DACConsulta.ValidacionConcurrenciaAH(idConcurrencia, documento);
+        }
+
+
+
         #endregion
 
         #region CONCURRENCIA    
@@ -1959,6 +1966,7 @@ namespace Facede
         {
             return DACConsulta.DatosNotificacionCreacionPM_correos(idPrestador);
         }
+
 
         public int ActualizarIncumplimientoPM(ecop_plan_de_mejora obj)
         {
@@ -8757,6 +8765,9 @@ namespace Facede
         {
             return DACComonClass.GetAgrupador();
         }
+
+
+    
 
         public int Actualizar_rastreoCancer(cargue_cuentas_altoCosto_cancer model)
         {
