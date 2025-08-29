@@ -760,6 +760,7 @@ namespace AsaludEcopetrol.Models.PQRS
         [Required(ErrorMessage = "Este campo es obligatorio *")]
         [Display(Name = "Prestador:")]
         public int prestador { get; set; }
+
         public string prestadorTexto { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio *")]
@@ -986,6 +987,14 @@ namespace AsaludEcopetrol.Models.PQRS
 
         public String listaPrestador { get; set; }
 
+
+        [Required(ErrorMessage = "Este campo es obligatorio *")]
+        [Display(Name = "Empresa,  contratista y/o subcontratista:")]
+        public int empresa { get; set; }
+
+        public String listaEmpresa { get; set; }
+
+
         public string pasa_auditor { get; set; }
 
         public int mismoBeneficiario { get; set; }
@@ -1152,6 +1161,7 @@ namespace AsaludEcopetrol.Models.PQRS
                 usuario_asignado = item.usuario_asignado.Value;
                 solucionador = item.solucionador;
                 otro_prestador = item.otro_prestador;
+                id_pqrs_subtematica = item.id_pqrs_subtematica.Value;
                 //auditor = BusClass.Getidauditor(item.nombre_auditor).Value;
 
                 if (item.estado_gestion == 2)
@@ -1192,12 +1202,14 @@ namespace AsaludEcopetrol.Models.PQRS
 
                     nombre_paciente = item.nombre_paciente;
                     identificacion_paciente = item.identificacion_paciente;
+                    id_pqrs_subtematica = item.id_pqrs_subtematica.Value;
 
                     //estado_gestion = item.estado_gestion.Value;
                     if (item.estado_gestion == 2 || item.estado_gestion == 5)
                     {
-                        id_pqrs_subtematica = item.id_pqrs_subtematica.Value;
+
                         //prestador = item.prestador;
+                        id_pqrs_subtematica = item.id_pqrs_subtematica.Value;
                     }
                 }
             }
@@ -2796,6 +2808,13 @@ namespace AsaludEcopetrol.Models.PQRS
             return respuesta;
 
         }
+
+
+        public int CargueMasivoEmpresa(List<ecop_pqrs_empresaContratista> detalle, ref MessageResponseOBJ MsgRes)
+        {
+            return BusClass.CargueMasivoEmpresa(detalle, ref MsgRes);
+        }
+
 
         #endregion
     }

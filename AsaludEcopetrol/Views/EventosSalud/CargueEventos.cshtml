@@ -42,15 +42,13 @@
                     <div class="col-sm-3">
                         <input type="hidden" value="@ViewBag.idConcurrencia" name="idConcurrencia" id="idConcurrencia" />
                         <input type="hidden" value="@ViewBag.idEvolucion" name="idEvolucion" id="idEvolucion" />
-                        <input type="hidden" value="@ViewBag.idEvento" name="id_evento" id="id_evento" />
-                        <input type="hidden" value="@ViewBag.idPlan" name="id_planMejora" id="id_planMejora" />
+                        <input type="hidden" value="@Model.id_evento" name="id_evento" id="id_evento" />
                         <label class="text-secondary_asalud">Año</label>
                         <input type="text" maxlength="199" id="Año" name="Año" onchange="ValidarMeses(this.value)" class="year form-control solo-numero" required />
                     </div>
-
                     <div class="col-sm-3">
                         <label class="text-secondary_asalud">Mes</label>
-                        <select id="IdMes" name="IdMes" class="form-control select2" value="" required>
+                        <select id="id_mes" name="id_mes" class="form-control select2" value="" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
                             {
@@ -60,11 +58,11 @@
                     </div>
                     <div class="col-sm-3">
                         <label class="text-secondary_asalud">Fecha de reporte</label>
-                        <input type="text" id="FechaReporte" name="FechaReporte" value="" class="form-control datepickerr" required />
+                        <input type="text" maxlength="199" id="FechaReporte" name="FechaReporte" value="" class="form-control datepickerr" required />
                     </div>
                     <div class="col-sm-3">
                         <label class="text-secondary_asalud">Fecha de ocurrencia del evento</label>
-                        <input type="text" id="FechaOcurrenciaEvento" name="FechaOcurrenciaEvento" value="" class="form-control datepickerr" required />
+                        <input type="text" maxlength="199" id="FechaOcurrenciaEvento" name="FechaOcurrenciaEvento" value="" class="form-control datepickerr" required />
                     </div>
                 </div>
                 <br />
@@ -235,18 +233,22 @@
                 </div>
                 <br />
                 <div class="row">
-                    <div class="col-sm-3" id="divNegativo">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Resultado negativo de la medicación</label>
                         <select id="ResultadoNegativoMedicacion" name="ResultadoNegativoMedicacion" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_resultadoNegativo item in ViewBag.negativo)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
                         </select>
                     </div>
                     <div class="col-sm-3">
                         <label class="text-secondary_asalud">Confirmación del evento adverso</label>
                         <select id="ConfirmacionEventoAdverso" name="ConfirmacionEventoAdverso" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
-                            <option value="1">Prevenible</option>
-                            <option value="0">No prevenible</option>
+                            <option value="SI">Prevenible</option>
+                            <option value="NO">No prevenible</option>
                         </select>
                     </div>
                     <div class="col-sm-3">
@@ -274,7 +276,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <label class="text-secondary_asalud">Descripción del evento</label>
-                        <textarea type="text" maxlength="1000" id="DescripcionEvento" name="DescripcionEvento" rows="5" value="" class="form-control" required></textarea>
+                        <textarea type="text" maxlength="1000" id="DescripcionEvento" name="DescripcionEvento" value="" class="form-control" required></textarea>
                     </div>
                 </div>
             </div>
@@ -302,8 +304,8 @@
                         <label class="text-secondary_asalud">¿Se generó Plan de Mejora al Prestador? (Sí / No)</label>
                         <select id="PlanMejoraGenerado" name="PlanMejoraGenerado" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
-                            <option value="1">SI</option>
-                            <option value="0">NO</option>
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
                         </select>
                     </div>
                     <div class="col-sm-3">
@@ -334,16 +336,13 @@
                     <div class="col-sm-12 text-center">
                         <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">GUARDAR</button>
                     </div>
-
-                    <div class="col-md-2">
-                        <a class="btn btn-sm button_Asalud_Guardar botonGuardarParcial" onclick="GuardarParcial();">GUARDADO PARCIAL</a>
-                    </div>
                 </div>
             </div>
         </div>
 
     </form>
 </div>
+
 
 <script src="~/Scripts/validate.js"></script>
 @*<script src="https://cdn.jsdelivr.net/npm/compromise-plus@5.2.1"></script>*@
@@ -374,7 +373,7 @@
 
         var idEvento = "@ViewBag.idEvento";
 
-        if (idEvento != 0 && idEvento != null && idEvento != NaN && idEvento != "null")
+        if (idEvento != 0 && idEvento != null && idEvento != NaN)
         {
             CargarDatos();
         }
@@ -383,83 +382,12 @@
         if (anio != null && anio != "") {
             ValidarMeses(anio);
         }
+
     });
 
     function CargarDatos() {
-        $("#id_evento").val("@Model.id_evento");
-        $("#id_cargue").val("@Model.id_cargue");
-        $("#id_concurrencia").val("@Model.id_concurrencia");
-        $("#id_evolucion_concurrencia").val("@Model.id_evolucion_concurrencia");
-        $("#id_planMejora").val("@Model.id_planMejora");
-        $("#Año").val("@Model.Año");
-        $("#IdMes").val(@Model.IdMes).trigger("change");;
-        $("#Mes").val("@Model.Mes");
 
-        debugger
-
-        var fechaReporte = "@Model.FechaReporte";
-        var FechaOcurrenciaEvento = "@Model.FechaOcurrenciaEvento";
-
-        if (fechaReporte != "" && fechaReporte != null && fechaReporte != "null") {
-            $("#FechaReporte").val(fechaReporte.replace("12:00:00 a. m.", ""));
-        }
-
-        if (FechaOcurrenciaEvento != "" && FechaOcurrenciaEvento != null && FechaOcurrenciaEvento != "null") {
-            $("#FechaOcurrenciaEvento").val(FechaOcurrenciaEvento.replace("12:00:00 a. m.", ""));
-        }
-
-        $("#RegionalReporta").val(@Model.RegionalReporta).trigger("change");
-        $("#LocalidadServiciosSalud").val(@Model.LocalidadServiciosSalud).trigger("change");
-        $("#NombreReportante").val("@Model.NombreReportante");
-        $("#IdentificacionReportante").val("@Model.IdentificacionReportante");
-        $("#NombrePrestadorEvento").val("@Model.NombrePrestadorEvento");
-        $("#CodigoSAPPrestador").val("@Model.CodigoSAPPrestador");
-        $("#NombreMunicipio").val("@Model.NombreMunicipio");
-        $("#CodigoMunicipal").val("@Model.CodigoMunicipal");
-        $("#RegionalBeneficiario").val(@Model.RegionalBeneficiario).trigger("change");
-        $("#TipoIdentificacion").val("@Model.TipoIdentificacion").trigger("change");
-        $("#NumeroIdentificacion").val("@Model.NumeroIdentificacion");
-        $("#NombreCompleto").val("@Model.NombreCompleto");
-        $("#Edad").val("@Model.Edad");
-        $("#FuenteReporte").val("@Model.FuenteReporte").trigger("change");
-        $("#AmbitoOcurrenciaEvento").val("@Model.AmbitoOcurrenciaEvento").trigger("change");
-        $("#DescripcionEvento").val("@Model.DescripcionEvento");
-        $("#ClasificacionEvento").val("@Model.ClasificacionEvento").trigger("change");
-        $("#CategoriaEvento").val("@Model.CategoriaEvento").trigger("change");
-        $("#SubcategoriaEvento").val("@Model.SubcategoriaEvento").trigger("change");
-        $("#ResultadoNegativoMedicacion").val("@Model.ResultadoNegativoMedicacion");
-        $("#ConfirmacionEventoAdverso").val("@Model.ConfirmacionEventoAdverso").trigger("change");
-        $("#SeveridadDesenlace").val("@Model.SeveridadDesenlace").trigger("change");
-        $("#ProbabilidadRepeticion").val("@Model.ProbabilidadRepeticion").trigger("change");
-        $("#ConceptoAuditoria").val("@Model.ConceptoAuditoria").trigger("change");
-        $("#GestionRegional").val("@Model.GestionRegional");
-        $("#PlanMejoraGenerado").val("@Model.PlanMejoraGenerado").trigger("change");
-        $("#CostoNoCalidad").val("@Model.CostoNoCalidad");
-        $("#DescripcionCostoNoCalidad").val("@Model.DescripcionCostoNoCalidad");
     }
-
-    function formatFecha(fechaStr) {
-        if (!fechaStr) return "";
-
-        // Intenta crear un objeto Date a partir de la cadena
-        let fecha = new Date(fechaStr);
-
-        if (isNaN(fecha)) {
-            // Si falla, intenta reemplazar caracteres raros como "a. m." o "p. m."
-            fechaStr = fechaStr.replace(" a. m.", "AM").replace(" p. m.", "PM");
-            fecha = new Date(fechaStr);
-        }
-
-        if (isNaN(fecha)) return ""; // Si sigue fallando, devuelve vacío
-
-        // Formatea a dd/MM/yyyy
-        let dia = String(fecha.getDate()).padStart(2, '0');
-        let mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
-        let anio = fecha.getFullYear();
-
-        return `${dia}/${mes}/${anio}`;
-    }
-
 
     $("#ClasificacionEvento").change(function () {
         // Mostrar todas las opciones en caso de cualquier cambio
@@ -479,8 +407,14 @@
         }
     });
 
-    function cambiosNegativo(clasificacion) {
 
+    function cambiosNegativo(clasificacion) {
+        //if (clasificacion == 1) {
+        //    $("#ConfirmacionEventoAdverso option[value='1']").hide();
+        //} else if (clasificacion == 3) {
+        //    $("#ConfirmacionEventoAdverso option[value='2']").hide();
+        //    $("#ConfirmacionEventoAdverso option[value='3']").hide();
+        //}
         var categoria = $("#CategoriaEvento").val();
         if (categoria != null && categoria != "") {
 
@@ -489,10 +423,7 @@
     }
 
     function buscarNegativos(categoria, clasificacion) {
-
-        debugger
-
-        $("#ResultadoNegativoMedicacion").empty();
+        $("#resultado_negativo_de_la_medicacion").empty();
         $.ajax({
             url: "@Url.Action("ObtenerNegativos")",
             type: "post",
@@ -501,14 +432,13 @@
                 clasificacion: clasificacion
             },
             success: function (data) {
-                $("#ResultadoNegativoMedicacion").empty();
-                $("#ResultadoNegativoMedicacion").html(data);
-                $("#ResultadoNegativoMedicacion").val("").trigger("change");
-
+                $("#resultado_negativo_de_la_medicacion").empty();
+                $("#resultado_negativo_de_la_medicacion").html(data);
+                $("#resultado_negativo_de_la_medicacion").val("").trigger("change");
                 var id_evento = $("#id_evento").val();
                 if (!isNaN(id_evento) && id_evento != 0) {
                     if ("@Model.ResultadoNegativoMedicacion" != null) {
-                        $("#ResultadoNegativoMedicacion").val("@Model.ResultadoNegativoMedicacion").trigger("change");
+                        $("#resultado_negativo_de_la_medicacion").val("@Model.ResultadoNegativoMedicacion").trigger("change");
                     }
                 }
             }
@@ -529,22 +459,22 @@
     function ObtenerSubCategoria(categoria) {
 
         if (categoria != "") {
-
-            $("#SubcategoriaEvento").empty();
-
+            $("#subCategoriaEvento").empty();
             $.ajax({
                 url: "@Url.Action("ObtenerSubCategoria")",
                 type: "post",
                 data: { categoria: categoria },
                 success: function (data) {
-                    $("#SubcategoriaEvento").empty();
-                    $("#SubcategoriaEvento").html(data);
-                    $("#SubcategoriaEvento").val("").trigger("change");
+                    $("#subCategoriaEvento").empty();
+                    $("#subCategoriaEvento").html(data);
 
+                    console.log(data);
+
+                    //$("#subCategoriaEvento").val("").trigger("change");
                     var id_evento = $("#id_evento").val();
                     if (!isNaN(id_evento) && id_evento != 0) {
                         if ("@Model.SubcategoriaEvento" != null) {
-                            $("#SubcategoriaEvento").val("@Model.SubcategoriaEvento").trigger("change");
+                            $("#subCategoriaEvento").val("@Model.SubcategoriaEvento").trigger("change");
                         }
                     }
                 }
@@ -557,9 +487,19 @@
         }
     }
 
-    function ValidarMeses(anioSeleccionado) {
+    function MostrarFechasRadicacion(valor) {
+        if (valor == "SI") {
+            $("#fecha_radicacion_del_plan_de_mejora").prop("required", true);
+            $("#fecha_programada_para_revision_de_plan_de_mejora").prop("required", true);
+        } else {
+            $("#fecha_radicacion_del_plan_de_mejora").prop("required", false);
+            $("#fecha_programada_para_revision_de_plan_de_mejora").prop("required", false);
+        }
+    }
 
-        var mesSelect = document.getElementById("IdMes");
+    function ValidarMeses(anioSeleccionado) {
+        debugger
+        var mesSelect = document.getElementById("id_mes");
         var añoActual = new Date().getFullYear();
 
         // Limpiar selección actual
@@ -582,7 +522,7 @@
             var id = mes.id;
             option.value = id;
             option.text = mes.descripcion;
-            document.getElementById("IdMes").add(option);
+            document.getElementById("id_mes").add(option);
         });
     }
 
@@ -597,6 +537,7 @@
             $("#formEventos").submit();
         }
     }
+
 
     function seleccionarLocalidad(regional) {
 
@@ -619,38 +560,7 @@
             }
         })
     }
-
-    function GuardarParcial() {
-        // Tomamos los datos del formulario
-        var formData = $("#formEventos").serializeArray();
-        var data = {};
-
-        // Convertimos a objeto JSON
-        $.map(formData, function (n, i) {
-            data[n['name']] = n['value'];
-        });
-
-        LoadingShow();
-
-        $.ajax({
-            url: "@Url.Action("CargueEventosParcial", "EventosSalud")",
-            type: 'POST',
-            data: JSON.stringify({ Model: data }), // Ojo: debe ir como { Model: data }
-            contentType: 'application/json; charset=utf-8',
-            success: function (response) {
-
-                LoadingHide();
-                $("#id_evento").val(response.idEvento);
-                $("#id_planMejora").val(response.idPlan);
-
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-                alert("Hubo un error al enviar el evento");
-            }
-        });
-    }
-
+    
 </script>
 
 <style>
@@ -803,20 +713,6 @@
 
     .datepickerr {
         width: 100%;
-    }
-
-    .botonGuardarParcial {
-        position: fixed; /* Hace que el botón esté en una posición fija */
-        bottom: 370px; /* Distancia desde la parte inferior de la ventana */
-        right: 20px; /* Distancia desde la parte derecha de la ventana */
-        z-index: 1000; /* Asegura que esté por encima de otros elementos */
-        background-color: #6E7584; /* Color de fondo del botón */
-        color: white; /* Color del texto */
-        padding: 4px 8px; /* Espaciado interno */
-        border-radius: 3px; /* Bordes redondeados */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
-        text-align: center;
-        cursor: pointer;
     }
 </style>
 

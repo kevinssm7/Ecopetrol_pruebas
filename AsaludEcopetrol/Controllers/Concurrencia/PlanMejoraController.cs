@@ -2381,7 +2381,7 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
 
                 ruta = Path.Combine(Request.PhysicalApplicationPath, strRutaDefinitiva + "\\" + carpeta + "\\IdPlan_" + idPlan + "\\idHallazgo_" + idHallazgo);
 
-                var nombre = Path.GetFileNameWithoutExtension(fileACR.FileName.Replace(".pdf", ""));
+                var nombre = Path.GetFileNameWithoutExtension(fileACR.FileName);
 
                 archivo = String.Format("{0}\\{1:yyyyMMdd_hhmmssfff}_{2}{3}", ruta,
                 fecha, nombre, Path.GetExtension(fileACR.FileName));

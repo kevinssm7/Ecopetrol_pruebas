@@ -1,7 +1,4 @@
-﻿
-
-
-using ECOPETROL_COMMON.ENUM;
+﻿using ECOPETROL_COMMON.ENUM;
 using ECOPETROL_COMMON.UTILOBJECTS;
 using ECOPETROL_COMMON.ENTIDADES;
 using ANALITICA_COMMON.ENTIDADES;
@@ -402,6 +399,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
             Session["ListadoEvaluacion"] = reporte;
             Session["ListadoErrores"] = new List<ManagmentErroresRipsEvaluacionResult>();
+
             ViewBag.Reporte = reporte.ToList();
 
             ViewBag.TCantidad = reporte.Select(l => l.cantidad).Sum();
@@ -2213,7 +2211,11 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 List<RIPS_AN_HISTORICO> listan = BusClass.GetRipsAnHistoricoById(item.id_rips, 2);
                 List<RIPS_AH_HISTORICO> listah = BusClass.GetRipsAhHistoricoById(item.id_rips, 2);
                 List<RIPS_AU_HISTORICO> listau = BusClass.GetRipsAuHistoricoById(item.id_rips, 2);
+
+
                 List<Logerroresevaluacionrips> reportelog = Model.GetLogEvaluacionRips(item.id_rips);
+
+
 
                 Ref_regional regionals = BusClass.GetRefRegion().Where(l => l.id_ref_regional == item.id_regional).FirstOrDefault();
 
@@ -2871,6 +2873,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
             Models.CuentasMedicas.Rips Model = new Models.CuentasMedicas.Rips();
             List<RIPS> rips = Model.GetListaRipsPorMesYAño(mes, año, regional);
             Ref_regional regionals = BusClass.GetRefRegion().Where(l => l.id_ref_regional == regional.Value).FirstOrDefault();
+
             if (rips.Count == 0)
             {
                 string rta = "<script LANGUAGE='JavaScript'>" +

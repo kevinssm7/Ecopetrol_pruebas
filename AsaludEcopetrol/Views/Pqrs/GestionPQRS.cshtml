@@ -349,7 +349,7 @@
 
                     <div class="row">
                         <div class="col-sm-4">
-                            <label class="text-secondary_asalud">Regional:</label><span style="color:red"></span>
+                            <h5><label class="text-secondary_asalud">Regional:</label><span style="color:red"></span></h5>
                             @(Html.Kendo().DropDownListFor(m => m.regional)
                                           .Name("regional")
                                           .HtmlAttributes(new { style = "width:100%" })
@@ -467,7 +467,7 @@
                             @if (ViewBag.idRol == "1" || ViewBag.idRol == "10")
                             {
                                 <h5><span class="text-secondary_asalud">Solucionador:</span></h5>
-                                <select class="form-control select2" id="solucionador" name="solucionador" required>
+                                <select class="form-control select2" id="solucionador" name="solucionador" >
                                     <option value="">- Seleccionar -</option>
                                 </select>
                                 <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />
@@ -475,13 +475,52 @@
                             else
                             {
                                 <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.solucionador)</span></h5>
-                                @Html.TextBoxFor(p => p.solucionador, new { @class = "form-control", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(u => u.solucionador, null, new { @class = "label label-danger" })
-                            }
+                                @Html.TextBoxFor(p => p.solucionador, new { @class = "form-control",@readonly = "readonly"})
+                                @Html.ValidationMessageFor(u => u.solucionador, null, new { @class = "label label-danger"})
+                           }
 
                             <input type="hidden" id="solucionadorLleno" name="solucionadorLleno" />
 
                         </div>
+                    </div>
+
+                    <div class="row">
+                  
+                        <div class="col-sm-6" id="divPrestador">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
+                            <input name="prestador" id="prestador" style="width: 100%; max-width:100%; max-height:60%;" />
+
+                        </div>
+
+
+
+                        <div class="col-sm-6" id="divSubtematica">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.id_pqrs_subtematica)</span></h5>
+                            @*@Html.DropDownListFor(model => model.id_pqrs_subtematica, new SelectList(Model.PqrSubtematica, "id_pqrs_subtematica", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "mostrar1()" })*@
+
+                            @(Html.Kendo().DropDownListFor(m => m.id_pqrs_subtematica)
+                          .Name("id_pqrs_subtematica")
+                          .HtmlAttributes(new { style = "width:100%"})
+
+                          .DataTextField("descripcion")
+                          .DataValueField("id_pqrs_subtematica")
+                          .Filter(FilterType.Contains)
+                          .Events(events => events.Select("CustomerSelect1"))
+                           .DataSource(source =>
+                           {
+                               source.Read(read =>
+                               {
+                                   read.Action("GetCascadeSubtematica", "Pqrs");
+                               });
+                           })
+                           
+                            )
+                            @Html.HiddenFor(m => m.id_pqrs_subtematica) 
+                        </div>
+
+
+
+
                     </div>
                     <br />
 
@@ -551,7 +590,7 @@
 
                         <div class="col-sm-5" id="divAuditor" style="display:none">
                             <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.auditor)</span></h5>
-                            <input name="auditor" id="auditor" style="width: 100%; max-width:100%; max-height:60%;" required />
+                            <input name="auditor" id="auditor" style="width: 100%; max-width:100%; max-height:60%;"  />
                             @Html.ValidationMessageFor(u => u.auditor, null, new { @class = "label label-danger" })
                         </div>
 
@@ -606,34 +645,10 @@
                                 @Html.ValidationMessageFor(u => u.estado_gestion, null, new { @class = "label label-danger" })*@
                         </div>
 
-                        <div class="col-sm-6" id="divPrestador">
-                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
-                            <input name="prestador" id="prestador" style="width: 100%; max-width:100%; max-height:60%;" required />
-                            @Html.ValidationMessageFor(u => u.prestador, null, new { @class = "label label-danger" })
 
-
-
-                            @*<h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
-                                  @(Html.Kendo().DropDownListFor(m => m.prestador)
-                                .Name("prestador")
-                                .HtmlAttributes(new { style = "width:90%" })
-
-                                .DataTextField("Nombre")
-                                .DataValueField("id_ref_ips_cuentas")
-                                .Filter(FilterType.Contains)
-                                .Events(events => events.Select("CustomerSelect2"))
-                                 .DataSource(source =>
-                                 {
-                                     source.Read(read =>
-                                     {
-                                         read.Action("GetCascadeIPS", "Pqrs");
-                                     });
-                                 })
-                                  )
-
-                                  @Html.ValidationMessageFor(u => u.prestador, null, new { @class = "label label-danger" })*@
-
-
+                        <div class="col-sm-6" id="divEmpresa">
+                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.empresa)</span></h5>
+                            <input name="empresa" id="empresa" style="width: 100%; max-width:100%; max-height:60%;" />
                         </div>
 
 
@@ -647,42 +662,13 @@
                             </div>
                         </div>*@
 
-                    <div class="row form-group">
+                <div class="row form-group">
 
-                        <div class="col-sm-6 form-group" id="DivOtroPrestador" style="display:none;">
-                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.prestador)</span></h5>
-                            @*<input type="text" id="otro_prestador" name="otro_prestador" class="form-control" maxlength="100" value="" required />*@
-                            @Html.TextBoxFor(p => p.otro_prestador, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(u => u.otro_prestador, null, new { @class = "label label-danger" })
-                        </div>
 
-                        <div class="col-sm-6 form-group" id="divSubtematica">
-                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.id_pqrs_subtematica)</span></h5>
-                            @*@Html.DropDownListFor(model => model.id_pqrs_subtematica, new SelectList(Model.PqrSubtematica, "id_pqrs_subtematica", "descripcion"), "Seleccione...", new { @class = "form-control", @onchange = "mostrar1()" })*@
 
-                            @(Html.Kendo().DropDownListFor(m => m.id_pqrs_subtematica)
-                          .Name("id_pqrs_subtematica")
-                          .HtmlAttributes(new { style = "width:90%", required = "required" })
-
-                          .DataTextField("descripcion")
-                          .DataValueField("id_pqrs_subtematica")
-                          .Filter(FilterType.Contains)
-                          .Events(events => events.Select("CustomerSelect1"))
-                           .DataSource(source =>
-                           {
-                               source.Read(read =>
-                               {
-                                   read.Action("GetCascadeSubtematica", "Pqrs");
-                               });
-                           })
-                            )
-
-                            @Html.ValidationMessageFor(u => u.id_pqrs_subtematica, null, new { @class = "label label-danger", required = "required" })
-                        </div>
-
-                        <div class="col-sm-6 form-group">
-                            <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_gestion)</span></h5>
-                            @(Html.Kendo().DateTimePickerFor(p => p.fecha_gestion)
+                    <div class="col-sm-6 form-group">
+                        <h5><span class="control-label text-secondary_asalud">@Html.LabelFor(p => p.fecha_gestion)</span></h5>
+                        @(Html.Kendo().DateTimePickerFor(p => p.fecha_gestion)
                          .Name("datepicker4")
                         .Format("dd/MM/yyyy")
                         .Events(e =>
@@ -693,9 +679,15 @@
 
 
                             )
-                            @Html.ValidationMessageFor(u => u.fecha_gestion, null, new { @class = "label label-danger" })
-                        </div>
+                        @Html.ValidationMessageFor(u => u.fecha_gestion, null, new { @class = "label label-danger" })
+
+
+
                     </div>
+
+                
+
+                </div>
 
                     <div class="row form-group" id="divEvento">
                         <div class="col-sm-3 form-group">
@@ -794,9 +786,10 @@
                         </div>
                     </div>
 
+
                     <div id="pnlPlanMejora" style='display:none;' class="row form-group">
                         <div class="col-md-2">
-                            <label class="text-secondary_asalud">¿Tiene plan de mejora?</label>
+                            <h5><span class="text-secondary_asalud">¿Tiene plan de mejora?</span></h5>
                             @Html.RadioButtonFor(model => model.plan_mejora, 1, new { @onclick = "mostrarPlanMejora()" })@Html.Label("SI")
                             @Html.ValidationMessageFor(u => u.plan_mejora, null, new { @class = "label label-danger" })
                             &nbsp;
@@ -805,7 +798,7 @@
                         </div>
 
                         <div class="col-md-10" id="divAreaPM" style="display:none;">
-                            <label class="text-secondary_asalud">Observación plan de mejora</label>
+                            <h5><span class="text-secondary_asalud">Observación plan de mejora</span></h5>
                             @Html.TextAreaFor(p => p.observacion_plan_mejora, new { @class = "form-control" })
                             @Html.ValidationMessageFor(u => u.observacion_plan_mejora, null, new { @class = "label label-danger", @maxlength = "2000" })
                         </div>
@@ -1000,7 +993,8 @@
                                     @Html.TextBoxFor(u => u.fecharecepcionprestador)
                                     @Html.TextBoxFor(u => u.fecharecepcionprestadorselect)
                                     @Html.TextBoxFor(u => u.seHaceLlamada)
-                                    
+                                    @Html.TextBoxFor(u => u.listaEmpresa)
+
 
                                 </td>
                             </tr>
@@ -1054,9 +1048,9 @@
 
         var otroPrestador = document.getElementById("prestador").value;
         if (otroPrestador == 10000) {
-            document.getElementById("DivOtroPrestador").style.display = "block";
+            document.getElementById("DivPrestador").style.display = "block";
         } else {
-            document.getElementById("DivOtroPrestador").style.display = "none";
+            document.getElementById("DivPrestador").style.display = "none";
         }
 
 
@@ -1320,7 +1314,6 @@
 
         $("#prestador").kendoDropDownTree({
             checkboxes: true,
-            change: changeQuienLlamo,
             placeholder: "Seleccionar...",
             filter: "startswith",
             dataSource: new kendo.data.HierarchicalDataSource({
@@ -1356,10 +1349,57 @@
             }
         });
 
+
         var regional = "@Model.regional";
         if (regional != "") {
             ObtenerSolucionador(regional);
         }
+
+
+
+        var prestadores1 = "@ViewBag.listEmpresa";
+        var listadoPrestadores1 = prestadores1 ? prestadores1.split(",") : [];
+
+        $("#empresa").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("TraeraPrestadores", "Pqrs")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value",
+                    }
+                }
+            }),
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+                var dropDownTree = $("#empresa").data("kendoDropDownTree");
+                var treeView = dropDownTree.treeview; // Accede al TreeView interno
+
+                // Itera sobre los elementos visibles y marca los que coinciden con el listadoPrestadores
+                if (listadoPrestadores1.length > 0) {
+                    treeView.dataSource.view().forEach(function (item) {
+                        if (listadoPrestadores1.includes(item.id.toString())) {
+                            treeView.findByUid(item.uid).find(".k-checkbox").prop("checked", true);
+                            item.set("checked", true);
+                        }
+                    });
+                }
+            }
+        });
+
+
+
+
     });
 
     function ObtenerSolucionador(a) {
@@ -1514,6 +1554,7 @@
             }
         }
 
+
         var requirioLlamado = $("#seHaceLlamada").val();
         if (requirioLlamado == 1 && mivalor != 4) {
 
@@ -1565,6 +1606,21 @@
         {
             $('input:text[id$=listaPrestador]').val(listaPrestador);
         }
+
+
+
+        var empresa = $("#empresa").data("kendoDropDownTree");
+        var listaEmpresa = empresa.value();
+
+        if (listaEmpresa.length == 0 && $("#estado_gestion").val() != 4) {
+            alert("Empresa,  contratista y/o subcontratista");
+            return false;
+        }
+        else {
+            $('input:text[id$=listaEmpresa]').val(listaEmpresa);
+        }
+
+
 
         var validator = $("#GestionPQRS").validate();
         if (validator.form()) {
@@ -1637,9 +1693,9 @@
         var DataItem = this.dataItem(e.item.index());
 
         if (DataItem.id_ref_ips_cuentas == 10000) {
-            document.getElementById("DivOtroPrestador").style.display = "block";
+            document.getElementById("DivPrestador").style.display = "block";
         } else {
-            document.getElementById("DivOtroPrestador").style.display = "none";
+            document.getElementById("DivPrestador").style.display = "none";
         }
 
         $("#prestador").val(DataItem.id_ref_ips_cuentas);
@@ -1690,6 +1746,20 @@
         document.getElementById("divAreaPM").style.display = "none";
     }
 
+    function CustomerSelect2(e) {
+        var DataItem = this.dataItem(e.item.index());
+
+        if (DataItem.id_ref_ips_cuentas == 10000) {
+            document.getElementById("DivPrestador").style.display = "block";
+        } else {
+            document.getElementById("DivPrestador").style.display = "none";
+        }
+
+        $("#empresa").val(DataItem.id_ref_ips_cuentas);
+    }
+
+
+
     function mostrar1() {
 
         var mivalor = $("#estado_gestion").val()
@@ -1708,6 +1778,7 @@
 
             document.getElementById('divVobo').style.display = 'block';
             document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divEmpresa').style.display = 'block';
             document.getElementById('divSubtematica').style.display = 'block';
             document.getElementById('divEvento').style.display = 'block';
             document.getElementById('pnlPlanMejora').style.display = 'block';
@@ -1727,8 +1798,9 @@
             document.getElementById('pnlProceso').style.display = 'none';
 
             document.getElementById('divVobo').style.display = 'none';
-            document.getElementById('divPrestador').style.display = 'none';
-            document.getElementById('divSubtematica').style.display = 'none';
+            document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divEmpresa').style.display = 'none';
+            document.getElementById('divSubtematica').style.display = 'block';
             document.getElementById('divEvento').style.display = 'none';
             document.getElementById('pnlPlanMejora').style.display = 'none';
 
@@ -1743,6 +1815,7 @@
 
             document.getElementById('divVobo').style.display = 'block';
             document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divEmpresa').style.display = 'block';
             document.getElementById('divSubtematica').style.display = 'block';
             document.getElementById('divEvento').style.display = 'block';
             document.getElementById('pnlPlanMejora').style.display = 'none';
@@ -1783,6 +1856,7 @@
 
             document.getElementById('divVobo').style.display = 'block';
             document.getElementById('divPrestador').style.display = 'block';
+            document.getElementById('divEmpresa').style.display = 'block';
             document.getElementById('divSubtematica').style.display = 'block';
             document.getElementById('divEvento').style.display = 'block';
             document.getElementById('pnlPlanMejora').style.display = 'none';

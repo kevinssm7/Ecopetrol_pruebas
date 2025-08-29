@@ -4030,6 +4030,8 @@ namespace DATA_ACCESS
                             obj2.porcentaje_oportunidad = Math.Ceiling(porcentaje_oportunidad);
                         }
 
+
+
                         obj2.Errores_dx = (int.Parse(row.ItemArray[9].ToString()) + int.Parse(row.ItemArray[11].ToString()) + int.Parse(row.ItemArray[10].ToString()) + int.Parse(row.ItemArray[12].ToString()));
 
                         obj2.Errores_pc = int.Parse(row.ItemArray[13].ToString());
@@ -5663,6 +5665,29 @@ namespace DATA_ACCESS
             return listado;
 
         }
+
+
+
+
+            public List<ecop_pqrs_empresaContratista> ListadoEmpresasIdPqrs(int? idPqrs)
+        {
+            List<ecop_pqrs_empresaContratista> listado = new List<ecop_pqrs_empresaContratista>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.ecop_pqrs_empresaContratista.Where(x => x.id_pqrs == idPqrs).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return listado;
+
+        }
+
+
         public log_pqrs_reinicioConteo_asignacionAnalistas BuscarReinicioConteoPqrs(int? mes, int? año)
         {
             log_pqrs_reinicioConteo_asignacionAnalistas dato = new log_pqrs_reinicioConteo_asignacionAnalistas();
@@ -6415,6 +6440,25 @@ namespace DATA_ACCESS
                 var erorr = ex.Message;
             }
             return dato;
+        }
+
+
+        public List<ecop_pqrs_prestadores> ListadoPrestadoresPqrs()
+        {
+            List<ecop_pqrs_prestadores> listado = new List<ecop_pqrs_prestadores>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    listado = db.ecop_pqrs_prestadores.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return listado;
+
         }
 
 
@@ -19580,14 +19624,14 @@ namespace DATA_ACCESS
             return lista;
         }
 
-        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero()
+        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero(int? mes, int? año)
         {
             List<management_eventosSalud_tableroResult> lista = new List<management_eventosSalud_tableroResult>();
             try
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    lista = db.management_eventosSalud_tablero().ToList();
+                    lista = db.management_eventosSalud_tablero(mes, año).ToList();
                 }
             }
             catch (Exception ex)
@@ -22545,6 +22589,8 @@ namespace DATA_ACCESS
         #endregion RECOMENDACIONES AUDITORIA
 
 
+
+
         #region RIPS FIS 
 
         public List<Management_FisRips_Correctos_ACResult> FisRipsCorrectos_AC(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
@@ -22556,7 +22602,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AC(regional, mes, año).ToList();
                 }
             }
@@ -22569,6 +22614,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<Management_FisRips_Correctos_AFResult> FisRipsCorrectos_AF(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_AFResult> datos = new List<Management_FisRips_Correctos_AFResult>();
@@ -22577,7 +22624,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AF(regional, mes, año).ToList();
                 }
             }
@@ -22590,6 +22636,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_AHResult> FisRipsCorrectos_AH(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_AHResult> datos = new List<Management_FisRips_Correctos_AHResult>();
@@ -22598,7 +22645,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AH(regional, mes, año).ToList();
                 }
             }
@@ -22611,6 +22657,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_AMResult> FisRipsCorrectos_AM(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_AMResult> datos = new List<Management_FisRips_Correctos_AMResult>();
@@ -22619,7 +22666,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AM(regional, mes, año).ToList();
                 }
             }
@@ -22632,6 +22678,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_ANResult> FisRipsCorrectos_AN(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_ANResult> datos = new List<Management_FisRips_Correctos_ANResult>();
@@ -22640,7 +22687,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AN(regional, mes, año).ToList();
                 }
             }
@@ -22653,6 +22699,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_APResult> FisRipsCorrectos_AP(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_APResult> datos = new List<Management_FisRips_Correctos_APResult>();
@@ -22661,7 +22708,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AP(regional, mes, año).ToList();
                 }
             }
@@ -22674,6 +22720,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_ATResult> FisRipsCorrectos_AT(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_ATResult> datos = new List<Management_FisRips_Correctos_ATResult>();
@@ -22682,7 +22729,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AT(regional, mes, año).ToList();
                 }
             }
@@ -22694,7 +22740,7 @@ namespace DATA_ACCESS
 
             return datos;
         }
-      
+
         public List<Management_FisRips_Correctos_AUResult> FisRipsCorrectos_AU(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_AUResult> datos = new List<Management_FisRips_Correctos_AUResult>();
@@ -22703,7 +22749,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_AU(regional, mes, año).ToList();
                 }
             }
@@ -22716,6 +22761,7 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<Management_FisRips_Correctos_USResult> FisRipsCorrectos_US(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
         {
             List<Management_FisRips_Correctos_USResult> datos = new List<Management_FisRips_Correctos_USResult>();
@@ -22724,7 +22770,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Correctos_US(regional, mes, año).ToList();
                 }
             }
@@ -22737,8 +22782,11 @@ namespace DATA_ACCESS
             return datos;
         }
 
+
         public List<ECOPETROL_COMMON.ENUM.reporterips> ConsultaRipsFisEvaluacion(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
+
+
             var lstResult = new List<ECOPETROL_COMMON.ENUM.reporterips>();
 
             try
@@ -22746,9 +22794,6 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     // Ajustar según lo que retorne realmente el SP: DataTable o IEnumerable
-                    
-                    db.CommandTimeout = 3600;
-
                     var dt = db.management_Reporte_FisRips_Evaluacion(regional, mes, año).ToList();
 
                     foreach (var row in dt) // Aquí dependerá del tipo real
@@ -22872,6 +22917,8 @@ namespace DATA_ACCESS
             return lstResult;
         }
 
+
+
         public List<Management_FisRips_Incorrectos_ACResult> FisRipsErrores_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_ACResult> datos = new List<Management_FisRips_Incorrectos_ACResult>();
@@ -22880,8 +22927,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AC(regional, mes, año).ToList();
                 }
             }
@@ -22895,6 +22940,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<Management_FisRips_Incorrectos_AHResult> FisRipsErrores_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_AHResult> datos = new List<Management_FisRips_Incorrectos_AHResult>();
@@ -22903,7 +22950,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AH(regional, mes, año).ToList();
                 }
             }
@@ -22917,6 +22963,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_Incorrectos_AMResult> FisRipsErrores_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_AMResult> datos = new List<Management_FisRips_Incorrectos_AMResult>();
@@ -22925,7 +22972,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AM(regional, mes, año).ToList();
                 }
             }
@@ -22939,6 +22985,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<Management_FisRips_Incorrectos_ANResult> FisRipsErrores_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_ANResult> datos = new List<Management_FisRips_Incorrectos_ANResult>();
@@ -22947,7 +22995,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AN(regional, mes, año).ToList();
                 }
             }
@@ -22961,6 +23008,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<Management_FisRips_Incorrectos_APResult> FisRipsErrores_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_APResult> datos = new List<Management_FisRips_Incorrectos_APResult>();
@@ -22969,7 +23018,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AP(regional, mes, año).ToList();
                 }
             }
@@ -22983,6 +23031,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_Incorrectos_ATResult> FisRipsErrores_AT(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_ATResult> datos = new List<Management_FisRips_Incorrectos_ATResult>();
@@ -22991,7 +23040,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AT(regional, mes, año).ToList();
                 }
             }
@@ -23005,6 +23053,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_Incorrectos_AUResult> FisRipsErrores_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_AUResult> datos = new List<Management_FisRips_Incorrectos_AUResult>();
@@ -23013,7 +23062,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_AU(regional, mes, año).ToList();
                 }
             }
@@ -23027,6 +23075,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_Incorrectos_USResult> FisRipsErrores_US(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_Incorrectos_USResult> datos = new List<Management_FisRips_Incorrectos_USResult>();
@@ -23035,7 +23084,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_Incorrectos_US(regional, mes, año).ToList();
                 }
             }
@@ -23049,6 +23097,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_SinOportunidad_ACResult> FisRipsInoportuno_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_ACResult> datos = new List<Management_FisRips_SinOportunidad_ACResult>();
@@ -23057,7 +23106,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AC(regional, mes, año).ToList();
                 }
             }
@@ -23071,6 +23119,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<Management_FisRips_SinOportunidad_AHResult> FisRipsInoportuno_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_AHResult> datos = new List<Management_FisRips_SinOportunidad_AHResult>();
@@ -23079,7 +23129,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AH(regional, mes, año).ToList();
                 }
             }
@@ -23093,6 +23142,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_SinOportunidad_APResult> FisRipsInoportuno_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_APResult> datos = new List<Management_FisRips_SinOportunidad_APResult>();
@@ -23101,7 +23151,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AP(regional, mes, año).ToList();
                 }
             }
@@ -23115,6 +23164,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_SinOportunidad_ANResult> FisRipsInoportuno_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_ANResult> datos = new List<Management_FisRips_SinOportunidad_ANResult>();
@@ -23123,7 +23173,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AN(regional, mes, año).ToList();
                 }
             }
@@ -23137,6 +23186,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_SinOportunidad_AUResult> FisRipsInoportuno_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_AUResult> datos = new List<Management_FisRips_SinOportunidad_AUResult>();
@@ -23145,7 +23195,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AU(regional, mes, año).ToList();
                 }
             }
@@ -23159,6 +23208,7 @@ namespace DATA_ACCESS
 
         }
 
+
         public List<Management_FisRips_SinOportunidad_AMResult> FisRipsInoportuno_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             List<Management_FisRips_SinOportunidad_AMResult> datos = new List<Management_FisRips_SinOportunidad_AMResult>();
@@ -23167,7 +23217,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    db.CommandTimeout = 3600;
                     datos = db.Management_FisRips_SinOportunidad_AM(regional, mes, año).ToList();
                 }
             }
@@ -23181,6 +23230,8 @@ namespace DATA_ACCESS
 
         }
 
+
+
         public List<ref_validaciones_Ripsfis> ListarValidacionesFis()
         {
             List<ref_validaciones_Ripsfis> lst = new List<ref_validaciones_Ripsfis>();
@@ -23192,8 +23243,8 @@ namespace DATA_ACCESS
                     lst = db.ref_validaciones_Ripsfis.ToList();
                 }
 
-            }
-            catch (Exception ex)
+
+            }catch(Exception ex)
             {
                 var error = ex.Message;
             }

@@ -449,6 +449,7 @@ namespace Facede
             return DACComonClass.GetRefPqrsSubtematica();
         }
 
+
         public List<Ref_PQRS_tipo_solicitud> GetRefPqrsSolicitud()
         {
             return DACComonClass.GetRefPqrsSolicitud();
@@ -2830,6 +2831,10 @@ namespace Facede
             return DACConsulta.ListadoPrestadoresIdPqrs(idPqrs);
         }
 
+        public List<ecop_pqrs_empresaContratista> ListadoEmpresasIdPqrs(int? idPqrs)
+        {
+            return DACConsulta.ListadoEmpresasIdPqrs(idPqrs);
+        }
 
         public log_pqrs_reinicioConteo_asignacionAnalistas BuscarReinicioConteoPqrs(int? mes, int? año)
 
@@ -3447,7 +3452,31 @@ namespace Facede
             return DACConsulta.GetAuditorNombrePqrs(nombre);
         }
 
+
+        public List<ecop_pqrs_prestadores> ListadoPrestadoresPqrs()
+        {
+            return DACConsulta.ListadoPrestadoresPqrs();
+        }
+
+
+
+        public List<Ref_PQRS_Subtematica> GetRefPqrsSubtematica1()
+        {
+            return DACComonClass.GetRefPqrsSubtematica1();
+        }
+
+
+        public int CargueMasivoEmpresa(List<ecop_pqrs_empresaContratista> detalle, ref MessageResponseOBJ MsgRes)
+        {
+            return DACInserta.CargueMasivoEmpresa(detalle, ref MsgRes);
+        }
+
+
         #endregion
+
+
+
+
 
         #region Gestion dOCUMENTAL
 
@@ -9569,10 +9598,11 @@ namespace Facede
             return DACConsulta.ListaEventosSaludClasificacion();
         }
 
-        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero()
+        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero(int? mes, int? año)
         {
-            return DACConsulta.ListadoEventosEnSaludTablero();
+            return DACConsulta.ListadoEventosEnSaludTablero(mes, año);
         }
+
 
         public eventos_salud_registros TraerDatosEventosSaludId(int? idEvento)
         {
@@ -9592,10 +9622,6 @@ namespace Facede
         public int ActualizarRegistroEventosSalud(eventos_salud_registros even)
         {
             return DACActualiza.ActualizarRegistroEventosSalud(even);
-        }
-        public int ActualizarRegistroEventosSaludPM(int? idEvento, int? idPlan)
-        {
-            return DACActualiza.ActualizarRegistroEventosSaludPM(idEvento, idPlan);
         }
 
         #endregion
@@ -9669,6 +9695,7 @@ namespace Facede
         {
             return DACInserta.InsertarEncuestaNoAplica(idConcurrencia, usuario, ref MsgRes);
         }
+
 
         #endregion ENCUESTA SAMI
 
@@ -11086,7 +11113,9 @@ namespace Facede
 
         #endregion RECOMENDACIONES AUDITORIA
 
-        #region RIPS FIS
+
+
+        #region RIPS FIS 
 
         public List<Management_FisRips_Correctos_ACResult> FisRipsCorrectos_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
@@ -11137,10 +11166,15 @@ namespace Facede
 
 
 
+
+
         public List<ECOPETROL_COMMON.ENUM.reporterips> ConsultaRipsFisEvaluacion(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             return DACConsulta.ConsultaRipsFisEvaluacion(regional, mes, año, ref MsgRes);
         }
+
+
+
 
 
 
@@ -11195,12 +11229,14 @@ namespace Facede
 
 
 
+      
 
 
         public List<Management_FisRips_SinOportunidad_ACResult> FisRipsInoportuno_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
         {
             return DACConsulta.FisRipsInoportuno_AC(regional, mes, año, ref MsgRes);
         }
+
 
 
         public List<Management_FisRips_SinOportunidad_AHResult> FisRipsInoportuno_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)

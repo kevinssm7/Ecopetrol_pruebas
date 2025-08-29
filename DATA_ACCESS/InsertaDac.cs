@@ -1324,25 +1324,97 @@ namespace DATA_ACCESS
             }
         }
 
+        //public int CargueMasivoPrestadores(List<ecop_pqrs_prestadores> detalle, ref MessageResponseOBJ MsgRes)
+        //{
+        //    try
+        //    {
+        //        using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+        //        {
+        //            DaccInsetfull.BulkInsertEntities(detalle);
+        //            MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
+        //            return 1;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var mensajerrror = ex.Message;
+        //        MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+        //        MsgRes.DescriptionResponse = ex.Message;
+        //        return 0;
+        //    }
+        //}
+
+
         public int CargueMasivoPrestadores(List<ecop_pqrs_prestadores> detalle, ref MessageResponseOBJ MsgRes)
         {
             try
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    DaccInsetfull.BulkInsertEntities(detalle);
+                    // Obtener pares (id_pqrs, id_prestador) que ya existen
+                    var existentes = db.ecop_pqrs_prestadores
+                                       .Where(x => detalle.Select(d => d.id_pqrs).Contains(x.id_pqrs))
+                                       .Select(x => new { x.id_pqrs, x.id_prestador })
+                                       .ToList();
+
+                    // Filtrar los que no estén ya en BD
+                    var nuevos = detalle
+                                 .Where(d => !existentes.Any(e => e.id_pqrs == d.id_pqrs && e.id_prestador == d.id_prestador))
+                                 .ToList();
+
+                    if (nuevos.Any())
+                    {
+                        DaccInsetfull.BulkInsertEntities(nuevos);
+                    }
+
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
                     return 1;
                 }
             }
             catch (Exception ex)
             {
-                var mensajerrror = ex.Message;
                 MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
                 MsgRes.DescriptionResponse = ex.Message;
                 return 0;
             }
         }
+
+
+
+        public int CargueMasivoEmpresa(List<ecop_pqrs_empresaContratista> detalle, ref MessageResponseOBJ MsgRes)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    // Obtener pares (id_pqrs, id_prestador) que ya existen
+                    var existentes = db.ecop_pqrs_empresaContratista
+                                       .Where(x => detalle.Select(d => d.id_pqrs).Contains(x.id_pqrs))
+                                       .Select(x => new { x.id_pqrs, x.id_prestador })
+                                       .ToList();
+
+                    // Filtrar los que no estén ya en BD
+                    var nuevos = detalle
+                                 .Where(d => !existentes.Any(e => e.id_pqrs == d.id_pqrs && e.id_prestador == d.id_prestador))
+                                 .ToList();
+
+                    if (nuevos.Any())
+                    {
+                        DaccInsetfull.BulkInsertEntities(nuevos);
+                    }
+
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                MsgRes.DescriptionResponse = ex.Message;
+                //return 0;
+            }
+        }
+
 
         public int insertarDatosCorreos(ecop_pqrs_envioCorreos obj)
         {
@@ -8260,6 +8332,7 @@ namespace DATA_ACCESS
         #endregion
 
         #region ENCUESTA SAMI
+
         public int InsertarRespuestaSAMI(encuesta_sami dato, List<encuesta_sami_respuestas> detalles, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -8304,6 +8377,8 @@ namespace DATA_ACCESS
             }
         }
 
+
+
         public int InsertarEncuestaNoAplica(int? idConcurrencia, string usuario, ref MessageResponseOBJ MsgRes)
         {
             using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
@@ -8331,13 +8406,13 @@ namespace DATA_ACCESS
                         justificacion = "No aplica",
                         fecha_digita = DateTime.Now,
                         usuario_digita = usuario
-                        // Asegúrate de que no falten campos obligatorios
+                        
                     };
 
-                    // 👇 Aquí insertas el objeto al contexto
+                    
                     db.ecop_concurrencia_encuesta.InsertOnSubmit(encuesta);
 
-                    // 👇 Esto guarda los cambios en la base de datos
+                    
                     db.SubmitChanges();
 
                     return 1;
@@ -8350,6 +8425,7 @@ namespace DATA_ACCESS
                 }
             }
         }
+
 
 
         #endregion ENCUESTA SAMI
@@ -9840,6 +9916,9 @@ namespace DATA_ACCESS
         }
 
         #endregion RECOMENDACIONES AUDITORIA
+
+
+       
     }
 }
 

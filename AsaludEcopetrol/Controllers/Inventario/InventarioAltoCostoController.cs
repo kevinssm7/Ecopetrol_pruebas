@@ -3157,6 +3157,8 @@ namespace AsaludEcopetrol.Controllers.Inventario
             return View();
         }
 
+
+
         //public ActionResult DescargarArchivosConsolidado(int? tipo)
         //{
         //    List<management_cuentasAltoCosto_documentosArchivosResult> lista = new List<management_cuentasAltoCosto_documentosArchivosResult>();

@@ -1235,6 +1235,27 @@ namespace DATA_ACCESS
             return lstResult;
         }
 
+
+        public List<Ref_PQRS_Subtematica> GetRefPqrsSubtematica1()
+        {
+            List<Ref_PQRS_Subtematica> lstResult = new List<Ref_PQRS_Subtematica>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lstResult = db.Ref_PQRS_Subtematica.Where(x => x.id_pqrs_subtematica > 0).ToList();
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
+                }
+            }
+            catch (Exception ex)
+            {
+                MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                MsgRes.DescriptionResponse = ex.Message;
+            }
+            return lstResult;
+        }
+
+
         public List<Ref_PQRS_tipo_solicitud> GetRefPqrsSolicitud()
         {
             List<Ref_PQRS_tipo_solicitud> lstResult = new List<Ref_PQRS_tipo_solicitud>();

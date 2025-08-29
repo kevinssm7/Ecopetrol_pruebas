@@ -101,19 +101,19 @@
 
                         <!--<div class="row">-->
                         @*<div class="col-sm-4">
-                                <h5><span class="text-secondary_asalud">Tipo categorización:</span></h5>
-                                <select id="tipo_categorizacion" name="tipo_categorizacion" class="form-control select2" required>
-                                    <option value="">--Seleccione--</option>
-                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_categorizacion item in ViewBag.tipoCategorizacion)
-                                    {
-                                        <option value="@item.id_ref_categorizacon">@item.descripcion</option>
-                                    }
-                                </select>
-                            </div>*@
+            <h5><span class="text-secondary_asalud">Tipo categorización:</span></h5>
+            <select id="tipo_categorizacion" name="tipo_categorizacion" class="form-control select2" required>
+                <option value="">--Seleccione--</option>
+                @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_categorizacion item in ViewBag.tipoCategorizacion)
+                {
+                    <option value="@item.id_ref_categorizacon">@item.descripcion</option>
+                }
+            </select>
+        </div>*@
                         @*<div class="col-sm-4">
-                                <h5><span class="text-secondary_asalud">Adjuntar archivo PQRs:</span></h5>
-                                <input type="file" class="form-control" id="file" name="file" runat="server" multiple />
-                            </div>*@
+            <h5><span class="text-secondary_asalud">Adjuntar archivo PQRs:</span></h5>
+            <input type="file" class="form-control" id="file" name="file" runat="server" multiple />
+        </div>*@
                         <!--</div>-->
                         <br />
 
@@ -260,6 +260,31 @@
                             </div>
                         </div>
                         <br />
+
+                        <div class="row">
+                           
+                            <div class="col-sm-6" id="divPrestador">
+                                <h5><span class="control-label text-secondary_asalud">Prestador:</span></h5>
+                                <input name="listaPrestador" id="listaPrestador" style="width: 100%; max-width:100%; max-height:60%;" required />
+                                    
+                            </div>
+                     
+
+                            <div class="col-sm-6">
+                                <h5><span class="text-secondary_asalud">Subtemática:</span></h5>
+                                <select id="id_pqrs_subtematica" name="id_pqrs_subtematica" class="form-control select2 subtematica" required>
+                                    <option value="">--Seleccione--</option>
+                                    @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_PQRS_Subtematica item in ViewBag.subtematica)
+                                    {
+                                        <option value="@item.id_pqrs_subtematica">@item.descripcion</option>
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                        <br />
+
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <h5><span class="text-secondary_asalud">Especificación de la solicitud:</span></h5>
@@ -512,7 +537,7 @@
                 }
             }
         });
-    
+
         function parsearFecha(fecha) {
             var partesFecha = fecha.split("/");
             var fechaFin = new Date(partesFecha[2], partesFecha[1] - 1, partesFecha[0]);
@@ -541,7 +566,50 @@
             }
         });
 
+
+
+        // Si en el controlador haces: ViewBag.prestadores = "1,2,3";
+
         mostrarTabla();
+
+
+
+        var prestadores = "@(ViewBag.prestadores ?? "")";
+        var listadoPrestadores = prestadores.length > 0 ? prestadores.split(",") : [];
+
+        $("#listaPrestador").kendoDropDownTree({
+            checkboxes: true,
+            placeholder: "Seleccionar...",
+            filter: "startswith",
+            dataSource: new kendo.data.HierarchicalDataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("TraeraPrestadores", "Pqrs")',
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "value"
+                    }
+                }
+            }),
+            checkAll: true,
+            autoClose: false,
+            dataBound: function () {
+                $(".k-checkbox-label:contains('Check all')").text("Seleccionar todo");
+
+                var dropDownTree = $("#listaPrestador").data("kendoDropDownTree");
+                if (listadoPrestadores.length > 0) {
+                    dropDownTree.value(listadoPrestadores);
+                }
+            }
+         });
+
+
+
+
+
 
     })
 
@@ -753,7 +821,27 @@
         }
     }
 
+
+
+ 
+
+ 
+
     function validarFormulario() {
+
+        var prestador = $("#listaPrestador").data("kendoDropDownTree");
+        var listaPrestador = prestador.value();
+
+        if (listaPrestador.length == 0 && $("#estado_gestion").val() != 4) {
+            alert("Seleccione prestador.");
+            return false;
+        }
+        else {
+            $('input:text[id$=listaPrestador]').val(listaPrestador);
+          
+        }
+
+
 
         var validator = $("#ingresoRadicacion").validate();
         if (validator.form()) {
@@ -816,6 +904,9 @@
             });
         }
     }
+
+
+
 
 </script>
 
@@ -917,4 +1008,14 @@
     .dataTables_length {
         visibility: hidden;
     }
+
+    #subtematica + .select2-container .select2-selection {
+        height: 34px !important;
+        min-height: 34px !important;
+        line-height: 34px !important;
+    }
+
+
+
+
 </style>

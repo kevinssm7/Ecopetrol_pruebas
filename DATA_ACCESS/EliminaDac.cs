@@ -1029,6 +1029,7 @@ namespace DATA_ACCESS
 
         #endregion
 
+
         #region inventarioAltoCosto
         public int eliminarArchivoAltoCostoCanceridArchivo(int idArchivo)
         {
@@ -1105,6 +1106,7 @@ namespace DATA_ACCESS
         }
 
         #endregion
+
 
         #region RIPS
 

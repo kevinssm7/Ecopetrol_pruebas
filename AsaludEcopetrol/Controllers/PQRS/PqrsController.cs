@@ -1065,6 +1065,7 @@ namespace AsaludEcopetrol.Controllers.PQRS
             ViewBag.rta = 0;
             ViewBag.msg = "";
             List<management_pqrs_observacionesAuditorResult> listaObservaciones = new List<management_pqrs_observacionesAuditorResult>();
+            List<Ref_ips_cuentas> prestadores = new List<Ref_ips_cuentas>();
             var conteoObservaciones = 0;
             var pasaAuditor = "";
 
@@ -1086,7 +1087,7 @@ namespace AsaludEcopetrol.Controllers.PQRS
                 var lista = BusClass.RolCargo();
 
                 lista = lista.Where(x => x.id_rol_cargo == 20 || x.id_rol_cargo == 10 || x.id_rol_cargo == 13 || x.id_rol_cargo == 14 || x.id_rol_cargo == 15 || x.id_rol_cargo == 17).ToList();
-
+                prestadores = BusClass.GetPrstadorCuentas();
                 listaDtll = BusClass.ConsultaPQRSDetalle2(Model.id_ecop_PQRS);
                 listaDtll = listaDtll.OrderBy(x => x.fecha_gestion).ToList();
 
@@ -1096,6 +1097,7 @@ namespace AsaludEcopetrol.Controllers.PQRS
                 ViewBag.cargo = lista.ToList();
                 ViewBag.lista = listaDtll.ToList();
                 ViewBag.count = listaDtll.Count();
+                ViewBag.prestadores = prestadores;
 
                 List<ecop_pqrs_prestadores> listaPrestadores = BusClass.ListadoPrestadoresIdPqrs(Model.id_ecop_PQRS);
                 var listPrestadores = "";
@@ -1131,6 +1133,26 @@ namespace AsaludEcopetrol.Controllers.PQRS
                     }
                 }
 
+
+                List<ecop_pqrs_empresaContratista> listEmpresa = BusClass.ListadoEmpresasIdPqrs(Model.id_ecop_PQRS);
+                var listEmp = "";
+                if (listEmpresa.Count() > 0)
+                {
+                    foreach (var pres in listEmpresa)
+                    {
+                        if (listEmp == "")
+                        {
+                            listEmp += pres.id_prestador;
+                        }
+                        else
+                        {
+                            listEmp += "," + pres.id_prestador;
+                        }
+                    }
+                }
+
+
+                ViewBag.listEmpresa = listEmp;
                 ViewBag.listPrestadores = listPrestadores;
                 ViewBag.listQuienLlamo = listQuienLlamo;
 
@@ -1583,6 +1605,7 @@ namespace AsaludEcopetrol.Controllers.PQRS
                 List<ecop_pqrs_a_quien_llamo> ListaaQuienLlama = new List<ecop_pqrs_a_quien_llamo>();
                 List<ecop_pqrs_auditores> listAudi = new List<ecop_pqrs_auditores>();
                 List<ecop_pqrs_prestadores> listPres = new List<ecop_pqrs_prestadores>();
+                List<ecop_pqrs_empresaContratista> listEmpr = new List<ecop_pqrs_empresaContratista>();
 
                 List<vw_ecop_PQRS_DetalleG> listaDtll = new List<vw_ecop_PQRS_DetalleG>();
                 listaDtll = BusClass.ConsultaPQRSDetalle(Model.id_ecop_PQRS);
@@ -1618,20 +1641,6 @@ namespace AsaludEcopetrol.Controllers.PQRS
                 }
 
 
-                //if (Model.estado_gestion == 3)
-                //{
-                //    if (Files3.FileName != null && Files3.FileName != "")
-                //    {
-
-                //    }
-                //    else
-                //    {
-                //        variable = "ERROR";
-                //        variable2 = "INGRESAR LA PROYECCION EN PDF O WORD";
-                //        Conteo = Conteo + 1;
-
-                //    }
-                //}
 
                 if (Model.estado_gestion == 2)
                 {
@@ -1648,20 +1657,6 @@ namespace AsaludEcopetrol.Controllers.PQRS
                         }
                     }
                 }
-                //if (Model.estado_gestion == 5)
-                //{
-                //    if (Files5.FileName != null && Files5.FileName != "")
-                //    {
-
-                //    }
-                //    else
-                //    {
-                //        variable = "ERROR";
-                //        variable2 = "INGRESAR LA REVISIÓN EN PDF O WORD";
-                //        Conteo = Conteo + 1;
-
-                //    }
-                //}
 
                 if (Model.estado_gestion != 4)
                 {
@@ -1687,6 +1682,18 @@ namespace AsaludEcopetrol.Controllers.PQRS
                         variable2 = "INGRESAR PRESTADOR";
                         Conteo = Conteo + 1;
                     }
+
+                    if (Model.listaEmpresa != "")
+                    {
+
+                    }
+                    else
+                    {
+                        variable = "ERROR";
+                        variable2 = "INGRESAR EMPRESA";
+                        Conteo = Conteo + 1;
+                    }
+
                 }
 
                 if (Conteo == 0)
@@ -1846,6 +1853,24 @@ namespace AsaludEcopetrol.Controllers.PQRS
                         }
                     }
 
+
+
+                    var listaEmpresa = Model.listaEmpresa;
+                    if (!String.IsNullOrEmpty(listaEmpresa))
+                    {
+                        string[] listadoEmpresas = listaEmpresa.Split(',');
+                        foreach (var item in listadoEmpresas)
+                        {
+                            ecop_pqrs_empresaContratista individualEmp = new ecop_pqrs_empresaContratista();
+                            individualEmp.id_pqrs = Model.id_ecop_PQRS;
+                            individualEmp.id_prestador = Convert.ToInt32(item);
+                            individualEmp.fecha_digita = DateTime.Now;
+                            individualEmp.usuario_digita = SesionVar.UserName;
+                            listEmpr.Add(individualEmp);
+                        }
+                    }
+
+
                     Model.ObjPqrs.observacion_gestion = Model.observacion_gestion;
 
                     if (Model.estado_gestion == 2)
@@ -1945,6 +1970,13 @@ namespace AsaludEcopetrol.Controllers.PQRS
                                     EnviarCasoAnalistaAuditor(idPqrs, 1);
                                 }
                             }
+
+                            if (listEmpr.Count() > 0)
+                            {
+                                var respuestaAuditores = Model.CargueMasivoEmpresa(listEmpr, ref MsgRes);
+
+                            }
+
 
                             ViewBag.msg = "INGRESADO CORRECTAMENTE";
                             ViewBag.rta = 1;
@@ -5183,6 +5215,8 @@ namespace AsaludEcopetrol.Controllers.PQRS
             List<Ref_tipo_documental> tipoDocumental = new List<Ref_tipo_documental>();
             ref_solucionador regPropio = new ref_solucionador();
             List<management_pqrs_sinArchivoInicialResult> consolidado = new List<management_pqrs_sinArchivoInicialResult>();
+            List<Ref_PQRS_Subtematica> subtematica = new List<Ref_PQRS_Subtematica>();
+            List<Ref_ips_cuentas> prestadores = new List<Ref_ips_cuentas>();
 
             var conteoLista = 0;
             try
@@ -5204,6 +5238,9 @@ namespace AsaludEcopetrol.Controllers.PQRS
                 RefRegional = BusClass.GetRefRegion();
                 tipoDocumental = BusClass.GetTipoIdentificacion(ref MsgRes);
                 regPropio = BusClass.UltimaRegionalUsuario(usuario);
+                subtematica = BusClass.GetRefPqrsSubtematica1();
+                prestadores = BusClass.GetPrstadorCuentas();
+
 
                 consolidado = BusClass.listadoPqrsInicialSinArchivo(idUsuario);
                 conteoLista = consolidado.Count();
@@ -5220,6 +5257,10 @@ namespace AsaludEcopetrol.Controllers.PQRS
             ViewBag.tipoCategorizacion = ListTipocatego;
             ViewBag.regional = RefRegional;
             ViewBag.tipoDocumental = tipoDocumental;
+
+            ViewBag.subtematica = subtematica;
+            ViewBag.prestadores = prestadores;
+
 
             if (regPropio != null)
             {
@@ -5278,6 +5319,8 @@ namespace AsaludEcopetrol.Controllers.PQRS
 
             return PartialView();
         }
+
+
 
         [HttpPost]
         [ValidateInput(false)]
@@ -5450,6 +5493,7 @@ namespace AsaludEcopetrol.Controllers.PQRS
                     Model.ObjPqrs.id_ref_categorizacon = Model.tipo_categorizacion;
                     Model.ObjPqrs.supersalud = Model.superSalud;
                     Model.ObjPqrs.fecha_egreso_salesforce = Model.fecha_egreso_salesforceOK;
+                    Model.ObjPqrs.id_pqrs_subtematica = Model.id_pqrs_subtematica;
 
                     Model.ObjPqrs.solicitante_nombre = Model.solicitante_nombre;
                     Model.ObjPqrs.tipo_identi_solicitante = Model.tipo_identificacion;
@@ -5537,7 +5581,38 @@ namespace AsaludEcopetrol.Controllers.PQRS
                             }
 
                             //EnviarNotificacionSolucionador(Model, files);
+
+                            List<ecop_pqrs_prestadores> listPres = new List<ecop_pqrs_prestadores>();
+
+                            var listaPrestador = Model.listaPrestador;
+
+                            if (!String.IsNullOrEmpty(listaPrestador))
+                            {
+                                string[] listadoPrestadores = listaPrestador.Split(',');
+                                for (int i = 1; i < listadoPrestadores.Length; i++) // empieza desde 1
+                                {
+                                    ecop_pqrs_prestadores individualPre = new ecop_pqrs_prestadores();
+                                    individualPre.id_pqrs = Model.id_ecop_PQRS;
+                                    individualPre.id_prestador = Convert.ToInt32(listadoPrestadores[i]);
+                                    individualPre.fecha_digita = DateTime.Now;
+                                    individualPre.usuario_digita = SesionVar.UserName;
+                                    listPres.Add(individualPre);
+                                }
+                            }
+
+
+                            if (listPres.Count() > 0)
+                            {
+                                var respuestaPresta = BusClass.CargueMasivoPrestadores(listPres, ref MsgRes);
+                            }
+
+
                         }
+
+
+                       
+
+
                         mensaje = "GESTIÓN INGRESADA CORRECTAMENTE";
                         rta = 1;
                     }
@@ -9706,6 +9781,10 @@ namespace AsaludEcopetrol.Controllers.PQRS
 
             return Json(listatotal, JsonRequestBehavior.AllowGet);
         }
+
+
+
+
 
         public void EnviarCasoAnalistaAuditor(int? idPqr, int? tipo)
         {

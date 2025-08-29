@@ -1635,16 +1635,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 management_prestadores_get_soporteResult obj = Model.Getsoporteclinico(idsoporteclinico);
                 string dirpath = Path.Combine(Request.PhysicalApplicationPath, obj.ruta);
 
-                //if (System.IO.File.Exists(dirpath))
-                //{
-                //    byte[] bytes = System.IO.File.ReadAllBytes(dirpath);
-                //    return File(bytes, "application/pdf");
-                //}
-                //else
-                //{
-                //    return RedirectToAction("ControlErrores", "Usuario", new { Mensaje = "No se ha podido visualizar el archivo porque no existe la ruta de acceso." });
-                //}
-
 
                 if (System.IO.File.Exists(dirpath))
                 {
@@ -1657,6 +1647,12 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                         case ".pdf":
                             contentType = "application/pdf";
                             isInline = true; // Se previsualiza
+                            break;
+                        case ".json":
+                            contentType = "application/json";
+                            break;
+                        case ".xml":
+                            contentType = "application/xml";
                             break;
                         case ".zip":
                             contentType = "application/zip";
@@ -6808,9 +6804,16 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
                     switch (extension)
                     {
+
                         case ".pdf":
                             contentType = "application/pdf";
                             isInline = true; // Se previsualiza
+                            break;
+                        case ".json":
+                            contentType = "application/json";
+                            break;
+                        case ".xml":
+                            contentType = "application/xml";
                             break;
                         case ".zip":
                             contentType = "application/zip";

@@ -125,6 +125,9 @@ namespace AsaludEcopetrol.Models.CuentasMedicas
             return BusClass.ConsultaRipsEvaluacion(IdRips, conexion, ref MsgRes);
         }
 
+
+
+
         public List<managmentReportePrestadoresNoExistentesResult> getprestadoresnoexistentes(Int32 IdRips, ref MessageResponseOBJ MsgRes)
         {
             return BusClass.getprestadoresnoexistentes(IdRips, ref MsgRes);
@@ -133,36 +136,7 @@ namespace AsaludEcopetrol.Models.CuentasMedicas
         public List<Logerroresevaluacionrips> GetLogEvaluacionRips(Int32 IdRips)
         {
             List<Logerroresevaluacionrips> consulta = BusClass.ConsultaLogRipsEvaluacion(IdRips, ref MsgRes);
-            //List<Logerroresevaluacionrips> listado = new List<Logerroresevaluacionrips>();
-            //foreach (ManagmentErroresRipsEvaluacionResult item in consulta)
-            //{
-            //    Logerroresevaluacionrips lista = new Logerroresevaluacionrips();
-            //    lista.codigo_prestador = item.codigo_prestador;
-            //    lista.prestador = item.nombre_prestador;
-            //    lista.AC_Num_factura_no_existe_en_AF = item.ac_factura_con_error;
-            //    lista.AP_Num_factura_no_existe_en_AF = item.ap_factura_con_error;
-            //    lista.AH_Num_factura_no_existe_en_AF = item.ah_factura_con_error;
-            //    lista.AU_Num_factura_no_existe_en_AF = item.au_factura_con_error;
-            //    lista.AC_Dx_no_corresponde_con_finalidad = item.diagnostico_no_corresponde_con_finalidad;
-            //    lista.AC_Usuario_debe_estar_en_US = item.ac_usuario_con_error;
-            //    lista.AP_Usuario_debe_estar_en_US = item.ap_usuario_con_error;
-            //    lista.AU_Usuario_debe_estar_en_US = item.au_usuario_con_error;
-            //    lista.AH_Usuario_debe_estar_en_US = item.ah_usuario_con_error;
-            //    lista.AC_sin_DX = item.sin_dx;
-            //    lista.AP_Procedimiento_Quirúrgico_sin_Dx_o_con_Dx_errado = item.Procedimiento_Quirúrgico_sin_Dx_o_con_Dx_errado;
-            //    lista.AP_Sin_ambito_en_el_CUPS = item.Sin_ambito_en_el_CUPS;
-            //    lista.AP_Sin_CUPS = item.Sin_CUPS;
-            //    lista.AU_Sin_causa_basica_de_muerte = item.Sin_causa_basica_de_muerte;
-            //    lista.AU_Error_en_fecha_de_egreso = item.Error_en_fecha_de_egreso;
-            //    lista.AU_Error_en_causa_externa = item.au_causa_ext_con_error;
-            //    lista.AH_Error_en_causa_externa = item.ah_causa_ext_con_error;
-            //    lista.AU_Error_de_DX_no_aplica_R_Z = item.au_diag_egreso_con_error;
-            //    lista.AH_Error_de_DX_no_aplica_R_Z = item.ah_diag_egreso_con_error;
-            //    lista.AN_Sin_fecha_de_muerte = item.an_fecha_muerte_con_error;
-            //    lista.AN_Sin_hora_de_muerte = item.an_hora_muerte_con_error;
-            //    lista.Total_Errores = item.ap_total_errores + item.ac_total_errores + item.au_total_errores + item.ah_total_errores + item.an_total_errores;
-            //    listado.Add(lista);
-            //}
+  
 
             return consulta;
         }

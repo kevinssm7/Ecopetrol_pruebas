@@ -120,7 +120,7 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             return View();
         }
 
-        public ActionResult CargueEventos(int? idEvento, int? idConcurrencia, int? idEvolucion, int? idPlan)
+        public ActionResult CargueEventos(int? idEvento, int? idConcurrencia, int? idEvolucion)
         {
             ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros Model = new eventos_salud_registros();
 
@@ -160,8 +160,6 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             ViewBag.idEvento = idEvento;
             ViewBag.idConcurrencia = idConcurrencia;
             ViewBag.idEvolucion = idEvolucion;
-            ViewBag.idPlan = idPlan;
-            
             ViewBag.unis = BusClass.unisRegional(reg.id_ref_regional);
 
             List<int> años = new List<int>();
@@ -223,9 +221,6 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros evento = new eventos_salud_registros();
             ViewBag.eventos = evento;
             var gestion = 0;
-            int? idEvento = 0;
-
-            ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros Modelo = new eventos_salud_registros();
 
             try
             {
@@ -234,7 +229,6 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
                     id_cargue = Model.id_cargue,
                     id_concurrencia = Model.id_concurrencia,
                     id_evolucion_concurrencia = Model.id_evolucion_concurrencia,
-                    id_planMejora = Model.id_planMejora,
                     Año = Model.Año,
                     IdMes = Model.IdMes,
                     Mes = Model.Mes,
@@ -268,7 +262,6 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
                     PlanMejoraGenerado = Model.PlanMejoraGenerado,
                     CostoNoCalidad = Model.CostoNoCalidad,
                     DescripcionCostoNoCalidad = Model.DescripcionCostoNoCalidad,
-                    estado_evento = 2,
                     fecha_digita = DateTime.Now,
                     usuario_digita = SesionVar.UserName
                 };
@@ -286,25 +279,6 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
 
                 if (gestion != 0)
                 {
-                    idEvento = gestion;
-
-                    if (Model.PlanMejoraGenerado == 1)
-                    {
-                        ecop_plan_de_mejora plan = new ecop_plan_de_mejora()
-                        {
-                            id_eventos_salud = gestion,
-                            estado_plan = 0,
-                            fecha_ingreso = DateTime.Now,
-                            usuario_ingreso = SesionVar.UserName
-                        };
-
-                        var ingresoPlan = BusClass.InsertarPlanMejora(plan, ref MsgRes);
-                        if (ingresoPlan != 0)
-                        {
-                            var actualizaPMevento = BusClass.ActualizarRegistroEventosSaludPM(evento.id_cargue, ingresoPlan);
-                        }
-                    }
-
                     mensaje = "EVENTO EN SALUD INGRESADO CORRECTAMENTE";
                     rta = 1;
                 }
@@ -343,19 +317,9 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             var regionalDes = reg.indice;
             ViewBag.regionalPropia = regionalDes;
 
-            ViewBag.regional = BusClass.GetRefRegion();
+            ViewBag.ciudad = BusClass.GetCiudadesXRegional(regionalPropia);
+
             ViewBag.prestador = BusClass.getprestadores();
-
-            //if (idEvento != null && idEvento != 0)
-            //{
-            //    Modelo = BusClass.TraerDatosEventosSaludId(idEvento);
-            //}
-
-            ViewBag.eventos = Model;
-            ViewBag.idEvento = idEvento;
-            ViewBag.idConcurrencia = Model.id_concurrencia;
-            ViewBag.idEvolucion = Model.id_evolucion_concurrencia;
-            ViewBag.idPlan = Model.id_planMejora;
 
             ViewBag.unis = BusClass.unisRegional(reg.id_ref_regional);
 
@@ -365,10 +329,11 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             años.Add(DateTime.Now.Year + 1);
 
             ViewBag.años = años;
+            ViewBag.idEvento = 0;
 
             if (Model.id_evento == 0 || Model.id_evento == null)
             {
-                return View(Modelo);
+                return View();
             }
             else
             {
@@ -376,165 +341,22 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
             }
         }
 
-        public JsonResult CargueEventosParcial(Models.EventosSalud.EventosSalud Model)
-        {
-            var mensaje = "";
-            var rta = 2;
-
-            ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros evento = new eventos_salud_registros();
-            ViewBag.eventos = evento;
-            var gestion = 0;
-            int? idEvento = 0;
-            int? idPlan = 0;
-
-            ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros Modelo = new eventos_salud_registros();
-
-            try
-            {
-                evento = new ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros
-                {
-                    id_cargue = Model.id_cargue,
-                    id_concurrencia = Model.id_concurrencia,
-                    id_evolucion_concurrencia = Model.id_evolucion_concurrencia,
-                    id_planMejora = Model.id_planMejora,
-                    Año = Model.Año,
-                    IdMes = Model.IdMes,
-                    Mes = Model.Mes,
-                    FechaReporte = Model.FechaReporte,
-                    FechaOcurrenciaEvento = Model.FechaOcurrenciaEvento,
-                    RegionalReporta = Model.RegionalReporta,
-                    LocalidadServiciosSalud = Model.LocalidadServiciosSalud,
-                    NombreReportante = Model.NombreReportante,
-                    IdentificacionReportante = Model.IdentificacionReportante,
-                    NombrePrestadorEvento = Model.NombrePrestadorEvento,
-                    CodigoSAPPrestador = Model.CodigoSAPPrestador,
-                    NombreMunicipio = Model.NombreMunicipio,
-                    CodigoMunicipal = Model.CodigoMunicipal,
-                    RegionalBeneficiario = Model.RegionalBeneficiario,
-                    TipoIdentificacion = Model.TipoIdentificacion,
-                    NumeroIdentificacion = Model.NumeroIdentificacion,
-                    NombreCompleto = Model.NombreCompleto,
-                    Edad = Model.Edad,
-                    FuenteReporte = Model.FuenteReporte,
-                    AmbitoOcurrenciaEvento = Model.AmbitoOcurrenciaEvento,
-                    DescripcionEvento = Model.DescripcionEvento,
-                    ClasificacionEvento = Model.ClasificacionEvento,
-                    CategoriaEvento = Model.CategoriaEvento,
-                    SubcategoriaEvento = Model.SubcategoriaEvento,
-                    ResultadoNegativoMedicacion = Model.ResultadoNegativoMedicacion,
-                    ConfirmacionEventoAdverso = Model.ConfirmacionEventoAdverso,
-                    SeveridadDesenlace = Model.SeveridadDesenlace,
-                    ProbabilidadRepeticion = Model.ProbabilidadRepeticion,
-                    ConceptoAuditoria = Model.ConceptoAuditoria,
-                    GestionRegional = Model.GestionRegional,
-                    PlanMejoraGenerado = Model.PlanMejoraGenerado,
-                    CostoNoCalidad = Model.CostoNoCalidad,
-                    DescripcionCostoNoCalidad = Model.DescripcionCostoNoCalidad,
-                    estado_evento = 1,
-                    fecha_digita = DateTime.Now,
-                    usuario_digita = SesionVar.UserName
-                };
-
-                if (Model.id_evento != 0 && Model.id_evento != null)
-                {
-                    evento.id_evento = (int)Model.id_evento;
-                    gestion = BusClass.ActualizarRegistroEventosSalud(evento);
-                }
-                else
-                {
-                    evento.id_cargue = 0;
-                    gestion = BusClass.InsertarEventoSalud(evento);
-                }
-
-                if (gestion != 0)
-                {
-                    idEvento = gestion;
-
-                    if (Model.PlanMejoraGenerado == 1)
-                    {
-                        ecop_plan_de_mejora plan = new ecop_plan_de_mejora()
-                        {
-                            id_eventos_salud = gestion,
-                            estado_plan = 0,
-                            fecha_ingreso = DateTime.Now,
-                            usuario_ingreso = SesionVar.UserName
-                        };
-
-                        if (Model.id_planMejora == 0 || Model.id_planMejora == null)
-                        {
-                            var ingresoPlan = BusClass.InsertarPlanMejora(plan, ref MsgRes);
-                            if (ingresoPlan != 0)
-                            {
-                                idPlan = ingresoPlan;
-                                var actualizaPMevento = BusClass.ActualizarRegistroEventosSaludPM(evento.id_evento, ingresoPlan);
-                            }
-                        }
-                    }
-
-                    mensaje = "EVENTO EN SALUD INGRESADO CORRECTAMENTE";
-                    rta = 1;
-                }
-                else
-                {
-                    mensaje = "ERROR EN EL INGRESO";
-                }
-            }
-            catch (Exception ex)
-            {
-                var error = ex.Message;
-                mensaje = "ERROR EN EL INGRESO: " + error;
-            }
-
-            return Json(new { mensaje = mensaje, rta = rta, idEvento = idEvento, idPlan = idPlan });
-        }
-
         public ActionResult TableroEventos(int? mes, int? año, int? rta, string msg)
         {
             List<management_eventosSalud_tableroResult> lista = new List<management_eventosSalud_tableroResult>();
-
-            List<management_eventosSalud_tableroResult> listaConstruccion = new List<management_eventosSalud_tableroResult>();
-            List<management_eventosSalud_tableroResult> listaConstruccionPM = new List<management_eventosSalud_tableroResult>();
-            List<management_eventosSalud_tableroResult> listaConcurrenciaConstruccion = new List<management_eventosSalud_tableroResult>();
-
-            List<management_eventosSalud_tableroResult> listaCompletados = new List<management_eventosSalud_tableroResult>();
-            List<management_eventosSalud_tableroResult> listaPM = new List<management_eventosSalud_tableroResult>();
-            List<management_eventosSalud_tableroResult> listaConcurrencia = new List<management_eventosSalud_tableroResult>();
-
+            var conteo = 0;
             try
             {
-                lista = BusClass.ListadoEventosEnSaludTablero();
-
-                listaConstruccion = lista.Where(x => x.estado_evento == 1 && x.id_planMejora == 0 && x.id_concurrencia == 0).ToList();
-                listaConcurrenciaConstruccion = lista.Where(x => x.estado_evento == 1 && (x.id_concurrencia != null && x.id_concurrencia != 0)).ToList();
-                listaConstruccionPM = lista.Where(x => x.estado_evento == 1 && (x.id_planMejora != 0 && x.id_planMejora != 0) ).ToList();
-
-                listaCompletados = lista.Where(x => x.estado_evento == 2 && x.id_planMejora == 0 && (x.id_concurrencia == null || x.id_concurrencia == 0)).ToList();
-                listaConcurrencia = lista.Where(x => x.estado_evento == 2 && (x.id_concurrencia != null && x.id_concurrencia != 0)).ToList();
-                listaPM = lista.Where(x => x.estado_evento == 2 && (x.id_planMejora != 0 && x.id_planMejora != 0)).ToList();
+                lista = BusClass.ListadoEventosEnSaludTablero(mes, año);
+                conteo = lista.Count();
             }
-
             catch (Exception ex)
             {
                 var error = ex.Message;
             }
 
-            ViewBag.listaConstruccion = listaConstruccion;
-            ViewBag.listaConcurrenciaConstruccion = listaConcurrenciaConstruccion;
-            ViewBag.listaConstruccionPM = listaConstruccionPM;
-            ViewBag.listaConcurrencia = listaConcurrencia;
-            ViewBag.listaCompletados = listaCompletados;
-            ViewBag.listaPM = listaPM;
-
-            ViewBag.conteoListaConstruccion = listaConstruccion.Count();
-            ViewBag.conteoListaConcurrenciaConstruccion = listaConcurrenciaConstruccion.Count();
-            ViewBag.conteoListaConstruccionPM = listaConstruccionPM.Count();
-
-            ViewBag.conteoListaCompletados = listaCompletados.Count();
-            ViewBag.conteoListaConcurrencia = listaConcurrencia.Count();
-            ViewBag.conteoListaPM = listaPM.Count();
-
-            ViewBag.conteo = lista.Count();
-
+            ViewBag.listadoEventos = lista;
+            ViewBag.conteo = conteo;
 
             List<int> años = new List<int>();
             años.Add(DateTime.Now.Year - 1);
@@ -543,13 +365,16 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
 
             ViewBag.años = años;
             ViewBag.meses = BusClass.meses();
+
             ViewBag.rol = SesionVar.ROL;
+
             ViewBag.msg = msg;
             ViewBag.rta = rta;
 
             Session["ListadoEventos"] = lista;
             return View();
         }
+
 
         public void ExportarDatosEventos()
         {
@@ -564,99 +389,108 @@ namespace AsaludEcopetrol.Controllers.EventosEnSalud
                     ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("DatosEventosSalud");
 
                     Color colFromHex = Color.FromArgb(99, 99, 99);
-                    
                     //Sheet.Cells["A1:N1"].Style.WrapText = true;
+                    Sheet.Cells["A1:AL1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    Sheet.Cells["A1:AL1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
+                    Sheet.Cells["A1:AL1"].Style.Font.Color.SetColor(Color.White);
+                    Sheet.Cells["A1:AL1"].Style.Font.Size = 10;
+                    Sheet.Cells["A1:AL1"].Style.Font.Bold = true;
+                    Sheet.Cells["A1:AL1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    Sheet.Cells["A1:AL1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-                    Sheet.Cells["A1:AG1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    Sheet.Cells["A1:AG1"].Style.Fill.BackgroundColor.SetColor(colFromHex);
-                    Sheet.Cells["A1:AG1"].Style.Font.Color.SetColor(Color.White);
-                    Sheet.Cells["A1:AG1"].Style.Font.Size = 10;
-                    Sheet.Cells["A1:AG1"].Style.Font.Bold = true;
-                    Sheet.Cells["A1:AG1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    Sheet.Cells["A1:AG1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-
-                    Sheet.Cells["A1"].Value = "Año";
-                    Sheet.Cells["B1"].Value = "Mes";
-                    Sheet.Cells["C1"].Value = "Fecha de reporte";
-                    Sheet.Cells["D1"].Value = "Fecha de ocurrencia del evento";
-                    Sheet.Cells["E1"].Value = "Regional que reporte";
-                    Sheet.Cells["F1"].Value = "Localidad de servicios de salud";
-                    Sheet.Cells["G1"].Value = "Nombre del reportante";
-                    Sheet.Cells["H1"].Value = "Identificación del reportante";
-                    Sheet.Cells["I1"].Value = "Nombre del prestador donde ocurrió el evento";
-                    Sheet.Cells["J1"].Value = "Código SAP del prestador (si aplica)";
-                    Sheet.Cells["K1"].Value = "Nombre del municipio";
-                    Sheet.Cells["L1"].Value = "Código municipal";
-                    Sheet.Cells["M1"].Value = "Regional del beneficiario";
-                    Sheet.Cells["N1"].Value = "Tipo identificación";
-                    Sheet.Cells["O1"].Value = "Número de identificación";
-                    Sheet.Cells["P1"].Value = "Nombre completo";
-                    Sheet.Cells["Q1"].Value = "Edad";
-                    Sheet.Cells["R1"].Value = "Fuente del reporte";
-                    Sheet.Cells["S1"].Value = "Ámbito de ocurrencia del evento";
-                    Sheet.Cells["T1"].Value = "Clasificación del evento";
-                    Sheet.Cells["U1"].Value = "Categoría del evento";
-                    Sheet.Cells["V1"].Value = "Subcategoría del evento";
-                    Sheet.Cells["W1"].Value = "Resultado negativo de la medicación";
-                    Sheet.Cells["X1"].Value = "Confirmación del evento adverso";
-                    Sheet.Cells["Y1"].Value = "Severidad del desenlace";
-                    Sheet.Cells["Z1"].Value = "Probabilidad de repetición";
-                    Sheet.Cells["AA1"].Value = "Descripción del evento";
-                    Sheet.Cells["AB1"].Value = "Concepto de auditoría";
-                    Sheet.Cells["AC1"].Value = "¿Se generó Plan de Mejora al Prestador? (Sí / No)";
-                    Sheet.Cells["AD1"].Value = "Costo de no calidad";
-                    Sheet.Cells["AE1"].Value = "Descripción del costo de no calidad";
-                    Sheet.Cells["AF1"].Value = "Gestión realizada por la regional";
-                    Sheet.Cells["AG1"].Value = "Fecha gestión";
+                    Sheet.Cells["A1"].Value = "Id evento";
+                    Sheet.Cells["B1"].Value = "Dependencia de Salud";
+                    Sheet.Cells["C1"].Value = "Año";
+                    Sheet.Cells["D1"].Value = "Id Mes";
+                    Sheet.Cells["E1"].Value = "Mes";
+                    Sheet.Cells["F1"].Value = "Fecha de Reporte";
+                    Sheet.Cells["G1"].Value = "Fecha de ocurrencia del evento";
+                    Sheet.Cells["H1"].Value = "Localidad de Servicios de Salud";
+                    Sheet.Cells["I1"].Value = "Fuente del Reporte";
+                    Sheet.Cells["J1"].Value = "Reportante (nombre de quien realiza el reporte)";
+                    Sheet.Cells["K1"].Value = "Nombre de municipio donde ocurrio el evento";
+                    Sheet.Cells["L1"].Value = "Código municipal donde ocurrio el evento";
+                    Sheet.Cells["M1"].Value = "Reportante (identificación de quien realiza el reporte)";
+                    Sheet.Cells["N1"].Value = "Ámbito de ocurrencia del evento";
+                    Sheet.Cells["O1"].Value = "Nombre del Prestador en donde ocurrió el evento adverso";
+                    Sheet.Cells["P1"].Value = "Nit del Prestador en donde ocurrió el evento adverso";
+                    Sheet.Cells["Q1"].Value = "Número de identificación del Prestador (código SAP)";
+                    Sheet.Cells["R1"].Value = "Tipo de identificación del beneficiario en el cual ocurrió el evento";
+                    Sheet.Cells["S1"].Value = "Número de identificación del beneficiario";
+                    Sheet.Cells["T1"].Value = "Nombre del beneficiario";
+                    Sheet.Cells["U1"].Value = "Edad del Beneficiario";
+                    Sheet.Cells["V1"].Value = "Descripción del evento";
+                    Sheet.Cells["W1"].Value = "Clasificación del Evento de la Atención en Salud";
+                    Sheet.Cells["X1"].Value = "Categoría del evento";
+                    Sheet.Cells["Y1"].Value = "Subcategoría del evento";
+                    Sheet.Cells["Z1"].Value = "Resultado negativo de la medicación";
+                    Sheet.Cells["AA1"].Value = "Confirmación evento (prevenible /no prevenible)";
+                    Sheet.Cells["AB1"].Value = "Severidad del desenlace";
+                    Sheet.Cells["AC1"].Value = "Probabilidad de repetición";
+                    Sheet.Cells["AD1"].Value = "Concepto Auditoria";
+                    Sheet.Cells["AE1"].Value = "Gestión de la Gestoría Integral de la Calidad";
+                    Sheet.Cells["AF1"].Value = "Plan de Mejora al Prestador (si o no)";
+                    Sheet.Cells["AG1"].Value = "Fecha radicación del plan de mejora.";
+                    Sheet.Cells["AH1"].Value = "fecha programada para revisión de plan de mejora.";
+                    Sheet.Cells["AI1"].Value = "Costo de No Calidad";
+                    Sheet.Cells["AJ1"].Value = "Descripción de costo de No Calidad";
+                    Sheet.Cells["AK1"].Value = "Seguimiento";
+                    Sheet.Cells["AL1"].Value = "Novedades";
 
                     int row = 2;
 
                     foreach (management_eventosSalud_tableroResult item in lista)
                     {
-                        Sheet.Cells["A" + row + ":AG" + row].Style.Font.Size = 10;
-                        Sheet.Cells[string.Format("A{0}", row)].Value = item.Año;
-                        Sheet.Cells[string.Format("B{0}", row)].Value = item.IdMes;
-                        Sheet.Cells[string.Format("C{0}", row)].Value = item.FechaReporte;
-                        Sheet.Cells[string.Format("D{0}", row)].Value = item.FechaOcurrenciaEvento;
-                        Sheet.Cells[string.Format("E{0}", row)].Value = item.RegionalReporta;
-                        Sheet.Cells[string.Format("F{0}", row)].Value = item.LocalidadServiciosSalud;
-                        Sheet.Cells[string.Format("G{0}", row)].Value = item.NombreReportante;
-                        Sheet.Cells[string.Format("H{0}", row)].Value = item.IdentificacionReportante;
-                        Sheet.Cells[string.Format("I{0}", row)].Value = item.NombrePrestadorEvento;
-                        Sheet.Cells[string.Format("J{0}", row)].Value = item.CodigoSAPPrestador;
-                        Sheet.Cells[string.Format("K{0}", row)].Value = item.NombreMunicipio;
-                        Sheet.Cells[string.Format("L{0}", row)].Value = item.CodigoMunicipal;
-                        Sheet.Cells[string.Format("M{0}", row)].Value = item.RegionalBeneficiario;
-                        Sheet.Cells[string.Format("N{0}", row)].Value = item.TipoIdentificacion;
-                        Sheet.Cells[string.Format("O{0}", row)].Value = item.NumeroIdentificacion;
-                        Sheet.Cells[string.Format("P{0}", row)].Value = item.NombreCompleto;
-                        Sheet.Cells[string.Format("Q{0}", row)].Value = item.Edad;
-                        Sheet.Cells[string.Format("R{0}", row)].Value = item.FuenteReporte;
-                        Sheet.Cells[string.Format("S{0}", row)].Value = item.AmbitoOcurrenciaEvento;
-                        Sheet.Cells[string.Format("T{0}", row)].Value = item.ClasificacionEvento;
-                        Sheet.Cells[string.Format("U{0}", row)].Value = item.CategoriaEvento;
-                        Sheet.Cells[string.Format("V{0}", row)].Value = item.SubcategoriaEvento;
-                        Sheet.Cells[string.Format("W{0}", row)].Value = item.ResultadoNegativoMedicacion;
-                        Sheet.Cells[string.Format("X{0}", row)].Value = item.ConfirmacionEventoAdverso;
-                        Sheet.Cells[string.Format("Y{0}", row)].Value = item.SeveridadDesenlace;
-                        Sheet.Cells[string.Format("Z{0}", row)].Value = item.ProbabilidadRepeticion;
-                        Sheet.Cells[string.Format("AA{0}", row)].Value = item.DescripcionEvento;
-                        Sheet.Cells[string.Format("AB{0}", row)].Value = item.ConceptoAuditoria;
-                        Sheet.Cells[string.Format("AC{0}", row)].Value = item.PlanMejoraGenerado;
-                        Sheet.Cells[string.Format("AD{0}", row)].Value = item.CostoNoCalidad;
-                        Sheet.Cells[string.Format("AE{0}", row)].Value = item.DescripcionCostoNoCalidad;
-                        Sheet.Cells[string.Format("AF{0}", row)].Value = item.GestionRegional;
-                        Sheet.Cells[string.Format("AG{0}", row)].Value = item.fecha_digita;
+                        Sheet.Cells["A" + row + ":AM" + row].Style.Font.Size = 10;
+                        Sheet.Cells[string.Format("A{0}", row)].Value = item.id_evento;
+                        Sheet.Cells[string.Format("B{0}", row)].Value = item.dependencia_de_salud;
+                        Sheet.Cells[string.Format("C{0}", row)].Value = item.anio;
+                        Sheet.Cells[string.Format("D{0}", row)].Value = item.id_mes;
+                        Sheet.Cells[string.Format("E{0}", row)].Value = item.mes;
+                        Sheet.Cells[string.Format("F{0}", row)].Value = item.fecha_de_reporte;
+                        Sheet.Cells[string.Format("G{0}", row)].Value = item.fecha_de_ocurrencia_del_evento;
+                        Sheet.Cells[string.Format("H{0}", row)].Value = item.localidad_de_servicios_de_salud;
+                        Sheet.Cells[string.Format("I{0}", row)].Value = item.fuente_del_reporte;
+                        Sheet.Cells[string.Format("J{0}", row)].Value = item.reportante_nombre_de_quien_realiza_el_reporte;
+                        Sheet.Cells[string.Format("K{0}", row)].Value = item.nombre_de_municipio_donde_ocurrio_el_evento;
+                        Sheet.Cells[string.Format("L{0}", row)].Value = item.codigo_municipal_donde_ocurrio_el_evento;
+                        Sheet.Cells[string.Format("M{0}", row)].Value = item.reportante_identificacion_de_quien_realiza_el_reporte;
+                        Sheet.Cells[string.Format("N{0}", row)].Value = item.ambito_de_ocurrencia_del_evento;
+                        Sheet.Cells[string.Format("O{0}", row)].Value = item.nombre_del_prestador_en_donde_ocurrio_el_evento_adverso;
+                        Sheet.Cells[string.Format("P{0}", row)].Value = item.nit_del_prestador_en_donde_ocurrio_el_evento_adverso;
+                        Sheet.Cells[string.Format("Q{0}", row)].Value = item.numero_de_identificacion_del_prestador_codigo_sap;
+                        Sheet.Cells[string.Format("R{0}", row)].Value = item.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento;
+                        Sheet.Cells[string.Format("S{0}", row)].Value = item.numero_de_identificacion_del_beneficiario;
+                        Sheet.Cells[string.Format("T{0}", row)].Value = item.nombre_del_beneficiario;
+                        Sheet.Cells[string.Format("U{0}", row)].Value = item.edad_del_beneficiario;
+                        Sheet.Cells[string.Format("V{0}", row)].Value = item.descripcion_del_evento;
+                        Sheet.Cells[string.Format("W{0}", row)].Value = item.clasificacion_del_evento_de_la_atencion_en_salud;
+                        Sheet.Cells[string.Format("X{0}", row)].Value = item.categoria_del_evento;
+                        Sheet.Cells[string.Format("Y{0}", row)].Value = item.subcategoria_del_evento;
+                        Sheet.Cells[string.Format("Z{0}", row)].Value = item.resultado_negativo_de_la_medicacion;
+                        Sheet.Cells[string.Format("AA{0}", row)].Value = item.confirmacion_evento_prevenible_no_prevenible;
+                        Sheet.Cells[string.Format("AB{0}", row)].Value = item.severidad_del_desenlace;
+                        Sheet.Cells[string.Format("AC{0}", row)].Value = item.probabilidad_de_repeticion;
+                        Sheet.Cells[string.Format("AD{0}", row)].Value = item.concepto_auditoria;
+                        Sheet.Cells[string.Format("AE{0}", row)].Value = item.gestion_de_la_gestoria_integral_de_la_calidad;
+                        Sheet.Cells[string.Format("AF{0}", row)].Value = item.plan_de_mejora_al_prestador_si_o_no;
+                        Sheet.Cells[string.Format("AG{0}", row)].Value = item.fecha_radicacion_del_plan_de_mejora;
+                        Sheet.Cells[string.Format("AH{0}", row)].Value = item.fecha_programada_para_revision_de_plan_de_mejora;
+                        Sheet.Cells[string.Format("AI{0}", row)].Value = item.costo_de_no_calidad;
+                        Sheet.Cells[string.Format("AJ{0}", row)].Value = item.descripcion_de_costo_de_no_calidad;
+                        Sheet.Cells[string.Format("AK{0}", row)].Value = item.seguimiento;
+                        Sheet.Cells[string.Format("AL{0}", row)].Value = item.novedades;
 
-                        Sheet.Cells[string.Format("C{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                        Sheet.Cells[string.Format("D{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                        Sheet.Cells[string.Format("AG{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("H{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("I{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("AI{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                        Sheet.Cells[string.Format("AJ{0}", row)].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
 
                         row++;
                     }
 
                     string namefile = "ReporteEventosSalud";
-                    Sheet.Cells["A:AG"].AutoFitColumns();
+                    Sheet.Cells["A:AL"].AutoFitColumns();
                     Response.Clear();
                     Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                     Response.AppendHeader("Content-Disposition", "attachment; filename=" + namefile + "_" + DateTime.Now + ".xlsx");

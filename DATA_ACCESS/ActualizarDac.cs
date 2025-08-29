@@ -1290,6 +1290,7 @@ namespace DATA_ACCESS
                         ObjAuditada.usuario_envio_revision = ObjPqrs.usuario_envio_revision;
                     }
 
+             
                     ObjAuditada.requirio_llamada = ObjPqrs.requirio_llamada;
                     ObjAuditada.a_quie_llamo = ObjPqrs.a_quie_llamo;
                     ObjAuditada.nombre_quien_llamo = ObjPqrs.nombre_quien_llamo;
@@ -1316,6 +1317,8 @@ namespace DATA_ACCESS
                     else if (ObjPqrs.estado_gestion == 7)
                     {
                         ObjAuditada.fecha_recepcion_prestador = ObjPqrs.fecha_recepcion_prestador;
+                        //ObjAuditada.plan_de_mejora = ObjPqrs.plan_de_mejora;
+                        //ObjAuditada.observacion_plan_mejora = ObjPqrs.observacion_plan_mejora;
                     }
 
                     ObjAuditada.fecha_envio_proyectada = ObjPqrs.fecha_envio_proyectada;
@@ -1356,6 +1359,8 @@ namespace DATA_ACCESS
                     ObjAudit.analisis_caso = ObjPqrs.analisis_caso;
                     ObjAudit.componente = ObjPqrs.componente;
                     ObjAudit.otro_prestador = ObjPqrs.otro_prestador;
+                    ObjAudit.requiere_plan_mejora = ObjPqrs.plan_de_mejora;
+                    ObjAudit.observacion_plan_mejora = ObjPqrs.observacion_plan_mejora;
 
                     ObjAudit.usuario_digita = ObjPqrs.usuario_ingreso;
                     ObjAudit.fecha_digita = DateTime.Now;
@@ -5448,68 +5453,52 @@ namespace DATA_ACCESS
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
                     eventos_salud_registros evento = db.eventos_salud_registros.Where(x => x.id_evento == even.id_evento).FirstOrDefault();
+                    //evento.dependencia_de_salud = even.dependencia_de_salud;
+                    //evento.anio = even.anio;
+                    //evento.id_mes = even.id_mes;
+                    //evento.mes = even.mes;
+                    //evento.consecutivo = even.consecutivo;
+                    //evento.fecha_de_reporte = even.fecha_de_reporte;
+                    //evento.fecha_de_ocurrencia_del_evento = even.fecha_de_ocurrencia_del_evento;
+                    //evento.localidad_de_servicios_de_salud = even.localidad_de_servicios_de_salud;
+                    //evento.fuente_del_reporte = even.fuente_del_reporte;
+                    //evento.reportante_nombre_de_quien_realiza_el_reporte = even.reportante_nombre_de_quien_realiza_el_reporte;
+                    //evento.nombre_de_municipio_donde_ocurrio_el_evento = even.nombre_de_municipio_donde_ocurrio_el_evento;
+                    //evento.codigo_municipal_donde_ocurrio_el_evento = even.codigo_municipal_donde_ocurrio_el_evento;
+                    //evento.reportante_identificacion_de_quien_realiza_el_reporte = even.reportante_identificacion_de_quien_realiza_el_reporte;
+                    //evento.ambito_de_ocurrencia_del_evento = even.ambito_de_ocurrencia_del_evento;
+                    //evento.nombre_del_prestador_en_donde_ocurrio_el_evento_adverso = even.nombre_del_prestador_en_donde_ocurrio_el_evento_adverso;
+                    //evento.nit_del_prestador_en_donde_ocurrio_el_evento_adverso = even.nit_del_prestador_en_donde_ocurrio_el_evento_adverso;
+                    //evento.numero_de_identificacion_del_prestador_codigo_sap = even.numero_de_identificacion_del_prestador_codigo_sap;
+                    //evento.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento = even.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento;
+                    //evento.numero_de_identificacion_del_beneficiario = even.numero_de_identificacion_del_beneficiario;
+                    //evento.nombre_del_beneficiario = even.nombre_del_beneficiario;
+                    //evento.edad_del_beneficiario = even.edad_del_beneficiario;
+                    //evento.descripcion_del_evento = even.descripcion_del_evento;
+                    //evento.clasificacion_del_evento_de_la_atencion_en_salud = even.clasificacion_del_evento_de_la_atencion_en_salud;
+                    //evento.categoria_del_evento = even.categoria_del_evento;
+                    //evento.subcategoria_del_evento = even.subcategoria_del_evento;
+                    //evento.resultado_negativo_de_la_medicacion = even.resultado_negativo_de_la_medicacion;
+                    //evento.confirmacion_evento_prevenible_no_prevenible = even.confirmacion_evento_prevenible_no_prevenible;
+                    //evento.severidad_del_desenlace = even.severidad_del_desenlace;
+                    //evento.probabilidad_de_repeticion = even.probabilidad_de_repeticion;
+                    //evento.concepto_auditoria = even.concepto_auditoria;
+                    //evento.gestion_de_la_gestoria_integral_de_la_calidad = even.gestion_de_la_gestoria_integral_de_la_calidad;
+                    //evento.plan_de_mejora_al_prestador_si_o_no = even.plan_de_mejora_al_prestador_si_o_no;
+                    //evento.fecha_radicacion_del_plan_de_mejora = even.fecha_radicacion_del_plan_de_mejora;
+                    //evento.fecha_programada_para_revision_de_plan_de_mejora = even.fecha_programada_para_revision_de_plan_de_mejora;
+                    //evento.costo_de_no_calidad = even.costo_de_no_calidad;
+                    //evento.descripcion_de_costo_de_no_calidad = even.descripcion_de_costo_de_no_calidad;
+                    //evento.seguimiento = even.seguimiento;
+                    //evento.novedades = even.novedades;
+                    //evento.edicion_regional = even.edicion_regional;
+                    //evento.edicion_nacional = even.edicion_nacional;
 
-                    evento.id_cargue = even.id_cargue;
-                    evento.id_concurrencia = even.id_concurrencia;
-                    evento.id_evolucion_concurrencia = even.id_evolucion_concurrencia;
-                    evento.id_planMejora = even.id_planMejora;
-                    evento.Año = even.Año;
-                    evento.IdMes = even.IdMes;
-                    evento.Mes = even.Mes;
-                    evento.FechaReporte = even.FechaReporte;
-                    evento.FechaOcurrenciaEvento = even.FechaOcurrenciaEvento;
-                    evento.RegionalReporta = even.RegionalReporta;
-                    evento.LocalidadServiciosSalud = even.LocalidadServiciosSalud;
-                    evento.NombreReportante = even.NombreReportante;
-                    evento.IdentificacionReportante = even.IdentificacionReportante;
-                    evento.NombrePrestadorEvento = even.NombrePrestadorEvento;
-                    evento.CodigoSAPPrestador = even.CodigoSAPPrestador;
-                    evento.NombreMunicipio = even.NombreMunicipio;
-                    evento.CodigoMunicipal = even.CodigoMunicipal;
-                    evento.RegionalBeneficiario = even.RegionalBeneficiario;
-                    evento.TipoIdentificacion = even.TipoIdentificacion;
-                    evento.NumeroIdentificacion = even.NumeroIdentificacion;
-                    evento.NombreCompleto = even.NombreCompleto;
-                    evento.Edad = even.Edad;
-                    evento.FuenteReporte = even.FuenteReporte;
-                    evento.AmbitoOcurrenciaEvento = even.AmbitoOcurrenciaEvento;
-                    evento.DescripcionEvento = even.DescripcionEvento;
-                    evento.ClasificacionEvento = even.ClasificacionEvento;
-                    evento.CategoriaEvento = even.CategoriaEvento;
-                    evento.SubcategoriaEvento = even.SubcategoriaEvento;
-                    evento.ResultadoNegativoMedicacion = even.ResultadoNegativoMedicacion;
-                    evento.ConfirmacionEventoAdverso = even.ConfirmacionEventoAdverso;
-                    evento.SeveridadDesenlace = even.SeveridadDesenlace;
-                    evento.ProbabilidadRepeticion = even.ProbabilidadRepeticion;
-                    evento.ConceptoAuditoria = even.ConceptoAuditoria;
-                    evento.GestionRegional = even.GestionRegional;
-                    evento.PlanMejoraGenerado = even.PlanMejoraGenerado;
-                    evento.CostoNoCalidad = even.CostoNoCalidad;
-                    evento.DescripcionCostoNoCalidad = even.DescripcionCostoNoCalidad;
-                    evento.estado_evento = even.estado_evento;
+                    evento.fecha_digita = even.fecha_digita;
+                    evento.usuario_digita = even.usuario_digita;
 
                     db.SubmitChanges();
-                    return evento.id_evento;
-                }
-            }
-            catch (Exception ex)
-            {
-                var mensaje = ex.Message;
-                return 0;
-            }
-        }
-
-
-        public int ActualizarRegistroEventosSaludPM(int? idEvento, int? idPlan)
-        {
-            try
-            {
-                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
-                {
-                    eventos_salud_registros evento = db.eventos_salud_registros.Where(x => x.id_evento == idEvento).FirstOrDefault();
-                    evento.id_planMejora = idPlan;
-                    db.SubmitChanges();
-                    return evento.id_evento;
+                    return 1;
                 }
             }
             catch (Exception ex)
@@ -6340,7 +6329,7 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
-
+        
         public int ActualizarValorTarifaCapita(List<fis_rips_cargue_registrosCompletos> listado)
         {
             try
@@ -6690,6 +6679,7 @@ namespace DATA_ACCESS
 
         #endregion
 
+
         #region FIS_RIPS
 
         public int ActualizarEstadoValidacion(int idValidacion, int estado)
@@ -6707,8 +6697,11 @@ namespace DATA_ACCESS
                 var erorr = ex.Message;
                 return 0;
             }
+
         }
 
+
         #endregion
+
     }
 }

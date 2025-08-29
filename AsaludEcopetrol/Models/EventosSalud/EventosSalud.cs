@@ -51,7 +51,6 @@ namespace AsaludEcopetrol.Models.EventosSalud
         public int? id_evento { get; set; }
         public int? id_cargue { get; set; }
         public int? id_concurrencia { get; set; }
-        public int? id_planMejora { get; set; }
         public int? id_evolucion_concurrencia { get; set; }
         public int? Año { get; set; }
         public int? IdMes { get; set; }
