@@ -2910,8 +2910,39 @@ namespace DATA_ACCESS
             return listado;
         }
 
+        public List<ref_motivoDevolucionFacturas> ListadoMotivosDevolucionFac()
+        {
+            List<ref_motivoDevolucionFacturas> lista = new List<ref_motivoDevolucionFacturas>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.ref_motivoDevolucionFacturas.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
 
-
+        public List<ref_motivoDevolucionFacturas_descripcion> ListadoMotivosDevolucionFacDescripcion(int? id_mot)
+        {
+            List<ref_motivoDevolucionFacturas_descripcion> lista = new List<ref_motivoDevolucionFacturas_descripcion>();
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lista = db.ref_motivoDevolucionFacturas_descripcion.Where(x => x.id_ref_devolucion == id_mot).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return lista;
+        }
         #endregion
 
         #region EVOLUCION
@@ -19549,14 +19580,14 @@ namespace DATA_ACCESS
             return lista;
         }
 
-        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero(int? mes, int? año)
+        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero()
         {
             List<management_eventosSalud_tableroResult> lista = new List<management_eventosSalud_tableroResult>();
             try
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-                    lista = db.management_eventosSalud_tablero(mes, año).ToList();
+                    lista = db.management_eventosSalud_tablero().ToList();
                 }
             }
             catch (Exception ex)
@@ -21993,7 +22024,7 @@ namespace DATA_ACCESS
             return listado;
         }
 
-        public List< vw_auditores_totales> GetAuditorRegional(int? idRegional)
+        public List<vw_auditores_totales> GetAuditorRegional(int? idRegional)
         {
             List<vw_auditores_totales> dato = new List<vw_auditores_totales>();
 
@@ -22513,5 +22544,665 @@ namespace DATA_ACCESS
 
         #endregion RECOMENDACIONES AUDITORIA
 
+
+        #region RIPS FIS 
+
+        public List<Management_FisRips_Correctos_ACResult> FisRipsCorrectos_AC(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+
+            List<Management_FisRips_Correctos_ACResult> datos = new List<Management_FisRips_Correctos_ACResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AC(regional, mes, año).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Correctos_AFResult> FisRipsCorrectos_AF(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_AFResult> datos = new List<Management_FisRips_Correctos_AFResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AF(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_AHResult> FisRipsCorrectos_AH(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_AHResult> datos = new List<Management_FisRips_Correctos_AHResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AH(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_AMResult> FisRipsCorrectos_AM(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_AMResult> datos = new List<Management_FisRips_Correctos_AMResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AM(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_ANResult> FisRipsCorrectos_AN(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_ANResult> datos = new List<Management_FisRips_Correctos_ANResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AN(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_APResult> FisRipsCorrectos_AP(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_APResult> datos = new List<Management_FisRips_Correctos_APResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AP(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_ATResult> FisRipsCorrectos_AT(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_ATResult> datos = new List<Management_FisRips_Correctos_ATResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AT(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+      
+        public List<Management_FisRips_Correctos_AUResult> FisRipsCorrectos_AU(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_AUResult> datos = new List<Management_FisRips_Correctos_AUResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_AU(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<Management_FisRips_Correctos_USResult> FisRipsCorrectos_US(int regional, int mes, int año, ref MessageResponseOBJ MsRes)
+        {
+            List<Management_FisRips_Correctos_USResult> datos = new List<Management_FisRips_Correctos_USResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Correctos_US(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+        }
+
+        public List<ECOPETROL_COMMON.ENUM.reporterips> ConsultaRipsFisEvaluacion(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            var lstResult = new List<ECOPETROL_COMMON.ENUM.reporterips>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    // Ajustar según lo que retorne realmente el SP: DataTable o IEnumerable
+                    
+                    db.CommandTimeout = 3600;
+
+                    var dt = db.management_Reporte_FisRips_Evaluacion(regional, mes, año).ToList();
+
+                    foreach (var row in dt) // Aquí dependerá del tipo real
+                    {
+                        var obj2 = new ECOPETROL_COMMON.ENUM.reporterips
+                        {
+                            codhabilitacion = row.codigo_habilitacion?.ToString(),
+                            razon_social = row.razon_social?.ToString(),
+                            muni_nombre = row.muni_nombre?.ToString(),
+                            nombreRegional = row.nombreRegional?.ToString()
+                        };
+
+
+                        int cantidad = Convert.ToInt32(row.Cantidad);
+                        obj2.cantidad = cantidad;
+
+
+
+                        int reg_facturados_opor = Convert.ToInt32(row.eac_reg_opo) +
+                                                  Convert.ToInt32(row.eap_reg_opo) +
+                                                  Convert.ToInt32(row.eau_reg_opo) +
+                                                  Convert.ToInt32(row.eah_reg_opo) +
+                                                  Convert.ToInt32(row.ean_reg_opo) +
+                                                  Convert.ToInt32(row.eam_reg_opo);
+
+                        obj2.registros_facturados_oportunamente = reg_facturados_opor;
+
+
+
+                        //double porcentaje_oportunidad = ((double)reg_facturados_opor / (double)cantidad) * 100;
+
+
+                        //double b = (porcentaje_oportunidad % 1);
+                        //if (b > 0.8)
+                        //{
+                        //    obj2.porcentaje_oportunidad = Math.Round(porcentaje_oportunidad);
+                        //}
+                        //else
+                        //{
+                        //    obj2.porcentaje_oportunidad = Math.Ceiling(porcentaje_oportunidad);
+                        //}
+
+
+
+                        if (cantidad > 0)
+                        {
+                            double porcentaje_oportunidad = ((double)reg_facturados_opor / cantidad) * 100;
+
+                            // Redondear a 2 decimales para evitar 99.99999 que se convierte en 100
+                            porcentaje_oportunidad = Math.Round(porcentaje_oportunidad, 2);
+
+                            // Si es exactamente 100, se asigna 100, de lo contrario se mantiene el valor real
+                            if (porcentaje_oportunidad == 100)
+                            {
+                                obj2.porcentaje_oportunidad = 100;
+                            }
+                            else
+                            {
+                                obj2.porcentaje_oportunidad = porcentaje_oportunidad;
+                            }
+                        }
+                        else
+                        {
+                            obj2.porcentaje_oportunidad = 0;
+                        }
+
+
+                        //obj2.Errores_dx = Convert.ToInt32(row[9]) + Convert.ToInt32(row[10]) +
+                        //                  Convert.ToInt32(row[11]) + Convert.ToInt32(row[12]);
+
+                        //obj2.Errores_pc = Convert.ToInt32(row[13]);
+
+                        //obj2.Errores_rc = Enumerable.Range(14, 5).Sum(i => Convert.ToInt32(row[i]));
+
+
+
+                        obj2.Total_Errores = Convert.ToInt32(row.eac_total_errores) +
+                                                Convert.ToInt32(row.eap_total_errores) +
+                                                Convert.ToInt32(row.eau_total_errores) +
+                                                Convert.ToInt32(row.eah_total_errores) +
+                                                Convert.ToInt32(row.ean_total_errores) +
+                                                Convert.ToInt32(row.eam_total_errores);
+
+
+                        obj2.Registros_unicos_con_error = Convert.ToInt32(row.eac_reg_unicos_error) +
+                                                            Convert.ToInt32(row.eap_reg_unicos_error) +
+                                                            Convert.ToInt32(row.eau_reg_unicos_error) +
+                                                            Convert.ToInt32(row.eah_reg_unicos_error) +
+                                                            Convert.ToInt32(row.ean_reg_unicos_error) +
+                                                            Convert.ToInt32(row.eam_reg_unicos_error);
+
+
+
+
+                        int reg_unicos_sin_error = Convert.ToInt32(row.eac_reg_unicos_sin_error) +
+                                                            Convert.ToInt32(row.eap_reg_unicos_sin_error) +
+                                                            Convert.ToInt32(row.eau_reg_unicos_sin_error) +
+                                                            Convert.ToInt32(row.eah_reg_unicos_sin_error) +
+                                                            Convert.ToInt32(row.ean_reg_unicos_sin_error) +
+                                                            Convert.ToInt32(row.eam_reg_unicos_sin_error);
+
+
+                        obj2.Registros_sin_error = reg_unicos_sin_error;
+
+
+                        obj2.porcentaje_calidad_rips = cantidad > 0
+                        ? Math.Round((double)reg_unicos_sin_error / cantidad * 100, 0, MidpointRounding.AwayFromZero)
+                        : 0;
+
+
+
+                        lstResult.Add(obj2);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return lstResult;
+        }
+
+        public List<Management_FisRips_Incorrectos_ACResult> FisRipsErrores_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_ACResult> datos = new List<Management_FisRips_Incorrectos_ACResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AC(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_AHResult> FisRipsErrores_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_AHResult> datos = new List<Management_FisRips_Incorrectos_AHResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AH(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_AMResult> FisRipsErrores_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_AMResult> datos = new List<Management_FisRips_Incorrectos_AMResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AM(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_ANResult> FisRipsErrores_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_ANResult> datos = new List<Management_FisRips_Incorrectos_ANResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AN(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_APResult> FisRipsErrores_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_APResult> datos = new List<Management_FisRips_Incorrectos_APResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AP(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_ATResult> FisRipsErrores_AT(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_ATResult> datos = new List<Management_FisRips_Incorrectos_ATResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AT(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_AUResult> FisRipsErrores_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_AUResult> datos = new List<Management_FisRips_Incorrectos_AUResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_AU(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_Incorrectos_USResult> FisRipsErrores_US(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_Incorrectos_USResult> datos = new List<Management_FisRips_Incorrectos_USResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_Incorrectos_US(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_ACResult> FisRipsInoportuno_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_ACResult> datos = new List<Management_FisRips_SinOportunidad_ACResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AC(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_AHResult> FisRipsInoportuno_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_AHResult> datos = new List<Management_FisRips_SinOportunidad_AHResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AH(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_APResult> FisRipsInoportuno_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_APResult> datos = new List<Management_FisRips_SinOportunidad_APResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AP(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_ANResult> FisRipsInoportuno_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_ANResult> datos = new List<Management_FisRips_SinOportunidad_ANResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AN(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_AUResult> FisRipsInoportuno_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_AUResult> datos = new List<Management_FisRips_SinOportunidad_AUResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AU(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<Management_FisRips_SinOportunidad_AMResult> FisRipsInoportuno_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            List<Management_FisRips_SinOportunidad_AMResult> datos = new List<Management_FisRips_SinOportunidad_AMResult>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.CommandTimeout = 3600;
+                    datos = db.Management_FisRips_SinOportunidad_AM(regional, mes, año).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return datos;
+
+        }
+
+        public List<ref_validaciones_Ripsfis> ListarValidacionesFis()
+        {
+            List<ref_validaciones_Ripsfis> lst = new List<ref_validaciones_Ripsfis>();
+
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    lst = db.ref_validaciones_Ripsfis.ToList();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return lst;
+
+        }
+
+
+        #endregion
     }
 }

@@ -183,6 +183,9 @@
 
         <div class="panel-body">
 
+            <div class="col-md-2">
+                <a class="btn btn-sm button_Asalud_Guardar botonCapitaMasivo" onclick="ValorCapitaMasivo();">Valor CAPITA</a>
+            </div>
 
             <div class="col-md-2">
                 <a class="btn btn-sm button_Asalud_Guardar botonCupsHomoMasivo" onclick="HomologarCupsMasivo();">Homologar CUPS</a>
@@ -306,7 +309,7 @@
                                     <td>
                                         @if (item.existeBeneficiario == 0)
                                         {
-                                            <i class="alerta_beneficiario glyphicon glyphicon-user" title="No existe beneficiario"></i>
+                                            <i class="alerta_beneficiario glyphicon glyphicon-user" onclick="MostrarModalEditBeneficiario(@item.id_factura, @item.id_registro, @item.id_usuario, '@item.documentoUsuario')" title="No existe beneficiario"></i>
                                         }
                                         @if (item.alertaCups == 0)
                                         {
@@ -780,6 +783,32 @@
     </div>
 </div>
 
+<div class="modal fade" data-keyboard="false" id="ModalAjusteBene">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultEditBene"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-keyboard="false" id="ModalValorCapita">
+    <div class="modal-dialog modal-lg" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titlemodal"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultValorCapi"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js"></script>
 <link rel="Stylesheet" type="text/css" href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" />
@@ -1653,7 +1682,6 @@
         $("#responseModal").modal('show');
     }
 
-
     function ExportarRips() {
         var id = "@ViewBag.idDetalle";
         var URL2 = "@Url.Action("DescargarReporteCupsGlosas", "RadicacionElectonica")?idFactura=" + id;
@@ -1937,7 +1965,6 @@
         })
     }
 
-
     function HomologarCupsMasivo() {
         var seleccionados = "";
         const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
@@ -1978,6 +2005,72 @@
                 $('#resultCupsHoMasivo').html('');
                 $('#resultCupsHoMasivo').html(data);
                 $("#ModalCupsHomoloMasivo").modal("show");
+            }
+        })
+    }
+
+    function MostrarModalEditBeneficiario(id_factura, id_registro, id_usuario, documento) {
+
+        var formData = new FormData($("#formTotalidadFacturas")[0]);
+
+        formData.append("id_registro", id_registro);
+        formData.append("id_factura", id_factura);
+        formData.append("id_usuario", id_usuario);
+        formData.append("documento", documento);
+
+        $.ajax({
+            url: "@Url.Action("AjustarDocumentoBeneficiario")",
+            method: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (data) {
+                $("#ModalAjusteBene").modal("show");
+                $("#resultEditBene").empty();
+                $("#resultEditBene").html(data);
+            }
+        })
+    }
+
+    function ValorCapitaMasivo() {
+        var seleccionados = "";
+        const checkboxes = document.querySelectorAll(`input[type='checkbox'][id^='chekregistro_']`);
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                var compuesto = checkbox.id.split('_');
+                var info = compuesto[1].split('-');
+                var idUsuario = info[0];
+                var idRegistro = info[1];
+                var idFactura = info[2];
+                var idCargue = info[3];
+
+                if (seleccionados == "") {
+                    seleccionados = idUsuario + "-" + idRegistro + "-" + idFactura;
+                } else {
+                    seleccionados += "|" + idUsuario + "-" +  idRegistro + "-" + idFactura;
+                }
+            }
+        });
+
+        if (seleccionados == "") {
+            alert("Seleccione registros para agregar valor capita");
+            return false;
+        }
+
+        $.ajax({
+            url: "@Url.Action("AjustarValorCapitaMasivo")",
+            cache: false,
+            async: true,
+            type: "POST",
+            data: {
+                seleccionados: seleccionados,
+                idFactura: "@ViewBag.idDetalle"
+            },
+            success: function (data) {
+                $('#resultValorCapi').html('');
+                $('#resultValorCapi').html(data);
+                $("#ModalValorCapita").modal("show");
             }
         })
     }
@@ -2153,7 +2246,7 @@
     .negativo {
         background-color: #ff6d6d;
     }
-    
+
     .botonCupsHomoMasivo {
         position: fixed; /* Hace que el botón esté en una posición fija */
         bottom: 230px; /* Distancia desde la parte inferior de la ventana */
@@ -2168,4 +2261,17 @@
         cursor: pointer;
     }
 
+    .botonCapitaMasivo {
+        position: fixed; /* Hace que el botón esté en una posición fija */
+        bottom: 170px; /* Distancia desde la parte inferior de la ventana */
+        right: 20px; /* Distancia desde la parte derecha de la ventana */
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        background-color: #6E7584; /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 4px 8px; /* Espaciado interno */
+        border-radius: 3px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
+        text-align: center;
+        cursor: pointer;
+    }
 </style>

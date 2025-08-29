@@ -314,7 +314,7 @@ namespace Facede
         {
             return DACComonClass.GetCiudadesXRegional(idRegional);
         }
-
+            
         public List<Ref_ciudades> GetCiudadesXUnis(int? idUnis)
         {
             return DACComonClass.GetCiudadesXUnis(idUnis);
@@ -9569,11 +9569,10 @@ namespace Facede
             return DACConsulta.ListaEventosSaludClasificacion();
         }
 
-        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero(int? mes, int? año)
+        public List<management_eventosSalud_tableroResult> ListadoEventosEnSaludTablero()
         {
-            return DACConsulta.ListadoEventosEnSaludTablero(mes, año);
+            return DACConsulta.ListadoEventosEnSaludTablero();
         }
-
 
         public eventos_salud_registros TraerDatosEventosSaludId(int? idEvento)
         {
@@ -9593,6 +9592,10 @@ namespace Facede
         public int ActualizarRegistroEventosSalud(eventos_salud_registros even)
         {
             return DACActualiza.ActualizarRegistroEventosSalud(even);
+        }
+        public int ActualizarRegistroEventosSaludPM(int? idEvento, int? idPlan)
+        {
+            return DACActualiza.ActualizarRegistroEventosSaludPM(idEvento, idPlan);
         }
 
         #endregion
@@ -9660,6 +9663,11 @@ namespace Facede
         public encuesta_sami TraerEncuestaEsteMes()
         {
             return DACConsulta.TraerEncuestaEsteMes();
+        }
+
+        public int InsertarEncuestaNoAplica(int? idConcurrencia, string usuario, ref MessageResponseOBJ MsgRes)
+        {
+            return DACInserta.InsertarEncuestaNoAplica(idConcurrencia, usuario, ref MsgRes);
         }
 
         #endregion ENCUESTA SAMI
@@ -10745,6 +10753,30 @@ namespace Facede
             return DACInserta.InsertarLogCupsHomologado(obj);
         }
 
+        public List<ref_motivoDevolucionFacturas> ListadoMotivosDevolucionFac()
+        {
+            return DACConsulta.ListadoMotivosDevolucionFac();
+        }
+        public List<ref_motivoDevolucionFacturas_descripcion> ListadoMotivosDevolucionFacDescripcion(int? id_mot)
+        {
+            return DACConsulta.ListadoMotivosDevolucionFacDescripcion(id_mot);
+        }
+
+        public int ActualizarRipsFacturas_Beneficiario(fis_rips_cargue_usuarios obj)
+        {
+            return DACActualiza.ActualizarRipsFacturas_Beneficiario(obj);
+        }
+
+        public int InsertarLogEdicionBene(log_fis_rips_facturas_edicionBeneficiario obj)
+        {
+            return DACInserta.InsertarLogEdicionBene(obj);
+        }
+
+        public int ActualizarValorTarifaCapita(List<fis_rips_cargue_registrosCompletos> listado)
+        {
+            return DACActualiza.ActualizarValorTarifaCapita(listado);
+        }
+
         #endregion FIS PRESTADORES
 
         #region CHATBOT
@@ -11053,6 +11085,165 @@ namespace Facede
 
 
         #endregion RECOMENDACIONES AUDITORIA
+
+        #region RIPS FIS
+
+        public List<Management_FisRips_Correctos_ACResult> FisRipsCorrectos_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AC(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_AFResult> FisRipsCorrectos_AF(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AF(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_AHResult> FisRipsCorrectos_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AH(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_AMResult> FisRipsCorrectos_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AM(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_ANResult> FisRipsCorrectos_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AN(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_APResult> FisRipsCorrectos_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AP(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_ATResult> FisRipsCorrectos_AT(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AT(regional, mes, año, ref MsgRes);
+        }
+
+        public List<Management_FisRips_Correctos_AUResult> FisRipsCorrectos_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_AU(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_Correctos_USResult> FisRipsCorrectos_US(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsCorrectos_US(regional, mes, año, ref MsgRes);
+        }
+
+
+
+
+        public List<ECOPETROL_COMMON.ENUM.reporterips> ConsultaRipsFisEvaluacion(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.ConsultaRipsFisEvaluacion(regional, mes, año, ref MsgRes);
+        }
+
+
+
+
+        // AC
+        public List<Management_FisRips_Incorrectos_ACResult> FisRipsErrores_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AC(regional, mes, año, ref MsgRes);
+        }
+
+        // AH
+        public List<Management_FisRips_Incorrectos_AHResult> FisRipsErrores_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AH(regional, mes, año, ref MsgRes);
+        }
+
+        // AM
+        public List<Management_FisRips_Incorrectos_AMResult> FisRipsErrores_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AM(regional, mes, año, ref MsgRes);
+        }
+
+        // AN
+        public List<Management_FisRips_Incorrectos_ANResult> FisRipsErrores_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AN(regional, mes, año, ref MsgRes);
+        }
+
+        // AP
+        public List<Management_FisRips_Incorrectos_APResult> FisRipsErrores_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AP(regional, mes, año, ref MsgRes);
+        }
+
+        // AT
+        public List<Management_FisRips_Incorrectos_ATResult> FisRipsErrores_AT(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AT(regional, mes, año, ref MsgRes);
+        }
+
+        // AU
+        public List<Management_FisRips_Incorrectos_AUResult> FisRipsErrores_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_AU(regional, mes, año, ref MsgRes);
+        }
+
+        // US
+        public List<Management_FisRips_Incorrectos_USResult> FisRipsErrores_US(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsErrores_US(regional, mes, año, ref MsgRes);
+        }
+
+
+
+
+
+        public List<Management_FisRips_SinOportunidad_ACResult> FisRipsInoportuno_AC(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AC(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_SinOportunidad_AHResult> FisRipsInoportuno_AH(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AH(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_SinOportunidad_APResult> FisRipsInoportuno_AP(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AP(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_SinOportunidad_ANResult> FisRipsInoportuno_AN(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AN(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_SinOportunidad_AUResult> FisRipsInoportuno_AU(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AU(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<Management_FisRips_SinOportunidad_AMResult> FisRipsInoportuno_AM(int regional, int mes, int año, ref MessageResponseOBJ MsgRes)
+        {
+            return DACConsulta.FisRipsInoportuno_AM(regional, mes, año, ref MsgRes);
+        }
+
+
+        public List<ref_validaciones_Ripsfis> ListarValidacionesFis()
+        {
+            return DACConsulta.ListarValidacionesFis();
+        }
+
+        public int ActualizarEstadoValidacion(int idValidacion, int estado)
+        {
+            return DACActualiza.ActualizarEstadoValidacion(idValidacion, estado);
+        }
+
+        #endregion
     }
 }
 

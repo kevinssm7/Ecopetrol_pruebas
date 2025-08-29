@@ -2937,6 +2937,65 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             }
         }
 
+        public ActionResult DescargarSoporteACR(int? tipo)
+        {
+            try
+            {
+                if (!tipo.HasValue)
+                {
+                    return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Tipo de archivo no especificado." });
+                }
+
+                string nombreArchivo = "";
+                string rutaRelativa = "~/Resources/PlanesMejora/";
+                string extensionTipo = "";
+
+                switch (tipo.Value)
+                {
+                    case 1:
+                        nombreArchivo = "1. Analisís de demora.xlsx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case 2:
+                        nombreArchivo = "2. Protocolo de londres.xlsx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case 3:
+                        nombreArchivo = "3. Lluvia de ideas.xlsx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case 4:
+                        nombreArchivo = "4. Espina de pescado.xlsx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case 5:
+                        nombreArchivo = "5. Analisís de caso.docx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                        break;
+                    case 6:
+                        nombreArchivo = "6. 5 Porqués.xlsx";
+                        extensionTipo = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    default:
+                        return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "El tipo de archivo no es válido." });
+                }
+
+                string rutaFisica = Path.Combine(Server.MapPath(rutaRelativa), nombreArchivo);
+
+                if (!System.IO.File.Exists(rutaFisica))
+                {
+                    return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "El archivo solicitado no existe en el servidor." });
+                }
+
+                return File(rutaFisica, extensionTipo, nombreArchivo);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ControlErrores", "Usuario", new { mensaje = "Ha ocurrido un error al momento de visualizar el archivo: " + ex.Message });
+            }
+        }
+
+
         //kevin 200625
     }
 

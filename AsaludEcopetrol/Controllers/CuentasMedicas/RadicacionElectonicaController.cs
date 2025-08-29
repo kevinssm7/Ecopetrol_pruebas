@@ -998,8 +998,8 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                 Numero_factura_nueva = item.Numero_factura_nueva,
                 valor_factura_nueva = item.valor_factura_nueva,
                 estado_fac_nueva = item.estado_fac_nueva,
-                nroPedido = item.nroPedido,
-                numero_contrato = item.numero_contrato
+                //nroPedido = item.nroPedido,
+                //numero_contrato = item.numero_contrato
             });
 
 
@@ -2906,12 +2906,15 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
             //ViewBag.List = list;
 
+
+            ViewBag.motivoDev = BusClass.ListadoMotivosDevolucionFac();
+
             ViewBag.id_cargue = ID;
             ViewBag.id_dtll = ID2;
 
             return PartialView(Model);
         }
-
+        
         public JsonResult SavegestionFacturasRechazadas(Models.CuentasMedicas.RadicacionElectronica Model)
         {
             String mensaje = "";
@@ -2943,10 +2946,13 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
                     var Cadena = Model.SelectedList;
 
-                    foreach (var item in Cadena.ToList())
-                    {
-                        FacturasRechazadasDetalle(Model.id_cargue_dtll, Convert.ToInt32(item));
-                    }
+                    FacturasRechazadasDetalleFis(Model.id_cargue_dtll, Model.id_motivo, Model.id_des_motivo, Model.obs);
+
+                    //foreach (var item in Cadena.ToList())
+                    //{
+                    //    //FacturasRechazadasDetalle(Model.id_cargue_dtll, Convert.ToInt32(item));
+
+                    //}
 
                     if (factura != null)
                     {
@@ -3170,6 +3176,34 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
         }
 
+        public void FacturasRechazadasDetalleFis(int? idAf, int? motivo, int? desMotivo, string observacion)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    var fecha = Convert.ToDateTime(DateTime.Now);
+                    command.CommandText = "INSERT INTO rips_af_cargue_dtll_rechazos(id_af, id_ref_rechazos_Fac,  id_motivo, id_des_motivo, observacion, fecha_ingreso, usuario)values(@id_af, null, @id_motivo, @id_des_motivo, @observacion, @fecha_ingreso, @usuario)";
+                    command.Parameters.AddWithValue("@id_af", idAf);
+                    command.Parameters.AddWithValue("@fecha_ingreso", fecha);
+                    command.Parameters.AddWithValue("@id_motivo", motivo);
+                    command.Parameters.AddWithValue("@id_des_motivo", desMotivo);
+                    command.Parameters.AddWithValue("@observacion", observacion);
+                    command.Parameters.AddWithValue("@usuario", SesionVar.UserName);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+        }
+
         public void LoteFacturasRechazadasDetalle(Int32? idcargue, Int32? iditem)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -3211,6 +3245,95 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
         }
 
         public ActionResult CrearPdfFacturasDigRechazadas(int? ID)
+        {
+            try
+            {
+                //RUTA REPORTE
+                string rPath = Path.Combine(Server.MapPath("~/ReportViewer"), "RptfacDigRechazo2.rdlc");
+
+                Models.Reportes.Reportes Model = new Models.Reportes.Reportes();
+
+                List<managmentRechazoFacturasReporteResult> lst = new List<managmentRechazoFacturasReporteResult>();
+                lst = Model.GetFacturasByRechazoReporte((int)ID, ref MsgRes);
+
+                if (lst.Count() == 0)
+                {
+                    return RedirectToAction("ControlErrores", "Usuario", new { Mensaje = "No se ha podido generar la carta de aprobación" });
+                }
+
+                var analista = lst.FirstOrDefault().id_analista_gestiona;
+
+                var BaseImagen = Model.GetFirmas(analista);
+
+                string Imagen = "";
+
+                if (BaseImagen != null)
+                {
+                    Imagen = Convert.ToBase64String(BaseImagen.firma_digital.ToArray());
+                }
+
+                Microsoft.Reporting.WebForms.ReportParameter imagen = new Microsoft.Reporting.WebForms.ReportParameter("Imagen", Imagen);
+                Microsoft.Reporting.WebForms.ReportDataSource rds = new Microsoft.Reporting.WebForms.ReportDataSource("DataSetRechazo", lst);
+
+                Microsoft.Reporting.WebForms.ReportViewer viewer = new Microsoft.Reporting.WebForms.ReportViewer();
+                viewer.ProcessingMode = ProcessingMode.Local;
+                viewer.LocalReport.ReportPath = rPath;
+                viewer.LocalReport.DataSources.Clear();
+                viewer.LocalReport.DataSources.Add(rds);
+                viewer.LocalReport.SetParameters(imagen);
+
+                if (lst.Count != 0)
+                {
+                    //CONTROL EXCEPCION
+                    try
+                    {
+                        viewer.LocalReport.Refresh();
+                        //EXPORTAR PDF
+
+                        string mimeType;
+                        string encoding;
+                        string fileNameExtension;
+                        string[] streams;
+                        Microsoft.Reporting.WebForms.Warning[] warnings;
+                        byte[] pdfContent = viewer.LocalReport.Render("PDF", null, out mimeType, out encoding, out fileNameExtension, out streams, out warnings);
+
+                        //RETORNO PDF
+
+                        //Response.ClearContent();
+                        //Response.ClearHeaders();
+                        //Response.Clear();
+
+                        //Response.BufferOutput = false;
+                        //Response.ContentType = "application/pdf";
+                        //Response.AddHeader("content-length", pdfContent.Length.ToString());
+                        //Response.BinaryWrite(pdfContent);
+                        //Response.Flush();
+
+                        return File(pdfContent, "application/pdf", "FacturasDigRechaza" + DateTime.Now + ".pdf");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                        MsgRes.DescriptionResponse = ex.Message;
+
+                        return RedirectToAction("ControlErrores", "Usuario", new { Mensaje = "No se ha podido generar la carta de aprobación: " + MsgRes.DescriptionResponse });
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("ControlErrores", "Usuario", new { Mensaje = "No se ha podido generar la carta de aprobación" });
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                return RedirectToAction("ControlErrores", "Usuario", new { Mensaje = "No se ha podido generar la carta de aprobación: " + error });
+            }
+
+        }
+
+        public ActionResult CrearPdfFacturasDigRechazadasDevo(int? ID)
         {
             try
             {
@@ -11147,8 +11270,12 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
 
                     if (registro.existeBeneficiario == 0)
                     {
-                        resultado.AppendLine("<i class=\"alerta_beneficiario glyphicon glyphicon-user\" title=\"No existe beneficiario\"></i>");
+                        if (tipoPintada == 2)
+                        {
+                            resultado.AppendLine($"<i class='alerta_beneficiario glyphicon glyphicon-user' onclick=\"MostrarModalEditBeneficiario({registro.id_factura}, {registro.id_registro}, {registro.id_usuario}, '{registro.documentoUsuario}')\" title='No existe beneficiario'></i>");
+                        }
                     }
+
 
                     if (registro.alertaCups == 0)
                     {
@@ -13260,7 +13387,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     Models.EnvioCambioEstadoEcopetrol(idDetalle, mensaje);
                     rta = 1;
                 }
-
             }
             catch (Exception ex)
             {
@@ -14657,7 +14783,6 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
         public ActionResult TableroDescargueFacturas()
         {
             ViewBag.regional = BusClass.TraerregionalesFis();
-
             return View();
         }
 
@@ -16346,7 +16471,7 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     Sheet.Cells["EQ1"].Value = "Neto";
                     Sheet.Cells["ER1"].Value = "Solicitante";
                     Sheet.Cells["ES1"].Value = "NUEVO CAMPO";
-                    Sheet.Cells["ET1"].Value = "munipio de prestaccion";
+                    Sheet.Cells["ET1"].Value = "munipio de prestación";
                     Sheet.Cells["EU1"].Value = "ID FACTURA";
                     Sheet.Cells["EV1"].Value = "NOMBRE PRESTADOR";
                     Sheet.Cells["EW1"].Value = "NUMERO DE PEDIDO";
@@ -17697,6 +17822,189 @@ namespace AsaludEcopetrol.Controllers.CuentasMedicas
                     {
                         throw new Exception($"NO EXISTE EL CUPS {cod_cups_homologado}");
                     }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR: {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+        }
+
+        public string ObtenerDescripcionMotivoDevo(int? motivo)
+        {
+            string result = "<option value=''>- Seleccionar -</option>";
+            List<ref_motivoDevolucionFacturas_descripcion> descripciones = new List<ref_motivoDevolucionFacturas_descripcion>();
+            try
+            {
+                descripciones = BusClass.ListadoMotivosDevolucionFacDescripcion(motivo);
+
+                foreach (var item in descripciones)
+                {
+                    result += "<option value='" + item.id_descripcion + "'>" + item.descripcion + "</option>";
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return result;
+        }
+
+        public PartialViewResult AjustarDocumentoBeneficiario(int? id_factura, int? id_registro, int? id_usuario, string documento)
+        {
+            ViewBag.id_factura = id_factura;
+            ViewBag.id_registro = id_registro;
+            ViewBag.id_usuario = id_usuario;
+            ViewBag.documento = documento;
+
+            return PartialView();
+        }
+
+        public JsonResult BuscarBeneficiarioHistorico()
+        {
+            if (string.IsNullOrEmpty(Request.Params["term"]))
+                return null;
+            try
+            {
+                string term = Request.Params["term"];
+                if (term.Length >= 3)
+                {
+                    term = term.ToUpper();
+
+                    List<base_beneficiarios_analitica> bene = new List<base_beneficiarios_analitica>();
+                    bene = BusClass.TraerBeneficiarioDocumento(term);
+
+                    var lista = (from ci in bene
+                                 select new
+                                 {
+                                     id = ci.Numero_identificacion,
+                                     label = ci.Numero_identificacion + "-" + ci.Nombre + " " + ci.Apellidos,
+                                 }).Distinct().OrderBy(f => f.label).Take(15);
+                    return Json(lista, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(null, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e)
+            {
+                var error = e.Message;
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GuardarEdicionBeneficiarioRegistro(int? id_factura, int? id_registro, int? id_usuario, string documento, string documento_bene, string nombre_bene, string observacion)
+        {
+            var rta = 0;
+            var mensaje = "";
+            try
+            {
+                var existe = BusClass.ExisteBeneficiario(documento_bene);
+                if (existe != 0)
+                {
+                    fis_rips_cargue_usuarios us = new fis_rips_cargue_usuarios()
+                    {
+                        id_usuarios = (int)id_usuario,
+                        numDocumentoIdentificacion = documento_bene
+                    };
+
+                    var actualiza = BusClass.ActualizarRipsFacturas_Beneficiario(us);
+                    if (actualiza != 0)
+                    {
+                        log_fis_rips_facturas_edicionBeneficiario log = new log_fis_rips_facturas_edicionBeneficiario()
+                        {
+                            id_registro = id_registro,
+                            id_factura = id_factura,
+                            documento_inicial = documento,
+                            documento_edicion = documento_bene,
+                            observacion = observacion,
+                            fecha_digita = DateTime.Now,
+                            usuario_digita = SesionVar.UserName
+                        };
+
+                        var insertarLog = BusClass.InsertarLogEdicionBene(log);
+                        if (insertarLog != 0)
+                        {
+                            mensaje = "BENEFICIARIO ACTUALIZADO CORRECTAMENTE";
+                            rta = 1;
+                        }
+                        else
+                        {
+                            throw new Exception($"BENEFICIARIO ACTUALIZADO CORRECTAMENTE - ERROR EN LOG: {documento_bene}");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"ERROR AL ACTUALIZAR DOCUMENTO: {documento_bene}");
+                    }
+                }
+                else
+                {
+                    throw new Exception($"NO EXISTE EL BENEFICIARIO CON DOCUMENTO: {documento_bene}");
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = $"ERROR : {error}";
+            }
+
+            return Json(new { mensaje = mensaje, rta = rta });
+
+        }
+
+        public PartialViewResult AjustarValorCapitaMasivo(string seleccionados, int? idFactura)
+        {
+            ViewBag.seleccionados = seleccionados;
+            ViewBag.idFactura = idFactura;
+
+            return PartialView();
+        }
+
+        public JsonResult GuardarNuevoValorCapita(string seleccionados, int? idFactura, decimal? valorNuevo)
+        {
+            var mensaje = "";
+            var rta = 0;
+            List<fis_rips_cargue_registrosCompletos> listado = new List<fis_rips_cargue_registrosCompletos>();
+
+            try
+            {
+                if (string.IsNullOrEmpty(seleccionados))
+                {
+                    throw new Exception("Seleccione ítem para agregar cups homologados");
+                }
+
+                string[] seleccion = seleccionados.Split('|');
+                var conteoDatos = seleccion.Length;
+                decimal? valorindividual = valorNuevo / conteoDatos;
+
+                foreach (var item in seleccion)
+                {
+                    var datos = item.Split('-');
+                    fis_rips_cargue_registrosCompletos dato = new fis_rips_cargue_registrosCompletos();
+                    dato.id_registro = Convert.ToInt32(datos[1]);
+                    dato.valor_individual = valorindividual;
+                    dato.valor_cups = valorindividual;
+                    dato.conteo_cups = 1;
+
+                    listado.Add(dato);
+                }
+
+                var actualizaRegistro = BusClass.ActualizarValorTarifaCapita(listado);
+                if(actualizaRegistro != 0)
+                {
+                    mensaje = "VALORES ACTUALIZADOS CORRECTAMENTE";
+                    rta = 1;
+                }
+                else
+                {
+                    throw new Exception("ERROR EN LA ACTUALIZACIÓN DE VALORES");
                 }
 
             }

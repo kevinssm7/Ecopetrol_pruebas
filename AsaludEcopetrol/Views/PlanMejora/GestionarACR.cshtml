@@ -41,7 +41,7 @@
                         <div class="col-md-4 mb-3" style="height:100px;">
                             <label style="width: 100%;">
                                 <input type="radio" id="idMetodologia_@item.id_metodologia" name="idMetodologia" value="@item.id_metodologia" required style="display: none;" />
-                                <div class="card p-3 h-100 card-opcion divFondo">
+                                <div class="card p-3 h-100 card-opcion divFondo" onclick="DescargarFormato(@item.id_metodologia)">
                                     <h4 class="mb-2 text-primary_asalud h4Titulo">@item.Encabezado</h4>
                                     <h5 class="mb-0 text-primary_asalud h5Subtitulo">@item.descripcion</h5>
                                 </div>
@@ -236,8 +236,6 @@
 <script src="~/Scripts/validate.js"></script>
 <script>
 
-
-
     $(document).ready(function () {
 
         MostrarTablaGestiones();
@@ -266,7 +264,6 @@
         });
 
     });
-
 
     function MostrarTablaGestiones() {
         var conteo = "@ViewBag.conteoGestiones";
@@ -465,6 +462,16 @@
 
         $("#myModalGestiones").modal("hide");
         VerHallazgos(idPlan);
+    }
+
+    function DescargarFormato(item) {
+        if (item === null || item === undefined) {
+            alert("Tipo de formato no válido.");
+            return;
+        }
+
+        var url = '@Url.Action("DescargarSoporteACR", "PlanMejora")?tipo=' + item;
+        window.open(url, '', 'width =450,height =140,left =10,top =550,toolbar =yes');
     }
 
 </script>

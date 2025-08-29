@@ -8260,7 +8260,6 @@ namespace DATA_ACCESS
         #endregion
 
         #region ENCUESTA SAMI
-
         public int InsertarRespuestaSAMI(encuesta_sami dato, List<encuesta_sami_respuestas> detalles, ref MessageResponseOBJ MsgRes)
         {
             try
@@ -8304,6 +8303,54 @@ namespace DATA_ACCESS
                 return 0;
             }
         }
+
+        public int InsertarEncuestaNoAplica(int? idConcurrencia, string usuario, ref MessageResponseOBJ MsgRes)
+        {
+            using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+            {
+                try
+                {
+                    var encuesta = new ecop_concurrencia_encuesta
+                    {
+                        id_concurrencia = idConcurrencia,
+                        nombre_responde_encuesta = "No aplica",
+                        canal = "No aplica",
+                        numero_encuesta = "No aplica",
+                        pregunta1 = "No aplica",
+                        pregunta2 = "No aplica",
+                        pregunta3 = "No aplica",
+                        pregunta4 = "No aplica",
+                        pregunta5 = "No aplica",
+                        pregunta6 = "No aplica",
+                        pregunta7 = "No aplica",
+                        pregunta8 = "No aplica",
+                        pregunta9 = "No aplica",
+                        pregunta10 = "No aplica",
+                        pregunta11 = "No aplica",
+                        observaciones = "No aplica",
+                        justificacion = "No aplica",
+                        fecha_digita = DateTime.Now,
+                        usuario_digita = usuario
+                        // Asegúrate de que no falten campos obligatorios
+                    };
+
+                    // 👇 Aquí insertas el objeto al contexto
+                    db.ecop_concurrencia_encuesta.InsertOnSubmit(encuesta);
+
+                    // 👇 Esto guarda los cambios en la base de datos
+                    db.SubmitChanges();
+
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Error;
+                    MsgRes.DescriptionResponse = ex.Message;
+                    return 0;
+                }
+            }
+        }
+
 
         #endregion ENCUESTA SAMI
 
@@ -9024,6 +9071,24 @@ namespace DATA_ACCESS
                     return obj.id_log;
                 }
             }catch(Exception ex)
+            {
+                var error = ex.Message;
+                return 0;
+            }
+        }
+
+        public int InsertarLogEdicionBene(log_fis_rips_facturas_edicionBeneficiario obj)
+        {
+            try
+            {
+                using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    db.log_fis_rips_facturas_edicionBeneficiario.InsertOnSubmit(obj);
+                    db.SubmitChanges();
+                    return obj.id_log;
+                }
+            }
+            catch (Exception ex)
             {
                 var error = ex.Message;
                 return 0;

@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using AsaludEcopetrol.BussinesManager;
 using ECOPETROL_COMMON.ENTIDADES;
+using ECOPETROL_COMMON.ENUM;
 using ECOPETROL_COMMON.UTILOBJECTS;
 using static AsaludEcopetrol.Controllers.InicioSesion.UsuarioController;
 
@@ -342,11 +343,11 @@ namespace AsaludEcopetrol.Controllers.Evolucion
 
                     concu = BusClass.ConsultaConcurrenciaId(idConcu);
 
-                    if(concu != null)
+                    if (concu != null)
                     {
-                        if(concu.fecha_ingreso != null)
+                        if (concu.fecha_ingreso != null)
                         {
-                            if(concu.fecha_ingreso > Model.fecha_evolucionok)
+                            if (concu.fecha_ingreso > Model.fecha_evolucionok)
                             {
                                 variable = "ERROR";
                                 variable2 = "CAMPO DE FECHA EVOLUCIÓN MAYOR A LA FECHA DE INGRESO DEL PACIENTE.";
@@ -521,6 +522,22 @@ namespace AsaludEcopetrol.Controllers.Evolucion
 
                                     Model.InsertaConcurrenciaEvolucion(ObjEvolucion, listaProcedimientos, SesionVar.UserName, SesionVar.IPAddress, ref MsgRes);
 
+                                    if (MsgRes.ResponseType == BussinesEnums.EnumTipoRespuesta.Correcto)
+                                    {
+                                        if (Model.tieneEventoA == "SI")
+                                        {
+
+                                            eventos_salud_registros evento = new eventos_salud_registros()
+                                            {
+                                                id_concurrencia = Model.id_concurrencia,
+                                                fecha_digita = DateTime.Now,
+                                                usuario_digita = SesionVar.UserName
+                                            };
+
+                                            var insertaEvento = BusClass.InsertarEventoSalud(evento);
+                                        }
+                                    }
+
                                     Alertas(Model);
 
                                     ObjEvolucion.id_concurrencia = Model.id_concurrencia;
@@ -552,9 +569,7 @@ namespace AsaludEcopetrol.Controllers.Evolucion
                                 List<vw_concurrencia_evolucion_Contrato> LstConcu2 = new List<vw_concurrencia_evolucion_Contrato>();
                                 ObjEvolucion2.id_concurrencia = Model.id_concurrencia;
                                 lst2 = Model.ConsultaEvoluciones(ObjEvolucion2, ref MsgRes);
-                                
-                                
-                                
+
                                 if (lst2.Count == 0)
                                 {
                                     ModelState.AddModelError("", "Error...no puede ser mayor de  24  Horas desde el ingreso" + "...");
@@ -620,7 +635,6 @@ namespace AsaludEcopetrol.Controllers.Evolucion
                                         ObjEvolucion.InfeccionIntra = Model.infencion_intrahospitalaria;
                                         // ObjEvolucion.justificacionEstancia = Model.justificacionEstancia;
 
-
                                         // ObjEvolucion.notaIngreso = Model.notaIngreso;
 
                                         List<ecop_concurrencia_evolucion> lst = new List<ecop_concurrencia_evolucion>();
@@ -635,9 +649,6 @@ namespace AsaludEcopetrol.Controllers.Evolucion
                                         {
                                             ObjEvolucion.notaIngreso = lst[0].notaIngreso;
                                         }
-
-
-
 
                                         if (ObjEvolucion.InfeccionIntra == "SI")
                                         {
@@ -664,7 +675,20 @@ namespace AsaludEcopetrol.Controllers.Evolucion
                                         ObjEvolucion.fecha_digita = Model.ManagmentHora();
                                         Model.InsertaConcurrenciaEvolucion(ObjEvolucion, listaProcedimientos, SesionVar.UserName, SesionVar.IPAddress, ref MsgRes);
 
+                                        if (MsgRes.ResponseType == BussinesEnums.EnumTipoRespuesta.Correcto)
+                                        {
+                                            if (Model.tieneEventoA == "SI")
+                                            {
+                                                eventos_salud_registros evento = new eventos_salud_registros()
+                                                {
+                                                    id_concurrencia = Model.id_concurrencia,
+                                                    fecha_digita = DateTime.Now,
+                                                    usuario_digita = SesionVar.UserName
+                                                };
 
+                                                var insertaEvento = BusClass.InsertarEventoSalud(evento);
+                                            }
+                                        }
 
                                         ObjEvolucion.id_concurrencia = Model.id_concurrencia;
                                         lst = Model.ConsultaEvoluciones(ObjEvolucion, ref MsgRes);
@@ -721,7 +745,6 @@ namespace AsaludEcopetrol.Controllers.Evolucion
             return View(Model);
         }
 
-
         public JsonResult GetCie10(Models.Evolucion.Evolucion Model)
         {
             return Json(Model.LstCie10.ToList(), JsonRequestBehavior.AllowGet);
@@ -759,7 +782,6 @@ namespace AsaludEcopetrol.Controllers.Evolucion
 
             return Json(LstCie102Principal.ToList(), JsonRequestBehavior.AllowGet);
         }
-
 
         private void Alertas(Models.Evolucion.Evolucion Model)
         {

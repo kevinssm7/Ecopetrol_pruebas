@@ -1889,7 +1889,6 @@ namespace DATA_ACCESS
             {
                 using (ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
                 {
-
                     lstResult = db.ref_meses_del_año.ToList();
                     MsgRes.ResponseType = BussinesEnums.EnumTipoRespuesta.Correcto;
                 }
@@ -1903,6 +1902,24 @@ namespace DATA_ACCESS
 
         }
 
+        public ref_meses_del_año TraerMesAñoiD(int? id)
+        {
+            ref_meses_del_año dato = new ref_meses_del_año();
+
+            try
+            {
+                using(ECOPETROL_DataContexDataContext db = new ECOPETROL_DataContexDataContext())
+                {
+                    dato = db.ref_meses_del_año.FirstOrDefault(x => x.id_mes == id);
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+
+            return dato;
+        }
         public List<ref_tipo_cohorte> tipoCohortes()
         {
             List<ref_tipo_cohorte> lstResult = new List<ref_tipo_cohorte>();

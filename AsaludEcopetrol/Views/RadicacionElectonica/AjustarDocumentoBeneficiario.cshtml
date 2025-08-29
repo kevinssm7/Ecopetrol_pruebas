@@ -1,0 +1,110 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong class="text-primary_asalud">EDITAR DOCUMENTO: @ViewBag.documento - REGISTRO: @ViewBag.id_Registro</strong>
+    </div>
+    <div class="panel-body">
+        <form id="formBene">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Documento beneficiario</label>
+                    <input type="text" class="form-control" id="documento_bene" name="documento_bene" maxlength="100" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="text-secondary_asalud">Nombre beneficiario</label>
+                    <input type="text" class="form-control" id="nombre_bene" name="nombre_bene" maxlength="100" required readonly />
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="text-secondary_asalud">Observaciones</label>
+                    <textarea id="observacion" name="observacion" class="form-control" rows="3" cols="2" maxlength="4999" required></textarea>
+                </div>
+            </div>
+            <br />
+
+            <div class="row text-center">
+                <a class="btn button_Asalud_Guardar" onclick="ValidarDatos();">GUARDAR</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+
+    $("#documento_bene").autocomplete({
+        source: function (request, response) {
+            if (request.term.length >= 3) {
+                $.ajax({
+                    url: "/RadicacionElectonica/BuscarBeneficiarioHistorico",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            response(
+                                data.map(function (item) {
+                                    return {
+                                        label: item.label,
+                                        value: item.id,
+                                    };
+                                })
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    },
+                });
+            }
+        },
+        select: function (event, ui) {
+            let nomCamp = $(this).attr("id");
+            var idUs = nomCamp.split("_")[1];
+            $("#documento_bene" + idUs).val(ui.item.value);
+            var des = ui.item.label.split("-")[1];
+            $("#nombre_bene").val(des);
+        },
+    });
+
+    function ValidarDatos() {
+
+        var validar = $("#formBene").validate();
+        if (validar.form()) {
+            var formData = new FormData($("#formBene")[0]);
+            formData.append("id_factura", "@ViewBag.id_factura");
+            formData.append("id_registro", "@ViewBag.id_registro");
+            formData.append("id_usuario", "@ViewBag.id_usuario");
+            formData.append("documento", "@ViewBag.documento");
+            formData.append("documento_bene", $("#documento_bene").val());
+            formData.append("nombre_bene", $("#nombre_bene").val());
+            formData.append("observacion", $("#observacion").val());
+
+            LoadingShow();
+
+            $.ajax({
+                url: "@Url.Action("GuardarEdicionBeneficiarioRegistro")",
+                data: formData,
+                type: "post",
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+
+                    alert(data.mensaje);
+                    LoadingHide();
+
+                    if (data.rta == 1) {
+                        $("#ModalAjusteBene").modal("hide");
+                        location.reload();
+
+                        @*PintarCupsIndividual("@ViewBag.id_factura", "@ViewBag.id_registro");*@
+                    }
+                }
+            });
+        }
+    }
+</script>

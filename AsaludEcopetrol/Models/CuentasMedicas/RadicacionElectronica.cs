@@ -89,6 +89,8 @@ namespace AsaludEcopetrol.Models.CuentasMedicas
 
         public int[] SelectedGroups { get; set; }
 
+        public int? id_motivo { get; set; }
+        public int? id_des_motivo { get; set; }
         public String obs { get; set; }
 
         public String[] SelectedList { get; set; }

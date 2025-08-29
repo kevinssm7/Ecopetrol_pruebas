@@ -3294,7 +3294,7 @@ namespace AsaludEcopetrol.Controllers.Inventario
         //    }
         //}
 
-         public ActionResult DescargarArchivosConsolidado(int? año, string mes, string regional, int? tipo, string documento)
+        public ActionResult DescargarArchivosConsolidado(int? año, string mes, string regional, int? tipo, string documento)
         {
             try
             {
@@ -3345,18 +3345,17 @@ namespace AsaludEcopetrol.Controllers.Inventario
 
                             if (archivosFiltrados.Count > 0)
                             {
-                                
+
 
                                 if (item.tipo != 1)
                                 {
-                                     rutaCarpeta = item.tipo_documento + item.documento;
-                                } 
-
+                                    rutaCarpeta = item.tipo_documento + item.documento;
+                                }
 
                                 else
                                 {
-                                    rutaCarpeta = item.tipo_documento + item.documento + "_" + item.cie10;
 
+                                    rutaCarpeta = !string.IsNullOrEmpty(item.cie10) ? item.tipo_documento + item.documento + "_" + item.cie10 : item.tipo_documento + item.documento;
                                 }
 
                                 foreach (var archivo in archivosFiltrados)

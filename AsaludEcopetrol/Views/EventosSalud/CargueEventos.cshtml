@@ -1,7 +1,4 @@
-﻿@{
-    ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros Model = (ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros)ViewBag.eventos;
-}
-
+﻿@model ECOPETROL_COMMON.ENTIDADES.eventos_salud_registros
 @{
     ViewBag.Title = "EVENTOS EN SALUD";
     Layout = "~/Views/Shared/_LayoutECOPETROL.cshtml";
@@ -11,11 +8,11 @@
 <br />
 
 <div class="container">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong class="text-primary_asalud">DATOS</strong>
-        </div>
-        <div class="panel-body">
+    <form id="formEventos" name="formEventos" action="CargueEventos" method="post" enctype="multipart/form-data">
+        <div class="panel panel-default">
+            <div class="panel-heading text-center">
+                <strong class="text-primary_asalud">INGRESO EVENTOS EN SALUD</strong>
+            </div>
             @if (rta > 0)
             {
                 <div class="form-group">
@@ -34,19 +31,26 @@
                 </div>
                 <br />
             }
+        </div>
 
-            <form id="formEventos" name="formEventos" action="CargueEventos" method="post" enctype="multipart/form-data">
+        <div class="panel panel-default" id="divBasicos">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS BÁSICOS DEL REPORTE</strong>
+            </div>
+            <div class="panel-body">
                 <div class="row">
-
-                    <div class="col-sm-4">
-                        <input type="hidden" value="@ViewBag.tipoActualizacion" name="tipoActualizacion" id="tipoActualizacion" />
-                        <input type="hidden" value="@Model.id_evento" name="id_evento" id="id_evento" />
+                    <div class="col-sm-3">
+                        <input type="hidden" value="@ViewBag.idConcurrencia" name="idConcurrencia" id="idConcurrencia" />
+                        <input type="hidden" value="@ViewBag.idEvolucion" name="idEvolucion" id="idEvolucion" />
+                        <input type="hidden" value="@ViewBag.idEvento" name="id_evento" id="id_evento" />
+                        <input type="hidden" value="@ViewBag.idPlan" name="id_planMejora" id="id_planMejora" />
                         <label class="text-secondary_asalud">Año</label>
-                        <input type="text" maxlength="199" id="anio" name="anio" value="@Model.anio" onchange="ValidarMeses(this.value)" class="year form-control solo-numero" required />
+                        <input type="text" maxlength="199" id="Año" name="Año" onchange="ValidarMeses(this.value)" class="year form-control solo-numero" required />
                     </div>
-                    <div class="col-sm-4">
+
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Mes</label>
-                        <select id="id_mes" name="id_mes" class="form-control select2" value="@Model.dependencia_de_salud" required>
+                        <select id="IdMes" name="IdMes" class="form-control select2" value="" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_meses_del_año item in ViewBag.meses)
                             {
@@ -54,145 +58,157 @@
                             }
                         </select>
                     </div>
-                </div>
-                <br />
-
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Dependencia de salud</label>
-                        <input type="text" maxlength="199" id="dependencia_de_salud" name="dependencia_de_salud" value="@Model.dependencia_de_salud" class="form-control" required readonly/>
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Fecha de ocurrencia del evento</label>
-                        <input type="text" maxlength="199" id="fecha_de_ocurrencia_del_evento" name="fecha_de_ocurrencia_del_evento" value="@Model.fecha_de_ocurrencia_del_evento" class="form-control datepickerr" required />
-                    </div>
-                    @*<div class="col-sm-4">
-                            <label class="text-secondary_asalud">Consecutivo</label>
-                            <inpme put type="text" maxlength="15" id="consecutivo" name="consecutivo" value="@Model.consecutivo" class="form-control solo-numero" required />
-                        </div>*@
-
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Fecha de reporte</label>
-                        <input type="text" maxlength="199" id="fecha_de_reporte" name="fecha_de_reporte" value="@Model.fecha_de_reporte" class="form-control datepickerr" required />
+                        <input type="text" id="FechaReporte" name="FechaReporte" value="" class="form-control datepickerr" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Fecha de ocurrencia del evento</label>
+                        <input type="text" id="FechaOcurrenciaEvento" name="FechaOcurrenciaEvento" value="" class="form-control datepickerr" required />
                     </div>
                 </div>
                 <br />
-
                 <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Localidad de servicios de salud</label>
-                        <select id="localidad_de_servicios_de_salud" name="localidad_de_servicios_de_salud" class="form-control select2" onchange="seleccionCiudadUnis(this.vaue)" required>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Regional que reporte</label>
+                        <select id="RegionalReporta" name="RegionalReporta" class="form-control select2" onchange="seleccionarLocalidad(this.value)" required>
                             <option value="">--Seleccione--</option>
-                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_odont_unis item in ViewBag.unis)
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
                             {
-                                <option value="@item.id_ref_unis">@item.descripcion</option>
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
                             }
                         </select>
                     </div>
-                    <div class="col-sm-4">
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Localidad de servicios de salud</label>
+                        <select id="LocalidadServiciosSalud" name="LocalidadServiciosSalud" class="form-control select2" required>
+                            <option value="">--Seleccione--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+
+        <div class="panel panel-default" id="divReportante">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">INFORMACIÓN DEL REPORTANTE</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nombre del reportante</label>
+                        <input type="text" maxlength="199" id="NombreReportante" name="NombreReportante" value="" class="form-control" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Identificación del reportante</label>
+                        <input type="text" maxlength="199" id="IdentificacionReportante" name="IdentificacionReportante" value="" class="form-control solo-numero" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nombre del prestador donde ocurrió el evento</label>
+                        <input type="text" maxlength="199" id="NombrePrestadorEvento" name="NombrePrestadorEvento" value="" class="form-control" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Código SAP del prestador (si aplica)</label>
+                        <input type="text" maxlength="199" id="CodigoSAPPrestador" name="CodigoSAPPrestador" value="" class="form-control" required />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nombre del municipio</label>
+                        <input type="text" maxlength="199" id="NombreMunicipio" name="NombreMunicipio" value="" class="form-control" required />
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Código municipal</label>
+                        <input type="text" maxlength="199" id="CodigoMunicipal" name="CodigoMunicipal" value="" class="form-control solo-numero" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+
+        <div class="panel panel-default" id="divBeneficiario">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS DEL PACIENTE (BENEFICIARIO)</strong>
+            </div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Regional del beneficiario</label>
+                        <select id="RegionalBeneficiario" name="RegionalBeneficiario" class="form-control select2" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_regional item in ViewBag.regional)
+                            {
+                                <option value="@item.id_ref_regional">@item.nombre_regional</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Tipo identificación</label>
+                        <select id="TipoIdentificacion" name="TipoIdentificacion" class="form-control select2" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDocumento)
+                            {
+                                <option value="@item.id_ref_tipo_documental">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Número de identificación</label>
+                        <input type="text" maxlength="199" id="NumeroIdentificacion" name="NumeroIdentificacion" value="" class="form-control solo-numero" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Nombre completo</label>
+                        <input type="text" maxlength="199" id="NombreCompleto" name="NombreCompleto" value="" class="form-control" required />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Edad</label>
+                        <input type="text" maxlength="3" id="Edad" name="Edad" value="" class="form-control solo-numero" required />
+                    </div>
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Fuente del reporte</label>
-                        <select id="fuente_del_reporte" name="fuente_del_reporte" class="form-control select2" value="@Model.fuente_del_reporte" required>
+                        <select id="FuenteReporte" name="FuenteReporte" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_fuenteReporte item in ViewBag.fuente)
                             {
-                                <option value="@item.descripcion">@item.descripcion</option>
+                                <option value="@item.id_tipo">@item.descripcion</option>
                             }
                         </select>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Reportante (nombre de quien realiza el reporte)</label>
-                        <input type="text" maxlength="199" id="reportante_nombre_de_quien_realiza_el_reporte" name="reportante_nombre_de_quien_realiza_el_reporte" value="@Model.reportante_nombre_de_quien_realiza_el_reporte" class="form-control" required />
-                    </div>
-
                 </div>
-                <br />
+            </div>
+        </div>
+        <br />
 
+
+        <div class="panel panel-default" id="divEventosSalud">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">DATOS DEL EVENTO EN SALUD</strong>
+            </div>
+            <div class="panel-body">
                 <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Nombre de municipio donde ocurrio el evento</label>
-                        <select id="nombre_de_municipio_donde_ocurrio_el_evento" name="nombre_de_municipio_donde_ocurrio_el_evento" class="form-control select2" required>
-                            <option value="">--Seleccione--</option>
-                        </select>
-                    </div>
-                    @*<div class="col-sm-4">
-                            <label class="text-secondary_asalud">Código municipal donde ocurrio el evento</label>
-                            <input type="text" maxlength="199" id="codigo_municipal_donde_ocurrio_el_evento" name="codigo_municipal_donde_ocurrio_el_evento" value="@Model.codigo_municipal_donde_ocurrio_el_evento" class="form-control solo-numero" required />
-                        </div>*@
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Reportante (identificación de quien realiza el reporte)</label>
-                        <input type="text" maxlength="199" id="reportante_identificacion_de_quien_realiza_el_reporte" name="reportante_identificacion_de_quien_realiza_el_reporte" value="@Model.reportante_identificacion_de_quien_realiza_el_reporte" class="form-control solo-numero" required />
-                    </div>
-
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Ámbito de ocurrencia del evento</label>
-                        <select id="ambito_de_ocurrencia_del_evento" name="ambito_de_ocurrencia_del_evento" class="form-control select2" value="@Model.ambito_de_ocurrencia_del_evento" required>
+                        <select id="AmbitoOcurrenciaEvento" name="AmbitoOcurrenciaEvento" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_ambitoOcurrencia item in ViewBag.ambito)
                             {
-                                <option value="@item.descripcion">@item.descripcion</option>
+                                <option value="@item.id_tipo">@item.descripcion</option>
                             }
                         </select>
                     </div>
-                </div>
-                <br />
-
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Nombre del Prestador en donde ocurrió el evento adverso</label>
-                        <select id="nit_del_prestador_en_donde_ocurrio_el_evento_adverso" name="nit_del_prestador_en_donde_ocurrio_el_evento_adverso" class="form-control select2" value="@Model.nit_del_prestador_en_donde_ocurrio_el_evento_adverso" required>
-                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_ips_cuentas item in ViewBag.prestador)
-                            {
-                                <option value="@item.Nit">@item.Nombre</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Tipo de identificación del beneficiario afectado</label>
-                        <select id="tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento" name="tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento" class="form-control select2" value="@Model.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento" required>
-                            <option value="">--Seleccione--</option>
-
-                            @foreach (ECOPETROL_COMMON.ENTIDADES.Ref_tipo_documental item in ViewBag.tipoDocumento)
-                            {
-                                <option value="@item.descripcion">@item.descripcion</option>
-                            }
-
-                        </select>
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Número de identificación del beneficiario</label>
-                        <input type="text" maxlength="199" id="numero_de_identificacion_del_beneficiario" name="numero_de_identificacion_del_beneficiario" value="@Model.numero_de_identificacion_del_beneficiario" class="form-control solo-numero" required />
-                    </div>
-                </div>
-                <br />
-                <!--<div class="row">-->
-                @*<div class="col-sm-4">
-                        <label class="text-secondary_asalud">Número de identificación del prestador (código SAP)</label>
-                        <input type="text" maxlength="199" id="numero_de_identificacion_del_prestador_codigo_sap" name="numero_de_identificacion_del_prestador_codigo_sap" value="@Model.numero_de_identificacion_del_prestador_codigo_sap" class="form-control solo-numero" required />
-                    </div>*@
-                <!--</div>
-                <br />-->
-
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Nombre del beneficiario</label>
-                        <input type="text" maxlength="199" id="nombre_del_beneficiario" name="nombre_del_beneficiario" value="@Model.nombre_del_beneficiario" class="form-control" required />
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Edad del beneficiario</label>
-                        <input type="text" maxlength="3" id="edad_del_beneficiario" name="edad_del_beneficiario" value="@Model.edad_del_beneficiario" class="form-control solo-numero" required />
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Descripción del evento</label>
-                        <input type="text" maxlength="199" id="descripcion_del_evento" name="descripcion_del_evento" oninput="autocorrector();" value="@Model.descripcion_del_evento" class="form-control" required autocomplete="on" />
-                    </div>
-                </div>
-                <br />
-
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Clasificación del evento de la atención en salud</label>
-                        <select id="clasificacion_del_evento_de_la_atencion_en_salud" name="clasificacion_del_evento_de_la_atencion_en_salud" class="form-control select2" value="@Model.clasificacion_del_evento_de_la_atencion_en_salud" onchange="cambiosNegativo(this.value)" required>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Clasificación del evento</label>
+                        <select id="ClasificacionEvento" name="ClasificacionEvento" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_clasificacionEvento item in ViewBag.clasificacion)
                             {
@@ -200,9 +216,9 @@
                             }
                         </select>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Categoría del evento</label>
-                        <select id="categoria_del_evento" name="categoria_del_evento" class="form-control select2" onchange="ObtenerSubCategoria(this.value);" value="@Model.categoria_del_evento" required>
+                        <select id="CategoriaEvento" name="CategoriaEvento" class="form-control select2" onchange="ObtenerSubCategoria(this.value)" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_categoriaEvento item in ViewBag.categoria)
                             {
@@ -210,58 +226,71 @@
                             }
                         </select>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Subcategoría del evento</label>
-                        <select class="form-control select2" id="subcategoria_del_evento" name="subcategoria_del_evento">
-                            <option value="">- Seleccionar -</option>
+                        <select id="SubcategoriaEvento" name="SubcategoriaEvento" class="form-control select2" required>
+                            <option value="">--Seleccione--</option>
                         </select>
                     </div>
                 </div>
                 <br />
-
                 <div class="row">
-                    <div class="col-sm-4" id="divNegativo" style="display:none;">
+                    <div class="col-sm-3" id="divNegativo">
                         <label class="text-secondary_asalud">Resultado negativo de la medicación</label>
-                        <select id="resultado_negativo_de_la_medicacion" name="resultado_negativo_de_la_medicacion" class="form-control select2" value="@Model.resultado_negativo_de_la_medicacion">
+                        <select id="ResultadoNegativoMedicacion" name="ResultadoNegativoMedicacion" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                         </select>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Confirmación evento (prevenible / no prevenible)</label>
-                        <select id="confirmacion_evento_prevenible_no_prevenible" name="confirmacion_evento_prevenible_no_prevenible" class="form-control" value="@Model.confirmacion_evento_prevenible_no_prevenible" required>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Confirmación del evento adverso</label>
+                        <select id="ConfirmacionEventoAdverso" name="ConfirmacionEventoAdverso" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
-                            <option value="1">No aplica</option>
-                            <option value="2">Prevenible</option>
-                            <option value="3">No prevenible</option>
+                            <option value="1">Prevenible</option>
+                            <option value="0">No prevenible</option>
                         </select>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Severidad del desenlace</label>
-                        <select id="severidad_del_desenlace" name="severidad_del_desenlace" class="form-control select2" value="@Model.severidad_del_desenlace" required>
+                        <select id="SeveridadDesenlace" name="SeveridadDesenlace" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_severidadDesenlace item in ViewBag.severidad)
                             {
-                                <option value="@item.descripcion">@item.descripcion</option>
+                                <option value="@item.id_tipo">@item.descripcion</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Probabilidad de repetición</label>
+                        <select id="ProbabilidadRepeticion" name="ProbabilidadRepeticion" class="form-control select2" required>
+                            <option value="">--Seleccione--</option>
+                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_ProbabilidadRepeticion item in ViewBag.probabilidad)
+                            {
+                                <option value="@item.id_tipo">@item.descripcion</option>
                             }
                         </select>
                     </div>
                 </div>
                 <br />
-
                 <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Probabilidad de repetición</label>
-                        <select id="probabilidad_de_repeticion" name="probabilidad_de_repeticion" class="form-control select2" value="@Model.probabilidad_de_repeticion" required>
-                            <option value="">--Seleccione--</option>
-                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_ProbabilidadRepeticion item in ViewBag.probabilidad)
-                            {
-                                <option value="@item.descripcion">@item.descripcion</option>
-                            }
-                        </select>
+                    <div class="col-sm-12">
+                        <label class="text-secondary_asalud">Descripción del evento</label>
+                        <textarea type="text" maxlength="1000" id="DescripcionEvento" name="DescripcionEvento" rows="5" value="" class="form-control" required></textarea>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Concepto auditoria</label>
-                        <select id="concepto_auditoria" name="concepto_auditoria" class="form-control" value="@Model.concepto_auditoria" required>
+                </div>
+            </div>
+        </div>
+        <br />
+
+
+        <div class="panel panel-default" id="divGestionAuditoria">
+            <div class="panel-heading">
+                <strong class="text-primary_asalud">GESTIÓN DE AUDITORÍA</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">Concepto de auditoría</label>
+                        <select id="ConceptoAuditoria" name="ConceptoAuditoria" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
                             @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_conceptoAuditoria item in ViewBag.concepto)
                             {
@@ -269,71 +298,51 @@
                             }
                         </select>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Gestión de la gestoría integral de la calidad</label>
-                        <input type="text" maxlength="199" id="gestion_de_la_gestoria_integral_de_la_calidad" name="gestion_de_la_gestoria_integral_de_la_calidad" value="@Model.gestion_de_la_gestoria_integral_de_la_calidad" class="form-control" required />
-                    </div>
-                </div>
-                <br />
-
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Plan de mejora al prestador (si o no)</label>
-                        <select id="plan_de_mejora_al_prestador_si_o_no" name="plan_de_mejora_al_prestador_si_o_no" onchange="MostrarFechasRadicacion(this.value)" class="form-control" value="@Model.plan_de_mejora_al_prestador_si_o_no" required>
+                    <div class="col-sm-3">
+                        <label class="text-secondary_asalud">¿Se generó Plan de Mejora al Prestador? (Sí / No)</label>
+                        <select id="PlanMejoraGenerado" name="PlanMejoraGenerado" class="form-control select2" required>
                             <option value="">--Seleccione--</option>
-                            <option value="SI">SI</option>
-                            <option value="NO">NO</option>
+                            <option value="1">SI</option>
+                            <option value="0">NO</option>
                         </select>
                     </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Fecha radicación del plan de mejora</label>
-                        <input type="text" maxlength="199" id="fecha_radicacion_del_plan_de_mejora" name="fecha_radicacion_del_plan_de_mejora" value="@Model.fecha_radicacion_del_plan_de_mejora" class="form-control datepickerr" required />
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Fecha programada para revisión de plan de mejora</label>
-                        <input type="text" maxlength="199" id="fecha_programada_para_revision_de_plan_de_mejora" name="fecha_programada_para_revision_de_plan_de_mejora" value="@Model.fecha_programada_para_revision_de_plan_de_mejora" class="form-control datepickerr" required />
-                    </div>
-                </div>
-                <br />
-
-                <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label class="text-secondary_asalud">Costo de no calidad</label>
-                        <input type="text" maxlength="13" id="costo_de_no_calidad" name="costo_de_no_calidad" value="@Model.costo_de_no_calidad" class="form-control solo-numero" required />
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Descripción de costo de no calidad</label>
-                        <input type="text" maxlength="199" id="descripcion_de_costo_de_no_calidad" name="descripcion_de_costo_de_no_calidad" value="@Model.descripcion_de_costo_de_no_calidad" class="form-control" required />
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="text-secondary_asalud">Seguimiento</label>
-                        <select id="seguimiento" name="seguimiento" class="form-control select2" value="@Model.seguimiento" required>
-                            <option value="">--Seleccione--</option>
-                            @foreach (ECOPETROL_COMMON.ENTIDADES.ref_eventosSalud_seguimiento item in ViewBag.seguimiento)
-                            {
-                                <option value="@item.descripcion">@item.descripcion</option>
-                            }
-                        </select>
+                        <input type="text" maxlength="199" id="CostoNoCalidad" name="CostoNoCalidad" value="" class="form-control solo-numero" required />
                     </div>
                 </div>
                 <br />
-
                 <div class="row">
-                    <div class="col-sm-8">
-                        <label class="text-secondary_asalud">Novedad</label>
-                        <input type="text" maxlength="199" id="novedades" name="novedades" value="@Model.novedades" class="form-control" required />
+
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Descripción del costo de no calidad</label>
+                        <textarea type="text" maxlength="1000" id="DescripcionCostoNoCalidad" name="DescripcionCostoNoCalidad" value="" class="form-control" required></textarea>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="text-secondary_asalud">Gestión realizada por la regional</label>
+                        <textarea type="text" maxlength="1000" id="GestionRegional" name="GestionRegional" value="" class="form-control" required></textarea>
                     </div>
                 </div>
-                <br />
+            </div>
+        </div>
+        <br />
 
+        <div class="panel panel-default" id="divGestionAuditoria">
+            <div class="panel-body">
                 <div class="row">
                     <div class="col-sm-12 text-center">
                         <button class="button_Asalud_Guardar" type="button" onclick="ValidarFormulario()">GUARDAR</button>
                     </div>
+
+                    <div class="col-md-2">
+                        <a class="btn btn-sm button_Asalud_Guardar botonGuardarParcial" onclick="GuardarParcial();">GUARDADO PARCIAL</a>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+    </form>
 </div>
 
 <script src="~/Scripts/validate.js"></script>
@@ -365,7 +374,7 @@
 
         var idEvento = "@ViewBag.idEvento";
 
-        if (idEvento != 0 && idEvento != null && idEvento != NaN)
+        if (idEvento != 0 && idEvento != null && idEvento != NaN && idEvento != "null")
         {
             CargarDatos();
         }
@@ -374,72 +383,87 @@
         if (anio != null && anio != "") {
             ValidarMeses(anio);
         }
-
     });
 
     function CargarDatos() {
-        $("#id_mes").val('@Html.Raw(Model.id_mes)').trigger("change");
+        $("#id_evento").val("@Model.id_evento");
+        $("#id_cargue").val("@Model.id_cargue");
+        $("#id_concurrencia").val("@Model.id_concurrencia");
+        $("#id_evolucion_concurrencia").val("@Model.id_evolucion_concurrencia");
+        $("#id_planMejora").val("@Model.id_planMejora");
+        $("#Año").val("@Model.Año");
+        $("#IdMes").val(@Model.IdMes).trigger("change");;
+        $("#Mes").val("@Model.Mes");
 
-        $("#localidad_de_servicios_de_salud").val('@Html.Raw(Model.localidad_de_servicios_de_salud)').trigger("change");
-        $("#fuente_del_reporte").val(`@Html.Raw(Model.fuente_del_reporte)`).trigger("change");
-        $("#nombre_de_municipio_donde_ocurrio_el_evento").val(`@Html.Raw(Model.nombre_de_municipio_donde_ocurrio_el_evento)`).trigger("change");
-        $("#ambito_de_ocurrencia_del_evento").val('@Html.Raw(Model.ambito_de_ocurrencia_del_evento)').trigger("change");
-        $("#nit_del_prestador_en_donde_ocurrio_el_evento_adverso").val('@Html.Raw(Model.nit_del_prestador_en_donde_ocurrio_el_evento_adverso)').trigger("change");
-        $("#tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento").val('@Html.Raw(Model.tipo_de_identificacion_del_beneficiario_en_el_cual_ocurrio_el_evento)').trigger("change");
-        $("#clasificacion_del_evento_de_la_atencion_en_salud").val('@Html.Raw(Model.clasificacion_del_evento_de_la_atencion_en_salud)').trigger("change");
-        $("#categoria_del_evento").val('@Html.Raw(Model.categoria_del_evento)').trigger("change");
-        $("#subcategoria_del_evento").val('@Html.Raw(Model.subcategoria_del_evento)').trigger("change");
-        $("#resultado_negativo_de_la_medicacion").val('@Html.Raw(Model.resultado_negativo_de_la_medicacion)').trigger("change");
-        $("#confirmacion_evento_prevenible_no_prevenible").val('@Html.Raw(Model.confirmacion_evento_prevenible_no_prevenible)').trigger("change");
-        $("#severidad_del_desenlace").val('@Html.Raw(Model.severidad_del_desenlace)').trigger("change");
-        $("#probabilidad_de_repeticion").val('@Html.Raw(Model.probabilidad_de_repeticion)').trigger("change");
-        $("#concepto_auditoria").val('@Html.Raw(Model.concepto_auditoria)').trigger("change");
-        $("#plan_de_mejora_al_prestador_si_o_no").val('@Html.Raw(Model.plan_de_mejora_al_prestador_si_o_no)').trigger("change");
-        $("#seguimiento").val('@Html.Raw(Model.seguimiento)').trigger("change");
+        debugger
 
-        //$("#clasificacion_del_evento_de_la_atencion_en_salud").prop("disabled", true);
-        //$("#categoria_del_evento").prop("disabled", true);
-        //$("#subcategoria_del_evento").prop("disabled", true);
-        //$("#resultado_negativo_de_la_medicacion").prop("disabled", true);
-        //$("#confirmacion_evento_prevenible_no_prevenible").prop("disabled", true);
-        //$("#severidad_del_desenlace").prop("disabled", true);
-        //$("#probabilidad_de_repeticion").prop("disabled", true);
-        //$("#concepto_auditoria").prop("disabled", true);
-        //$("#plan_de_mejora_al_prestador_si_o_no").prop("disabled", true);
-        //$("#costo_de_no_calidad").prop("disabled", true);
-        //$("#descripcion_de_costo_de_no_calidad").prop("disabled", true);
-    }
+        var fechaReporte = "@Model.FechaReporte";
+        var FechaOcurrenciaEvento = "@Model.FechaOcurrenciaEvento";
 
-    $("#file").change(function () {
-
-        var data = document.getElementById('file');
-        var nameext = data.files[0].name;
-        var extension = getFileExtension3(nameext);
-
-        var listaextensiones = ["XLSX", "XLS", "XLSB", "xlsx", "xlsm", "xlsb", "xltx", "xltm", "xls"];
-
-        var valida = false;
-
-        jQuery.each(listaextensiones, function (i, val) {
-            if (extension == val) {
-                valida = true;
-            }
-        });
-
-        if (valida == false) {
-            alert("La extension no es valida");
-            $("#file").val("");
+        if (fechaReporte != "" && fechaReporte != null && fechaReporte != "null") {
+            $("#FechaReporte").val(fechaReporte.replace("12:00:00 a. m.", ""));
         }
-    });
 
-    function getFileExtension3(filename) {
-        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+        if (FechaOcurrenciaEvento != "" && FechaOcurrenciaEvento != null && FechaOcurrenciaEvento != "null") {
+            $("#FechaOcurrenciaEvento").val(FechaOcurrenciaEvento.replace("12:00:00 a. m.", ""));
+        }
+
+        $("#RegionalReporta").val(@Model.RegionalReporta).trigger("change");
+        $("#LocalidadServiciosSalud").val(@Model.LocalidadServiciosSalud).trigger("change");
+        $("#NombreReportante").val("@Model.NombreReportante");
+        $("#IdentificacionReportante").val("@Model.IdentificacionReportante");
+        $("#NombrePrestadorEvento").val("@Model.NombrePrestadorEvento");
+        $("#CodigoSAPPrestador").val("@Model.CodigoSAPPrestador");
+        $("#NombreMunicipio").val("@Model.NombreMunicipio");
+        $("#CodigoMunicipal").val("@Model.CodigoMunicipal");
+        $("#RegionalBeneficiario").val(@Model.RegionalBeneficiario).trigger("change");
+        $("#TipoIdentificacion").val("@Model.TipoIdentificacion").trigger("change");
+        $("#NumeroIdentificacion").val("@Model.NumeroIdentificacion");
+        $("#NombreCompleto").val("@Model.NombreCompleto");
+        $("#Edad").val("@Model.Edad");
+        $("#FuenteReporte").val("@Model.FuenteReporte").trigger("change");
+        $("#AmbitoOcurrenciaEvento").val("@Model.AmbitoOcurrenciaEvento").trigger("change");
+        $("#DescripcionEvento").val("@Model.DescripcionEvento");
+        $("#ClasificacionEvento").val("@Model.ClasificacionEvento").trigger("change");
+        $("#CategoriaEvento").val("@Model.CategoriaEvento").trigger("change");
+        $("#SubcategoriaEvento").val("@Model.SubcategoriaEvento").trigger("change");
+        $("#ResultadoNegativoMedicacion").val("@Model.ResultadoNegativoMedicacion");
+        $("#ConfirmacionEventoAdverso").val("@Model.ConfirmacionEventoAdverso").trigger("change");
+        $("#SeveridadDesenlace").val("@Model.SeveridadDesenlace").trigger("change");
+        $("#ProbabilidadRepeticion").val("@Model.ProbabilidadRepeticion").trigger("change");
+        $("#ConceptoAuditoria").val("@Model.ConceptoAuditoria").trigger("change");
+        $("#GestionRegional").val("@Model.GestionRegional");
+        $("#PlanMejoraGenerado").val("@Model.PlanMejoraGenerado").trigger("change");
+        $("#CostoNoCalidad").val("@Model.CostoNoCalidad");
+        $("#DescripcionCostoNoCalidad").val("@Model.DescripcionCostoNoCalidad");
+    }
+
+    function formatFecha(fechaStr) {
+        if (!fechaStr) return "";
+
+        // Intenta crear un objeto Date a partir de la cadena
+        let fecha = new Date(fechaStr);
+
+        if (isNaN(fecha)) {
+            // Si falla, intenta reemplazar caracteres raros como "a. m." o "p. m."
+            fechaStr = fechaStr.replace(" a. m.", "AM").replace(" p. m.", "PM");
+            fecha = new Date(fechaStr);
+        }
+
+        if (isNaN(fecha)) return ""; // Si sigue fallando, devuelve vacío
+
+        // Formatea a dd/MM/yyyy
+        let dia = String(fecha.getDate()).padStart(2, '0');
+        let mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+        let anio = fecha.getFullYear();
+
+        return `${dia}/${mes}/${anio}`;
     }
 
 
-    $("#clasificacion_del_evento_de_la_atencion_en_salud").change(function () {
+    $("#ClasificacionEvento").change(function () {
         // Mostrar todas las opciones en caso de cualquier cambio
-        $("#confirmacion_evento_prevenible_no_prevenible option").show();
+        $("#ConfirmacionEventoAdverso option").show();
 
         // Obtener el nuevo valor de clasificación
         var clasificacion = $(this).val();
@@ -447,22 +471,17 @@
         // Ocultar las opciones según la nueva clasificación
         if (clasificacion == 1) {
             // Si la clasificación es 1, oculta la opción con valor 1
-            $("#confirmacion_evento_prevenible_no_prevenible option[value='1']").hide();
+            $("#ConfirmacionEventoAdverso option[value='1']").hide();
         } else if (clasificacion == 3) {
             // Si la clasificación es 3, oculta las opciones con valores 2 y 3
-            $("#confirmacion_evento_prevenible_no_prevenible option[value='2']").hide();
-            $("#confirmacion_evento_prevenible_no_prevenible option[value='3']").hide();
+            $("#ConfirmacionEventoAdverso option[value='2']").hide();
+            $("#ConfirmacionEventoAdverso option[value='3']").hide();
         }
     });
 
     function cambiosNegativo(clasificacion) {
-        //if (clasificacion == 1) {
-        //    $("#confirmacion_evento_prevenible_no_prevenible option[value='1']").hide();
-        //} else if (clasificacion == 3) {
-        //    $("#confirmacion_evento_prevenible_no_prevenible option[value='2']").hide();
-        //    $("#confirmacion_evento_prevenible_no_prevenible option[value='3']").hide();
-        //}
-        var categoria = $("#categoria_del_evento").val();
+
+        var categoria = $("#CategoriaEvento").val();
         if (categoria != null && categoria != "") {
 
             buscarNegativos(categoria, clasificacion);
@@ -470,7 +489,10 @@
     }
 
     function buscarNegativos(categoria, clasificacion) {
-        $("#resultado_negativo_de_la_medicacion").empty();
+
+        debugger
+
+        $("#ResultadoNegativoMedicacion").empty();
         $.ajax({
             url: "@Url.Action("ObtenerNegativos")",
             type: "post",
@@ -479,13 +501,14 @@
                 clasificacion: clasificacion
             },
             success: function (data) {
-                $("#resultado_negativo_de_la_medicacion").empty();
-                $("#resultado_negativo_de_la_medicacion").html(data);
-                $("#resultado_negativo_de_la_medicacion").val("").trigger("change");
+                $("#ResultadoNegativoMedicacion").empty();
+                $("#ResultadoNegativoMedicacion").html(data);
+                $("#ResultadoNegativoMedicacion").val("").trigger("change");
+
                 var id_evento = $("#id_evento").val();
                 if (!isNaN(id_evento) && id_evento != 0) {
-                    if ("@Model.resultado_negativo_de_la_medicacion" != null) {
-                        $("#resultado_negativo_de_la_medicacion").val("@Model.resultado_negativo_de_la_medicacion").trigger("change");
+                    if ("@Model.ResultadoNegativoMedicacion" != null) {
+                        $("#ResultadoNegativoMedicacion").val("@Model.ResultadoNegativoMedicacion").trigger("change");
                     }
                 }
             }
@@ -506,45 +529,37 @@
     function ObtenerSubCategoria(categoria) {
 
         if (categoria != "") {
-            $("#subcategoria_del_evento").empty();
+
+            $("#SubcategoriaEvento").empty();
+
             $.ajax({
                 url: "@Url.Action("ObtenerSubCategoria")",
                 type: "post",
                 data: { categoria: categoria },
                 success: function (data) {
-                    $("#subcategoria_del_evento").empty();
-                    $("#subcategoria_del_evento").html(data);
-                    $("#subcategoria_del_evento").val("").trigger("change");
+                    $("#SubcategoriaEvento").empty();
+                    $("#SubcategoriaEvento").html(data);
+                    $("#SubcategoriaEvento").val("").trigger("change");
+
                     var id_evento = $("#id_evento").val();
                     if (!isNaN(id_evento) && id_evento != 0) {
-                        if ("@Model.subcategoria_del_evento" != null) {
-                            $("#subcategoria_del_evento").val("@Model.subcategoria_del_evento").trigger("change");
+                        if ("@Model.SubcategoriaEvento" != null) {
+                            $("#SubcategoriaEvento").val("@Model.SubcategoriaEvento").trigger("change");
                         }
                     }
                 }
             })
         }
 
-        var clasificacion = $("#clasificacion_del_evento_de_la_atencion_en_salud").val();
+        var clasificacion = $("#ClasificacionEvento").val();
         if (clasificacion != null && clasificacion != "") {
             buscarNegativos(categoria, clasificacion);
-
-        }
-    }
-
-    function MostrarFechasRadicacion(valor) {
-        if (valor == "SI") {
-            $("#fecha_radicacion_del_plan_de_mejora").prop("required", true);
-            $("#fecha_programada_para_revision_de_plan_de_mejora").prop("required", true);
-        } else {
-            $("#fecha_radicacion_del_plan_de_mejora").prop("required", false);
-            $("#fecha_programada_para_revision_de_plan_de_mejora").prop("required", false);
         }
     }
 
     function ValidarMeses(anioSeleccionado) {
-        debugger
-        var mesSelect = document.getElementById("id_mes");
+
+        var mesSelect = document.getElementById("IdMes");
         var añoActual = new Date().getFullYear();
 
         // Limpiar selección actual
@@ -554,32 +569,20 @@
         var meses = [];
 
         if (anioSeleccionado == añoActual) {
-            // Si el año seleccionado es el año actual, limitar a los meses actuales y anteriores
             var mesActual = new Date().getMonth() + 1; // Se suma 1 porque los meses en JavaScript van de 0 a 11
             for (var i = 1; i <= mesActual; i++) {
                 meses.push({ id: i, descripcion: ObtenerNombreMes(i) });
             }
         } else {
-            // Si el año seleccionado no es el año actual, permitir todos los meses
-            //meses = "@ViewBag.meses";
             meses = @Html.Raw(Json.Encode(ViewBag.meses)); // Convertir a array de JavaScript
         }
-
-        // Llenar el campo de selección de meses
-        //    meses.forEach(function (mes) {
-        //        var option = document.createElement("option");
-        //        option.value = mes.id;
-        //        option.text = mes.descripcion;
-        //        mesSelect.add(option);
-        //    });
-        //}
 
         meses.forEach(function (mes) {
             var option = document.createElement("option");
             var id = mes.id;
             option.value = id;
             option.text = mes.descripcion;
-            document.getElementById("id_mes").add(option);
+            document.getElementById("IdMes").add(option);
         });
     }
 
@@ -595,31 +598,59 @@
         }
     }
 
+    function seleccionarLocalidad(regional) {
 
-    function seleccionCiudadUnis() {
-
-        var idUnis = $("#localidad_de_servicios_de_salud").val();
-        if (idUnis != null) {
-            $.ajax({
-                url: "@Url.Action("TraerCiudadUnis")",
-                type: "post",
-                data: {
-                    idUnis: idUnis
-                },
-                success: function (data) {
-                    $("#nombre_de_municipio_donde_ocurrio_el_evento").empty();
-                    $("#nombre_de_municipio_donde_ocurrio_el_evento").val("").trigger("change");
-                    $("#nombre_de_municipio_donde_ocurrio_el_evento").html(data);
-                    var id_evento = $("#id_evento").val();
-                    if (!isNaN(id_evento) && id_evento != 0) {
-                        if ("@Model.nombre_de_municipio_donde_ocurrio_el_evento" != null) {
-                            $("#nombre_de_municipio_donde_ocurrio_el_evento").val("@Model.nombre_de_municipio_donde_ocurrio_el_evento").trigger("change");
-                        }
+        $.ajax({
+            url: "@Url.Action("ObtenerUnis", "RadicacionElectonica")",
+            type: "post",
+            data: {
+                regional: regional
+            },
+            success: function (data) {
+                $("#LocalidadServiciosSalud").empty();
+                $("#LocalidadServiciosSalud").val("").trigger("change");
+                $("#LocalidadServiciosSalud").html(data);
+                var id_evento = $("#id_evento").val();
+                if (!isNaN(id_evento) && id_evento != 0) {
+                    if ("@Model.LocalidadServiciosSalud" != null) {
+                        $("#LocalidadServiciosSalud").val("@Model.LocalidadServiciosSalud").trigger("change");
                     }
                 }
-            })
-        }
+            }
+        })
     }
+
+    function GuardarParcial() {
+        // Tomamos los datos del formulario
+        var formData = $("#formEventos").serializeArray();
+        var data = {};
+
+        // Convertimos a objeto JSON
+        $.map(formData, function (n, i) {
+            data[n['name']] = n['value'];
+        });
+
+        LoadingShow();
+
+        $.ajax({
+            url: "@Url.Action("CargueEventosParcial", "EventosSalud")",
+            type: 'POST',
+            data: JSON.stringify({ Model: data }), // Ojo: debe ir como { Model: data }
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                LoadingHide();
+                $("#id_evento").val(response.idEvento);
+                $("#id_planMejora").val(response.idPlan);
+
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+                alert("Hubo un error al enviar el evento");
+            }
+        });
+    }
+
 </script>
 
 <style>
@@ -772,6 +803,20 @@
 
     .datepickerr {
         width: 100%;
+    }
+
+    .botonGuardarParcial {
+        position: fixed; /* Hace que el botón esté en una posición fija */
+        bottom: 370px; /* Distancia desde la parte inferior de la ventana */
+        right: 20px; /* Distancia desde la parte derecha de la ventana */
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        background-color: #6E7584; /* Color de fondo del botón */
+        color: white; /* Color del texto */
+        padding: 4px 8px; /* Espaciado interno */
+        border-radius: 3px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar un efecto flotante */
+        text-align: center;
+        cursor: pointer;
     }
 </style>
 

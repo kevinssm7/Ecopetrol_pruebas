@@ -4456,5 +4456,44 @@ namespace AsaludEcopetrol.Controllers.Concurrencia
             return Json(new { mensaje = mensaje });
         }
 
+
+        public JsonResult GuardarEncuestaSatisfaccion(int? idConcurrencia)
+        {
+            var mensaje = "";
+            try
+            {
+                if(idConcurrencia != 0 || idConcurrencia != null)
+                {
+
+                    string usuario = SesionVar.UserName;
+
+                    if (string.IsNullOrEmpty(usuario))
+                    {
+                        mensaje = "NO SE PUDO OBTENER EL NOMBRE DEL USUARIO";
+                        return Json(new { mensaje });
+                    }
+
+                    int resultado = BusClass.InsertarEncuestaNoAplica(idConcurrencia, usuario, ref MsgRes);
+
+                    if (resultado == 1)
+                    {
+                        mensaje = "ENCUESTA DE SATISFACCIÓN GUARDADA CORRECTAMENTE";
+                    }
+                    else
+                    {
+                        mensaje = "ERROR!!... HA OCURRIDO UN ERROR AL INSERTAR LA ENCUESTA";
+                    }
+                }     
+
+            }
+            catch(Exception ex)
+            {
+                var error = ex.Message;
+                mensaje = "ERROR AL GUARDAR LA ENCUESTA: " + MsgRes.DescriptionResponse;
+            }
+
+            return Json(new { mensaje = mensaje });
+        }
+
     }
 }

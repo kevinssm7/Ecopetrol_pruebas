@@ -32,10 +32,10 @@
                         <thead>
                             <tr>
                                 @*<th class="text-center th" style='display:none;'>ID CENSO</th>
-        <th class="text-center th" style='display:none;'>ID CONCURRENCIA</th>*@
+                                    <th class="text-center th" style='display:none;'>ID CONCURRENCIA</th>*@
                                 @*<th>
-            <input type="checkbox" id="chkSeleccionarCruzan" name="chkSeleccionarCruzan" />
-        </th>*@
+                                        <input type="checkbox" id="chkSeleccionarCruzan" name="chkSeleccionarCruzan" />
+                                    </th>*@
                                 <th class="text-center th">A Contact</th>
                                 <th class="text-center th">Documento</th>
                                 <th class="text-center th" style="font-family:Arial">Nombre</th>
@@ -109,7 +109,10 @@
                                     <td>
                                         @if (order.tiene_encuesta != "SI")
                                         {
-                                            <a href="@Url.Action("EncuestaSatisfacionConcurrencia", "Concurrencia", new { idConcu= order.id_concurrencia})" class="button_Asalud_Aceptar">ENCUESTA</a>
+                                            @*<a href="@Url.Action("EncuestaSatisfacionConcurrencia", "Concurrencia", new { idConcu= order.id_concurrencia})" class="button_Asalud_Aceptar validar_encuesta" id="validar_encuesta">ENCUESTA</a>
+                                                <h5 style="color:firebrick"> Proxima fecha de ingreso @order.fecha_ingresar</h5>*@
+
+                                            <a onclick="ValidarEncuesta(@order.id_concurrencia)" class="button_Asalud_Aceptar validar_encuesta" id="validar_encuesta">ENCUESTA</a>
                                             <h5 style="color:firebrick"> Proxima fecha de ingreso @order.fecha_ingresar</h5>
 
                                         }
@@ -170,6 +173,36 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modalConfirmacion">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title asalud" id="myModalLabel">VALIDACIÓN ENCUESTA</h4>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <label class="text-secondary_asalud">¿Encuesta Efectiva?</label>
+                <br>
+
+                <button type="button" style="width: 70px;" onclick="ValidarEncuestaSI()" class="btn button_Asalud_Aceptar">SI</button>
+                <button type="button" style="width: 70px;" onclick="ValidarEncuestaNO()" class="btn button_Asalud_Rechazar">NO</button>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class=" button_Asalud_Rechazar" data-dismiss="modal">CERRAR</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
 <script src="~/Scripts/validate.js"></script>
 <script>
     var seleccionados = [];
@@ -226,6 +259,9 @@
             })
         }
     });
+
+
+
 
     function pdfConcu(idConcurrencia) {
 
@@ -321,6 +357,9 @@
 
     }
 
+
+
+
     function EnviarAContact(idConcurrencia) {
         var confirma = confirm("¿Está seguro(a) de enviar este caso a Contact Center?");
         if (confirma == true) {
@@ -355,6 +394,38 @@
             })
 
         }
+
+    }
+
+
+
+    let idEncuestaSeleccionado = null;
+
+    function ValidarEncuesta(idConcu) {
+        idEncuestaSeleccionado = idConcu;
+        $("#modalConfirmacion").modal("show");
+    }
+
+    function ValidarEncuestaSI() {
+        let url = "/Concurrencia/EncuestaSatisfacionConcurrencia?idConcu=" + idEncuestaSeleccionado;
+        window.location.href = url;
+    }
+
+    function ValidarEncuestaNO() {
+        $("#modalConfirmacion").modal("hide");
+         $.ajax({
+             url: "@Url.Action("GuardarEncuestaSatisfaccion", "Concurrencia")",
+             type: "post",
+             data:
+             {
+                 idConcurrencia: idEncuestaSeleccionado,
+             },
+             success: function (data) {
+                 alert(data.mensaje);
+                 LoadingHide();
+                 location.reload();
+             },
+         });
 
     }
 

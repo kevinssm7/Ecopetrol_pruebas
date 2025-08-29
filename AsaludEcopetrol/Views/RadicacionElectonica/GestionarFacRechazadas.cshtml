@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "GestionarFacRechazadas";
+    ViewBag.Title = "GestionarFacDevolucion";
 
 }
 
@@ -8,44 +8,59 @@
     <div class="tab-pane active" id="1b">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong class="text-primary_asalud">Ingreso Gestión</strong>
+                <strong class="text-primary_asalud">Ingreso devolución</strong>
             </div>
 
             <div class="panel-body" id="panel_formulario">
                 <form class="animated fadeInDown" id="formulario">
-
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label class="text-secondary_asalud">Seleccione motivos de rechazo</label>
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Motivo devolución</label>
+                            <select id="motivo" name="motivo" class="form-control select2" required onchange="LlenarDes(this.value)">
+                                <option value="">-Seleccione-</option>
 
-                            <label><input type="checkbox" value="1" name="sport" required> Imagen con errores en la digitalización</label>
-                            <label><input type="checkbox" value="2" name="sport"> Falta sello y firma de médico</label>
-                            <label><input type="checkbox" value="3" name="sport"> Factura no corresponde a Ecopetrol</label>
-                            <label><input type="checkbox" value="4" name="sport"> Factura electrónica sin notificar a Ecopetrol</label>
-                            <label><input type="checkbox" value="5" name="sport"> Factura no cumple requisitos legales</label>
-                            <label><input type="checkbox" value="6" name="sport"> Falta documentos soporte para el proceso de auditoría</label>
-                            <label><input type="checkbox" value="7" name="sport"> Valor factura no coincide con el presentado en  RIPS</label>
-
+                                @foreach (ECOPETROL_COMMON.ENTIDADES.ref_motivoDevolucionFacturas item in ViewBag.motivoDev)
+                                {
+                                    <option value="@item.id_devolucion">@item.descripcion</option>
+                                }
+                            </select>
                         </div>
+
+                        <div class="col-md-6">
+                            <label class="text-secondary_asalud">Descripción</label>
+                            <select class="form-control select2" id="descripcion" name="descripcion" required>
+                                <option value="">- Seleccionar -</option>
+                            </select>
+                        </div>
+
+                        @*<div class="col-sm-12">
+                                <label class="text-secondary_asalud">Seleccione motivos de rechazo</label>
+                                <label><input type="checkbox" value="1" name="sport" required> Imagen con errores en la digitalización</label>
+                                <label><input type="checkbox" value="2" name="sport"> Falta sello y firma de médico</label>
+                                <label><input type="checkbox" value="3" name="sport"> Factura no corresponde a Ecopetrol</label>
+                                <label><input type="checkbox" value="4" name="sport"> Factura electrónica sin notificar a Ecopetrol</label>
+                                <label><input type="checkbox" value="5" name="sport"> Factura no cumple requisitos legales</label>
+                                <label><input type="checkbox" value="6" name="sport"> Falta documentos soporte para el proceso de auditoría</label>
+                                <label><input type="checkbox" value="7" name="sport"> Valor factura no coincide con el presentado en  RIPS</label>
+
+                            </div>*@
                     </div>
                     <br />
                     <div class="row">
-                        <div class="col-sm-8">
+                        <div class="col-sm-10">
                             <label class="text-secondary_asalud">Observaciones</label>
                             @*<input rows="4" cols="100" type="text" class="form-control" name="obs" id="obs" required />*@
                             <textarea class="form-control" id="obs" name="obs" rows="4" placeholder="Escriba el texto" maxlength="500" required></textarea>
                         </div>
-
                     </div>
-
                     <br />
 
                     <div class="row">
                         <div class="col-sm-12" align="center">
                             <button class="button_Asalud_Guardar" type="button" onclick="finalizar()">Guardar</button>
                         </div>
-
                     </div>
+
                     <div style="display:none">
                         <input class="form-control" type="text" name="id_cargue_dtll" id="id_cargue_dtll" value="@ViewBag.id_dtll" />
                     </div>
@@ -91,6 +106,25 @@
         });
     })
 
+
+    function LlenarDes(motivo) {
+           $.ajax({
+            url: "@Url.Action("ObtenerDescripcionMotivoDevo")",
+            type: "POST",
+            data: {
+                motivo: motivo,
+            },
+            method: "POST",
+
+            success: function (data) {
+                $("#descripcion").empty();
+                $("#descripcion").html(data);
+                $("#descripcion").val("").trigger("change");
+            }
+        })
+    }
+
+
      function finalizar() {
         var validator = $("#formulario").validate();
         if (validator.form()) {
@@ -100,20 +134,13 @@
     }
     function FinalizarDatos() {
 
-        var SelectedList = new Array();
-        var SelectedList = [];
-        $.each($("input[name='sport']:checked"), function () {
-            SelectedList.push($(this).val());
-        });
-
 
         var formData = new FormData($("form")[0]);
 
         formData.append("id_cargue_dtll", $("#id_cargue_dtll").val());
+        formData.append("id_motivo", $("#motivo").val());
+        formData.append("id_des_motivo", $("#descripcion").val());
         formData.append("obs", $("#obs").val());
-        for (var i = 0; i < SelectedList.length; i++) {
-            formData.append('SelectedList', SelectedList[i]);
-        }
 
         LoadingShow();
         $.ajax({
